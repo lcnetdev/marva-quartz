@@ -34,7 +34,7 @@ export default {
 
             updateDates: true,
             profile: {},
-            zerozero8Date: 'YYYY',
+            zerozero8Date: '',
             copyrightDate: '',
             callNumberDate: '',
             two64Date: '',
@@ -96,6 +96,11 @@ export default {
             )
 
             if (!this.updateDates){ return}
+            console.info(">>>", this.zerozero8Date, "--", this.zerozero8Date == '')
+            if (this.zerozero8Date == ''){
+                alert("No 'Publication Year' provided. No dates were changed.")
+                return
+            }
 
             // -------------------------------- Date stuff below here --------------------------------
             let copyrightComponent = this.profileStore.returnComponentByPropertyLabel('Copyright date')
@@ -173,8 +178,10 @@ export default {
         // Get the 008 date:
         let provActComponent = this.profileStore.returnComponentByPropertyLabel('Provision activity')
         let proveUserValue = provActComponent.userValue
-        let zerozero8 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"][0]
-        this.zerozero8Date = zerozero8["http://id.loc.gov/ontologies/bibframe/date"]
+        if (proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"]){
+            let zerozero8 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"][0]
+            this.zerozero8Date = zerozero8["http://id.loc.gov/ontologies/bibframe/date"]
+        }
 
     }
 }
@@ -209,7 +216,7 @@ export default {
                     <li>Change the encoding level to "full"</li>
                     <template v-if="updateDates">
                         <li>Match the "Provision Activity" dates and call number date to the "Publication Year"</li>
-                        <li>Insert the Copyright Year into the "Copyright date"</li>
+                        <li>Insert the Copyright Year into the "Copyright date," if provided</li>
                     </template>
                 </ul>
 
