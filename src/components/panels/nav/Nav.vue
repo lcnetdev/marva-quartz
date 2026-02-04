@@ -95,7 +95,6 @@ export default {
       default: [],
       type: Array
     }
-
   },
   computed: {
 
@@ -105,7 +104,7 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
-    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode']),
+    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showCipModal']),
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
 
@@ -357,7 +356,7 @@ export default {
               },
               {
                 text: 'Finish CIP',
-                click: () => { this.finishCip() },
+                click: () => { this.showCipModal = true },
                 icon: "check"
               }
             ]
@@ -1391,106 +1390,6 @@ export default {
       }
     },
 
-    finishCip: function(){
-      console.info("doing CIP stuff")
-
-      // remove projected publication date
-      let projDateComponent = this.profileStore.returnComponentByPropertyLabel('Projected publication date (YYMM)')
-      let projDateValue
-      let projYear
-      let projMnth
-      if (projDateComponent.userValue["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"]){
-        projDateValue = projDateComponent.userValue["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"][0]["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"]
-        projYear = '20' + projDateValue.slice(0,2)
-        projMnth = projDateValue.slice(2)
-      } else {
-        console.warn("No projected date.")
-      }
-
-      let year = prompt("What year should be used to populate Call Number, Copyright, & Provision Activity dates?", projYear)
-      if (!year){ return }
-      this.profileStore.deleteComponent(projDateComponent['@guid'])
-      // let extent = prompt("What's the extent of the resource?", "pages cm")
-
-      // copyright, is this necessary if the provision activity's 264 $c is set?
-      let copyrightComponent = this.profileStore.returnComponentByPropertyLabel('Copyright date')
-      let ccGuid = short.generate()
-      if (copyrightComponent.userValue["http://id.loc.gov/ontologies/bibframe/copyrightDate"] && copyrightComponent.userValue["http://id.loc.gov/ontologies/bibframe/copyrightDate"][0]){
-        ccGuid = copyrightComponent.userValue["http://id.loc.gov/ontologies/bibframe/copyrightDate"][0]['@guid']
-      }
-      this.profileStore.setValueLiteral(
-        copyrightComponent['@guid'], ccGuid,
-        [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/copyrightDate"}],
-        year, null, null
-      )
-
-      // call number
-      let callNumComponent = this.profileStore.returnComponentByPropertyLabel('Classification numbers')
-      let callNumValue = callNumComponent.userValue
-      if (callNumValue["http://id.loc.gov/ontologies/bibframe/classification"] && callNumValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"]){
-        let itemPortion = callNumValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]
-        let itemValue = itemPortion["http://id.loc.gov/ontologies/bibframe/itemPortion"]
-        // does it look like a year?
-        let possibleYear = itemValue.slice(-5) // "<space>YYYY"
-        if (/ \d{4}/.test(possibleYear)){
-          let itemNumber = itemValue.slice(0,-5)
-          if (!possibleYear.includes(year)){
-            this.profileStore.setValueLiteral(
-              callNumComponent['@guid'], itemPortion['@guid'],
-              [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/classification"},{"level":1,"propertyURI":"http://id.loc.gov/ontologies/bibframe/itemPortion"}],
-              itemNumber + " " + year, null, null
-            )
-          }
-        } else {
-          this.profileStore.setValueLiteral(
-            callNumComponent['@guid'], itemPortion['@guid'],
-            [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/classification"},{"level":1,"propertyURI":"http://id.loc.gov/ontologies/bibframe/itemPortion"}],
-            itemValue + " " + year, null, null
-          )
-        }
-      }
-
-      // provision activity
-      let provActComponent = this.profileStore.returnComponentByPropertyLabel('Provision activity')
-      let proveUserValue = provActComponent.userValue
-      // 008 date
-      let zerozero8 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"][0]
-      this.profileStore.setValueLiteral(
-        provActComponent['@guid'], zerozero8['@guid'],
-        [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/provisionActivity"},{"level":1,"propertyURI":"http://id.loc.gov/ontologies/bibframe/date"}],
-        year, null, null
-      )
-
-      // 264 $c date
-      let two64 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bflc/simpleDate"][0]
-      this.profileStore.setValueLiteral(
-        provActComponent['@guid'], two64['@guid'],
-        [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/provisionActivity"},{"level":1,"propertyURI":"http://id.loc.gov/ontologies/bflc/simpleDate"}],
-        year, null, null
-      )
-
-      // change encoding level to `full`
-      let adminComponent = false
-      for (let rt in this.activeProfile.rt) {
-        if (rt.includes(":Instance")){
-          for (let pt in this.activeProfile.rt[rt].pt) {
-            let component = this.activeProfile.rt[rt].pt[pt]
-            if (component.propertyLabel == 'Admin Metadata' && component.adminMetadataType == 'primary') {
-              adminComponent = component
-              break
-            }
-          }
-        }
-      }
-      this.profileStore.setValueSimple(
-        adminComponent['@guid'],
-        null,
-        [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/adminMetadata"},{"level":1,"propertyURI":"http://id.loc.gov/ontologies/bflc/encodingLevel"}],
-        'http://id.loc.gov/vocabulary/menclvl/f',
-        'full'
-      )
-
-    },
 
     addAllDefaults: function () {
       for (let rt in this.activeProfile.rt) {
