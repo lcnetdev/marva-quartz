@@ -765,3 +765,19 @@ test('Correct USE appears for a Complex Heading', async ({ page }) => {
     await expect(page.locator('#app')).toContainText('150 $aAgricultural innovations');
     await expect(page.locator('#app')).toContainText('rdf:about="http://id.loc.gov/authorities/subjects/sh85002334"');
 });
+
+test('Subject Usage note appears highlighted', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('Mebane (Family : Mebane, N.C.)');
+    await page.getByText('Mebane (Family : Mebane, N.C.)').nth(1).click();
+    await expect(page.getByRole('heading')).toContainText('[SUBJECT USAGE: This heading is not valid for use as a subject; use a family name heading from LCSH.]');
+});
