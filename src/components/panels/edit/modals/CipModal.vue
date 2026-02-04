@@ -68,7 +68,6 @@ export default {
         },
 
         finishCip: function () {
-            console.info("doing CIP stuff")
             this.showCipModal = false
 
             // remove projected publication date
@@ -175,7 +174,6 @@ export default {
         let provActComponent = this.profileStore.returnComponentByPropertyLabel('Provision activity')
         let proveUserValue = provActComponent.userValue
         let zerozero8 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"][0]
-        console.info("zerozero8: ", zerozero8)
         this.zerozero8Date = zerozero8["http://id.loc.gov/ontologies/bibframe/date"]
 
     }
