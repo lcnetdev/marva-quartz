@@ -575,8 +575,17 @@ export const usePreferenceStore = defineStore('preference', {
       range: null
     },
     '--b-edit-main-hide-non-lc' : {
-          desc: 'Do not display nonLC subjects.',
+          desc: 'Do not display non-LC subjects.',
           descShort: 'Hide non-LC Subjects',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+    },
+    '--b-edit-main-hide-non-lc-class-numbers' : {
+          desc: 'Do not display non-LC class numbers.',
+          descShort: 'Hide non-LC class numbers',
           value: false,
           type: 'boolean',
           unit: null,

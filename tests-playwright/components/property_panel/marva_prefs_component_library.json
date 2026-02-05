@@ -990,7 +990,7 @@
             "--c-edit-main-splitpane-edit-scroll-bar-track-color": {
                 "value": "#fafafa",
                 "desc": "The color of the scroll bar track (background).",
-                "descShort": "Scrollbard Track Color",
+                "descShort": "Scrollbar Track Color",
                 "type": "color",
                 "group": "Edit Panel",
                 "range": null
@@ -998,7 +998,7 @@
             "--c-edit-main-splitpane-edit-scroll-bar-thumb-color": {
                 "value": "#c7c7c7",
                 "desc": "The color of the scroll bar thumb (the part you grab).",
-                "descShort": "Scrollbard Thumb Color",
+                "descShort": "Scrollbar Thumb Color",
                 "type": "color",
                 "group": "Edit Panel",
                 "range": null

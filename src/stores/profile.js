@@ -156,6 +156,7 @@ export const useProfileStore = defineStore('profile', {
     // List of empty components for ad hoc mode
     emptyComponents: {},
     hiddenSubjects: false,
+    hiddenClassNumbers: false,
 
     localMarva: false,
   }),
@@ -4506,6 +4507,7 @@ export const useProfileStore = defineStore('profile', {
         newPt.hasData = false
         delete newPt.deleted
         delete newPt.hideSubject
+        delete newPt.hideClassNum
         delete newPt.hide
 
         newPt.id = newPropertyId
@@ -7216,6 +7218,36 @@ export const useProfileStore = defineStore('profile', {
       return true
     },
 
+    displayClassNumber: function(comp){
+      console.info("Display Class Number?")
+      let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc-class-numbers")
+      if (!pref){ return true }
+
+      try {
+        if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
+          let userValue = comp.userValue
+          let data = userValue["http://id.loc.gov/ontologies/bibframe/classification"] ? userValue["http://id.loc.gov/ontologies/bibframe/classification"][0] : {}
+          console.info("data: ", data)
+          let assigner = data["http://id.loc.gov/ontologies/bibframe/assigner"][0]
+          let id = assigner['@id']
+          let label = assigner["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+
+          console.info("id: ", id)
+          console.info("label: ", label)
+          if (!label.includes("Library of Congress") ){
+            return false
+          }
+
+
+        }
+
+        return true
+      } catch(err){
+        console.error("Error with displaySubject preference: ", err)
+        return true
+      }
+    },
+
     displaySubject: function(comp){
       // if the preference is set to only show LCSH terms, return true/false based on the source
       // how to handle if everything is hidden??
@@ -7228,6 +7260,9 @@ export const useProfileStore = defineStore('profile', {
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"] ? userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] : {}
+          if (data['@id'] && data['@id'].includes('http://id.loc.gov/authorities/')){
+            return true
+          }
           if (data["http://id.loc.gov/ontologies/bibframe/source"]){
             let source = data["http://id.loc.gov/ontologies/bibframe/source"][0]
             let code   = source["http://id.loc.gov/ontologies/bibframe/code"] ? source["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] : ""
@@ -7237,6 +7272,8 @@ export const useProfileStore = defineStore('profile', {
             if (!label.includes("Library of Congress") ){
               return false
             }
+          } else if(Object.keys(data).length == 2) {
+            return false
           }
         }
 
@@ -7247,10 +7284,20 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    /**
+     * Track number of hidden components to make sure to create an empty one if needed
+     * @param {Object} profile - Profile loaded
+     * @returns
+     */
     numberHiddenShown: function(profile){
       let subjectCount = 0
       let subjectHidden = 0
       let subjectLast = null
+
+      let classCount = 0
+      let classHidden = 0
+      let classLast = null
+
       for (let rt in profile.rt){
         for (let pt in profile.rt[rt].pt){
           if (pt.includes("id_loc_gov_ontologies_bibframe_subject__subjects")){
@@ -7263,20 +7310,45 @@ export const useProfileStore = defineStore('profile', {
             }
             subjectLast = comp
           }
+
+          if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers")){
+            let comp =  profile.rt[rt].pt[pt]
+            if (comp.deleted === undefined || (Object.keys(comp).includes('deleted') && comp.deleted != true)){
+              classCount++
+            }
+            if (comp.hideClassNum){
+              classHidden++
+            }
+            classLast = comp
+          }
         }
       }
 
-      let showing = subjectCount - subjectHidden
-      if (showing == 0){
+      let showingSubjects = subjectCount - subjectHidden
+      if (showingSubjects == 0){
         // add an empty subject component
         // componentGuid, structure
         this.duplicateComponent(subjectLast["@guid"], this.returnStructureByGUID(subjectLast["@guid"]))
       }
+
+      let showingClassNumber = classCount - classHidden
+      if (showingClassNumber == 0){
+        // add an empty subject component
+        // componentGuid, structure
+        this.duplicateComponent(classLast["@guid"], this.returnStructureByGUID(classLast["@guid"]))
+      }
+
       if (subjectHidden > 0){
         this.hiddenSubjects = true
       }
+      if (classHidden > 0){
+        this.hiddenClassNumbers = true
+      }
 
-      let results = {'subjects': subjectCount, 'hidden': subjectHidden, 'showing': showing}
+      let results = {
+        'subjects': subjectCount, 'hiddenSubject': subjectHidden, 'showingSubjects': showingSubjects,
+        'classNumbers': classCount, 'hiddenClassNumbers': classHidden, 'showingClassNumbers': showingClassNumber
+      }
 
       return results
     },
