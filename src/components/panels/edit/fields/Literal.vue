@@ -1035,7 +1035,10 @@ export default {
                     
                     // okay we found it then do the transliteration for this value highleted text and get the results
                     let thisTransValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,highlightedText,null,options.dir)
-
+                    if (thisTransValue.warnings && thisTransValue.warnings.length > 0){
+                      alert("Warning from transliteration: " + thisTransValue.warnings.join(", "))
+                      break
+                    }
                     // and replce the transValue.output text in the other field with thisTransValue.output using this.profileStore.setValueLiteral
                     let newOtherValue = otherFieldValue[0].value.replace(transValue.output, thisTransValue.output)
                     this.profileStore.setValueLiteral(this.guid,otherFieldValue[0]['@guid'],this.propertyPath,newOtherValue,otherFieldValue[0]['@language'] )
