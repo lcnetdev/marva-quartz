@@ -1413,6 +1413,8 @@
 
           if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and\s+|,/).length>1){
             this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and\s+|,/)
+          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+und\s+|\s+e\s+|;/).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+und\s+|\s+e\s+|;/)
           }
 
           let addingDefaultExtraMarcStatements = false
