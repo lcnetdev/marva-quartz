@@ -2555,6 +2555,15 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
+      console.info("setValueComplex")
+      console.info("\tcomponentGuid: ", componentGuid)
+      console.info("\tfieldGuid: ", fieldGuid)
+      console.info("\tpropertyPath: ", propertyPath)
+      console.info("\tURI: ", URI)
+      console.info("\tlabel: ", label)
+      console.info("\ttype: ", type)
+      console.info("\tnodeMap: ", nodeMap)
+      console.info("\tmarcKey: ", marcKey)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2829,6 +2838,42 @@ export const useProfileStore = defineStore('profile', {
               ]
             }
           }
+
+          // add source for LCDGT
+          if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/intendedAudience")){
+            let objId = blankNode['@id']
+            if (nodeMap.collections && nodeMap.collections.includes('http://id.loc.gov/authorities/demographicTerms/collection_LCDGT_General')){
+              blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                      "@id": "http://id.loc.gov/authorities/demographicTerms/collection_LCDGT_General",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                              "@guid": short.generate(),
+                              "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress demographic group term and code list"
+                          }
+                      ]
+                  }
+              ]
+            }
+            if (nodeMap.collections && nodeMap.collections.includes("http://id.loc.gov/vocabulary/maudience/collection_maudience")){
+              blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                      "@id": "http://id.loc.gov/vocabulary/maudience/collection_maudience",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                              "@guid": short.generate(),
+                              "http://www.w3.org/2000/01/rdf-schema#label": "MARC Target Audience"
+                          }
+                      ]
+                  }
+              ]
+            }
+          }
+
 
 
 
