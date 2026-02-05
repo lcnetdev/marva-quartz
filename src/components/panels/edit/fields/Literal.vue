@@ -1016,8 +1016,6 @@ export default {
                   if (fieldValue[0]['@language'] && codeObj.code.toLowerCase() == fieldValue[0]['@language'].toLowerCase()){
                     otherScriptCodes.push(key)                  
 
-                  }else{
-                    console.log(codeObj.code.toLowerCase(), "!= ", otherFieldValue[0]['@language'].toLowerCase())
                   }
                 }
           
@@ -1029,7 +1027,7 @@ export default {
                 for (let osc of otherScriptCodes){
                   let transValue = await utilsNetwork.scriptShifterRequestTrans(osc,highlightedText,null,options.dir)
                   // now replace the highlighted text in the otherField
-                  console.log("transliterated text highlightedText:", osc, transValue)
+
                   // see if we can find transValue text in the other field value
                   if (otherFieldValue[0].value.indexOf(transValue.output) > -1){
                     
@@ -1087,7 +1085,7 @@ export default {
 
         }
 
-        console.log("index number pressed is:", options.actionButtonIndex)
+        // console.log("index number pressed is:", options.actionButtonIndex)
 
         // add the new string
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,transValue.output,toLang,true)
