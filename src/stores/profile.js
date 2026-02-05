@@ -2831,6 +2831,42 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
+          // add source for LCDGT
+          if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/intendedAudience")){
+            let objId = blankNode['@id']
+            if (nodeMap.collections && nodeMap.collections.includes('http://id.loc.gov/authorities/demographicTerms/collection_LCDGT_General')){
+              blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                      "@id": "http://id.loc.gov/authorities/demographicTerms/collection_LCDGT_General",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                              "@guid": short.generate(),
+                              "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress demographic group term and code list"
+                          }
+                      ]
+                  }
+              ]
+            }
+            if (nodeMap.collections && nodeMap.collections.includes("http://id.loc.gov/vocabulary/maudience/collection_maudience")){
+              blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                      "@id": "http://id.loc.gov/vocabulary/maudience/collection_maudience",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                              "@guid": short.generate(),
+                              "http://www.w3.org/2000/01/rdf-schema#label": "MARC Audience"
+                          }
+                      ]
+                  }
+              ]
+            }
+          }
+
+
 
 
         }else{
