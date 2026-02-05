@@ -1016,8 +1016,6 @@ export default {
                   if (fieldValue[0]['@language'] && codeObj.code.toLowerCase() == fieldValue[0]['@language'].toLowerCase()){
                     otherScriptCodes.push(key)                  
 
-                  }else{
-                    console.log(codeObj.code.toLowerCase(), "!= ", otherFieldValue[0]['@language'].toLowerCase())
                   }
                 }
           
@@ -1029,13 +1027,16 @@ export default {
                 for (let osc of otherScriptCodes){
                   let transValue = await utilsNetwork.scriptShifterRequestTrans(osc,highlightedText,null,options.dir)
                   // now replace the highlighted text in the otherField
-                  console.log("transliterated text highlightedText:", osc, transValue)
+
                   // see if we can find transValue text in the other field value
                   if (otherFieldValue[0].value.indexOf(transValue.output) > -1){
                     
                     // okay we found it then do the transliteration for this value highleted text and get the results
                     let thisTransValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,highlightedText,null,options.dir)
-
+                    if (thisTransValue.warnings && thisTransValue.warnings.length > 0){
+                      alert("Warning from transliteration: " + thisTransValue.warnings.join(", "))
+                      break
+                    }
                     // and replce the transValue.output text in the other field with thisTransValue.output using this.profileStore.setValueLiteral
                     let newOtherValue = otherFieldValue[0].value.replace(transValue.output, thisTransValue.output)
                     this.profileStore.setValueLiteral(this.guid,otherFieldValue[0]['@guid'],this.propertyPath,newOtherValue,otherFieldValue[0]['@language'] )
@@ -1084,7 +1085,7 @@ export default {
 
         }
 
-        console.log("index number pressed is:", options.actionButtonIndex)
+        // console.log("index number pressed is:", options.actionButtonIndex)
 
         // add the new string
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,transValue.output,toLang,true)
