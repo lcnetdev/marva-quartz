@@ -2866,7 +2866,7 @@ export const useProfileStore = defineStore('profile', {
                       "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
                               "@guid": short.generate(),
-                              "http://www.w3.org/2000/01/rdf-schema#label": "MARC Target Audience"
+                              "http://www.w3.org/2000/01/rdf-schema#label": "MARC Audience"
                           }
                       ]
                   }
