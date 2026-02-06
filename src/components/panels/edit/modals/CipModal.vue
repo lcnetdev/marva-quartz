@@ -220,7 +220,7 @@ export default {
                     <li>Change the encoding level to "full"</li>
                     <template v-if="updateDates">
                         <li>Match the "Provision Activity" dates and call number date to the "Publication Year"</li>
-                        <li>Insert the Copyright Year into the "Copyright date," if provided</li>
+                        <li>Insert the "Copyright Year" into the "Copyright date," if provided</li>
                     </template>
                 </ul>
 

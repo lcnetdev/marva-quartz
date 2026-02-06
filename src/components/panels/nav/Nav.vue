@@ -353,15 +353,24 @@ export default {
                 text: 'Add All Defaults',
                 click: () => { this.addAllDefaults() },
                 icon: "clear_all"
-              },
-              {
-                text: 'Finish CIP',
-                click: () => { this.showCipModal = true },
-                icon: "check"
               }
             ]
           }
         )
+      }
+
+      if (!this.disable.includes('Tools') && this.isStaging()) {
+        for (let sub in menu) {
+          if (menu[sub].text == 'Tools') {
+            menu[sub].menu.push(
+              {
+                text: 'Finish CIP',
+                click: () => { this.showCipModal = true },
+                icon: "incomplete_circle"
+              }
+            )
+          }
+        }
       }
 
       if (this.$route.path.startsWith('/edit/') && this.preferenceStore.returnValue('--c-general-ad-hoc')) {
