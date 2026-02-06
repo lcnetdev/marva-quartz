@@ -597,6 +597,7 @@ export const useProfileStore = defineStore('profile', {
             if (wsData.success && wsData.data) {
               let defaultWs = wsData.data.find(ws => ws.name === 'marva-default')
               if (defaultWs) {
+                localStorage.setItem('marva-dancerWorkspace', defaultWs.id)
                 let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
                 profilesURL = dancerBaseUrl + defaultWs.id + '/profile'
                 startingURL = dancerBaseUrl + defaultWs.id + '/starting-points'
