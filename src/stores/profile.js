@@ -589,6 +589,23 @@ export const useProfileStore = defineStore('profile', {
           let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
           profilesURL = dancerBaseUrl + dancerWorkspace + '/profile'
           startingURL = dancerBaseUrl + dancerWorkspace + '/starting-points'
+        } else if (config.returnUrls.isBibframeDotOrg) {
+          // no workspace set yet, fetch the workspace list and use marva-default
+          try {
+            let wsResponse = await fetch(config.returnUrls.dancerWorkspaceList)
+            let wsData = await wsResponse.json()
+            if (wsData.success && wsData.data) {
+              let defaultWs = wsData.data.find(ws => ws.name === 'marva-default')
+              if (defaultWs) {
+                localStorage.setItem('marva-dancerWorkspace', defaultWs.id)
+                let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
+                profilesURL = dancerBaseUrl + defaultWs.id + '/profile'
+                startingURL = dancerBaseUrl + defaultWs.id + '/starting-points'
+              }
+            }
+          } catch (err) {
+            console.error('Error fetching dancer workspace list:', err)
+          }
         }
       }
 
