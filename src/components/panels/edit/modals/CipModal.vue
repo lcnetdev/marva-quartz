@@ -161,6 +161,11 @@ export default {
             }
             // 264 $c
             let two64 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bflc/simpleDate"][0]
+            let two64Value = two64["http://id.loc.gov/ontologies/bflc/simpleDate"]
+            // if it's in [brackets], keep it in brackets. Or if it matches the copy right date add them?
+            if (two64Value.startsWith('[') || this.copyrightDate == this.zerozero8Date){
+                this.zerozero8Date = '[' + this.zerozero8Date + ']'
+            }
             if (this.zerozero8Date){
                 this.profileStore.setValueLiteral(
                     provActComponent['@guid'], two64['@guid'],
