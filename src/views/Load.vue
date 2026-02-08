@@ -56,7 +56,7 @@
                 <template #tbody="{ row }">
 
                   <td>
-                    <a v-if="row.Status=='unposted'" :href="'/bfe2/quartz/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
+                    <a v-if="row.Status=='unposted'" :href="'/marva/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
                     <a v-else :href="'#'+row.Id" @click="reloadRecord(row)">Load from BFDB</a>
                   </td>
 

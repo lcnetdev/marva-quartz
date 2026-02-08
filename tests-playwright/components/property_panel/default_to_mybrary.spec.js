@@ -6,7 +6,7 @@ import { preferences } from './marva_prefs_component_library.json'
 
 
 test('Can add a default component to my component library.', async ({ page }) => {
-    // await page.goto('http://localhost:5555/bfe2/quartz/');
+    // await page.goto('http://localhost:5555/marva/');
 
     // let prefs = JSON.stringify(preferences)
     // // Update the preferences for this test
