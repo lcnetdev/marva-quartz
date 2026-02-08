@@ -23,7 +23,6 @@ export const useConfigStore = defineStore('config', {
         // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
         // util  :  'https://editor.id.loc.gov/bfe2/util/',
 
-        utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
 
@@ -78,7 +77,6 @@ export const useConfigStore = defineStore('config', {
 
         ldpjs : 'http://localhost:9401/api-staging/',
         util  : 'http://localhost:9401/util/',
-        utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
         validate: 'http://localhost:9401/util/validate/prod',
@@ -103,7 +101,6 @@ export const useConfigStore = defineStore('config', {
 
         ldpjs : 'https://preprod-3001.id.loc.gov/bfe2/api-staging/',
         util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
-        utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter: 'https://preprod-3001.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
         publishNar: 'https://preprod-3001.id.loc.gov/bfe2/util/nacostub/staging',
@@ -135,7 +132,6 @@ export const useConfigStore = defineStore('config', {
 
         ldpjs : 'https://editor.id.loc.gov/bfe2/api-production/',
         util  :  'https://editor.id.loc.gov/bfe2/util/',
-        utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter  :  'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
         publishNar: 'https://editor.id.loc.gov/bfe2/util/nacostub/production',
@@ -163,7 +159,6 @@ export const useConfigStore = defineStore('config', {
 
         ldpjs : 'https://bibframe.org/marva/api-production/',
         util  :  'https://bibframe.org/marva/util/',
-        utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
@@ -187,7 +182,6 @@ export const useConfigStore = defineStore('config', {
 
         ldpjs : 'https://bibframe.org/marva/api-production/',
         util  :  'https://bibframe.org/marva/util/',
-        utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
