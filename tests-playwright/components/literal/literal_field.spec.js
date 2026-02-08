@@ -12,7 +12,7 @@ import { preferences } from '../../configs/subjectBuilderConfig.json'
 
 
 test('Delete a literal', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)

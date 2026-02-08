@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Add an expression Of to monograph record', async ({ page }) => {
-  await page.goto('http://localhost:5555/bfe2/quartz/');
+  await page.goto('http://localhost:5555/marva/');
 
   await page.getByText('Click Here').click();
   await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
