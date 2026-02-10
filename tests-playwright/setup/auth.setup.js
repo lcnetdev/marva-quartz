@@ -14,7 +14,7 @@ catch (err) {
 }
 
 test('Log in / turn on MARC + XML View', async ({ page }) => {
-  await page.goto('http://localhost:5555/bfe2/quartz/');
+  await page.goto('http://localhost:5555/marva/');
 
   await page.getByRole('textbox', { name: 'User Name' }).click();
   await page.getByRole('textbox', { name: 'User Name' }).fill('TestUser');

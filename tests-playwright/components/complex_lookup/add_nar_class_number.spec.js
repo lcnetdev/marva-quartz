@@ -3,7 +3,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Load a class number from a NAR', async ({ page }) => {
-  await page.goto('http://localhost:5555/bfe2/quartz/');
+  await page.goto('http://localhost:5555/marva/');
 
   await page.getByText('Click Here').click();
   await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();

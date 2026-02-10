@@ -20,7 +20,7 @@ const utilsNetwork = {
     lookupLibrary : {},
 
     //Controllers to manage searches
-    controllers: {
+    controllers: { // there's got to be a better way
       "controllerNames": new AbortController(),
       "controllerNamesGeo": new AbortController(),
       "controllerNamesSubdivision": new AbortController(),
@@ -45,6 +45,7 @@ const utilsNetwork = {
       "exactName": new AbortController(),
       "exactSubject": new AbortController(),
       "lccnSearchController": new AbortController(),
+      "controllerEntities": new AbortController(),
     },
     subjectSearchActive: false,
 
@@ -547,7 +548,6 @@ const utilsNetwork = {
               url = url.replace('searchtype=left','searchtype=keyword')
               url = url.replace('searchtype=<TYPE>','searchtype=keyword')
             }
-
 
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
@@ -2471,6 +2471,8 @@ const utilsNetwork = {
       let exactSubject = exactUri.replace('<SCHEME>', 'subjects')
       //children's subjects is supported by known-label lookup?
 
+      let subjectEntitiesUrl = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['ENTITIES'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=50').replace("<OFFSET>", "1")
+
       if (mode == 'GEO'){
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
       }
@@ -2641,6 +2643,14 @@ const utilsNetwork = {
         signal: this.controllers.controllerHubsKeyword.signal,
       }
 
+      let searchPayloadEntities = {
+        processor: 'lcAuthorities',
+        url: [subjectEntitiesUrl],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerEntities.signal,
+      }
+
 
 
       let resultsNames =[]
@@ -2666,6 +2676,8 @@ const utilsNetwork = {
 
       let resultsExactName = []
       let resultsExactSubject = []
+
+      let resultsEntities = []
 
       // this.searchExact(exactPayloadName),
       // this.searchExact(exactPayloadSubject),
@@ -2724,6 +2736,10 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadHubsKeyword)
         ]);
 
+      } else if (mode == "ENTITIES"){
+        [resultsEntities] = await Promise.all([
+            this.searchComplex(searchPayloadEntities)
+        ]);
       }
 
       // drop the litearl value from names and complex
@@ -2756,6 +2772,10 @@ const utilsNetwork = {
       resultsSubjectsSimpleComplex = resultsSubjectsSimpleComplex.filter((r) => {return (!r.literal)})
       if (resultsSubjectsSimpleComplex.length>0){
         resultsSubjectsSimpleComplex.push(resultsSubjectsSimpleComplex.pop())
+      }
+
+      if (resultsEntities.length>0){
+        resultsEntities.push(resultsEntities.pop())
       }
 
       // resultsSubjectsComplex.reverse()
@@ -2850,7 +2870,8 @@ const utilsNetwork = {
         'hierarchicalGeographic': pos == 0 ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
-        'exact': exact
+        'exact': exact,
+        'entities': resultsEntities,
       }
 
       this.subjectSearchActive = false

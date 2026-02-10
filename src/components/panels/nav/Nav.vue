@@ -796,28 +796,6 @@ export default {
       // anything after this point will  be on the right of nav menu
       menu.push({ is: "spacer" })
 
-      if (useConfigStore().returnUrls.isBibframeDotOrg && this.$route.path.startsWith('/edit/')) {
-        menu.push(
-          {
-            text: 'Download MARC',
-            click: () => {
-              this.profileStore.downloadBFDotOrg('marc')
-
-            }
-          }
-        )
-        menu.push(
-          {
-            text: 'Download BF',
-            click: () => {
-              this.profileStore.downloadBFDotOrg('bf')
-
-            }
-          }
-        )
-
-      }
-
 
       if (config.returnUrls.dancerEnabled) {
         let dancerMenuItems = []
@@ -842,14 +820,16 @@ export default {
         }
 
         // Add Legacy Profiles option at the bottom
-        dancerMenuItems.push({
-          text: 'Legacy Profiles',
-          icon: !currentWorkspace ? 'check' : '',
-          click: () => {
-            window.localStorage.removeItem('marva-dancerWorkspace')
-            window.location.reload()
-          }
-        })
+        if (!config.returnUrls.isBibframeDotOrg) {
+          dancerMenuItems.push({
+            text: 'Legacy Profiles',
+            icon: !currentWorkspace ? 'check' : '',
+            click: () => {
+              window.localStorage.removeItem('marva-dancerWorkspace')
+              window.location.reload()
+            }
+          })
+        }
 
         // Find the current workspace name
         let currentWorkspaceName = 'Legacy'

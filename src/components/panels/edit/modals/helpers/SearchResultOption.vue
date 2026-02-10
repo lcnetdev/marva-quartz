@@ -92,6 +92,9 @@ export default {
         checkIsUsable: function(data) {
             let notes = data.extra.notes || []
             let needsUpdate = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false).length > 0
+            if (!needsUpdate){
+                needsUpdate = notes.filter((i) => i.includes("not valid for use as a subject") ? true : false).length > 0
+            }
             return !needsUpdate
         },
         calculateIndex: function (i) {

@@ -96,6 +96,8 @@
                 <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                 <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'"
                   :class="['simptip-position-bottom', { 'active': (searchMode === 'HUBS') }]">Hubs</button>
+                <button @click="searchModeSwitch('ENTITIES')" :data-tooltip="'Shortcut: CTRL+ALT+5'"
+                  :class="['simptip-position-bottom', { 'active': (searchMode === 'ENTITIES') }]" v-if="configStore.returnUrls.env == 'staging'">Entities</button>
               </div>
 
 
@@ -877,6 +879,7 @@ export default {
 
   computed: {
     ...mapStores(usePreferenceStore),
+    ...mapStores(useConfigStore),
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks']),
     ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent']),
 
@@ -1534,6 +1537,11 @@ export default {
 
       for (let x in this.searchResults.exact) {
         this.pickLookup[(this.searchResults.names.length - x) * -1 - 2] = this.searchResults.exact[x]
+      }
+
+      for (let x in this.searchResults.entities) {
+        this.pickLookup[x] = this.searchResults.entities[x]
+
       }
     },
 
@@ -2223,7 +2231,9 @@ export default {
         this.searchModeSwitch("GEO")
       } else if (event.ctrlKey && event.key == "4") {
         this.searchModeSwitch("HUBS")
-      } else if (this.searchMode == 'GEO' && event.key == "-") {
+      } else if (event.ctrlKey && event.key == "5") {
+        this.searchModeSwitch("ENTITIES")
+      } else if ((this.searchMode == 'GEO' || this.searchMode == 'ENTITIES') && event.key == "-") {
         if (this.components.length > 0) {
           let lastC = this.components[this.components.length - 1]
 

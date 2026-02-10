@@ -91,8 +91,7 @@
                             this.labelMap[key] : key }}:</span>
                         <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
-                                v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
-                                {{ v }}
+                                v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx" v-html="buildSource(v)">
                             </li>
                         </ul>
                     </template>
@@ -228,7 +227,7 @@
                                             <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
                                         </template>
                                         <template v-else-if="key == 'notes'">
-                                            <span :class="{ unusable: v.includes('CANNOT BE USED UNDER RDA') }">{{ v
+                                            <span :class="{ unusable: (v.includes('CANNOT BE USED UNDER RDA') || v.includes('not valid for use as a subject')) }">{{ v
                                                 }}</span>
                                         </template>
                                         <template v-else>
@@ -324,14 +323,26 @@ export default {
     },
 
     methods: {
+        buildSource: function(source){
+            if (source.includes("id.loc.gov")){
+                source = source.replace(/(.*)(http.*id.loc.gov.*)$/g, '$1 <a href="$2" _target="blank">$2</a>')
+            }
+            return source
+        },
         getUsabilityNote: function(data){
             let notes = data.notes || []
             let needsNote = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false)
+            if (needsNote.length < 1){
+                needsNote = notes.filter((i) => i.includes("not valid for use as a subject") ? true : false)
+            }
             return needsNote[0]
         },
         checkIsUsable: function(data){
             let notes = data.notes || []
             let needsUpdate = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false).length > 0
+            if (!needsUpdate){
+                needsUpdate = notes.filter((i) => i.includes("not valid for use as a subject") ? true : false).length > 0
+            }
             return !needsUpdate
         },
         newSearch: function (term) {

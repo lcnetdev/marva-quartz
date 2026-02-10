@@ -980,6 +980,86 @@ export default {
         let highlightTemplate = null
         if (textarea && textarea.selectionStart !== textarea.selectionEnd) {
           let highlightedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
+
+
+          // if there is multiple values in the literalValues and they have @language meaning they are transliterated already
+          if (this.literalValues.length > 1){
+            let hasLatin = false
+            let hasNonLatin = false
+
+            for (let lv of this.literalValues){
+              if (lv['@language'] && lv['@language'].toLowerCase().includes('latn')){
+                hasLatin=true
+              }else if (lv['@language'] && !lv['@language'].toLowerCase().includes('latn')){
+                hasNonLatin=true
+              } 
+            }
+            if (hasLatin && hasNonLatin){
+              
+              // get the script information from the other field that is not this one
+              let otherFieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] != options.fieldGuid) })
+
+              if (otherFieldValue){
+
+                // get the transliterated value from the highlited text
+
+                  // let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,highlightedText,null,options.dir)
+  
+                  // console
+
+                // loop through all of this.scriptShifterLangCodes and see if we can find the code == the other field
+                let otherScriptCodes = []
+                for (let key in this.scriptShifterLangCodes){
+                  let codeObj = this.scriptShifterLangCodes[key]
+                  // console.log("codeObj", codeObj)
+                  // console.log("otherFieldValue[0]['@language']", otherFieldValue[0]['@language'])
+                  if (fieldValue[0]['@language'] && codeObj.code.toLowerCase() == fieldValue[0]['@language'].toLowerCase()){
+                    otherScriptCodes.push(key)                  
+
+                  }
+                }
+          
+
+                // remove the current req from the otherScriptCodes
+                otherScriptCodes = otherScriptCodes.filter((code)=>{ return code != options.lang })
+                let didReplaceTransliteration = false
+                // send a utilsNetwork.scriptShifterRequestTrans for each otherScriptCodes
+                for (let osc of otherScriptCodes){
+                  let transValue = await utilsNetwork.scriptShifterRequestTrans(osc,highlightedText,null,options.dir)
+                  // now replace the highlighted text in the otherField
+
+                  // see if we can find transValue text in the other field value
+                  if (otherFieldValue[0].value.indexOf(transValue.output) > -1){
+                    
+                    // okay we found it then do the transliteration for this value highleted text and get the results
+                    let thisTransValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,highlightedText,null,options.dir)
+                    if (thisTransValue.warnings && thisTransValue.warnings.length > 0){
+                      alert("Warning from transliteration: " + thisTransValue.warnings.join(", "))
+                      break
+                    }
+                    // and replce the transValue.output text in the other field with thisTransValue.output using this.profileStore.setValueLiteral
+                    let newOtherValue = otherFieldValue[0].value.replace(transValue.output, thisTransValue.output)
+                    this.profileStore.setValueLiteral(this.guid,otherFieldValue[0]['@guid'],this.propertyPath,newOtherValue,otherFieldValue[0]['@language'] )
+                    
+                    didReplaceTransliteration = true
+                    break
+
+                  }
+                }
+                if (didReplaceTransliteration){
+                  return false
+                }
+
+
+
+              }else{
+                alert("Error: Could not find the other field value for this literal, cannot do transliteration overwrite.")
+              }
+              // and they are currently in the 
+
+            }
+          }
+
           useTextToTrans = highlightedText
           highlightTemplate = fieldValue[0].value.replace(highlightedText, '<TRANSLITERATED_TEXT_HERE>')
         }
@@ -1005,7 +1085,7 @@ export default {
 
         }
 
-        console.log("index number pressed is:", options.actionButtonIndex)
+        // console.log("index number pressed is:", options.actionButtonIndex)
 
         // add the new string
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,transValue.output,toLang,true)

@@ -76,6 +76,16 @@
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
             />
+
+            <SearchResultOption
+                searchType="entities"
+                label="Subject Entities"
+                index="ix"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+            />
         </div>
     </div>
 </template>
