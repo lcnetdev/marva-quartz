@@ -1424,7 +1424,21 @@ export default {
               }
             }
           }
-        }
+		} 
+		console.info("Components: ", this.components)
+	  } else if (mode == 'ENTITIES'){
+		// change "--" to other "--"	this might be the one -> "‑‑"
+		this.subjectString = this.subjectString.replace("--", "‑‑")
+		//Need to update components too?
+	    this.components[0].label = this.subjectString
+		this.components[0].posEnd = this.subjectString.length
+		this.components[0].literal = null
+		this.components[0].uri = null
+		this.components.splice(1)
+		this.activeComponent = this.components[0]
+		try {
+			this.renderHintBoxes()
+		} catch(err) { }
       } else {
         // Above we took loose components and combined them,
         // here we undo that incase someone made a mistake and the geo
@@ -1440,7 +1454,6 @@ export default {
             approved.push(this.components[c])
           }
         }
-
         //remove the terms that have been exploded
         for (let i in unApprovedIdx) {
           if (this.components[unApprovedIdx[i]].label.includes("‑‑")) {
@@ -2416,11 +2429,13 @@ export default {
     },
 
     renderHintBoxes: function () {
+			console.info("hintBoxes: ", this.components)
       // wait for the UI to render
       this.$nextTick(() => {
         // loop through the current components
         let activeLeft = 0
         for (let com of this.components) {
+			console.info("com: ", com)
           // set the left
           this.$nextTick(() => {
             if (this.$refs['cBackground' + com.id] && this.$refs['cBackground' + com.id][0]) {
