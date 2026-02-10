@@ -16,20 +16,20 @@ export const useConfigStore = defineStore('config', {
 
       dev:{
 
-        ldpjs : 'http://localhost:9401/api-staging/',
+        ldpjs : 'http://localhost:9401/marva/api-staging/',
 
-        util  : 'http://localhost:9401/util/',
+        util  : 'http://localhost:9401/marva/util/',
         // util  : 'http://localhost:5200/util',
         // util  :  'https://preprod-3001.id.loc.gov/marva/util/',
         // util  :  'https://editor.id.loc.gov/marva/util/',
 
-        scriptshifter: 'http://localhost:9401/scriptshifter/',
-        publish : 'http://localhost:9401/util/publish/staging',
+        scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
+        publish : 'http://localhost:9401/marva/util/publish/staging',
 
-        validate: 'http://localhost:9401/util/validate/prod',
+        validate: 'http://localhost:9401/marva/util/validate/prod',
         // validate: 'http://localhost:5200/validate/stage',
         // validate: 'https://preprod-3001.id.loc.gov/marva/util/validate/stage',
-        publishNar: 'http://localhost:9401/util/nacostub/staging',
+        publishNar: 'http://localhost:9401/marva/util/nacostub/staging',
 
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
@@ -62,8 +62,8 @@ export const useConfigStore = defineStore('config', {
 
         // worldCat: 'http://localhost:5200/worldcat/',
         // copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
-        worldCat: 'http://localhost:9401/util/worldcat/',
-        copyCatUpload: 'http://localhost:9401/util/copycat/upload/stag',
+        worldCat: 'http://localhost:9401/marva/util/worldcat/',
+        copyCatUpload: 'http://localhost:9401/marva/util/copycat/upload/stag',
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',

@@ -1547,7 +1547,13 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Copy Cat',
         range: [true,false]
       },
-
+	  '--n-edit-copyt-cat-prio': {
+	  	desc: 'Default Prority for CopyCat',
+		descShort: 'Priority Default',
+		value: '3',
+		type: 'string',
+		group: 'Copy Cat'
+	  }
 
 
     }
