@@ -1505,6 +1505,7 @@ export default {
 
         // get the boxes lined up correctly
         this.renderHintBoxes()
+		this.subjectStringChanged()
       }
 
       if (this.activeComponent && this.activeComponent.label) {
@@ -2429,13 +2430,11 @@ export default {
     },
 
     renderHintBoxes: function () {
-			console.info("hintBoxes: ", this.components)
       // wait for the UI to render
       this.$nextTick(() => {
         // loop through the current components
         let activeLeft = 0
         for (let com of this.components) {
-			console.info("com: ", com)
           // set the left
           this.$nextTick(() => {
             if (this.$refs['cBackground' + com.id] && this.$refs['cBackground' + com.id][0]) {
