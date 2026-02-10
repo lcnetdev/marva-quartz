@@ -848,6 +848,7 @@ export default {
     document.title = `Marva`;
 
     this.jackphyCheck = this.preferenceStore.returnValue("--b-edit-copy-cat-non-latin")
+	this.recordPriority = this.preferenceStore.returnValue("--n-edit-copyt-cat-prio")
 
     if (this.copyCatSearch !== null){
       this.wcQuery = this.copyCatSearch
