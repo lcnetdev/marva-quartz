@@ -1,0 +1,589 @@
+{
+  "abazin_cyrillic": {
+    "code": "abq-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "abkhaz_cyrillic": {
+    "code": "ab-Cyrl"
+  },
+  "adygei_cyrillic": {
+    "code": "ady-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "altai_cyrillic": {
+    "code": "alt-Cyrl"
+  },
+  "amharic": {
+    "code": "am-Ethi",
+    "lastUpdated": "2026-02-10"
+  },
+  "arabic": {
+    "code": "ar-Arab"
+  },
+  "argobba_ethiopic": {
+    "code": "am-Ethi",
+    "lastUpdated": "2026-02-10"
+  },
+  "armenian": {
+    "code": "hy-Armn"
+  },
+  "assamese": {
+    "code": "as-Beng"
+  },
+  "avaric_cyrillic": {
+    "code": "ava-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "awadhi_devanagari": {
+    "code": "awa-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "azerbaijani_cyrillic": {
+    "code": "az-Cyrl"
+  },
+  "balkar_cyrillic": {
+    "code": "krc-Cyrl"
+  },
+  "bashkir_cyrillic": {
+    "code": "ba-Cyrl"
+  },
+  "belarusian": {
+    "code": "be-Cyrl"
+  },
+  "bengali": {
+    "code": "bn-Beng"
+  },
+  "bihari_devanagari": {
+    "code": "bh-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "bodo_bengali": {
+    "code": "brx-Beng",
+    "lastUpdated": "2026-02-10"
+  },
+  "bodo_devanagari": {
+    "code": "brx-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "braj_devanagari": {
+    "code": "bra-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "bulgarian": {
+    "code": "bg-Cyrl"
+  },
+  "buriat": {
+    "code": "bua-Cyrl"
+  },
+  "buriat_cyrillic": {
+    "code": "bua-Cyrl"
+  },
+  "buriat_mongol_bichig": {
+    "code": "bua-Mong",
+    "lastUpdated": "2026-02-10"
+  },
+  "burmese": {
+    "code": "my-Mymr"
+  },
+  "chechen_cyrillic": {
+    "code": "ce-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "cherokee": {
+    "code": "chr-Cher",
+    "lastUpdated": "2026-02-10"
+  },
+  "chinese": {
+    "code": "zh-Hani"
+  },
+  "chukchi_cyrillic": {
+    "code": "ckt-Cyrl"
+  },
+  "church_slavonic": {
+    "code": "cu-Cyrs"
+  },
+  "chuvash_cyrillic": {
+    "code": "cv-Cyrl"
+  },
+  "coptic": {
+    "code": "cop-Copt",
+    "lastUpdated": "2026-02-10"
+  },
+  "cyrillic_generic": {
+    "code": "und-Cyrl"
+  },
+  "dargwa_cyrillic": {
+    "code": "dar-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "devanagari": {
+    "code": "und-Deva"
+  },
+  "devanagari_generic": {
+    "code": "hi-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "divehi_thaana": {
+    "code": "dv-Thaa"
+  },
+  "dogri_devanagari": {
+    "code": "doi-Deva"
+  },
+  "dungan_cyrillic": {
+    "code": "dng-Cyrl"
+  },
+  "dzongkha_tibetan": {
+    "code": "dz-Tibt",
+    "lastUpdated": "2026-02-10"
+  },
+  "ethiopic": {
+    "code": "am-Ethi"
+  },
+  "ethiopic_generic": {
+    "code": "mul-Ethi",
+    "lastUpdated": "2026-02-10"
+  },
+  "even-evenki_cyrillic": {
+    "code": "evn-Cyrl"
+  },
+  "evenki_cyrillic": {
+    "code": "evn-Cyrl"
+  },
+  "fula_adlam": {
+    "code": "ff-Adlm",
+    "lastUpdated": "2026-02-10"
+  },
+  "gagauz_cyrillic": {
+    "code": "gag-Cyrl"
+  },
+  "georgian": {
+    "code": "ka-Geor"
+  },
+  "gilyak_cyrillic": {
+    "code": "niv-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "glagolitic": {
+    "code": "cu-Glag",
+    "lastUpdated": "2026-02-10"
+  },
+  "greek_classical": {
+    "code": "grc-Grek"
+  },
+  "greek_modern": {
+    "code": "el-Grek"
+  },
+  "gujarati": {
+    "code": "gu-Gujr"
+  },
+  "gurage_ethiopic": {
+    "code": "sgw-Ethi",
+    "lastUpdated": "2026-02-10"
+  },
+  "gurmukhi": {
+    "code": "und-Guru"
+  },
+  "hebrew": {
+    "code": "he-Hebr"
+  },
+  "hindi": {
+    "code": "hi-Deva"
+  },
+  "hindi_devanagari": {
+    "code": "hi-Deva"
+  },
+  "hiragana": {
+    "code": "ja-Hrkt"
+  },
+  "ingush_cyrillic": {
+    "code": "inh-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "inuit_cyrillic": {
+    "code": "ik-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "inuktitut": {
+    "code": "iu-Cans",
+    "lastUpdated": "2026-02-10"
+  },
+  "japanese_hiragana": {
+    "code": "ja-Hrkt",
+    "lastUpdated": "2026-02-10"
+  },
+  "japanese_katakana": {
+    "code": "ja-Kana",
+    "lastUpdated": "2026-02-10"
+  },
+  "kabardian_cyrillic": {
+    "code": "kbd-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "kalmyk_cyrillic": {
+    "code": "xal-Cyrl"
+  },
+  "kalmyk_tod": {
+    "code": "xal-Mong",
+    "lastUpdated": "2026-02-10"
+  },
+  "kannada": {
+    "code": "kn-Knda"
+  },
+  "kara-kalpak_cyrillic": {
+    "code": "kaa-Cyrl"
+  },
+  "karachai-balkar_cyrillic": {
+    "code": "krc-Cyrl"
+  },
+  "karachay-balkar_cyrillic": {
+    "code": "krc-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "karelian_cyrillic": {
+    "code": "krl-Cyrl"
+  },
+  "katakana": {
+    "code": "ja-Kana"
+  },
+  "kazakh_cyrillic": {
+    "code": "kk-Cyrl"
+  },
+  "khakass_cyrillic": {
+    "code": "kjh-Cyrl"
+  },
+  "khanty_cyrillic": {
+    "code": "kca-Cyrl"
+  },
+  "khmer": {
+    "code": "km-Khmr"
+  },
+  "komi-permyak_cyrillic": {
+    "code": "kv-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "komi_cyrillic": {
+    "code": "kv-Cyrl"
+  },
+  "konkani_devanagari": {
+    "code": "kok-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "konkani_kannada": {
+    "code": "kok-Knda",
+    "lastUpdated": "2026-02-10"
+  },
+  "korean_names": {
+    "code": "ko-Kore"
+  },
+  "korean_nonames": {
+    "code": "ko-Kore"
+  },
+  "koryak_cyrillic": {
+    "code": "kpy-Cyrl"
+  },
+  "kryashen_cyrillic": {
+    "code": "tt-Cyrl"
+  },
+  "kumyk_cyrillic": {
+    "code": "kum-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "kurdish": {
+    "code": "ku-Arab"
+  },
+  "kurdish_arabic": {
+    "code": "ku-Arab",
+    "lastUpdated": "2026-02-10"
+  },
+  "kurdish_cyrillic": {
+    "code": "ku-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "kyrgyz_cyrillic": {
+    "code": "ky-Cyrl"
+  },
+  "lahnda_gurmukhi": {
+    "code": "lah-Guru",
+    "lastUpdated": "2026-02-10"
+  },
+  "lak_cyrillic": {
+    "code": "lbe-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "lepcha": {
+    "code": "lep-Lepc",
+    "lastUpdated": "2026-02-10"
+  },
+  "lezghian_cyrillic": {
+    "code": "lez-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "limbu": {
+    "code": "lim-Limb",
+    "lastUpdated": "2026-02-10"
+  },
+  "lithuanian_cyrillic": {
+    "code": "lt-Cyrl"
+  },
+  "macedonian": {
+    "code": "mk-Cyrl"
+  },
+  "maithili_devanagari": {
+    "code": "mai-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "malayalam": {
+    "code": "ml-Mlym"
+  },
+  "manchu": {
+    "code": "mnc-Mong"
+  },
+  "manipuri_bengali": {
+    "code": "mni-Beng",
+    "lastUpdated": "2026-02-10"
+  },
+  "manipuri_meitei": {
+    "code": "mni-Mtei",
+    "lastUpdated": "2026-02-10"
+  },
+  "mansi_cyrillic": {
+    "code": "mns-Cyrl"
+  },
+  "marathi_devanagari": {
+    "code": "mr-Deva"
+  },
+  "mari_cyrillic": {
+    "code": "chm-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "moldovan_cyrillic": {
+    "code": "ro-Cyrl"
+  },
+  "mongolian_cyrillic": {
+    "code": "mn-Cyrl"
+  },
+  "mongolian_mongol_bichig": {
+    "code": "mn-Mong"
+  },
+  "montenegrin_cyrillic": {
+    "code": "cnr-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "mordvin_cyrillic": {
+    "code": "myv-Cyrl"
+  },
+  "nanai_cyrillic": {
+    "code": "gld-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "nenets_cyrillic": {
+    "code": "yrk-Cyrl"
+  },
+  "nepali_devanagari": {
+    "code": "ne-Deva"
+  },
+  "newari_devanagari": {
+    "code": "new-Deva"
+  },
+  "nivkh_cyrillic": {
+    "code": "niv-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "nogai_cyrillic": {
+    "code": "nog-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "odia": {
+    "code": "or-Orya",
+    "lastUpdated": "2026-02-10"
+  },
+  "oriya": {
+    "code": "or-Orya"
+  },
+  "ossetic_cyrillic": {
+    "code": "os-Cyrl"
+  },
+  "pahari_devanagari": {
+    "code": "him-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "pali": {
+    "code": "pi-Deva"
+  },
+  "pali_bengali": {
+    "code": "pi-Beng",
+    "lastUpdated": "2026-02-10"
+  },
+  "pali_devanagari": {
+    "code": "pi-Deva",
+    "lastUpdated": "2026-02-10"
+  },
+  "pali_sinhala": {
+    "code": "pi-Sinh",
+    "lastUpdated": "2026-02-10"
+  },
+  "panjabi": {
+    "code": "pa-Guru"
+  },
+  "panjabi_gurmukhi": {
+    "code": "pa-Guru"
+  },
+  "permyak_cyrillic": {
+    "code": "kv-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "persian": {
+    "code": "fa-Arab"
+  },
+  "prakrit_devanagari": {
+    "code": "pra-Deva"
+  },
+  "pulaar": {
+    "code": "fuc-Adlm"
+  },
+  "pushto": {
+    "code": "ps-Arab"
+  },
+  "rajasthani_devanagari": {
+    "code": "raj-Deva"
+  },
+  "romani_cyrillic": {
+    "code": "rom-Cyrl"
+  },
+  "romanian_cyrillic": {
+    "code": "ro-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "russian": {
+    "code": "ru-Cyrl"
+  },
+  "sami_cyrillic": {
+    "code": "smi-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "sanskrit_devanagari": {
+    "code": "sa-Deva"
+  },
+  "santali_ol_chiki": {
+    "code": "sat-Olck",
+    "lastUpdated": "2026-02-10"
+  },
+  "selkup_cyrillic": {
+    "code": "sel-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "serbian": {
+    "code": "sr-Cyrl"
+  },
+  "shor_cyrillic": {
+    "code": "cjs-Cyrl"
+  },
+  "sindhi_arabic": {
+    "code": "sd-Arab",
+    "lastUpdated": "2026-02-10"
+  },
+  "sindhi_gurmukhi": {
+    "code": "sd-Guru",
+    "lastUpdated": "2026-02-10"
+  },
+  "sinhala": {
+    "code": "si-Sinh",
+    "lastUpdated": "2026-02-10"
+  },
+  "sinhalese": {
+    "code": "si-Sinh"
+  },
+  "syriac_cyrillic": {
+    "code": "syr-Cyrl"
+  },
+  "tabasaran_cyrillic": {
+    "code": "tab-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "tajik_cyrillic": {
+    "code": "tg-Cyrl"
+  },
+  "tamil": {
+    "code": "ta-Taml"
+  },
+  "tamil_brahmi": {
+    "code": "ta-Brah"
+  },
+  "tamil_extended": {
+    "code": "ta-Taml"
+  },
+  "tat_cyrillic": {
+    "code": "ttt-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "tatar-kryashen_cyrillic": {
+    "code": "tt-Cyrl"
+  },
+  "tatar_cyrillic": {
+    "code": "tt-Cyrl"
+  },
+  "telugu": {
+    "code": "te-Telu"
+  },
+  "thai": {
+    "code": "th-Thai"
+  },
+  "thai_alt": {
+    "code": "th-Thai"
+  },
+  "tibetan": {
+    "code": "bo-Tibt"
+  },
+  "tibetan_2015_r2r": {
+    "code": "bo-Latn",
+    "lastUpdated": "2026-02-10"
+  },
+  "tigre_ethiopic": {
+    "code": "tig-Ethi",
+    "lastUpdated": "2026-02-10"
+  },
+  "tigrinya_ethiopic": {
+    "code": "ti-Ethi",
+    "lastUpdated": "2026-02-10"
+  },
+  "tod_mongolian": {
+    "code": "tod-Mong"
+  },
+  "turkmen_cyrillic": {
+    "code": "tk-Cyrl"
+  },
+  "tuvinian_cyrillic": {
+    "code": "tyv-Cyrl"
+  },
+  "udekhe_cyrillic": {
+    "code": "ude-Cyrl",
+    "lastUpdated": "2026-02-10"
+  },
+  "udmurt_cyrillic": {
+    "code": "udm-Cyrl"
+  },
+  "uighur_arabic": {
+    "code": "ug-Arab"
+  },
+  "uighur_cyrillic": {
+    "code": "ug-Cyrl"
+  },
+  "ukrainian": {
+    "code": "uk-Cyrl"
+  },
+  "urdu": {
+    "code": "ur-Arab"
+  },
+  "uzbek_cyrillic": {
+    "code": "uz-Cyrl"
+  },
+  "yakut_cyrillic": {
+    "code": "sah-Cyrl"
+  },
+  "yiddish": {
+    "code": "yi-Hebr"
+  },
+  "yuit_cyrillic": {
+    "code": "ypk-Cyrl"
+  }
+}
