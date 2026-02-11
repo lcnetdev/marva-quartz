@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [1.4.9] - 2025-02-13
+### Update
+- Changes to match backend refactor
+
+### Added
+- Support for LCSH search for intendedd audience
+- Preference for "priority" in CopyCat
+
 ## [1.4.8] - 2025-02-03
 ### Added
 - Support for Subject Entities in Subject Builder
