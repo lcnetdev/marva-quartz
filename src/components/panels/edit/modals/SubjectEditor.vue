@@ -2144,9 +2144,8 @@ export default {
         // take the subject string and split
         let splitString = this.subjectString.split('--')
 
-        if (this.subjectString.includes("‑‑")){
+        if (this.subjectString.includes("‑‑") && this.pickLookup[this.pickPostion].entity){
           splitString = this.subjectString.split('‑‑')
-          this.activeComponentIndex = 0
         }
 
         // if the incoming subject can replace the whole subject string, do that
@@ -2163,6 +2162,7 @@ export default {
         // if we're selecting a subject entity, replace the whole thing
         if (this.pickLookup[this.pickPostion].entity){
           splitString = [splitString[this.activeComponentIndex]]
+          this.activeComponentIndex = 0
         }
 
         this.subjectString = splitString.join('--')
@@ -2494,6 +2494,7 @@ export default {
 
       //fake the "click" so the results panel populates
       if (this.initialLoad == true) {
+        console.info(">>>>>>>>>>>>>>>>>", this.$refs.subjectInput.value)
         let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
         let lastPiece = pieces.at(-1)
         this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
