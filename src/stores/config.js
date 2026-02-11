@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 4,
-    versionPatch: 7,
+    versionPatch: 8,
 
 
 
@@ -16,21 +16,20 @@ export const useConfigStore = defineStore('config', {
 
       dev:{
 
-        ldpjs : 'http://localhost:9401/api-staging/',
+        ldpjs : 'http://localhost:9401/marva/api-staging/',
 
-        util  : 'http://localhost:9401/util/',
+        util  : 'http://localhost:9401/marva/util/',
         // util  : 'http://localhost:5200/util',
-        // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
-        // util  :  'https://editor.id.loc.gov/bfe2/util/',
+        // util  :  'https://preprod-3001.id.loc.gov/marva/util/',
+        // util  :  'https://editor.id.loc.gov/marva/util/',
 
-        utilLang: 'http://localhost:9401/util-lang/',
-        scriptshifter: 'http://localhost:9401/scriptshifter/',
-        publish : 'http://localhost:9401/util/publish/staging',
+        scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
+        publish : 'http://localhost:9401/marva/util/publish/staging',
 
-        validate: 'http://localhost:9401/util/validate/prod',
+        validate: 'http://localhost:9401/marva/util/validate/prod',
         // validate: 'http://localhost:5200/validate/stage',
-        // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate/stage',
-        publishNar: 'http://localhost:9401/util/nacostub/staging',
+        // validate: 'https://preprod-3001.id.loc.gov/marva/util/validate/stage',
+        publishNar: 'http://localhost:9401/marva/util/nacostub/staging',
 
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
@@ -53,18 +52,18 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         // offical stage profiles inside the firewall
-        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        // starting: 'https://preprod-3001.id.loc.gov/marva/util/profiles/starting/stage',
+        // profiles: 'https://preprod-3001.id.loc.gov/marva/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
-        profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
+        starting: 'https://editor.id.loc.gov/marva/util/profiles/starting/prod',
+        profiles: 'https://editor.id.loc.gov/marva/util/profiles/profile/prod',
 
 
         // worldCat: 'http://localhost:5200/worldcat/',
         // copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
-        worldCat: 'http://localhost:9401/util/worldcat/',
-        copyCatUpload: 'http://localhost:9401/util/copycat/upload/stag',
+        worldCat: 'http://localhost:9401/marva/util/worldcat/',
+        copyCatUpload: 'http://localhost:9401/marva/util/copycat/upload/stag',
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
@@ -78,7 +77,6 @@ export const useConfigStore = defineStore('config', {
 
         ldpjs : 'http://localhost:9401/api-staging/',
         util  : 'http://localhost:9401/util/',
-        utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
         validate: 'http://localhost:9401/util/validate/prod',
@@ -101,23 +99,22 @@ export const useConfigStore = defineStore('config', {
 
       staging:{
 
-        ldpjs : 'https://preprod-3001.id.loc.gov/bfe2/api-staging/',
-        util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
-        utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
-        scriptshifter: 'https://preprod-3001.id.loc.gov/bfe2/scriptshifter/',
-        publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
-        publishNar: 'https://preprod-3001.id.loc.gov/bfe2/util/nacostub/staging',
-        validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate/stage',
+        ldpjs : 'https://preprod-3001.id.loc.gov/marva/api-staging/',
+        util  :  'https://preprod-3001.id.loc.gov/marva/util/',
+        scriptshifter: 'https://preprod-3001.id.loc.gov/marva/scriptshifter/',
+        publish: 'https://preprod-3001.id.loc.gov/marva/util/publish/staging',
+        publishNar: 'https://preprod-3001.id.loc.gov/marva/util/nacostub/staging',
+        validate: 'https://preprod-3001.id.loc.gov/marva/util/validate/stage',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
         bfdb : 'https://preprod-8300.id.loc.gov/',
-        profiles : '/bfe2/util/profiles/profile/stage',
-        // profiles : '/bfe2/util/profiles/profile/prod',
+        profiles : '/marva/util/profiles/profile/stage',
+        // profiles : '/marva/util/profiles/profile/prod',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
-        starting : '/bfe2/util/profiles/starting/stage',
+        starting : '/marva/util/profiles/starting/stage',
 
-        worldCat: 'https://preprod-3001.id.loc.gov/bfe2/util/worldcat/',
-        copyCatUpload: 'https://preprod-3001.id.loc.gov/bfe2/util/copycat/upload/stag', // change ports for production
+        worldCat: 'https://preprod-3001.id.loc.gov/marva/util/worldcat/',
+        copyCatUpload: 'https://preprod-3001.id.loc.gov/marva/util/copycat/upload/stag', // change ports for production
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
 
         id: 'https://preprod-8080.id.loc.gov/',
@@ -126,32 +123,31 @@ export const useConfigStore = defineStore('config', {
         simpleLookupLang: 'en',
 
         dancerEnabled: true,
-        dancerWorkspaceList: "https://editor.id.loc.gov/bfe2/dancer/api/serve/workspaces/",
+        dancerWorkspaceList: "https://editor.id.loc.gov/marva/dancer/api/serve/workspaces/",
 
 
       },
 
       production:{
 
-        ldpjs : 'https://editor.id.loc.gov/bfe2/api-production/',
-        util  :  'https://editor.id.loc.gov/bfe2/util/',
-        utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
-        scriptshifter  :  'https://editor.id.loc.gov/bfe2/scriptshifter/',
-        publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
-        publishNar: 'https://editor.id.loc.gov/bfe2/util/nacostub/production',
+        ldpjs : 'https://editor.id.loc.gov/marva/api-production/',
+        util  :  'https://editor.id.loc.gov/marva/util/',
+        scriptshifter  :  'https://editor.id.loc.gov/marva/scriptshifter/',
+        publish: 'https://editor.id.loc.gov/marva/util/publish/production',
+        publishNar: 'https://editor.id.loc.gov/marva/util/nacostub/production',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
-        validate: 'https://editor.id.loc.gov/bfe2/util/validate/prod',
+        validate: 'https://editor.id.loc.gov/marva/util/validate/prod',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         bfdbGPO : 'https://preprod-8210.id.loc.gov/',
         // profiles : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         // starting : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:startingPoints&where=index.label:config',
-        profiles : '/bfe2/util/profiles/profile/prod',
-        starting : '/bfe2/util/profiles/starting/prod',
+        profiles : '/marva/util/profiles/profile/prod',
+        starting : '/marva/util/profiles/starting/prod',
 
         lcap: 'https://lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
 
-        worldCat: 'https://editor.id.loc.gov/bfe2/util/worldcat/',
-        copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/copycat/upload/prod',
+        worldCat: 'https://editor.id.loc.gov/marva/util/worldcat/',
+        copyCatUpload: 'https://editor.id.loc.gov/marva/util/copycat/upload/prod',
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
@@ -163,7 +159,6 @@ export const useConfigStore = defineStore('config', {
 
         ldpjs : 'https://bibframe.org/marva/api-production/',
         util  :  'https://bibframe.org/marva/util/',
-        utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
@@ -176,13 +171,17 @@ export const useConfigStore = defineStore('config', {
         displayLCOnlyFeatures: false,
         simpleLookupLang: 'en',
         isBibframeDotOrg: true,
+
+        dancerEnabled: true,
+        dancerWorkspaceList: "https://bibframe.org/dancer/api/serve/workspaces/",
+
+
       },
 
       playwrightTestConfig:{
 
         ldpjs : 'https://bibframe.org/marva/api-production/',
         util  :  'https://bibframe.org/marva/util/',
-        utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
@@ -551,6 +550,7 @@ export const useConfigStore = defineStore('config', {
           'LCSH Auth Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25&offset=<OFFSET>&searchtype=left"},
           'LCSH SubDiv Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&count=25&offset=<OFFSET>&searchtype=left"},
           'LCSH GnFrm Subjects':{"url":"http://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/genreForms/collection_LCGFT_General&count=25&offset=<OFFSET>&searchtype=left"},
+          'ENTITIES': {"url":"https://id.loc.gov/entities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=left"}
         }
       ]
     },

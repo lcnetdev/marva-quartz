@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Basic NAF Search and Add Monograph Profile', async ({ page }) => {
-  await page.goto('http://localhost:5555/bfe2/quartz/');
+  await page.goto('http://localhost:5555/marva/');
 
   await page.getByText('Click Here').click();
   await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();

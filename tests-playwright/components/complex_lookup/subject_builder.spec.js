@@ -12,7 +12,7 @@ import { preferences } from '../../configs/subjectBuilderConfig.json'
 
 
 test('Find simple heading "Dogs" with correct XML and MARC', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -42,7 +42,7 @@ test('Find simple heading "Dogs" with correct XML and MARC', async ({ page }) =>
 
 test('Build heading "Dogs--History" with correct XML and MARC', async ({ page }) => {
     // in Firefox this test is very inconsistent. It usually passes, but sometimes fails as different points
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -73,7 +73,7 @@ test('Build heading "Dogs--History" with correct XML and MARC', async ({ page })
 
 // look for complex subjects
 test('select a complex heading with correct XML and MARC', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -97,7 +97,7 @@ test('select a complex heading with correct XML and MARC', async ({ page }) => {
 });
 
 test('add subdivision to a complex heading with correct XML and MARC', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -129,7 +129,7 @@ test('add subdivision to a complex heading with correct XML and MARC', async ({ 
 });
 
 test('Write the entire string before validation', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -172,7 +172,7 @@ test('Write the entire string before validation', async ({ page }) => {
 });
 
 test('Validate string as each piece is written', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -206,7 +206,7 @@ test('Validate string as each piece is written', async ({ page }) => {
 
 // Look for complex subdivisions
 test('add complex subdivision, type whole thing and then select the subdivision', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -233,7 +233,7 @@ test('add complex subdivision, type whole thing and then select the subdivision'
 });
 
 test('add complex subdivision, type first part of subdivision and then select the whole subdivision', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -261,7 +261,7 @@ test('add complex subdivision, type first part of subdivision and then select th
 
 // Test headings with Hierarchical Geographic
 test('Build heading "Dogs--geo", but the geo headings is typed before selecting "Hierarchical Geo" with correct XML and MARC', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -293,7 +293,7 @@ test('Build heading "Dogs--geo", but the geo headings is typed before selecting 
 
 
 test('Build heading "Dogs--geo", but the geo headings is typed after selecting "Hierarchical Geo" with correct XML and MARC', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -323,7 +323,7 @@ test('Build heading "Dogs--geo", but the geo headings is typed after selecting "
 });
 
 test('Build heading "Dogs--geo", but the first part of the geo heading is selected from LCSH and then swap to Hierarchical before finishing the heading with correct XML and MARC', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -358,7 +358,7 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
 });
 
 test('Build heading "Dogs--geo", but the first part of the geo heading is selected from LCSH and finish the heading before swapping to Hierarchical with correct XML and MARC', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -395,7 +395,7 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
 
 // CYAC
 test('Add a CYAC heading, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -421,7 +421,7 @@ test('Add a CYAC heading, it has the correct XML', async ({ page }) => {
 
 // Hubs
 test('Add a HUB heading, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -448,7 +448,7 @@ test('Add a HUB heading, it has the correct XML', async ({ page }) => {
 });
 
 test('Add a HUB heading wita subdivision, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -482,7 +482,7 @@ test('Add a HUB heading wita subdivision, it has the correct XML', async ({ page
 
 
 test('Add a literal and set type Topic, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -505,7 +505,7 @@ test('Add a literal and set type Topic, it has the correct XML', async ({ page }
 });
 
 test('Add a literal and set type Genre, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -528,7 +528,7 @@ test('Add a literal and set type Genre, it has the correct XML', async ({ page }
 });
 
 test('Add a literal and set type Geographic, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -551,7 +551,7 @@ test('Add a literal and set type Geographic, it has the correct XML', async ({ p
 });
 
 test('Add a literal and set type Temporal, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -574,7 +574,7 @@ test('Add a literal and set type Temporal, it has the correct XML', async ({ pag
 });
 
 test('Add a Dogs with literal topic sub it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -602,7 +602,7 @@ test('Add a Dogs with literal topic sub it has the correct XML', async ({ page }
 });
 
 test('Add a Dogs with literal temporal sub it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -632,7 +632,7 @@ test('Add a Dogs with literal temporal sub it has the correct XML', async ({ pag
 
 
 test('Add a Geo with subdiv (complex) and check it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -654,7 +654,7 @@ test('Add a Geo with subdiv (complex) and check it has the correct XML', async (
 });
 
 test('Add a Geo with subdiv (simple) and check it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -677,7 +677,7 @@ test('Add a Geo with subdiv (simple) and check it has the correct XML', async ({
 
 
 test('Add a name with subdiv (simple) and check it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -700,7 +700,7 @@ test('Add a name with subdiv (simple) and check it has the correct XML', async (
 
 // jurisdiction
 test('Add a Jurisdiction and check it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -720,7 +720,7 @@ test('Add a Jurisdiction and check it has the correct XML', async ({ page }) => 
 
 
 test('Able to add an edited subject', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -746,7 +746,7 @@ test('Able to add an edited subject', async ({ page }) => {
 
 
 test('Correct USE appears for a Complex Heading', async ({ page }) => {
-    await page.goto('http://localhost:5555/bfe2/quartz/');
+    await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
     let prefs = JSON.stringify(preferences)
@@ -764,4 +764,20 @@ test('Correct USE appears for a Complex Heading', async ({ page }) => {
     await expect(page.locator('#app')).toContainText('Agricultural innovations');
     await expect(page.locator('#app')).toContainText('150 $aAgricultural innovations');
     await expect(page.locator('#app')).toContainText('rdf:about="http://id.loc.gov/authorities/subjects/sh85002334"');
+});
+
+test('Subject Usage note appears highlighted', async ({ page }) => {
+    await page.goto('http://localhost:5555/marva/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('Mebane (Family : Mebane, N.C.)');
+    await page.getByText('Mebane (Family : Mebane, N.C.)').nth(1).click();
+    await expect(page.getByRole('heading')).toContainText('[SUBJECT USAGE: This heading is not valid for use as a subject; use a family name heading from LCSH.]');
 });

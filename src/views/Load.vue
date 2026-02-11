@@ -56,7 +56,7 @@
                 <template #tbody="{ row }">
 
                   <td>
-                    <a v-if="row.Status=='unposted'" :href="'/bfe2/quartz/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
+                    <a v-if="row.Status=='unposted'" :href="'/marva/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
                     <a v-else :href="'#'+row.Id" @click="reloadRecord(row)">Load from BFDB</a>
                   </td>
 
@@ -154,7 +154,8 @@
                           </td>
 
                           <td>
-                            <span v-if="/\/in[0-9]/.test(r.bfdbURL)" style="font-weight: bold;">[FOLIO] </span>
+                            <span v-if="/\/in012/.test(r.bfdbURL)" style="font-weight: bold;">[Marva] </span>
+                            <span v-else-if="/\/in[0-9]/.test(r.bfdbURL)" style="font-weight: bold;">[FOLIO] </span>
                             <label v-if="searchByLccnResults.length > 1" style="cursor: pointer;"
                               :for="'lccnsearch' + idx">{{ r.label }}</label>
                             <span v-else>{{ r.label }}</span>
