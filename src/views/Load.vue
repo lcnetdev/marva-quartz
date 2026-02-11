@@ -666,11 +666,12 @@ export default {
     },
 
     loadTestData: function (meta) {
-
-
+      console.info("LoadTestData")
       let href = window.location.href.split("/")
+      console.info("href: ", href)
       this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
       this.urlToLoadIsHttp = true
+      console.info("meta.profileId: ", meta.profileId, "--", this.urlToLoad)
       this.loadUrl(meta.profileId)
     },
 
@@ -778,6 +779,7 @@ export default {
     },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
+      console.info("loadUrl: ", useInstanceProfile)
       console.log("useInstanceProfile", useInstanceProfile)
       let useLoadUrl = ''
       let marva001 = null
@@ -814,6 +816,7 @@ export default {
 
       if (useLoadUrl.trim() !== '') {
         this.loadingRecord = true
+        console.info("url: ", useLoadUrl)
         let xml = await utilsNetwork.fetchBfdbXML(useLoadUrl)
         if (!xml) {
           alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
