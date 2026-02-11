@@ -1425,7 +1425,6 @@ export default {
             }
           }
 		}
-		console.info("Components: ", this.components)
 	  } else if (mode == 'ENTITIES'){
 		// change "--" to other "--"	this might be the one -> "‑‑"
 		this.subjectString = this.subjectString.replace("--", "‑‑")
@@ -2030,7 +2029,6 @@ export default {
     },
 
     selectContext: async function (pickPostion, update = true) {
-	  console.info('selectContext: ', pickPostion, "--", this.pickLookup[this.pickPostion])
       if (pickPostion != null) {
         this.pickPostion = pickPostion
         this.pickCurrent = pickPostion
@@ -2142,7 +2140,6 @@ export default {
         }
 		// TODO: else if .entity, do something to replace the subject string and selection, without being unable to go back. How?
       } else {
-		console.info("else")
         // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
         // take the subject string and split
         let splitString = this.subjectString.split('--')
@@ -2151,9 +2148,6 @@ export default {
           splitString = this.subjectString.split('‑‑')
           this.activeComponentIndex = 0
         }
-        console.info("subjectString: ", this.subjectString)
-        console.info("splitString: ", splitString)
-        console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
 
         // if the incoming subject can replace the whole subject string, do that
         if (!this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
@@ -2166,14 +2160,10 @@ export default {
         // replace the string with what we selected
         splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')
 
-        console.info("splitString from pickLookup: ", splitString)
-
         // if we're selecting a subject entity, replace the whole thing
         if (this.pickLookup[this.pickPostion].entity){
           splitString = [splitString[this.activeComponentIndex]]
         }
-
-        console.info("splitString entity?: ", splitString)
 
         this.subjectString = splitString.join('--')
 
@@ -2182,8 +2172,6 @@ export default {
         }
 
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')] = this.pickLookup[this.pickPostion]
-
-        console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
 
         for (let k in this.pickLookup) {
           this.pickLookup[k].picked = false
@@ -2224,7 +2212,6 @@ export default {
         }
       }
 
-      console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
       this.$refs.subjectInput.focus()
 
     },
