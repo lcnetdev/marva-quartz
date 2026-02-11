@@ -8,7 +8,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 4,
-    versionPatch: 8,
+    versionPatch: 9,
 
 
 
@@ -577,7 +577,7 @@ export const useConfigStore = defineStore('config', {
 				{
           'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-          // 'LCSH':{"url": "https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+          'LCSH':{"url": "https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 				}
 			]
 		},
