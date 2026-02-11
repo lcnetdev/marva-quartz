@@ -1424,7 +1424,7 @@ export default {
               }
             }
           }
-		} 
+		}
 		console.info("Components: ", this.components)
 	  } else if (mode == 'ENTITIES'){
 		// change "--" to other "--"	this might be the one -> "‑‑"
@@ -2146,7 +2146,14 @@ export default {
         // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
         // take the subject string and split
         let splitString = this.subjectString.split('--')
-		console.info("splitString: ", splitString)
+
+        if (this.subjectString.includes("‑‑")){
+          splitString = this.subjectString.split('‑‑')
+        }
+        console.info("subjectString: ", this.subjectString)
+        console.info("splitString: ", splitString)
+        console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
+
 
         // if the incoming subject can replace the whole subject string, do that
         if (!this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
@@ -2159,13 +2166,23 @@ export default {
         // replace the string with what we selected
         splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')
 
+        // if we're selecting a subject entity, replac the whole thing
+        if (this.pickLookup[this.pickPostion].entity){
+          splitString = [this.subjectString]
+        }
+        console.info("splitString: ", splitString)
+
         this.subjectString = splitString.join('--')
+        console.info("this.subjectString joined: ", this.subjectString)
 
         if (!this.componetLookup[this.activeComponentIndex]) {
           this.componetLookup[this.activeComponentIndex] = {}
         }
 
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')] = this.pickLookup[this.pickPostion]
+
+        console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
+        console.info("this.componetLookup: ", this.componetLookup)
 
         for (let k in this.pickLookup) {
           this.pickLookup[k].picked = false
