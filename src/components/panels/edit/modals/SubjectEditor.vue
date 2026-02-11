@@ -1153,8 +1153,6 @@ export default {
 
         let tempSs = ss.replace("‑", "-")
 
-        console.info("lookup: ", JSON.stringify(this.componetLookup))
-
         if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
           literal = this.componetLookup[id + offset][ss].literal
           uri = this.componetLookup[id + offset][ss].uri
@@ -2492,15 +2490,11 @@ export default {
     },
 
     subjectStringChanged: async function (event) {
-      console.info("changed")
-      console.info("this.initialLoad: ", this.initialLoad)
       this.subjectString = this.subjectString.replaceAll("—", "--")
       this.validateOkayToAdd()
 
       //fake the "click" so the results panel populates
       if (this.initialLoad == true) {
-        console.info(">>>>>>>>>>>>>>>>>", this.$refs.subjectInput)
-        console.info(">>>>>>>>>>>>>>>>>\n>>>>>>>>>>>>>>>>>\n>>>>>>>>>>>>>>>>>\n>>>>>>>>>>>>>>>>>\n>>>>>>>>>>>>>>>>>\n", this.$refs)
         let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
         let lastPiece = pieces.at(-1)
         this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
@@ -2529,9 +2523,7 @@ export default {
         this.searchApis("", "", this)
       }
 
-      console.info("this.subjectString: ", this.subjectString)
       if (!this.subjectString.endsWith("--")) {
-        console.info("building")
         this.buildComponents(this.subjectString)
       }
 
