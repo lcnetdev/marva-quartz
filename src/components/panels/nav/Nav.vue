@@ -178,7 +178,7 @@ export default {
                   if (this.profileStore.copyCatMode) {
                     this.profileStore.copyCatMode = false
                   }
-                  this.$router.push('/load')
+                  this.$router.push('/')
                 })
               } catch {
                 // expected error :(
@@ -196,7 +196,7 @@ export default {
                 if (this.profileStore.copyCatMode) {
                   this.profileStore.copyCatMode = false
                 }
-                this.$router.push('/load')
+                this.$router.push('/')
               })
             } catch {
               // expected error :(
