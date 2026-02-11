@@ -103,6 +103,7 @@ export const useProfileStore = defineStore('profile', {
     savedNARModalData:{},
     savedHubModalData:{},
 
+    showCipModal: false,
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
