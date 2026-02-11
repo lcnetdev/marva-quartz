@@ -7287,7 +7287,6 @@ export const useProfileStore = defineStore('profile', {
     },
 
     displayClassNumber: function(comp){
-      console.info("Display Class Number?")
       let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc-class-numbers")
       if (!pref){ return true }
 
@@ -7295,13 +7294,10 @@ export const useProfileStore = defineStore('profile', {
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/classification"] ? userValue["http://id.loc.gov/ontologies/bibframe/classification"][0] : {}
-          console.info("data: ", data)
           let assigner = data["http://id.loc.gov/ontologies/bibframe/assigner"][0]
           let id = assigner['@id']
           let label = assigner["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
 
-          console.info("id: ", id)
-          console.info("label: ", label)
           if (!label.includes("Library of Congress") ){
             return false
           }
