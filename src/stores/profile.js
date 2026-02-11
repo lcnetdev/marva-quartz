@@ -2850,7 +2850,6 @@ export const useProfileStore = defineStore('profile', {
 
           // add source for LCDGT
           if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/intendedAudience")){
-            console.info(">>>>>>>", nodeMap.collections)
             let objId = blankNode['@id']
             if (nodeMap.collections && nodeMap.collections.includes('http://id.loc.gov/authorities/demographicTerms/collection_LCDGT_General')){
               blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
