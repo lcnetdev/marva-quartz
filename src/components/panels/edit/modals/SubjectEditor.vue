@@ -1648,6 +1648,10 @@ export default {
         s.label = s.label.replaceAll('-', '‑')
       }
 
+	  for (let s of that.searchResults.entities){
+		s.entity = true
+	  }
+
       for (let s of that.searchResults.subjectsSimple) {
         if (s.suggestLabel && s.suggestLabel.includes('(DEPRECATED')) {
           s.suggestLabel = s.suggestLabel.split('(DEPRECATED')[0] + "(DEPRECATED)"
@@ -2026,6 +2030,7 @@ export default {
     },
 
     selectContext: async function (pickPostion, update = true) {
+	  console.info('selectContext: ', pickPostion, "--", this.pickLookup[this.pickPostion])
       if (pickPostion != null) {
         this.pickPostion = pickPostion
         this.pickCurrent = pickPostion
@@ -2135,11 +2140,13 @@ export default {
         } catch (err) {
           console.log("working with existing data: $refs")
         }
-
+		// TODO: else if .entity, do something to replace the subject string and selection, without being unable to go back. How?
       } else {
+		console.info("else")
         // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
         // take the subject string and split
         let splitString = this.subjectString.split('--')
+		console.info("splitString: ", splitString)
 
         // if the incoming subject can replace the whole subject string, do that
         if (!this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
