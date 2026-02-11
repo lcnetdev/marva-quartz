@@ -359,7 +359,7 @@ export default {
         )
       }
 
-      if (!this.disable.includes('Tools') && this.isStaging()) {
+      if (!this.disable.includes('Tools') && this.isStaging() && this.$route.path.startsWith('/edit/')) {
         for (let sub in menu) {
           if (menu[sub].text == 'Tools') {
             menu[sub].menu.push(
