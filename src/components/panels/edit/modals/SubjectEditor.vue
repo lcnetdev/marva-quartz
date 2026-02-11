@@ -2138,7 +2138,7 @@ export default {
         } catch (err) {
           console.log("working with existing data: $refs")
         }
-		// TODO: else if .entity, do something to replace the subject string and selection, without being unable to go back. How?
+
       } else {
         // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
         // take the subject string and split
