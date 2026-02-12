@@ -1424,7 +1424,20 @@ export default {
               }
             }
           }
-        }
+		}
+	  } else if (mode == 'ENTITIES'){
+		// change "--" to other "--"	this might be the one -> "‑‑"
+		this.subjectString = this.subjectString.replace("--", "‑‑")
+		//Need to update components too?
+	    this.components[0].label = this.subjectString
+		this.components[0].posEnd = this.subjectString.length
+		this.components[0].literal = null
+		this.components[0].uri = null
+		this.components.splice(1)
+		this.activeComponent = this.components[0]
+		try {
+			this.renderHintBoxes()
+		} catch(err) { }
       } else {
         // Above we took loose components and combined them,
         // here we undo that incase someone made a mistake and the geo
@@ -1440,7 +1453,6 @@ export default {
             approved.push(this.components[c])
           }
         }
-
         //remove the terms that have been exploded
         for (let i in unApprovedIdx) {
           if (this.components[unApprovedIdx[i]].label.includes("‑‑")) {
@@ -1492,6 +1504,8 @@ export default {
 
         // get the boxes lined up correctly
         this.renderHintBoxes()
+        this.initialLoad = false
+        this.subjectStringChanged()
       }
 
       if (this.activeComponent && this.activeComponent.label) {
@@ -1633,6 +1647,10 @@ export default {
         s.complex = true
         s.label = s.label.replaceAll('-', '‑')
       }
+
+	  for (let s of that.searchResults.entities){
+		s.entity = true
+	  }
 
       for (let s of that.searchResults.subjectsSimple) {
         if (s.suggestLabel && s.suggestLabel.includes('(DEPRECATED')) {
@@ -2127,6 +2145,10 @@ export default {
         // take the subject string and split
         let splitString = this.subjectString.split('--')
 
+        if (this.subjectString.includes("‑‑") && this.pickLookup[this.pickPostion].entity){
+          splitString = this.subjectString.split('‑‑')
+        }
+
         // if the incoming subject can replace the whole subject string, do that
         if (!this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
           if(splitString.length == 2 ){
@@ -2137,6 +2159,12 @@ export default {
 
         // replace the string with what we selected
         splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')
+
+        // if we're selecting a subject entity, replace the whole thing
+        if (this.pickLookup[this.pickPostion].entity){
+          splitString = [splitString[this.activeComponentIndex]]
+          this.activeComponentIndex = 0
+        }
 
         this.subjectString = splitString.join('--')
 
