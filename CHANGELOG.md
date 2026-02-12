@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 - Support for LCSH search for intendedd audience
 - Preference for "priority" in CopyCat
 
+### Fixed
+- `$q` not parsing when pasting MARC subject strings
+
 ## [1.4.8] - 2025-02-03
 ### Added
 - Support for Subject Entities in Subject Builder
