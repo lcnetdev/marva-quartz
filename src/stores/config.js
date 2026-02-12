@@ -140,10 +140,15 @@ export const useConfigStore = defineStore('config', {
         validate: 'https://editor.id.loc.gov/marva/util/validate/prod',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         bfdbGPO : 'https://preprod-8210.id.loc.gov/',
-        // profiles : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
-        // starting : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:startingPoints&where=index.label:config',
-        profiles : '/marva/util/profiles/profile/prod',
-        starting : '/marva/util/profiles/starting/prod',
+
+        // These are the legacy profile endpoints, frozen early Feb 2026
+        // profiles : '/marva/util/profiles/profile/prod',
+        // starting : '/marva/util/profiles/starting/prod',
+
+        // these are DCTap profile, editable at https://editor.id.loc.gov/marva/dancer/
+        profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/profile',
+        starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/starting-points',
+
 
         lcap: 'https://lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
 
