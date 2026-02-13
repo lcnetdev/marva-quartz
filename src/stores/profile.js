@@ -1131,9 +1131,12 @@ export const useProfileStore = defineStore('profile', {
                       delete ptVal['missingProfile']
                       delete ptVal['valueConstraint']['editable']
                       delete ptVal['valueConstraint']['repeatable']
-                      delete ptVal['valueConstraint']['valueDataType']['dataTypeLabel']
-                      delete ptVal['valueConstraint']['valueDataType']['remark']
                       delete ptVal['valueConstraint']['defaults']
+
+                      try{
+                        delete ptVal['valueConstraint']['valueDataType']['dataTypeLabel']
+                        delete ptVal['valueConstraint']['valueDataType']['remark']
+                      } catch { }
 
                       let orderedPtVal = Object.keys(ptVal).sort().reduce(
                         (obj, key) => {
