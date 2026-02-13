@@ -1128,18 +1128,9 @@ export const useProfileStore = defineStore('profile', {
                         },
                         {}
                       );
-
-                      if (ptVal.propertyLabel == "Supplementary content"){
-                        console.info("ptVal: ", orderedPtVal)
-                        console.info(">>>>", JSON.stringify(orderedPtVal))
-                      }
-
                       this.profiles[p].hashPts[id] = hashCode(JSON.stringify(orderedPtVal))
                       this.profiles[p].rt[rt].pt[pt].hashCode = hashCode(JSON.stringify(orderedPtVal))
                       this.profiles[p].rt[rt].pt[pt].hashCodeId = id
-                      if (ptVal.propertyLabel == "Supplementary content"){
-                        console.info("hash: ", this.profiles[p].rt[rt].pt[pt].hashCode)
-                      }
                   }
 
 
@@ -6425,9 +6416,6 @@ export const useProfileStore = defineStore('profile', {
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
-                console.info("found: ", JSON.parse(JSON.stringify(ptObjFound)))
-                console.info("library: ", JSON.parse(JSON.stringify(component)))
-
                 if (this.compareComponentStruncture(ptObjFound, component)){  //ptObjFound.hashCode == component.hashCode
 
                   // if the component we found in the system already has data in it then we are going to add a new component
@@ -6529,7 +6517,6 @@ export const useProfileStore = defineStore('profile', {
      * @param {Object} componentLibrary - Component from library
      */
     compareComponentStruncture(componentExisting, componentLibrary){
-      console.info("hash: ", componentLibrary.hashCode)
       if (componentExisting.hasCode == componentLibrary.hashCode){ return true}
       // strip out the non-structural stuff
       let found = JSON.parse(JSON.stringify(componentExisting))
