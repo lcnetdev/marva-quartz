@@ -7294,15 +7294,19 @@ export const useProfileStore = defineStore('profile', {
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/classification"] ? userValue["http://id.loc.gov/ontologies/bibframe/classification"][0] : {}
+          let type = data['@type']
+          // check type
+          if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" || type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"){
+            return true
+          }
+          // fallback on assigner
           let assigner = data["http://id.loc.gov/ontologies/bibframe/assigner"][0]
           let id = assigner['@id']
           let label = assigner["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
 
-          if (!label.includes("Library of Congress") ){
+          if (!label.includes("Library of Congress")){
             return false
           }
-
-
         }
 
         return true
@@ -7333,7 +7337,7 @@ export const useProfileStore = defineStore('profile', {
             let label  = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
             let sourceURI = source["@id"] ? source["@id"] : ""
 
-            if (!label.includes("Library of Congress") ){
+            if (!label.includes("Library of Congress") || !label.includes("Children's and Young Adults")){
               return false
             }
           } else if(Object.keys(data).length == 2) {
