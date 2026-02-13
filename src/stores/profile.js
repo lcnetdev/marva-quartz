@@ -6416,7 +6416,7 @@ export const useProfileStore = defineStore('profile', {
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
-                if (this.compareComponentStruncture(ptObjFound, component)){  //ptObjFound.hashCode == component.hashCode
+                if (this.compareComponentStructure(ptObjFound, component)){  //ptObjFound.hashCode == component.hashCode
 
                   // if the component we found in the system already has data in it then we are going to add a new component
                   // if it doesn't then just overwrite it completely with the one from the library
@@ -6516,7 +6516,7 @@ export const useProfileStore = defineStore('profile', {
      * @param {Object} componentExisting - Component that exists in the Profile
      * @param {Object} componentLibrary - Component from library
      */
-    compareComponentStruncture(componentExisting, componentLibrary){
+    compareComponentStructure(componentExisting, componentLibrary){
       if (componentExisting.hasCode == componentLibrary.hashCode){ return true}
       // strip out the non-structural stuff
       let found = JSON.parse(JSON.stringify(componentExisting))
