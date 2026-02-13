@@ -57,8 +57,11 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://preprod-3001.id.loc.gov/marva/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        starting: 'https://editor.id.loc.gov/marva/util/profiles/starting/prod',
-        profiles: 'https://editor.id.loc.gov/marva/util/profiles/profile/prod',
+        // starting: 'https://editor.id.loc.gov/marva/util/profiles/starting/prod',
+        // profiles: 'https://editor.id.loc.gov/marva/util/profiles/profile/prod',
+
+        profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/profile',
+        starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/starting-points',
 
 
         // worldCat: 'http://localhost:5200/worldcat/',
@@ -68,7 +71,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
-        dev: false,
+        dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
