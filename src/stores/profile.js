@@ -1105,10 +1105,41 @@ export const useProfileStore = defineStore('profile', {
                       }
                       // builds an id like this: lc:RT:bf2:35mmFeatureFilm:Work|http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bflc/PrimaryContribution
                       let ptVal = JSON.parse(JSON.stringify(this.profiles[p].rt[rt].pt[pt]))
+                      // ensure reliable order
+                      ptVal.valueConstraint = Object.keys(ptVal.valueConstraint).sort().reduce(
+                        (obj, key) => {
+                          obj[key] = ptVal.valueConstraint[key];
+                          return obj;
+                        },
+                        {}
+                      );
+
                       delete ptVal['@guid']
-                      this.profiles[p].hashPts[id] = hashCode(JSON.stringify(ptVal))
-                      this.profiles[p].rt[rt].pt[pt].hashCode = hashCode(JSON.stringify(ptVal))
+                      delete ptVal['hashCode']
+                      delete ptVal['hashCodeId']
+                      delete ptVal['parent']
+                      delete ptVal['remark']
+                      delete ptVal['userValue']
+                      delete ptVal['canBeHidden']
+                      let orderedPtVal = Object.keys(ptVal).sort().reduce(
+                        (obj, key) => {
+                          obj[key] = ptVal[key];
+                          return obj;
+                        },
+                        {}
+                      );
+
+                      if (ptVal.propertyLabel == "Supplementary content"){
+                        console.info("ptVal: ", orderedPtVal)
+                        console.info(">>>>", JSON.stringify(orderedPtVal))
+                      }
+
+                      this.profiles[p].hashPts[id] = hashCode(JSON.stringify(orderedPtVal))
+                      this.profiles[p].rt[rt].pt[pt].hashCode = hashCode(JSON.stringify(orderedPtVal))
                       this.profiles[p].rt[rt].pt[pt].hashCodeId = id
+                      if (ptVal.propertyLabel == "Supplementary content"){
+                        console.info("hash: ", this.profiles[p].rt[rt].pt[pt].hashCode)
+                      }
                   }
 
 
@@ -6394,7 +6425,10 @@ export const useProfileStore = defineStore('profile', {
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
-                if (ptObjFound.hashCode == component.hashCode){
+                console.info("found: ", JSON.parse(JSON.stringify(ptObjFound)))
+                console.info("library: ", JSON.parse(JSON.stringify(component)))
+
+                if (this.compareComponentStruncture(ptObjFound, component)){  //ptObjFound.hashCode == component.hashCode
 
                   // if the component we found in the system already has data in it then we are going to add a new component
                   // if it doesn't then just overwrite it completely with the one from the library
@@ -6468,7 +6502,7 @@ export const useProfileStore = defineStore('profile', {
 
                 }else{
 
-                  alert("ERROR: There seems to be mismatch between the component you are trying to add and the components in the profile. Please delete this component from your library and recreate it")
+                  alert("ERROR: There seems to be a mismatch between the component you are trying to add and the components in the profile. Please delete this component from your library and recreate it")
 
                 }
 
@@ -6486,6 +6520,104 @@ export const useProfileStore = defineStore('profile', {
         }
 
       }
+
+    },
+
+    /**
+     * Reduce the components down to their structure for comparison
+     * @param {Object} componentExisting - Component that exists in the Profile
+     * @param {Object} componentLibrary - Component from library
+     */
+    compareComponentStruncture(componentExisting, componentLibrary){
+      console.info("hash: ", componentLibrary.hashCode)
+      if (componentExisting.hasCode == componentLibrary.hashCode){ return true}
+      // strip out the non-structural stuff
+      let found = JSON.parse(JSON.stringify(componentExisting))
+      delete found['@guid']
+      delete found['hashCode']
+      delete found['hashCodeId']
+      delete found['userValue']
+      delete found['canBeHidden']
+      delete found['dataLoaded']
+      delete found['deepHierarchy']
+      delete found['hasData']
+      delete found['remark']
+      delete found['parent']
+      delete found['xmlHash']
+      delete found['xmlSource']
+      delete found['userModified']
+      delete found['activeType']
+      delete found['missingProfile']
+      delete found['valueConstraint']['editable']
+      delete found['valueConstraint']['repeatable']
+      delete found['valueConstraint']['valueDataType']['dataTypeLabel']
+      delete found['valueConstraint']['valueDataType']['remark']
+      delete found['valueConstraint']['defaults']
+
+      let libraryComponent = JSON.parse(JSON.stringify(componentLibrary))
+      delete libraryComponent['@guid']
+      delete libraryComponent['hashCode']
+      delete libraryComponent['hashCodeId']
+      delete libraryComponent['userValue']
+      delete libraryComponent['activeType']
+      delete libraryComponent['canBeHidden']
+      delete libraryComponent['dataLoaded']
+      delete libraryComponent['deepHierarchy']
+      delete libraryComponent['hasData']
+      delete libraryComponent['remark']
+      delete libraryComponent['parent']
+      delete libraryComponent['userModified']
+      delete libraryComponent['xmlHash']
+      delete libraryComponent['xmlSource']
+      delete libraryComponent['missingProfile']
+      delete libraryComponent['valueConstraint']['editable']
+      delete libraryComponent['valueConstraint']['repeatable']
+      delete libraryComponent['valueConstraint']['valueDataType']['dataTypeLabel']
+      delete libraryComponent['valueConstraint']['valueDataType']['remark']
+      delete libraryComponent['valueConstraint']['defaults']
+
+      // Get everything into a reliable order
+      found.valueConstraint = Object.keys(found.valueConstraint).sort().reduce(
+        (obj, key) => {
+          obj[key] = found.valueConstraint[key];
+          return obj;
+        },
+        {}
+      );
+      libraryComponent.valueConstraint = Object.keys(libraryComponent.valueConstraint).sort().reduce(
+        (obj, key) => {
+          obj[key] = libraryComponent.valueConstraint[key];
+          return obj;
+        },
+        {}
+      );
+      let orderedFound = Object.keys(found).sort().reduce(
+        (obj, key) => {
+          obj[key] = found[key];
+          return obj;
+        },
+        {}
+      );
+      let orderedLibrary = Object.keys(libraryComponent).sort().reduce(
+        (obj, key) => {
+          obj[key] = libraryComponent[key];
+          return obj;
+        },
+        {}
+      );
+
+      let orderedFoundHashCode =  hashCode(JSON.stringify(orderedFound))
+      let orderedLibraryHashCode = hashCode(JSON.stringify(orderedLibrary))
+
+      // if the existing hashMatches the stripped down library hash
+      if (componentExisting.hashCode == orderedLibraryHashCode){
+        return true
+      } else if (orderedFoundHashCode == orderedLibraryHashCode){ // if both stripped down components match
+        return true
+      } else {
+        return false
+      }
+
 
     },
 
