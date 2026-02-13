@@ -7308,7 +7308,7 @@ export const useProfileStore = defineStore('profile', {
         return true
       } catch(err){
         console.error("Error with displaySubject preference: ", err)
-        return true
+        return false
       }
     },
 
