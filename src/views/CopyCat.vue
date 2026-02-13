@@ -122,8 +122,7 @@
               There was an error getting the results: "{{ wcResults.error.message }}"
             </h2>
             <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0 && !queryingWc">
-              Showing {{ wcLimit < wcResults.results.numberOfRecords ? wcLimit : wcResults.results.numberOfRecords }} of
-                {{ wcResults.results.numberOfRecords }} results </h2>
+              Showing 10 of {{ wcResults.results.numberOfRecords }} results </h2>
                 <!-- Pagination -->
                 <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc"
                   class="wc-search-paging">
@@ -223,7 +222,7 @@ export default {
       wcIndex: "sn",
       wcType: "book",
       wcQuery: "",
-      wcOffset: 1,
+      wcOffset: 0,
       wcLimit: 10,
       queryingWc: false,
       wcResults: [],
@@ -556,9 +555,15 @@ export default {
 
       this.queryingWc = true
       if (this.searchPage != 1) {
-        this.wcOffset = this.wcLimit * (this.searchPage - 1)
+        this.wcOffset = 10 * (this.searchPage -1)
+        this.wcLimit = (this.searchPage * 10) // API needs limit to be from 0 not from offset
       } else {
         this.wcOffset = 1
+        this.wcLimit = 10 // API needs limit to be from 0 not from offset
+      }
+
+      if (this.wcLimit > 50){ // the limit is > 50, API will return an error
+        this.wcLimit = 10
       }
 
       const cleanQuery = this.wcQuery.trim()
