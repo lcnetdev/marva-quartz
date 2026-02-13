@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Update
 - Changes to match backend refactor
 - URL target for navigation to load screen
+- Use `@type` when determining to show/hide class number components
 
 ### Added
 - Support for LCSH search for intendedd audience
