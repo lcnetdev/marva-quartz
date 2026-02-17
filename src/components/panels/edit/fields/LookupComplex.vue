@@ -535,7 +535,7 @@ export default {
 
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
 
-          if (this.searchValue.match(/[$‡|]/)){
+          if (this.searchValue.match(/[$‡ǂ|]/)){
 
             window.clearTimeout(this.marcDeliminatedLCSHModeTimeout)
             this.marcDeliminatedLCSHModeSearching = true
