@@ -1503,17 +1503,11 @@ const utilsNetwork = {
       //          .replace(/\$d/g,'').replace(/\|d/g,'').replace(/‡d/g,'')
       //          .replace(/\s{2,}/g, ' ')
 
-      console.info("lcsh: ", lcsh)
-      console.info("lcsh.substring(0,2): ", lcsh.substring(0,2), "--", lcsh.substring(0,2) == '‡a')
-
       // if it doesn't have a $a or ‡a in the start of the string add it
       // often times copying from a system they dont include the $a
       if (lcsh.substring(0,2) != '$a' && lcsh.substring(0,2) != '‡a' && lcsh.substring(0,2) != '|a' && lcsh.substring(0,2) != 'ǂa'){
         lcsh = '$a' + lcsh
       }
-
-      console.info("lcsh: ", lcsh)
-
 
       // check to see if there are two geographic headings in a row, if there is then
       // it is likely a indirect geographic so collapse the $zABCD$zXYZ into $zABCD--XYZ
@@ -1542,8 +1536,6 @@ const utilsNetwork = {
 
       }
       // ǂa Istanbul (Turkey) ǂx History ǂy Siege, 1453
-      console.info("lcsh: ", lcsh)
-
       // first we have to test the encoded string to see if it is valid
       let dollarCount = lcsh.split(/[$‡ǂ|]/).length-1
 

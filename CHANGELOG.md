@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.10] - 2025-02-13
+### Update
+- Subject subfield delimiters to include `ǂ`
+
 ## [1.4.9] - 2025-02-13
 ### Update
 - Changes to match backend refactor
