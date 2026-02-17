@@ -7459,9 +7459,9 @@ export const useProfileStore = defineStore('profile', {
       // should it be like when ad hoc hides components?
       let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc")
       if (!pref){ return true }
-
       try {
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"] ? userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] : {}
           if (data['@id'] && data['@id'].includes('http://id.loc.gov/authorities/')){
@@ -7473,7 +7473,7 @@ export const useProfileStore = defineStore('profile', {
             let label  = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
             let sourceURI = source["@id"] ? source["@id"] : ""
 
-            if (!label.includes("Library of Congress") || !label.includes("Children's and Young Adults")){
+            if (!label.includes("Library of Congress") && !label.includes("Children's and Young Adults")){
               return false
             }
           } else if(Object.keys(data).length == 2) {
