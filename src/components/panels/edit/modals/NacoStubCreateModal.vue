@@ -282,7 +282,7 @@
                 fieldTag: fieldTag,
                 indicators: indicators
               }
-              let subfields = field.value.split(/[$‡|]/)
+              let subfields = field.value.split(/[$‡ǂ|]/)
 
               for (let [idx, subfield] of subfields.entries()){
                 let subfieldKey = subfield.slice(0,1)
@@ -306,7 +306,7 @@
           this.MARCText = results.text
           this.MARClccn = results.lccn
 
-          // kick off the validation process 
+          // kick off the validation process
           this.validate()
 
           this.showPreview = true
@@ -552,7 +552,7 @@
           }
           let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true )
           // console.log("search results",results)
-          
+
           this.oneXXExactMatches = this.findAuthExactMatch(results, authLabel)
           // console.log("oneXXExactMatches", this.oneXXExactMatches)
           let formatted = []
@@ -605,7 +605,7 @@
             return false
           }
 
-          let oneXXParts = this.oneXX.split(/[$‡|]/)
+          let oneXXParts = this.oneXX.split(/[$‡ǂ|]/)
           if (oneXXParts.length>0){
 
             let fieldTag = oneXXParts[0].slice(0,3)
@@ -796,7 +796,7 @@
             return false
           }
 
-          let fourXXParts = this.fourXX.split(/[$‡|]/)
+          let fourXXParts = this.fourXX.split(/[$‡ǂ|]/)
           if (fourXXParts.length>0){
 
             let fieldTag = fourXXParts[0].slice(0,3)
@@ -1206,6 +1206,8 @@
               this.oneXX = OnexxPart + "$a"+ this.oneXX.split("$a")[1]
             }else if (this.oneXX.indexOf("‡a")>-1){
               this.oneXX = OnexxPart + "‡a"+ this.oneXX.split("‡a")[1]
+            }else if (this.oneXX.indexOf("ǂa")>-1){
+              this.oneXX = OnexxPart + "ǂa"+ this.oneXX.split("ǂa")[1]
             }else{
               this.oneXX = OnexxPart + "$a"
             }
@@ -1217,6 +1219,8 @@
               this.fourXX = FourxxPart + "$a"+ this.fourXX.split("$a")[1]
             }else if (this.fourXX.indexOf("‡a")>-1){
               this.fourXX = FourxxPart + "‡a"+ this.fourXX.split("‡a")[1]
+            } else if (this.fourXX.indexOf("ǂa")>-1){
+              this.fourXX = FourxxPart + "ǂa"+ this.fourXX.split("ǂa")[1]
             }else{
               this.fourXX = FourxxPart + "$a"
             }
@@ -1822,7 +1826,7 @@
                       </template>
 
                       <template v-if="oneXXResults.length>0">
-                        
+
                         <div>
                           1XX: Partial Matches:
                         </div>
@@ -2081,7 +2085,7 @@
                 </span>
 
 
-                
+
               </div>
             </template>
 
