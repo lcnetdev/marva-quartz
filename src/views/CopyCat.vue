@@ -555,14 +555,14 @@ export default {
 
       this.queryingWc = true
       if (this.searchPage != 1) {
-        this.wcOffset = 10 * (this.searchPage -1)
-        this.wcLimit = (this.searchPage * 10) // API needs limit to be from 0 not from offset
+        this.wcOffset = 10 * (this.searchPage -1) + 1
+        this.wcLimit = 10
       } else {
         this.wcOffset = 1
-        this.wcLimit = 10 // API needs limit to be from 0 not from offset
+        this.wcLimit = 10
       }
 
-      if (this.wcLimit > 50){ // the limit is > 50, API will return an error
+      if (this.wcLimit > 50){
         this.wcLimit = 10
       }
 
