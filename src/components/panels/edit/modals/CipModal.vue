@@ -38,7 +38,8 @@ export default {
             copyrightDate: '',
             callNumberDate: '',
             two64Date: '',
-
+            copyrightAsPub: false,
+            ebookCip: false,
         }
     },
 
@@ -55,6 +56,22 @@ export default {
                 this.initalHeight = 270
             } else {
                 this.initalHeight = 190
+            }
+        },
+
+        copyrightAsPub(newValue, oldValue){
+            if (this.copyrightAsPub){
+                this.initalHeight = this.initalHeight + 40
+            } else {
+                this.initalHeight = this.initalHeight - 40
+            }
+        },
+
+        ebookCip(){
+            if (this.ebookCip){
+                this.initalHeight = this.initalHeight + 16
+            } else {
+                this.initalHeight = this.initalHeight - 16
             }
         }
     },
@@ -73,6 +90,9 @@ export default {
             // remove projected publication date
             let projDateComponent = this.profileStore.returnComponentByPropertyLabel('Projected publication date (YYMM)')
             this.profileStore.deleteComponent(projDateComponent['@guid'])
+
+            // instance note
+            let instanceNoteComponent = this.profileStore.returnComponentByPropertyLabel('Notes about the Instance ')
 
             // change encoding level to `full`
             let adminComponent = false
@@ -96,7 +116,10 @@ export default {
             )
 
             if (!this.updateDates){ return}
-            if (this.zerozero8Date == ''){
+            if (this.copyrightAsPub){
+                this.zerozero8Date = this.copyrightDate
+            }
+            if (this.zerozero8Date == '' && !this.copyrightAsPub){
                 let confirmation = confirm("No 'Publication Year' provided. Continue without changes dates? [Ok], or go back and provide a year. [Cancel]")
                 if (confirmation){
                     return
@@ -163,7 +186,7 @@ export default {
             let two64 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bflc/simpleDate"][0]
             let two64Value = two64["http://id.loc.gov/ontologies/bflc/simpleDate"]
             // if it's in [brackets], keep it in brackets. Or if it matches the copy right date add them?
-            if (two64Value.startsWith('[') || this.copyrightDate == this.zerozero8Date){
+            if (two64Value.startsWith('[') || this.copyrightDate == this.zerozero8Date || this.copyrightAsPub){
                 this.zerozero8Date = '[' + this.zerozero8Date + ']'
             }
             if (this.zerozero8Date){
@@ -218,6 +241,9 @@ export default {
                 <br>
                 <label for="dateCheck">Update Dates: </label>
                 <input type="checkbox" name="dateCheck" id="dateCheck" v-model="updateDates" />
+                &nbsp;
+                <label for="ebookCip">Ebook? </label>
+                <input type="checkbox" name="ebookCip" id="ebookCip" v-model="ebookCip" />
                 <br><br>
                 <p>This will:</p>
                 <ul>
@@ -226,6 +252,12 @@ export default {
                     <template v-if="updateDates">
                         <li>Match the "Provision Activity" dates and call number date to the "Publication Year"</li>
                         <li>Insert the "Copyright Year" into the "Copyright date," if provided</li>
+                        <template v-if="copyrightAsPub">
+                            <li>Use the "Copyright Year" as the "Publication Year" and put [brackets] around 264 $c</li>
+                        </template>
+                        <template v-if="ebookCip">
+                            <li>Set the "Note about the Instance."</li>
+                        </template>
                     </template>
                 </ul>
 
@@ -236,6 +268,11 @@ export default {
                     <br>
                     <label for="copYear">Copyright Year: </label>
                     <input type="text" name="copYear" id="copYear" v-model="copyrightDate" />
+                    &nbsp;
+                    <input type="checkbox" name="copyPub" id="copyPub" v-model="copyrightAsPub" />
+                    <label for="copyPub"> (Use CopyRight as Pub)</label>
+
+
                 </div>
 
                 <button @click="finishCip()">Finish CIP</button>
