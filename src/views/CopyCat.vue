@@ -562,10 +562,6 @@ export default {
         this.wcLimit = 10
       }
 
-      if (this.wcLimit > 50){
-        this.wcLimit = 10
-      }
-
       const cleanQuery = this.wcQuery.trim()
 
       if (this.wcIndex == 'sn') {
