@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import utilsNetwork from '@/lib/utils_network';
+import scriptShifterLangCodes from '@/lib/scriptShifterLangCodes.json';
 
 
 export const useConfigStore = defineStore('config', {
@@ -7,7 +8,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 4,
-    versionPatch: 8,
+    versionPatch: 10,
 
 
 
@@ -56,8 +57,11 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://preprod-3001.id.loc.gov/marva/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        starting: 'https://editor.id.loc.gov/marva/util/profiles/starting/prod',
-        profiles: 'https://editor.id.loc.gov/marva/util/profiles/profile/prod',
+        // starting: 'https://editor.id.loc.gov/marva/util/profiles/starting/prod',
+        // profiles: 'https://editor.id.loc.gov/marva/util/profiles/profile/prod',
+
+        profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/profile',
+        starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/starting-points',
 
 
         // worldCat: 'http://localhost:5200/worldcat/',
@@ -67,7 +71,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
-        dev: false,
+        dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
@@ -75,11 +79,11 @@ export const useConfigStore = defineStore('config', {
 
       externalDev:{
 
-        ldpjs : 'http://localhost:9401/api-staging/',
-        util  : 'http://localhost:9401/util/',
-        scriptshifter: 'http://localhost:9401/scriptshifter/',
-        publish : 'http://localhost:9401/util/publish/staging',
-        validate: 'http://localhost:9401/util/validate/prod',
+        ldpjs : 'http://localhost:9401/marva/api-staging/',
+        util  : 'http://localhost:9401/marva/util/',
+        scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
+        publish : 'http://localhost:9401/marva/util/publish/staging',
+        validate: 'http://localhost:9401/marva/util/validate/prod',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
         id: 'https://id.loc.gov/',
@@ -93,7 +97,7 @@ export const useConfigStore = defineStore('config', {
         isBibframeDotOrg: false,
 
         dancerEnabled: true,
-        dancerWorkspaceList: "http://localhost:9401/dancer/api/serve/workspaces",
+        dancerWorkspaceList: "http://localhost:9401/marva/dancer/api/serve/workspaces",
 
       },
 
@@ -139,10 +143,15 @@ export const useConfigStore = defineStore('config', {
         validate: 'https://editor.id.loc.gov/marva/util/validate/prod',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         bfdbGPO : 'https://preprod-8210.id.loc.gov/',
-        // profiles : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
-        // starting : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:startingPoints&where=index.label:config',
-        profiles : '/marva/util/profiles/profile/prod',
-        starting : '/marva/util/profiles/starting/prod',
+
+        // These are the legacy profile endpoints, frozen early Feb 2026
+        // profiles : '/marva/util/profiles/profile/prod',
+        // starting : '/marva/util/profiles/starting/prod',
+
+        // these are DCTap profile, editable at https://editor.id.loc.gov/marva/dancer/
+        profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/profile',
+        starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/starting-points',
+
 
         lcap: 'https://lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
 
@@ -576,7 +585,7 @@ export const useConfigStore = defineStore('config', {
 				{
           'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-          // 'LCSH':{"url": "https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+          'LCSH':{"url": "https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 				}
 			]
 		},
@@ -827,324 +836,7 @@ export const useConfigStore = defineStore('config', {
     }
   },
 
-  scriptShifterLangCodes:{
-    "abkhaz_cyrillic": {
-        "code": "ab-Cyrl"
-    },
-    "altai_cyrillic": {
-        "code": "alt-Cyrl"
-    },
-    "arabic": {
-        "code": "ar-Arab"
-    },
-    "armenian": {
-        "code": "hy-Armn"
-    },
-    "assamese": {
-        "code": "as-Beng"
-    },
-    "azerbaijani_cyrillic": {
-        "code": "az-Cyrl"
-    },
-    "balkar_cyrillic":{
-      "code": "krc-Cyrl"
-    },
-    "bashkir_cyrillic": {
-        "code": "ba-Cyrl"
-    },
-    "belarusian": {
-        "code": "be-Cyrl"
-    },
-    "bengali": {
-        "code": "bn-Beng"
-    },
-    "bulgarian": {
-        "code": "bg-Cyrl"
-    },
-    "buriat": {
-        "code": "bua-Cyrl"
-    },
-    "buriat_cyrillic": {
-        "code": "bua-Cyrl"
-    },
-    "burmese": {
-        "code": "my-Mymr"
-    },
-    "chinese": {
-        "code": "zh-Hani"
-    },
-    "cyrillic_generic": {
-        "code": "und-Cyrl"
-    },
-    "chukchi_cyrillic": {
-        "code": "ckt-Cyrl"
-    },
-    "church_slavonic": {
-        "code": "cu-Cyrs"
-
-    },
-    "chuvash_cyrillic": {
-        "code": "cv-Cyrl"
-    },
-    "devanagari":{
-      "code": "und-Deva"
-    },
-    "divehi_thaana": {
-        "code": "dv-Thaa"
-    },
-    "dogri_devanagari": {
-        "code": "doi-Deva"
-    },
-    "dungan_cyrillic": {
-        "code": "dng-Cyrl"
-    },
-    "ethiopic": {
-        "code": "am-Ethi"
-    },
-    "evenki_cyrillic": {
-        "code": "evn-Cyrl"
-    },
-    "even-evenki_cyrillic": {
-        "code": "evn-Cyrl"
-    },
-    "gurmukhi": {
-        "code": "und-Guru"
-    },
-    "gagauz_cyrillic": {
-        "code": "gag-Cyrl"
-    },
-    "georgian": {
-        "code": "ka-Geor"
-    },
-    "greek_classical": {
-        "code": "grc-Grek"
-    },
-    "greek_modern": {
-        "code": "el-Grek"
-    },
-    "gujarati": {
-        "code": "gu-Gujr"
-    },
-    "hebrew": {
-        "code": "he-Hebr"
-    },
-    "hindi": {
-        "code": "hi-Deva"
-    },
-    "hindi_devanagari": {
-        "code": "hi-Deva"
-    },
-    "hiragana": {
-        "code": "ja-Hrkt"
-    },
-    "kalmyk_cyrillic": {
-        "code": "xal-Cyrl"
-    },
-    "kannada": {
-        "code": "kn-Knda"
-    },
-    "kara-kalpak_cyrillic": {
-        "code": "kaa-Cyrl"
-    },
-    "karachai-balkar_cyrillic": {
-        "code": "krc-Cyrl"
-    },
-    "karelian_cyrillic": {
-        "code": "krl-Cyrl"
-    },
-    "katakana": {
-        "code": "ja-Kana"
-    },
-    "kazakh_cyrillic": {
-        "code": "kk-Cyrl"
-    },
-    "khakass_cyrillic": {
-        "code": "kjh-Cyrl"
-    },
-    "khanty_cyrillic": {
-        "code": "kca-Cyrl"
-    },
-    "khmer": {
-        "code": "km-Khmr"
-    },
-    "komi_cyrillic": {
-        "code": "kv-Cyrl"
-    },
-    "korean_names": {
-        "code": "ko-Kore"
-    },
-    "korean_nonames": {
-        "code": "ko-Kore"
-    },
-    "koryak_cyrillic": {
-        "code": "kpy-Cyrl"
-    },
-    "kurdish": {
-        "code": "ku-Arab"
-    },
-    "kyrgyz_cyrillic": {
-        "code": "ky-Cyrl"
-    },
-    "kryashen_cyrillic": {
-        "code": "tt-Cyrl"
-    },
-    "lithuanian_cyrillic": {
-        "code": "lt-Cyrl"
-    },
-    "macedonian": {
-        "code": "mk-Cyrl"
-    },
-    "malayalam": {
-      "code": "ml-Mlym"
-    },
-    "manchu":{
-      "code": "mnc-Mong"
-    },
-    "mansi_cyrillic": {
-        "code": "mns-Cyrl"
-    },
-    "marathi_devanagari": {
-        "code": "mr-Deva"
-    },
-    "moldovan_cyrillic": {
-        "code": "ro-Cyrl"
-    },
-    "mongolian_cyrillic": {
-        "code": "mn-Cyrl"
-    },
-    "mongolian_mongol_bichig": {
-        "code": "mn-Mong"
-    },
-    "mordvin_cyrillic": {
-        "code": "myv-Cyrl"
-    },
-    "nenets_cyrillic": {
-        "code": "yrk-Cyrl"
-    },
-    "nepali_devanagari": {
-        "code": "ne-Deva"
-    },
-    "newari_devanagari": {
-        "code": "new-Deva"
-    },
-    "oriya": {
-        "code": "or-Orya"
-    },
-    "ossetic_cyrillic": {
-        "code": "os-Cyrl"
-    },
-    "pali": {
-        "code": "pi-Deva"
-    },
-    "panjabi": {
-        "code": "pa-Guru"
-    },
-    "panjabi_gurmukhi": {
-        "code": "pa-Guru"
-    },
-    "persian": {
-        "code": "fa-Arab"
-    },
-    "prakrit_devanagari": {
-        "code": "pra-Deva"
-    },
-    "pulaar": {
-        "code": "fuc-Adlm"
-    },
-    "pushto": {
-        "code": "ps-Arab"
-    },
-    "rajasthani_devanagari": {
-        "code": "raj-Deva"
-    },
-    "romani_cyrillic": {
-        "code": "rom-Cyrl"
-    },
-    "russian": {
-        "code": "ru-Cyrl"
-    },
-    "sanskrit_devanagari": {
-        "code": "sa-Deva"
-    },
-    "serbian": {
-        "code": "sr-Cyrl"
-    },
-    "shor_cyrillic": {
-        "code": "cjs-Cyrl"
-    },
-    "sinhalese": {
-        "code": "si-Sinh"
-    },
-    "syriac_cyrillic": {
-        "code": "syr-Cyrl"
-    },
-    "tajik_cyrillic": {
-        "code": "tg-Cyrl"
-    },
-    "tamil": {
-        "code": "ta-Taml"
-    },
-    "tamil_brahmi": {
-        "code": "ta-Brah"
-    },
-    "tamil_extended": {
-        "code": "ta-Taml"
-    },
-    "tatar-kryashen_cyrillic": {
-        "code": "tt-Cyrl"
-    },
-    "tatar_cyrillic": {
-        "code": "tt-Cyrl"
-    },
-    "telugu": {
-        "code": "te-Telu"
-    },
-    "thai": {
-        "code": "th-Thai"
-    },
-    "thai_alt": {
-        "code": "th-Thai"
-    },
-    "tibetan": {
-        "code": "bo-Tibt"
-    },
-    "tod_mongolian": {
-        "code": "tod-Mong"
-    },
-    "turkmen_cyrillic": {
-        "code": "tk-Cyrl"
-    },
-    "tuvinian_cyrillic": {
-        "code": "tyv-Cyrl"
-    },
-    "udmurt_cyrillic": {
-        "code": "udm-Cyrl"
-    },
-    "uighur_cyrillic": {
-        "code": "ug-Cyrl"
-    },
-    "ukrainian": {
-        "code": "uk-Cyrl"
-    },
-    "urdu": {
-      "code": "ur-Arab"
-    },
-    "uighur_arabic":{
-      "code": "ug-Arab"
-    },
-    "uzbek_cyrillic": {
-        "code": "uz-Cyrl"
-    },
-    "yakut_cyrillic": {
-        "code": "sah-Cyrl"
-    },
-    "yiddish": {
-        "code": "yi-Hebr"
-    },
-    "yuit_cyrillic": {
-        "code": "ypk-Cyrl"
-    }
-  }
+  scriptShifterLangCodes
 
 
   }),

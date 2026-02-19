@@ -1,7 +1,7 @@
 <template>
   <div>
     <Teleport to="body">
-      <div id="nav-holder" class="bars">
+      <div id="nav-holder" :class="['bars', {'staging-warning': this.isStaging()}]">
         <!-- <vue-file-toolbar-menu v-if="!preferenceStore.copyMode" :content="my_menu[0]" />
         <vue-file-toolbar-menu v-else v-for="(content, index) in my_menu" :content="content" /> -->
         <vue-file-toolbar-menu v-for="(content, index) in my_menu" :content="content" />
@@ -178,7 +178,7 @@ export default {
                   if (this.profileStore.copyCatMode) {
                     this.profileStore.copyCatMode = false
                   }
-                  this.$router.push('/load')
+                  this.$router.push('/')
                 })
               } catch {
                 // expected error :(
@@ -196,7 +196,7 @@ export default {
                 if (this.profileStore.copyCatMode) {
                   this.profileStore.copyCatMode = false
                 }
-                this.$router.push('/load')
+                this.$router.push('/')
               })
             } catch {
               // expected error :(
@@ -713,6 +713,11 @@ export default {
               ref: "test",
               icon: (this.activeProfilePosted) ? "mark_email_read" : "sailing",
               click: () => {
+                let conf = true
+                if (this.isStaging()){
+                  conf = confirm('This is Marva STAGING. It should not be used for Production work. Do you want to continue?')
+                }
+                if (!conf){ return }
                 this.showPostModal = true;
                 this.$nextTick(() => {
 
@@ -739,6 +744,11 @@ export default {
               ref: "lcap",
               icon: "open_in_new",
               click: () => {
+                let conf = true
+                if (this.isStaging()){
+                  conf = confirm('This is Marva STAGING. It should not be used for Production work. Do you want to continue?')
+                }
+                if (!conf) { return }
                 let url = useConfigStore().returnUrls.lcap // "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
                 let bibId = null
                 console.log("url", url)
@@ -763,7 +773,7 @@ export default {
       if (this.activeProfile.id && this.$route.name == 'Edit') {
         menu.push(
           {
-            text: "Profile: " + this.activeProfile.id,
+            text: this.profileOrStaging() + this.activeProfile.id,
             class: "current-profile",
 
           }
@@ -1030,6 +1040,13 @@ export default {
   // },
 
   methods: {
+
+    profileOrStaging(){
+      if (this.isStaging()) {
+        return  "STAGING: "
+      }
+      return "Profile: "
+    },
 
     isStaging: function () {
       if (useConfigStore().returnUrls.env == "staging" || useConfigStore().returnUrls.dev == true) {
@@ -1608,5 +1625,10 @@ export default {
 .bar :deep(.bar-menu) > .extended-hover-zone {
   top: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-height', true) - 35 + 'px'")
 }
+
+.staging-warning {
+  background-color: rgb(255, 196, 0) !important;
+}
+
 
 </style>

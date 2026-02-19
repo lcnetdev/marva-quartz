@@ -45,6 +45,7 @@ export default {
       if (type == 'HierarchicalGeographic') return "Geographic"
       if (type == 'GenreForm') return "Genre Form"
       if (type == 'madsrdf:ComplexSubject') return "Complex Subject"
+      if (type == 'ComplexSubject') return "Complex Subject"
       if (type == 'Topic') return "Topic Subject"
 
       if (type == 'Authority') return "Topic" //iconSubjectComplex
@@ -63,8 +64,6 @@ export default {
 
 
     useIcon(){
-
-
       const iconPersonal = ['person_2']
       const iconCorporate = ['corporate_fare']
       const iconTitle = ['title']
@@ -92,6 +91,7 @@ export default {
         if (type == 'HierarchicalGeographic') return iconGeographic
         if (type == 'GenreForm') return iconGenre
         if (type == 'madsrdf:ComplexSubject') return iconSubjectComplex
+        if (type == 'ComplexSubject') return iconSubjectComplex
 
         if (type == 'Topic') return iconSubjectTopic
 

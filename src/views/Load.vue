@@ -666,8 +666,6 @@ export default {
     },
 
     loadTestData: function (meta) {
-
-
       let href = window.location.href.split("/")
       this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
       this.urlToLoadIsHttp = true

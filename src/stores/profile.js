@@ -1106,9 +1106,48 @@ export const useProfileStore = defineStore('profile', {
                       }
                       // builds an id like this: lc:RT:bf2:35mmFeatureFilm:Work|http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bflc/PrimaryContribution
                       let ptVal = JSON.parse(JSON.stringify(this.profiles[p].rt[rt].pt[pt]))
+                      // ensure reliable order
+                      ptVal.valueConstraint = Object.keys(ptVal.valueConstraint).sort().reduce(
+                        (obj, key) => {
+                          obj[key] = ptVal.valueConstraint[key];
+                          return obj;
+                        },
+                        {}
+                      );
+
                       delete ptVal['@guid']
-                      this.profiles[p].hashPts[id] = hashCode(JSON.stringify(ptVal))
-                      this.profiles[p].rt[rt].pt[pt].hashCode = hashCode(JSON.stringify(ptVal))
+                      delete ptVal['hashCode']
+                      delete ptVal['hashCodeId']
+                      delete ptVal['userValue']
+                      delete ptVal['canBeHidden']
+                      delete ptVal['dataLoaded']
+                      delete ptVal['deepHierarchy']
+                      delete ptVal['hasData']
+                      delete ptVal['remark']
+                      delete ptVal['parent']
+                      delete ptVal['xmlHash']
+                      delete ptVal['xmlSource']
+                      delete ptVal['userModified']
+                      delete ptVal['activeType']
+                      delete ptVal['missingProfile']
+                      delete ptVal['valueConstraint']['editable']
+                      delete ptVal['valueConstraint']['repeatable']
+                      delete ptVal['valueConstraint']['defaults']
+
+                      try{
+                        delete ptVal['valueConstraint']['valueDataType']['dataTypeLabel']
+                        delete ptVal['valueConstraint']['valueDataType']['remark']
+                      } catch { }
+
+                      let orderedPtVal = Object.keys(ptVal).sort().reduce(
+                        (obj, key) => {
+                          obj[key] = ptVal[key];
+                          return obj;
+                        },
+                        {}
+                      );
+                      this.profiles[p].hashPts[id] = hashCode(JSON.stringify(orderedPtVal))
+                      this.profiles[p].rt[rt].pt[pt].hashCode = hashCode(JSON.stringify(orderedPtVal))
                       this.profiles[p].rt[rt].pt[pt].hashCodeId = id
                   }
 
@@ -2882,6 +2921,21 @@ export const useProfileStore = defineStore('profile', {
                   }
               ]
             }
+          }
+          if (nodeMap.collections && nodeMap.collections.includes('http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings')){
+            blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+              {
+                    "@guid": short.generate(),
+                    "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                    "@id": "http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings",
+                    "http://www.w3.org/2000/01/rdf-schema#label": [
+                        {
+                            "@guid": short.generate(),
+                            "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress subject headings"
+                        }
+                    ]
+                }
+            ]
           }
 
 
@@ -6380,7 +6434,7 @@ export const useProfileStore = defineStore('profile', {
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
-                if (ptObjFound.hashCode == component.hashCode){
+                if (this.compareComponentStructure(ptObjFound, component)){  //ptObjFound.hashCode == component.hashCode
 
                   // if the component we found in the system already has data in it then we are going to add a new component
                   // if it doesn't then just overwrite it completely with the one from the library
@@ -6454,7 +6508,7 @@ export const useProfileStore = defineStore('profile', {
 
                 }else{
 
-                  alert("ERROR: There seems to be mismatch between the component you are trying to add and the components in the profile. Please delete this component from your library and recreate it")
+                  alert("ERROR: There seems to be a mismatch between the component you are trying to add and the components in the profile. Please delete this component from your library and recreate it")
 
                 }
 
@@ -6472,6 +6526,103 @@ export const useProfileStore = defineStore('profile', {
         }
 
       }
+
+    },
+
+    /**
+     * Reduce the components down to their structure for comparison
+     * @param {Object} componentExisting - Component that exists in the Profile
+     * @param {Object} componentLibrary - Component from library
+     */
+    compareComponentStructure(componentExisting, componentLibrary){
+      if (componentExisting.hasCode == componentLibrary.hashCode){ return true}
+      // strip out the non-structural stuff
+      let found = JSON.parse(JSON.stringify(componentExisting))
+      delete found['@guid']
+      delete found['hashCode']
+      delete found['hashCodeId']
+      delete found['userValue']
+      delete found['canBeHidden']
+      delete found['dataLoaded']
+      delete found['deepHierarchy']
+      delete found['hasData']
+      delete found['remark']
+      delete found['parent']
+      delete found['xmlHash']
+      delete found['xmlSource']
+      delete found['userModified']
+      delete found['activeType']
+      delete found['missingProfile']
+      delete found['valueConstraint']['editable']
+      delete found['valueConstraint']['repeatable']
+      delete found['valueConstraint']['valueDataType']['dataTypeLabel']
+      delete found['valueConstraint']['valueDataType']['remark']
+      delete found['valueConstraint']['defaults']
+
+      let libraryComponent = JSON.parse(JSON.stringify(componentLibrary))
+      delete libraryComponent['@guid']
+      delete libraryComponent['hashCode']
+      delete libraryComponent['hashCodeId']
+      delete libraryComponent['userValue']
+      delete libraryComponent['activeType']
+      delete libraryComponent['canBeHidden']
+      delete libraryComponent['dataLoaded']
+      delete libraryComponent['deepHierarchy']
+      delete libraryComponent['hasData']
+      delete libraryComponent['remark']
+      delete libraryComponent['parent']
+      delete libraryComponent['userModified']
+      delete libraryComponent['xmlHash']
+      delete libraryComponent['xmlSource']
+      delete libraryComponent['missingProfile']
+      delete libraryComponent['valueConstraint']['editable']
+      delete libraryComponent['valueConstraint']['repeatable']
+      delete libraryComponent['valueConstraint']['valueDataType']['dataTypeLabel']
+      delete libraryComponent['valueConstraint']['valueDataType']['remark']
+      delete libraryComponent['valueConstraint']['defaults']
+
+      // Get everything into a reliable order
+      found.valueConstraint = Object.keys(found.valueConstraint).sort().reduce(
+        (obj, key) => {
+          obj[key] = found.valueConstraint[key];
+          return obj;
+        },
+        {}
+      );
+      libraryComponent.valueConstraint = Object.keys(libraryComponent.valueConstraint).sort().reduce(
+        (obj, key) => {
+          obj[key] = libraryComponent.valueConstraint[key];
+          return obj;
+        },
+        {}
+      );
+      let orderedFound = Object.keys(found).sort().reduce(
+        (obj, key) => {
+          obj[key] = found[key];
+          return obj;
+        },
+        {}
+      );
+      let orderedLibrary = Object.keys(libraryComponent).sort().reduce(
+        (obj, key) => {
+          obj[key] = libraryComponent[key];
+          return obj;
+        },
+        {}
+      );
+
+      let orderedFoundHashCode =  hashCode(JSON.stringify(orderedFound))
+      let orderedLibraryHashCode = hashCode(JSON.stringify(orderedLibrary))
+
+      // if the existing hashMatches the stripped down library hash
+      if (componentExisting.hashCode == orderedLibraryHashCode){
+        return true
+      } else if (orderedFoundHashCode == orderedLibraryHashCode){ // if both stripped down components match
+        return true
+      } else {
+        return false
+      }
+
 
     },
 
@@ -7273,7 +7424,6 @@ export const useProfileStore = defineStore('profile', {
     },
 
     displayClassNumber: function(comp){
-      console.info("Display Class Number?")
       let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc-class-numbers")
       if (!pref){ return true }
 
@@ -7281,24 +7431,25 @@ export const useProfileStore = defineStore('profile', {
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/classification"] ? userValue["http://id.loc.gov/ontologies/bibframe/classification"][0] : {}
-          console.info("data: ", data)
+          let type = data['@type']
+          // check type
+          if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" || type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"){
+            return true
+          }
+          // fallback on assigner
           let assigner = data["http://id.loc.gov/ontologies/bibframe/assigner"][0]
           let id = assigner['@id']
           let label = assigner["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
 
-          console.info("id: ", id)
-          console.info("label: ", label)
-          if (!label.includes("Library of Congress") ){
+          if (!label.includes("Library of Congress")){
             return false
           }
-
-
         }
 
         return true
       } catch(err){
         console.error("Error with displaySubject preference: ", err)
-        return true
+        return false
       }
     },
 
@@ -7309,9 +7460,9 @@ export const useProfileStore = defineStore('profile', {
       // should it be like when ad hoc hides components?
       let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc")
       if (!pref){ return true }
-
       try {
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"] ? userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] : {}
           if (data['@id'] && data['@id'].includes('http://id.loc.gov/authorities/')){
@@ -7323,7 +7474,7 @@ export const useProfileStore = defineStore('profile', {
             let label  = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
             let sourceURI = source["@id"] ? source["@id"] : ""
 
-            if (!label.includes("Library of Congress") ){
+            if (!label.includes("Library of Congress") && !label.includes("Children's and Young Adults")){
               return false
             }
           } else if(Object.keys(data).length == 2) {
