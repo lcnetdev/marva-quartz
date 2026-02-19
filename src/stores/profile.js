@@ -6579,6 +6579,16 @@ export const useProfileStore = defineStore('profile', {
       delete libraryComponent['valueConstraint']['valueDataType']['dataTypeLabel']
       delete libraryComponent['valueConstraint']['valueDataType']['remark']
       delete libraryComponent['valueConstraint']['defaults']
+      delete libraryComponent['refTemplateUserValue']
+      delete libraryComponent['refTemplateUserValueKeys']
+
+      // Some adjustments for Items
+      if (found['parentId'].includes("Item-")){
+        found['parentId'] = found['parentId'].split('-')[0]
+      }
+      if (libraryComponent['parentId'].includes("Item-")){
+        libraryComponent['parentId'] = libraryComponent['parentId'].split('-')[0]
+      }
 
       // Get everything into a reliable order
       found.valueConstraint = Object.keys(found.valueConstraint).sort().reduce(
@@ -6610,8 +6620,12 @@ export const useProfileStore = defineStore('profile', {
         {}
       );
 
+      // console.info("existing: ", JSON.stringify(orderedFound))
+      // console.info("library: ", JSON.stringify(orderedLibrary))
+
       let orderedFoundHashCode =  hashCode(JSON.stringify(orderedFound))
       let orderedLibraryHashCode = hashCode(JSON.stringify(orderedLibrary))
+
 
       // if the existing hashMatches the stripped down library hash
       if (componentExisting.hashCode == orderedLibraryHashCode){
