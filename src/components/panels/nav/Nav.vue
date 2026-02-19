@@ -699,6 +699,11 @@ export default {
               ref: "test",
               icon: (this.activeProfilePosted) ? "mark_email_read" : "sailing",
               click: () => {
+                let conf = true
+                if (this.isStaging()){
+                  conf = confirm('This is Marva STAGING. It should not be used for Production work. Do you want to continue?')
+                }
+                if (!conf){ return }
                 this.showPostModal = true;
                 this.$nextTick(() => {
 
