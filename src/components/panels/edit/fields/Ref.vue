@@ -191,23 +191,23 @@ export default {
       // if this is true, a default value is being "used" because the incoming value
       // doesn't match an available option
       // ignore for subjects
-        if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform")) && this.rtLookup[useId].resourceURI != userValue['@type']){
-        let elementId = this.structure['@guid'] + "-select"
-        this.$nextTick(() => {
-          window.setTimeout(()=> {
-            let target = document.getElementById(elementId.trim())
-            target.className += " validation-error no-type"
+        if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform") || this.structure.id.includes("associated_with_item")) && this.rtLookup[useId].resourceURI != userValue['@type']){
+          let elementId = this.structure['@guid'] + "-select"
+          this.$nextTick(() => {
+            window.setTimeout(()=> {
+              let target = document.getElementById(elementId.trim())
+              target.className += " validation-error no-type"
 
-            for (let child of target.childNodes){
-              if (child.value && child.value == 'empty'){
-                child.selected = true
-              } else {
-                child.selected = false
+              for (let child of target.childNodes){
+                if (child.value && child.value == 'empty'){
+                  child.selected = true
+                } else {
+                  child.selected = false
+                }
               }
-            }
 
-          },10);
-        });
+            },10);
+          });
       } else if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform")) && this.rtLookup[useId].resourceURI == userValue['@type']){
         // remove the class
         this.$nextTick(() => {
