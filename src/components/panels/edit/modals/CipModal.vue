@@ -91,8 +91,30 @@ export default {
             let projDateComponent = this.profileStore.returnComponentByPropertyLabel('Projected publication date (YYMM)')
             this.profileStore.deleteComponent(projDateComponent['@guid'])
 
-            // instance note
-            let instanceNoteComponent = this.profileStore.returnComponentByPropertyLabel('Notes about the Instance ')
+            // instance note, and check update when appropriate
+            for (let rt in this.profile.rt){
+                for (let pt in this.profile.rt[rt].pt){
+                    if (this.profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() === 'Notes about the Instance'.toLowerCase()){
+                        let instanceNoteComponent = this.profile.rt[rt].pt[pt]
+                        console.info("instanceNoteComponent: ", instanceNoteComponent)
+                        let instNoteCompUserValue = instanceNoteComponent.userValue
+                        console.info("instNoteCompUserValue: ", instNoteCompUserValue)
+                        if (instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]){
+                            let data = instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]
+                            let label = data["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+                            if (label == 'Description based on print version record and CIP data provided by publisher; resource not viewed.'){
+                                label = 'Description based on print version record and CIP data provided by publisher.'
+
+                                this.profileStore.setValueLiteral(
+                                    instanceNoteComponent['@guid'], data["http://www.w3.org/2000/01/rdf-schema#label"][0]['@guid'],
+                                    [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/note"},{"level":1,"propertyURI":"http://www.w3.org/2000/01/rdf-schema#label"}],
+                                    label, null, null
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             // change encoding level to `full`
             let adminComponent = false
@@ -252,6 +274,7 @@ export default {
                     <template v-if="updateDates">
                         <li>Match the "Provision Activity" dates and call number date to the "Publication Year"</li>
                         <li>Insert the "Copyright Year" into the "Copyright date," if provided</li>
+                        <li>Update the "Note about the Instance," if appropriate</li>
                         <template v-if="copyrightAsPub">
                             <li>Use the "Copyright Year" as the "Publication Year" and put [brackets] around 264 $c</li>
                         </template>

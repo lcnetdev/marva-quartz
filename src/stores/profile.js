@@ -1975,6 +1975,10 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
+      console.info("setValueLiteral")
+      console.info(componentGuid)
+      console.info(fieldGuid)
+      console.info(JSON.stringify(propertyPath))
       //Save
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
