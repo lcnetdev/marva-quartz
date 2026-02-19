@@ -6430,7 +6430,6 @@ export const useProfileStore = defineStore('profile', {
 
               }
 
-
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
                 if (this.compareComponentStructure(ptObjFound, component)){  //ptObjFound.hashCode == component.hashCode
@@ -6557,6 +6556,8 @@ export const useProfileStore = defineStore('profile', {
       delete found['valueConstraint']['valueDataType']['dataTypeLabel']
       delete found['valueConstraint']['valueDataType']['remark']
       delete found['valueConstraint']['defaults']
+      delete found['refTemplateUserValue']
+      delete found['refTemplateUserValueKeys']
 
       let libraryComponent = JSON.parse(JSON.stringify(componentLibrary))
       delete libraryComponent['@guid']
@@ -6581,6 +6582,23 @@ export const useProfileStore = defineStore('profile', {
       delete libraryComponent['valueConstraint']['defaults']
       delete libraryComponent['refTemplateUserValue']
       delete libraryComponent['refTemplateUserValueKeys']
+
+      if (found['valueConstraint']['valueDataType'] && Object.keys(found['valueConstraint']['valueDataType'].length > 0)){
+        for (let key of Object.keys(found['valueConstraint']['valueDataType'])){
+          if (found['valueConstraint']['valueDataType'][key] == ""){
+            delete found['valueConstraint']['valueDataType'][key]
+          }
+        }
+      }
+
+      if (libraryComponent['valueConstraint']['valueDataType'] && Object.keys(libraryComponent['valueConstraint']['valueDataType'].length > 0)){
+        for (let key of Object.keys(libraryComponent['valueConstraint']['valueDataType'])){
+          if (libraryComponent['valueConstraint']['valueDataType'][key] == ""){
+            delete libraryComponent['valueConstraint']['valueDataType'][key]
+          }
+        }
+      }
+
 
       // Some adjustments for Items
       if (found['parentId'].includes("Item-")){
