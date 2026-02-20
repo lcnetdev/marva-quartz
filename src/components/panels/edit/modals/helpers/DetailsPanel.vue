@@ -51,6 +51,21 @@
                     </span>
                 </span>
             </template>
+            <template v-else-if="(Object.keys(contextData).includes('establishDates') && contextData['establishDates'].length > 0)
+                || (Object.keys(contextData).includes('terminateDates') && contextData['terminateDates'].length > 0)">
+                <br>
+                <span class="dates-container" style="padding-bottom: 10px;">
+                    <span v-if="contextData['establishDates'] && contextData['establishDates'].length > 0"
+                        style="margin-right: 15px;">
+                        <span class="modal-context-data-title">Established: </span>
+                        <span>{{ contextData['establishDates'][0] }}</span>
+                    </span>
+                    <span v-if="contextData['terminateDates'] && contextData['terminateDates'].length > 0">
+                        <span class="modal-context-data-title">Terminated: </span>
+                        <span>{{ contextData['terminateDates'][0] }}</span>
+                    </span>
+                </span>
+            </template>
             <br>
 
             <!-- Labels & Relationships -->
