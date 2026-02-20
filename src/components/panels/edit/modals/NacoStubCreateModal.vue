@@ -131,6 +131,9 @@
           return true
         }
 
+        if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !this.good670()){
+          return true
+        }
 
         return false
       }
@@ -201,6 +204,12 @@
           const normalizedStr = normalize(str)
           return normalizedStr.startsWith(normalizedSearch)
         })
+      },
+
+      // Check that advanced mode doesn't have 670 $b ()
+      good670: function(){
+        let good = this.extraMarcStatements.some((row) => !row.value.includes('$b ()'))
+        return good
       },
 
       // Check that the advanced marc entry have indicators
@@ -348,11 +357,14 @@
               }
               if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              } else {
+                f670.value = f670.value + ' $b ()'
               }
               if (this.instanceURI){
                 f670.u = this.instanceURI
                 f670.value = f670.value + ` $u ${this.instanceURI}`
               }
+
               this.extraMarcStatements.push(f670)
             }
 
@@ -1434,6 +1446,8 @@
               }
               if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              } else {
+                f670.value = f670.value + ' $b ()'
               }
               if (this.instanceURI){
                 f670.u = this.instanceURI
@@ -1617,11 +1631,12 @@
             }
             if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
-              }
+            }
             if (this.instanceURI){
               f670.u = this.instanceURI
               f670.value = f670.value + ` $u ${this.instanceURI}`
             }
+
             this.extraMarcStatements.push(f670)
           }
         },
@@ -1923,6 +1938,13 @@
                           <span class="material-icons not-unique-icon">cancel</span>
                           <span class="not-unique-text">Indicators Missing</span><span data-tooltip="Add missing indicator in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                         </div>
+                  </template>
+
+                  <template v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !good670()">
+                    <div>
+                      <span class="material-icons not-unique-icon">cancel</span>
+                      <span class="not-unique-text">Placeholder in 670 $b</span>
+                    </div>
                   </template>
 
                   <template v-if="mainTitle">
