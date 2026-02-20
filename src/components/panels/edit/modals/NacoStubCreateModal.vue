@@ -209,8 +209,6 @@
       // Check that advanced mode doesn't have 670 $b ()
       good670: function(){
         let good = this.extraMarcStatements.some((row) => !row.value.includes('$b ()'))
-        console.info("good?", good)
-        console.info(">>>>>>>>>>>>>>", this.extraMarcStatements)
         return good
       },
 
