@@ -348,11 +348,14 @@
               }
               if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              } else {
+                f670.value = f670.value + ' $b ()'
               }
               if (this.instanceURI){
                 f670.u = this.instanceURI
                 f670.value = f670.value + ` $u ${this.instanceURI}`
               }
+
               this.extraMarcStatements.push(f670)
             }
 
@@ -1434,6 +1437,8 @@
               }
               if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              } else {
+                f670.value = f670.value + ' $b ()'
               }
               if (this.instanceURI){
                 f670.u = this.instanceURI
@@ -1617,11 +1622,12 @@
             }
             if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
-              }
+            }
             if (this.instanceURI){
               f670.u = this.instanceURI
               f670.value = f670.value + ` $u ${this.instanceURI}`
             }
+
             this.extraMarcStatements.push(f670)
           }
         },
