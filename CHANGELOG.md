@@ -3,8 +3,16 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.4.10] - 2025-02-13
+### Added
+- Styling for staging
+
 ### Update
 - Subject subfield delimiters to include `ǂ`
+- NAR will insert `$b()` into the 670 in advanced mode
+- CopyCat to work at page 5+
+
+### Fixed
+- More issues with library
 
 ## [1.4.9] - 2025-02-13
 ### Update
