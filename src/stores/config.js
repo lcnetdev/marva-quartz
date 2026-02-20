@@ -70,7 +70,7 @@ export const useConfigStore = defineStore('config', {
         copyCatUpload: 'http://localhost:9401/marva/util/copycat/upload/stag',
 
         id: 'https://preprod-8080.id.loc.gov/',
-        env : 'staging',
+        env : 'production',
         dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',

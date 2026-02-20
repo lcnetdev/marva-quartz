@@ -845,6 +845,8 @@ export default {
         "varianttitles": "Varants Titles",
         "birthdates": "Date of Birth",
         "deathdates": "Date of Death",
+        "establishDates":"Established",
+        "terminateDates":"Terminated",
         "birthplaces": "Place of Birth",
         "locales": "Associated Locales",
         "activityfields": "Fields of Activity",
@@ -867,7 +869,7 @@ export default {
       },
 
       panelDetailOrder: [
-        "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds", "birthdates", "deathdates", "birthplaces",
+        "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds", "birthdates", "deathdates", "birthplaces", "establishDates", "terminateDates",
         "locales", "activityfields", "occupations", "languages",
         "sources", "sees", "lcclasses", "lcclasss", "identifiers", "broaders",
         "collections", "subjects", "marcKeys"
