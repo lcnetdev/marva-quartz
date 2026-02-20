@@ -526,6 +526,9 @@ const utilsNetwork = {
               url = url.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
             }
 
+            url = url.replace('https://id.loc.gov', 'https://preprod-8287.id.loc.gov')
+            console.info("url: ", url)
+
             if (usePreferenceStore().returnValue('--b-edit-complex-include-usage')){
               url = url + "&usage=true"
             }

@@ -67,6 +67,8 @@
           "varianttitles": "Varants Titles",
           "birthdates": "Date of Birth",
           "deathdates": "Date of Death",
+          "establishDates":"Established",
+          "terminateDates":"Terminated",
           "birthplaces": "Place of Birth",
           "locales": "Associated Locales",
           "activityfields": "Fields of Activity",
@@ -88,7 +90,7 @@
 
         },
         panelDetailOrder: [
-            "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds",
+            "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","establishDates","terminateDates",
             "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
@@ -1208,6 +1210,21 @@
                         <span v-if="activeContext.extra['deathdates'] && activeContext.extra['deathdates'].length > 0 ">
                           <span class="modal-context-data-title">Date of Death: </span>
                           <span>{{ activeContext.extra['deathdates'][0] }}</span>
+                        </span>
+                      </span>
+                      <br>
+                    </template>
+                    <template v-else-if="(Object.keys(activeContext.extra).includes('establishDates') && activeContext.extra['establishDates'].length > 0)
+                    || (Object.keys(activeContext.extra).includes('terminateDates') && activeContext.extra['terminateDates'].length > 0)">
+
+                      <span class="dates-container" style="padding-bottom: 10px;">
+                        <span v-if="activeContext.extra['establishDates'] && activeContext.extra['establishDates'].length > 0 " style="margin-right: 15px;">
+                          <span class="modal-context-data-title">Established: </span>
+                          <span>{{ activeContext.extra['establishDates'][0] }}</span>
+                        </span>
+                        <span v-if="activeContext.extra['terminateDates'] && activeContext.extra['terminateDates'].length > 0 ">
+                          <span class="modal-context-data-title">Terminated: </span>
+                          <span>{{ activeContext.extra['terminateDates'][0] }}</span>
                         </span>
                       </span>
                       <br>
