@@ -131,7 +131,7 @@
           return true
         }
 
-        if (!this.good670()){
+        if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !this.good670()){
           return true
         }
 
@@ -209,6 +209,8 @@
       // Check that advanced mode doesn't have 670 $b ()
       good670: function(){
         let good = this.extraMarcStatements.some((row) => !row.value.includes('$b ()'))
+        console.info("good?", good)
+        console.info(">>>>>>>>>>>>>>", this.extraMarcStatements)
         return good
       },
 
@@ -1940,7 +1942,7 @@
                         </div>
                   </template>
 
-                  <template v-if="!good670()">
+                  <template v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !good670()">
                     <div>
                       <span class="material-icons not-unique-icon">cancel</span>
                       <span class="not-unique-text">Placeholder in 670 $b</span>
