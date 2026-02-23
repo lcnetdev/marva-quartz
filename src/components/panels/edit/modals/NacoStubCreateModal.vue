@@ -803,6 +803,17 @@
           this.fourXXErrors = []
           if (this.fourXX.length<3){ return true}
 
+          // check the auth label for a textmacro and update it
+          let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+          if (useTextMacros && useTextMacros.length>0){
+            for (let m of useTextMacros){
+              if (this.fourXX.indexOf(m.lookFor) > -1){
+                this.fourXX = this.fourXX.replace(m.lookFor,m.replaceWith)
+                this.searchValueLocal = this.fourXX
+              }
+            }
+          }
+
           if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
             this.fourXXErrors.push("There's an invalid indicator for 4XX")
           }
