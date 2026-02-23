@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Subject subfield delimiters to include `ǂ`
 - NAR will insert `$b()` into the 670 in advanced mode
 - CopyCat to work at page 5+
+- Expand information in search restuls details
 
 ### Fixed
 - More issues with library
