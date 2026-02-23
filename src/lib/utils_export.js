@@ -2370,6 +2370,38 @@ const utilsExport = {
 				subfieldsValues.push(`$g ${zero46.g}`)
 			}
 
+			if (zero46.q){
+				let field046q = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046q.setAttribute( 'code', 'f')
+				field046q.innerHTML = zero46.q
+				field046.appendChild(field046q)
+				subfieldsValues.push(`$q ${zero46.q}`)
+
+			}
+			if (zero46.r && zero46.r.length > 0){
+				let field046r = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046r.setAttribute( 'code', 'r')
+				field046r.innerHTML = zero46.r
+				field046.appendChild(field046r)
+				subfieldsValues.push(`$r ${zero46.r}`)
+			}
+
+			if (zero46.s){
+				let field046s = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046s.setAttribute( 'code', 's')
+				field046s.innerHTML = zero46.s
+				field046.appendChild(field046s)
+				subfieldsValues.push(`$q ${zero46.s}`)
+
+			}
+			if (zero46.t && zero46.t.length > 0){
+				let field046t = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046t.setAttribute( 'code', 't')
+				field046t.innerHTML = zero46.t
+				field046.appendChild(field046t)
+				subfieldsValues.push(`$t ${zero46.t}`)
+			}
+
 			let field0462 = document.createElementNS(marcNamespace,"marcxml:subfield");
 			field0462.setAttribute( 'code', '2')
 			field0462.innerHTML = 'edtf'
