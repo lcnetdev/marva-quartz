@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.10] - 2025-02-27
+### Update
+- NAR creation supports 046 for 110 & 111
+
 ## [1.4.10] - 2025-02-13
 ### Added
 - Styling for staging

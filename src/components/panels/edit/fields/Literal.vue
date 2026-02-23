@@ -960,7 +960,7 @@ export default {
       }
 
       if (cmd == 'trans'){
-
+        console.info("translate")
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
         if (options.event && options.event?.target?.dataset?.shortcutActivated == 'true'){
           // check if the string value (fieldValue[0].value) ends with a single digit number
@@ -976,7 +976,7 @@ export default {
         let useTextToTrans = fieldValue[0].value
 
         // check if any text is highlighted in the textarea
-        let textarea = document.querySelector(`textarea[data-guid="${fieldValue[0]['@guid']}"]`)        
+        let textarea = document.querySelector(`textarea[data-guid="${fieldValue[0]['@guid']}"]`)
         let highlightTemplate = null
         if (textarea && textarea.selectionStart !== textarea.selectionEnd) {
           let highlightedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
@@ -992,10 +992,10 @@ export default {
                 hasLatin=true
               }else if (lv['@language'] && !lv['@language'].toLowerCase().includes('latn')){
                 hasNonLatin=true
-              } 
+              }
             }
             if (hasLatin && hasNonLatin){
-              
+
               // get the script information from the other field that is not this one
               let otherFieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] != options.fieldGuid) })
 
@@ -1004,7 +1004,7 @@ export default {
                 // get the transliterated value from the highlited text
 
                   // let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,highlightedText,null,options.dir)
-  
+
                   // console
 
                 // loop through all of this.scriptShifterLangCodes and see if we can find the code == the other field
@@ -1014,11 +1014,11 @@ export default {
                   // console.log("codeObj", codeObj)
                   // console.log("otherFieldValue[0]['@language']", otherFieldValue[0]['@language'])
                   if (fieldValue[0]['@language'] && codeObj.code.toLowerCase() == fieldValue[0]['@language'].toLowerCase()){
-                    otherScriptCodes.push(key)                  
+                    otherScriptCodes.push(key)
 
                   }
                 }
-          
+
 
                 // remove the current req from the otherScriptCodes
                 otherScriptCodes = otherScriptCodes.filter((code)=>{ return code != options.lang })
@@ -1030,7 +1030,7 @@ export default {
 
                   // see if we can find transValue text in the other field value
                   if (otherFieldValue[0].value.indexOf(transValue.output) > -1){
-                    
+
                     // okay we found it then do the transliteration for this value highleted text and get the results
                     let thisTransValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,highlightedText,null,options.dir)
                     if (thisTransValue.warnings && thisTransValue.warnings.length > 0){
@@ -1040,7 +1040,7 @@ export default {
                     // and replce the transValue.output text in the other field with thisTransValue.output using this.profileStore.setValueLiteral
                     let newOtherValue = otherFieldValue[0].value.replace(transValue.output, thisTransValue.output)
                     this.profileStore.setValueLiteral(this.guid,otherFieldValue[0]['@guid'],this.propertyPath,newOtherValue,otherFieldValue[0]['@language'] )
-                    
+
                     didReplaceTransliteration = true
                     break
 
@@ -1055,7 +1055,7 @@ export default {
               }else{
                 alert("Error: Could not find the other field value for this literal, cannot do transliteration overwrite.")
               }
-              // and they are currently in the 
+              // and they are currently in the
 
             }
           }
