@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.10] - 2025-02-27
+## [1.4.11] - 2025-02-27
 ### Update
 - NAR creation supports 046 for 110 & 111
 
