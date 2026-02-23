@@ -194,6 +194,7 @@ const utilsNetwork = {
     */
 
     loadSimpleLookupKeyword: async function(uris,keyword,inclueUsage){
+      console.info("searching: ", uris)
       if (!Array.isArray(uris)){
         uris=[uris]
       }
@@ -306,7 +307,6 @@ const utilsNetwork = {
       if (useConfigStore().returnUrls.publicEndpoints == true || usePreferenceStore().catInitals == 'mattdev'){
         url = url.replace(/https:\/\/preprod[-0-9]*\.id/i,'https://id')
       }
-
 
       let options = {signal: signal}
       if (json){

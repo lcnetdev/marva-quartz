@@ -96,8 +96,7 @@
         tmpErrorMessage:false,
 
         validating: false,
-        validationResult: null
-
+        validationResult: null,
       }
     },
     computed: {
@@ -543,8 +542,6 @@
         },
 
         async searchAuthLabel(authLabel,field){
-
-
           this.searching = true
 
           // clear results
@@ -562,7 +559,7 @@
             this.searching = false
             return false
           }
-          let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true )
+          let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true)
           // console.log("search results",results)
 
           this.oneXXExactMatches = this.findAuthExactMatch(results, authLabel)
@@ -608,6 +605,17 @@
 
           if (this.oneXX.length<3){ return true}
 
+          // check the auth label for a textmacro and update it
+          let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+          if (useTextMacros && useTextMacros.length>0){
+            for (let m of useTextMacros){
+              if (this.oneXX.indexOf(m.lookFor) > -1){
+                this.oneXX = this.oneXX.replace(m.lookFor,m.replaceWith)
+                this.searchValueLocal = this.oneXX
+              }
+            }
+          }
+
           if (/[^0-9 #]/.test(this.oneXX.slice(3,5))){
             this.oneXXErrors.push("There's an invalid indicator for 1XX")
           }
@@ -619,7 +627,6 @@
 
           let oneXXParts = this.oneXX.split(/[$‡ǂ|]/)
           if (oneXXParts.length>0){
-
             let fieldTag = oneXXParts[0].slice(0,3)
 
             let indicators = oneXXParts[0].slice(3,5)
@@ -675,9 +682,6 @@
             if (dollarKey.g){
               authLabel = authLabel + ' ' + dollarKey.g
             }
-
-
-
 
             if (dollarKey.a){
               window.clearTimeout(this.oneXXResultsTimeout)
