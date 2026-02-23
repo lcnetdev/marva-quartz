@@ -960,7 +960,6 @@ export default {
       }
 
       if (cmd == 'trans'){
-        console.info("translate")
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
         if (options.event && options.event?.target?.dataset?.shortcutActivated == 'true'){
           // check if the string value (fieldValue[0].value) ends with a single digit number

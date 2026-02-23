@@ -153,12 +153,8 @@
     methods: {
       getOneXXtag(){
         if (!this.oneXX){ return false }
-        // console.info("oneXX: ", this.oneXX)
         let tag = this.oneXX.substring(0,3)
-        // console.info("tag: ", tag)
-
         if (tag == '1XX') { return false}
-
         return tag
       },
       // Find exact match for authLabel in API response
@@ -389,13 +385,10 @@
             // console.log("extraMarcStatements",this.extraMarcStatements)
             // is there a 046 field already?
             let has046 = this.extraMarcStatements.some(field => field.fieldTag === '046') //TODO expand for corp and conf
-            console.info("has046: ", has046)
             if (!has046) {
               if (this.zero46 !== null){
-                console.info('extra 046: ', this.zero46, "--", this.oneXX)
-                  let f046 = this.build046()
-                  console.info("f046: ", f046)
-                  this.extraMarcStatements.push(f046)
+                let f046 = this.build046()
+                this.extraMarcStatements.push(f046)
               }
             }
 
@@ -1217,7 +1210,6 @@
         },
 
         build046(){
-          console.info("building046: ", this.zero46)
           let f046 = {
             fieldTag: '046',
             indicators: '##',
@@ -1250,7 +1242,6 @@
             f046.value = f046.value + ` $2 edtf`
           }
 
-          console.info("f046: ", f046)
           return f046
         },
 
@@ -1652,7 +1643,6 @@
 
             // add the 046 if this is the first time we are populating the extraMarcStatements
             if (this.zero46 !== null){
-              console.info("when does this happen?")
               let f046 = this.build046()
               this.extraMarcStatements.push(f046)
             }
