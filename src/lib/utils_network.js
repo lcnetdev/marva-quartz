@@ -194,7 +194,6 @@ const utilsNetwork = {
     */
 
     loadSimpleLookupKeyword: async function(uris,keyword,inclueUsage){
-      console.info("searching: ", uris)
       if (!Array.isArray(uris)){
         uris=[uris]
       }
