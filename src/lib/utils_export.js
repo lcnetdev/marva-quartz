@@ -1419,6 +1419,7 @@ const utilsExport = {
 		bf_catalogerId.innerHTML = escapeHTML(catCode)
 
 		let bf_date = this.createElByBestNS("bf:date")
+		bf_date.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://www.w3.org/2001/XMLSchema#dateTime')
 		bf_date.innerHTML = new Date().toISOString()
 
 		// Add agent
