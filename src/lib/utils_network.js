@@ -307,7 +307,6 @@ const utilsNetwork = {
         url = url.replace(/https:\/\/preprod[-0-9]*\.id/i,'https://id')
       }
 
-
       let options = {signal: signal}
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}

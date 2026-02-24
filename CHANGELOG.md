@@ -10,6 +10,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Styling for staging
 
+### Fixed
+- Macros in NAR 1XX/4XX search reverting the character combo
+
 ### Update
 - Subject subfield delimiters to include `ǂ`
 - NAR will insert `$b()` into the 670 in advanced mode
