@@ -151,7 +151,12 @@
     },
 
     methods: {
-
+      getOneXXtag(){
+        if (!this.oneXX){ return false }
+        let tag = this.oneXX.substring(0,3)
+        if (tag == '1XX') { return false}
+        return tag
+      },
       // Find exact match for authLabel in API response
       findAuthExactMatch(response, searchValue) {
         if (!response || !response.metadata || !response.metadata.values || !searchValue) {
@@ -379,23 +384,10 @@
 
             // console.log("extraMarcStatements",this.extraMarcStatements)
             // is there a 046 field already?
-            let has046 = this.extraMarcStatements.some(field => field.fieldTag === '046')
+            let has046 = this.extraMarcStatements.some(field => field.fieldTag === '046') //TODO expand for corp and conf
             if (!has046) {
-            if (this.zero46 !== null){
-                let f046 = {
-                  fieldTag: '046',
-                  indicators: '##',
-                  value: ''
-                }
-                if (this.zero46 && this.zero46.f ){
-                  f046.value = `$f ${this.zero46.f}`
-                }
-                if (this.zero46 && this.zero46.g){
-                  f046.value = f046.value + ` $g ${this.zero46.g}`
-                }
-                if (f046.value != ''){
-                  f046.value = f046.value + ` $2 edtf`
-                }
+              if (this.zero46 !== null){
+                let f046 = this.build046()
                 this.extraMarcStatements.push(f046)
               }
             }
@@ -690,6 +682,7 @@
             if (dollarKey.d){
 
               let lifeDates  = dollarKey.d.split('-')
+              // Personal Name 100
               if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
                 this.zero46 = {}
                 this.zero46.f = lifeDates[0]
@@ -702,7 +695,32 @@
                 this.zero46 = {}
                 this.zero46.f = lifeDates[0]
               }
+              // Corporate Name 110
+              if (lifeDates.length>1 && (fieldTag == '110' || fieldTag == 110)){
+                this.zero46 = {}
+                this.zero46.q = lifeDates[0]
+                if (lifeDates[1].trim().length>0){
+                  this.zero46.r = lifeDates[1]
+                }
 
+              }
+              if (lifeDates.length==1 && (fieldTag == '110' || fieldTag == 110)){
+                this.zero46 = {}
+                this.zero46.s = lifeDates[0]
+              }
+              // Conf Name 111
+              if (lifeDates.length>1 && (fieldTag == '111' || fieldTag == 111)){
+                this.zero46 = {}
+                this.zero46.s = lifeDates[0]
+                if (lifeDates[1].trim().length>0){
+                  this.zero46.t = lifeDates[1]
+                }
+
+              }
+              if (lifeDates.length==1 && (fieldTag == '111' || fieldTag == 111)){
+                this.zero46 = {}
+                this.zero46.q = lifeDates[0]
+              }
             }
 
             if (dollarKey.t){ // Name titles don't get 046 for the person
@@ -1189,16 +1207,42 @@
             //
 
           }
+        },
 
+        build046(){
+          let f046 = {
+            fieldTag: '046',
+            indicators: '##',
+            value: ''
+          }
 
+          if (this.getOneXXtag() == '100'){
+            if (this.zero46 && this.zero46.f ){
+              f046.value = `$f ${this.zero46.f}`
+            }
+            if (this.zero46 && this.zero46.g){
+              f046.value = f046.value + ` $g ${this.zero46.g}`
+            }
+          } else if (this.getOneXXtag() == '110'){
+            if (this.zero46 && this.zero46.q ){
+              f046.value = `$q ${this.zero46.q}`
+            }
+            if (this.zero46 && this.zero46.r){
+              f046.value = f046.value + ` $r ${this.zero46.r}`
+            }
+          }else if (this.getOneXXtag() == '111'){
+            if (this.zero46 && this.zero46.s ){
+              f046.value = `$s ${this.zero46.s}`
+            }
+            if (this.zero46 && this.zero46.t){
+              f046.value = f046.value + ` $t ${this.zero46.t}`
+            }
+          }
+          if (f046.value != ''){
+            f046.value = f046.value + ` $2 edtf`
+          }
 
-
-
-
-
-
-
-
+          return f046
         },
 
 
@@ -1239,6 +1283,32 @@
             this.checkFourXX()
           }
 
+          // rebuild 046 if $d is present
+          if (this.oneXX.includes("$d")){
+            let tmp046 = this.build046()
+            // Delete the existing 046
+            let existing046 = false
+            for (let idx in this.extraMarcStatements){
+              let tmp = this.extraMarcStatements[idx]
+              if (tmp.fieldTag == '046'){
+                existing046 = idx
+              }
+            }
+            if (existing046){
+              if (this.getOneXXtag() == '151'){ // if it would be empty don't add it
+                this.extraMarcStatements.splice(existing046, 1)
+                this.zero46 = {}
+                return
+              }
+              this.extraMarcStatements[existing046] = tmp046
+            } else {
+              if (this.getOneXXtag() == '151'){
+                this.zero46 = {}
+                return
+              }
+              this.extraMarcStatements.push(tmp046)
+            }
+          }
 
 
 
@@ -1573,20 +1643,7 @@
 
             // add the 046 if this is the first time we are populating the extraMarcStatements
             if (this.zero46 !== null){
-              let f046 = {
-                fieldTag: '046',
-                indicators: '##',
-                value: ''
-              }
-              if (this.zero46 && this.zero46.f ){
-                f046.value = `$f ${this.zero46.f}`
-              }
-              if (this.zero46 && this.zero46.g){
-                f046.value = f046.value + ` $g ${this.zero46.g}`
-              }
-              if (f046.value != ''){
-                f046.value = f046.value + ` $2 edtf`
-              }
+              let f046 = this.build046()
               this.extraMarcStatements.push(f046)
             }
 
@@ -2013,7 +2070,9 @@
                   </template>
 
                   <template v-if="zero46 && Object.keys(zero46).length>0">
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                    <div v-if="getOneXXtag() == '100'" class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                    <div v-else-if="getOneXXtag() == '110'" class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.q) ? ("$q" + zero46.q) : "" }}{{ (zero46.r) ? ("$r" + zero46.r) : "" }}$2edtf</div>
+                    <div v-else-if="getOneXXtag() == '111'" class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.s) ? ("$s" + zero46.s) : "" }}{{ (zero46.t) ? ("$t" + zero46.t) : "" }}$2edtf</div>
                   </template>
 
                   <div class="selectable" style="font-family: monospace; padding: 0.2em;" v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
