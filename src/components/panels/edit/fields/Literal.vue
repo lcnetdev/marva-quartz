@@ -1028,7 +1028,8 @@ export default {
                   // now replace the highlighted text in the otherField
 
                   // see if we can find transValue text in the other field value
-                  if (otherFieldValue[0].value.indexOf(transValue.output) > -1){
+                  let matchPos = otherFieldValue[0].value.toLocaleLowerCase().indexOf(transValue.output.toLocaleLowerCase())
+                  if (matchPos > -1){
 
                     // okay we found it then do the transliteration for this value highleted text and get the results
                     let thisTransValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,highlightedText,null,options.dir)
@@ -1036,8 +1037,9 @@ export default {
                       alert("Warning from transliteration: " + thisTransValue.warnings.join(", "))
                       break
                     }
-                    // and replce the transValue.output text in the other field with thisTransValue.output using this.profileStore.setValueLiteral
-                    let newOtherValue = otherFieldValue[0].value.replace(transValue.output, thisTransValue.output)
+                    // splice out the matched portion by position and insert the new transliteration
+                    let originalValue = otherFieldValue[0].value
+                    let newOtherValue = originalValue.substring(0, matchPos) + thisTransValue.output + originalValue.substring(matchPos + transValue.output.length)
                     this.profileStore.setValueLiteral(this.guid,otherFieldValue[0]['@guid'],this.propertyPath,newOtherValue,otherFieldValue[0]['@language'] )
 
                     didReplaceTransliteration = true
