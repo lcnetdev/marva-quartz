@@ -444,6 +444,15 @@ export default {
           this.existingISBN = false
           this.existingRecordUrl = ""
         }
+
+        if (resp.status == 404){ // check if it's a bibid
+          let url = "https://id.loc.gov/resources/instances/" + potentialISBN + ".html"
+          let resp = await utilsNetwork.searchBibId(potentialISBN)
+          if (resp.status == 200){
+            this.existingISBN = true
+            this.existingRecordUrl = url
+          }
+        }
       }
 
       console.info("this.existingRecordUrl: ", this.existingRecordUrl)
