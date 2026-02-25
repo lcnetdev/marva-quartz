@@ -393,6 +393,8 @@ export default {
         this.existingISBN = false
       }
 
+      let recordData = null
+
       if (this.searchType == 'lccn') {
         this.checkingLCCN = true
         let resp = await utilsNetwork.searchLccn(this.urlToLoad)
@@ -445,21 +447,25 @@ export default {
           this.existingRecordUrl = ""
         }
 
+
         if (resp.status == 404){ // check if it's a bibid
           let url = "https://id.loc.gov/resources/instances/" + potentialISBN + ".html"
           let resp = await utilsNetwork.searchBibId(potentialISBN)
           if (resp.status == 200){
             this.existingISBN = true
             this.existingRecordUrl = url
+            recordData = await resp.text()
           }
         }
       }
 
       console.info("this.existingRecordUrl: ", this.existingRecordUrl)
       if (this.existingRecordUrl) {
-        let data = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
+        if (!recordData){
+          recordData = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
+        }
         const parser = new DOMParser()
-        const doc = parser.parseFromString(data, "text/html")
+        const doc = parser.parseFromString(recordData, "text/html")
         let title = doc.querySelectorAll('[name="dc.title"]')
         this.matchTitle = title[0].content.split("(Instance)")[0]
       }
