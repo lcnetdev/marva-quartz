@@ -1026,7 +1026,9 @@ export default {
                 for (let osc of otherScriptCodes){
                   let transValue = await utilsNetwork.scriptShifterRequestTrans(osc,highlightedText,null,options.dir)
                   // now replace the highlighted text in the otherField
-
+                  if (transValue.output.length == 0 || transValue.warnings && transValue.warnings.length >0){
+                    continue
+                  }
                   // see if we can find transValue text in the other field value
                   let matchPos = otherFieldValue[0].value.toLocaleLowerCase().indexOf(transValue.output.toLocaleLowerCase())
                   if (matchPos > -1){
