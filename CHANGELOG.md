@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Macros in NAR 1XX/4XX search reverting the character combo
+- NARs created from subjects having the wrong hyphen
 
 ### Update
 - Subject subfield delimiters to include `ǂ`
