@@ -7073,7 +7073,6 @@ export const useProfileStore = defineStore('profile', {
 
     reorderAllNonLatinLiterals(){
       this.activeProfile = utilsParse.reorderAllNonLatinLiterals(this.activeProfile)
-
     },
 
     /**

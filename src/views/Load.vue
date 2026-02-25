@@ -73,7 +73,7 @@
                     </div>
 
                   </td>
-                  <td v-text="row.Time" />
+                  <td v-text="row.Time.replace(':',' ')" />
                   <td v-text="row.User" />
 
                 </template>
