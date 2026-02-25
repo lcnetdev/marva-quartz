@@ -94,13 +94,16 @@ export default {
 //     const configStore = useConfigStore()
 // const profileStore = useProfileStore()
 
+    // Check for SSO token in URL (from SAML callback redirect) before initializing
+    const hasSsoUser = this.preferenceStore.handleSsoToken()
 
     this.preferenceStore.initalize(this.configStore.returnUrls)
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
 
-    if (!this.catCode){
-      this.showLoginModal = true
+    if (!this.catCode && !hasSsoUser){
+      // If SAML SSO is available, redirect to SSO login instead of showing the modal
+      this.preferenceStore.ssoLogin(this.configStore.returnUrls.util)
     }
     await this.profileStore.buildProfiles()
       //let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')

@@ -35,6 +35,10 @@ export const usePreferenceStore = defineStore('preference', {
     // catRequireCode: false,
     catCode: null,
 
+    // SSO JWT token and user info
+    jwt: null,
+    ssoUser: null,
+
     // show the login box
     showLoginModal: false,
 
@@ -1579,6 +1583,73 @@ export const usePreferenceStore = defineStore('preference', {
 
   },
   actions: {
+
+    /**
+    * Check URL for SSO token, store it, and populate user info from the JWT payload.
+    * Called early in App.vue mounted() before initalize().
+    * @return {boolean} - true if an SSO user is authenticated
+    */
+    handleSsoToken: function(){
+      // Check URL for ?token= from SAML callback redirect
+      const urlParams = new URLSearchParams(window.location.search)
+      const tokenFromUrl = urlParams.get('token')
+
+      if (tokenFromUrl) {
+        window.localStorage.setItem('marva_jwt', tokenFromUrl)
+        // Clean token from URL immediately
+        const cleanUrl = window.location.pathname + window.location.hash
+        window.history.replaceState({}, '', cleanUrl)
+      }
+
+      // Load JWT from localStorage
+      const storedToken = window.localStorage.getItem('marva_jwt')
+      if (!storedToken) {
+        return false
+      }
+
+      // Decode JWT payload (not verification — that happens server-side)
+      try {
+        const payload = JSON.parse(atob(storedToken.split('.')[1]))
+        // Check if expired
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          window.localStorage.removeItem('marva_jwt')
+          this.jwt = null
+          this.ssoUser = null
+          return false
+        }
+        this.jwt = storedToken
+        this.ssoUser = payload
+        // Populate catInitals and catCode from SSO claims
+        this.catInitals = payload.name || payload.email || 'SSO User'
+        this.catCode = payload.email || payload.sub || 'sso'
+        window.localStorage.setItem('marva-catInitals', this.catInitals)
+        window.localStorage.setItem('marva-catCode', this.catCode)
+        return true
+      } catch (e) {
+        console.error('Failed to decode JWT:', e)
+        window.localStorage.removeItem('marva_jwt')
+        return false
+      }
+    },
+
+    /**
+    * Redirect the browser to the SSO login endpoint.
+    * @param {string} utilUrl - the util service base URL from configStore.returnUrls.util
+    */
+    ssoLogin: function(utilUrl){
+      window.location.href = utilUrl + 'auth/login'
+    },
+
+    /**
+    * Clear JWT and redirect to SSO logout endpoint.
+    * @param {string} utilUrl - the util service base URL from configStore.returnUrls.util
+    */
+    ssoLogout: function(utilUrl){
+      window.localStorage.removeItem('marva_jwt')
+      this.jwt = null
+      this.ssoUser = null
+      window.location.href = utilUrl + 'auth/logout'
+    },
 
     /**
     * Setup the preference store, access settings stored in localstorage, etc.

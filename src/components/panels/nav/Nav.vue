@@ -944,17 +944,22 @@ export default {
         )
       }
 
-      menu.push(
-        // {
-        //   is: StatusIndicator,
-        // },
-        {
+      // User account button — shows logout option for SSO users
+      if (this.preferenceStore.ssoUser) {
+        menu.push({
           text: this.userName,
-          // active: this.happy,
+          icon: "account_circle",
+          menu: [
+            { text: 'Logout', click: () => { this.preferenceStore.ssoLogout(config.returnUrls.util) }, icon: 'logout' }
+          ]
+        })
+      } else {
+        menu.push({
+          text: this.userName,
           icon: "account_circle",
           click: () => { this.showLoginModal = true }
-        }
-      )
+        })
+      }
 
       // Put Copy Mode options below the main menu
       if (this.preferenceStore.copyMode) {

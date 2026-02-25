@@ -4,7 +4,18 @@ import {usePreferenceStore} from "../stores/preference";
 import short from 'short-uuid'
 const translator = short();
 
-
+/**
+ * Returns an Authorization header object if an SSO JWT is stored.
+ * Merge this into fetch options headers for util-service requests.
+ * @return {object} - e.g. { 'Authorization': 'Bearer <token>' } or {}
+ */
+function getAuthHeaders() {
+  const token = window.localStorage.getItem('marva_jwt')
+  if (token) {
+    return { 'Authorization': 'Bearer ' + token }
+  }
+  return {}
+}
 
 const utilsNetwork = {
 
@@ -311,6 +322,11 @@ const utilsNetwork = {
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
       }
+      // Add auth headers for util-service requests
+      const authHdrs = getAuthHeaders()
+      if (Object.keys(authHdrs).length > 0) {
+        options.headers = { ...options.headers, ...authHdrs }
+      }
       // console.log("url:",url)
       // console.log('options:',options)
       let data = null
@@ -407,7 +423,7 @@ const utilsNetwork = {
 
       let returnUrls = useConfigStore().returnUrls
 
-      let r = await fetch(returnUrls.util + 'lccnnaco')
+      let r = await fetch(returnUrls.util + 'lccnnaco', { headers: getAuthHeaders() })
 
       let data = await r.json()
       return data.id
@@ -418,7 +434,7 @@ const utilsNetwork = {
 
       let returnUrls = useConfigStore().returnUrls
 
-      let r = await fetch(returnUrls.util + 'status')
+      let r = await fetch(returnUrls.util + 'status', { headers: getAuthHeaders() })
 
       let data = await r.json()
       return data
@@ -428,7 +444,7 @@ const utilsNetwork = {
     recordHistory: async function(bibid){
       if (bibid){
         let returnUrls = useConfigStore().returnUrls
-        let r = await fetch(returnUrls.util + 'history' + '/' + bibid)
+        let r = await fetch(returnUrls.util + 'history' + '/' + bibid, { headers: getAuthHeaders() })
         let data = await r.json()
         return data
       }
@@ -439,7 +455,7 @@ const utilsNetwork = {
       let returnUrls = useConfigStore().returnUrls
 
       try {
-        let r = await fetch(returnUrls.util + 'marva001')
+        let r = await fetch(returnUrls.util + 'marva001', { headers: getAuthHeaders() })
         let data = await r.json()
         return data.marva001
       } catch(err) {
@@ -2896,6 +2912,7 @@ const utilsNetwork = {
         method: 'PUT', // Method itself
         headers: {
           'Content-type': 'application/xml', // Indicates the content
+          ...getAuthHeaders()
         },
         signal: AbortSignal.timeout(3000),  // add a timeout
         body: xml // We send data in JSON format
@@ -2938,7 +2955,7 @@ const utilsNetwork = {
        // }
        // console.log('options:',options)
        try{
-         let response = await fetch(url);
+         let response = await fetch(url, { headers: getAuthHeaders() });
 
          let data =  await response.text()
 
@@ -2961,7 +2978,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: ""
       });
@@ -3015,7 +3033,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       //signal: AbortSignal.timeout(5000),
       body: JSON.stringify({rdfxml: xml})
@@ -3046,7 +3065,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       //signal: AbortSignal.timeout(5000),
       body: JSON.stringify({rdfxml: xml})
@@ -3089,7 +3109,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({
         query: query,
@@ -3128,7 +3149,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
     });
@@ -3165,7 +3187,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
     });
@@ -3205,7 +3228,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({name: uuid, rdfxml:xml, eid: eid, hub:postingHub})
     });
@@ -3247,7 +3271,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({rdfxml:xml})
     });
@@ -3434,7 +3459,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           log: log,
@@ -3463,7 +3489,8 @@ const utilsNetwork = {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
           },
 
         });
@@ -3547,7 +3574,7 @@ const utilsNetwork = {
 
     async linkedDataBaseRelated(isbn){
       let returnUrls = useConfigStore().returnUrls
-      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn)
+      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn, { headers: getAuthHeaders() })
       let data = await r.json()
       console.log("linkedDataBaseRelated data:",data)
       return data
@@ -3804,7 +3831,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         //signal: AbortSignal.timeout(5000),
         body: JSON.stringify({uris: contributorsUris})
@@ -4079,7 +4107,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: JSON.stringify(data)
       });
@@ -4095,7 +4124,8 @@ const utilsNetwork = {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
