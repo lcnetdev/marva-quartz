@@ -2472,7 +2472,7 @@ const utilsParse = {
    * @return {Object} - The profile with reordered literal arrays
    */
    reorderAllNonLatinLiterals: function(profile){
-
+    console.log(JSON.stringify(profile,null,2))
     function process (obj, func) {
       if (obj && obj.userValue){
         obj = obj.userValue

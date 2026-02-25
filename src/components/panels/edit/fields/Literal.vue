@@ -1095,6 +1095,8 @@ export default {
 
         // but also make sure the old string has the language tag
         this.profileStore.setValueLiteral(this.guid,fieldValue[0]['@guid'],this.propertyPath,fieldValue[0]['value'],fromLang)
+        // we want to make sure things are in the right order after we add the lang tags
+        this.profileStore.reorderAllNonLatinLiterals()
 
         // make sure the new literal fits
         this.$nextTick().then(() => {
@@ -1118,6 +1120,10 @@ export default {
 
       try{
         // this will fail when adding an additional literal and the current field is empty
+        // console.log(this.literalValues)
+        // console.log(this.literalValues[0])
+        // console.log(this.literalValues[0]['@guid'])
+        // console.log(this.$refs['input_' + this.literalValues[0]['@guid']][0])
         this.$refs['input_' + this.literalValues[0]['@guid']][0].focus()
       }catch(err){
         console.error("Adding a field from an empty field: ", err)
