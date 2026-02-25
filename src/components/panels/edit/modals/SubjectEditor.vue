@@ -2937,7 +2937,8 @@ export default {
 
     loadNacoStubModal: function() {
         // Set the current value for NAR creation
-        this.lastComplexLookupString = this.subjectString
+        this.lastComplexLookupString = this.subjectString.replaceAll("‑", "-")
+
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',
