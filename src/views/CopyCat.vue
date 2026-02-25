@@ -106,7 +106,7 @@
           <label for="jackphy">Does this record contain non-Latin script that should be retained? </label>
           <input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
           <br>
-          <h3>Load with profile:</h3>
+          <h3>Load with profile:</h3><div v-if="!this.selectedWcRecord">(select a record to continue)</div>
           <template v-if="posting">
             <Badge text="Sending record for processing. This may take a moment." badgeType="info" :noHover="true" />
           </template>
@@ -381,11 +381,7 @@ export default {
 
     checkLccn: async function () {
       console.info("checkLCCN: ", this.searchType)
-
-
-      console.info("urlToLoad: ", this.urlToLoad)
       // if (this.urlToLoad.length < 3){ return }
-
       if(this.overrideAllow && this.overrideBibid !=''){
         console.info("checking override: ", this.overrideBibid)
         this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
@@ -401,6 +397,7 @@ export default {
         this.checkingLCCN = true
         let url = "https://id.loc.gov/resources/instances/" + this.isbn + ".html"
         let resp = await utilsNetwork.searchBibId(this.isbn)
+        this.checkingLCCN = false
         if (resp.status == 200){
           this.existingISBN = true
           this.existingRecordUrl = url
@@ -499,8 +496,10 @@ export default {
     },
 
     checkRecordHasLccn: function (record) {
+      console.info("hasLCCN?: ", record)
       if (record) {
         let marc010 = this.getMarcFieldAsString(record, "010")
+        console.info("marc010: ", marc010)
         if (!marc010) { return false }
 
         if (marc010.includes('$a')) { return true }
@@ -1119,7 +1118,6 @@ p {
 /* toggle */
 /* https://hudecz.medium.com/how-to-create-a-pure-css-toggle-button-2fcc955a8984 */
 #container {
-  margin-left: 5px;
   width: fit-content;
   display: flex;
   justify-content: center;
