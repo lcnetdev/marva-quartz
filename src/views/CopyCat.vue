@@ -670,8 +670,12 @@ export default {
       if (this.existingLCCN || this.existingISBN || (this.overrideAllow && this.overrideBibid != '')) {
         this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != "") {
-          bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
-          this.createSubField("f", bibId, dummyField)
+          if (this.overrideAllow && this.overrideBibid != ''){
+            this.createSubField("f", this.overrideBibid, dummyField)
+          } else {
+            bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
+            this.createSubField("f", bibId, dummyField)
+          }
         }
       } else {
         marva001 = await utilsNetwork.getMarva001()
