@@ -109,7 +109,7 @@
           <h3>Load with profile:</h3>
           <Badge v-if="!this.selectedWcRecord" text="(select a record to continue)" badgeType="secondary" :noHover="true" />
           <template v-if="(!existingLCCN && !existingISBN && !overrideAllow) && selectedWcRecord">
-            <Badge text="No record to overlay. This will create a new record." badgeType="warning" :noHover="true" />
+            <Badge text="No record to overlay. You will create a new record." badgeType="warning" :noHover="true" />
           </template>
           <template v-if="posting">
             <Badge text="Sending record for processing. This may take a moment." badgeType="info" :noHover="true" />
