@@ -93,7 +93,7 @@
           <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
             badgeType="primary" />
           <br>
-          <label for="override">Force match with a BibId? </label>
+          <label for="override">Overlay known BibId? </label>
           <input name="oveerrid" id="overrid" type="checkbox" v-model="overrideAllow" /><br>
           <template v-if="overrideAllow">
             <label for="matchPoint">Known BibId (001): </label>
@@ -379,10 +379,19 @@ export default {
       return !recordSelected
     },
 
+    /**
+     * TODO: make sure, the xml is building correctl
+     * - override match
+     * - bib match
+     * - other match
+     * - lccn matc
+     */
+
     checkLccn: async function () {
       console.info("checkLCCN: ", this.searchType)
       // if (this.urlToLoad.length < 3){ return }
       if(this.overrideAllow && this.overrideBibid !=''){
+        console.info("override: ", this.overrideBibid)
         console.info("checking override: ", this.overrideBibid)
         this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
         this.searchType = 'bibid'
@@ -395,7 +404,7 @@ export default {
 
       if (this.searchType == 'bibid'){
         this.checkingLCCN = true
-        let url = "https://id.loc.gov/resources/instances/" + this.isbn + ".html"
+        let url = "https://preprod-8080.id.loc.gov/resources/instances/" + this.isbn + ".html"
         let resp = await utilsNetwork.searchBibId(this.isbn)
         this.checkingLCCN = false
         if (resp.status == 200){
@@ -658,7 +667,7 @@ export default {
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
       let marva001 = false
-      if (this.existingLCCN || this.existingISBN) {
+      if (this.existingLCCN || this.existingISBN || (this.overrideAllow && this.overrideBibid != '')) {
         this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != "") {
           bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
@@ -684,6 +693,7 @@ export default {
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
       console.info("strXmlBasic: ", strXmlBasic)
+      return
 
       this.posting = true
       this.postResults = {}
