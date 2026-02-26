@@ -701,7 +701,6 @@ export default {
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
       console.info("strXmlBasic: ", strXmlBasic)
-      return
 
       this.posting = true
       this.postResults = {}
