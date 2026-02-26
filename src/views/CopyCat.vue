@@ -106,7 +106,11 @@
           <label for="jackphy">Does this record contain non-Latin script that should be retained? </label>
           <input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
           <br>
-          <h3>Load with profile:</h3><div v-if="!this.selectedWcRecord">(select a record to continue)</div>
+          <h3>Load with profile:</h3>
+          <Badge v-if="!this.selectedWcRecord" text="(select a record to continue)" badgeType="secondary" :noHover="true" />
+          <template v-if="(!existingLCCN && !existingISBN && !overrideAllow) && selectedWcRecord">
+            <Badge text="No record to overlay. This will create a new record." badgeType="warning" :noHover="true" />
+          </template>
           <template v-if="posting">
             <Badge text="Sending record for processing. This may take a moment." badgeType="info" :noHover="true" />
           </template>
@@ -381,9 +385,9 @@ export default {
 
     /**
      * TODO: make sure, the xml is building correctl
-     * - override match
-     * - bib match
-     * - other match
+     * - override match [good]
+     * - bib match [good]
+     * - other match [good]
      * - lccn matc
      */
 
