@@ -4,10 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [1.4.11] - 2025-02-27
 ### Update
-- NAR creation supports 046 for 110 & 111
+- NAR creation supports 046 for 110 & 111 
+- You can now highlgiht a portion of the Instance Subtitle when using "Send Subtitle to Work Variant" and it will only send the selected (highlighted) text
 
 ### Fixed
 - CopyCat overlay override not working like it should
+- Fixed issue with partial in place transliteration when using "Captialize first word" preference
+- Fixed issue with partial in place transliteration when using ko + han mixed languages.
 
 ## [1.4.10] - 2025-02-13
 ### Added
