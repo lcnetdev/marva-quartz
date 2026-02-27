@@ -1090,6 +1090,25 @@ export default {
                         "@id": "http://id.loc.gov/vocabulary/languages/eng",
                         "@type": "http://id.loc.gov/ontologies/bibframe/Language"
                       }
+                    ],
+                    "http://id.loc.gov/ontologies/bflc/catalogerId": [
+                      {
+                        "@guid": "fgHPJYcNZNBkeELEUv1M3E",
+                        "http://id.loc.gov/ontologies/bflc/catalogerId": this.preferenceStore.catInitals
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bflc/encodingLevel": [
+                      {
+                        "@guid": "dnad4YqMcoo2ro8FVkCxfB",
+                        "@id": "http://id.loc.gov/vocabulary/menclvl/5",
+                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                            "@guid": "ncCaUaqE51cuig7YYnDThG",
+                            "http://www.w3.org/2000/01/rdf-schema#label": "preliminary "
+                          }
+                        ],
+                        "@type": "http://id.loc.gov/ontologies/bflc/EncodingLevel"
+                      }
                     ]
                   }
                 ]
