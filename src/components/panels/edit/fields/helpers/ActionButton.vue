@@ -874,15 +874,26 @@
 
         //Structure that will get the changes and be passed on
         const activeStructure = JSON.parse(JSON.stringify(structure))
-
+        
+        
         let subTitleCheck = false
         let subTitle = false
+        let subTitleGuid = false
         if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){ //if source == instance && there's a subtitle
           let userValue = activeStructure.userValue
           let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
           if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
             subTitleCheck = true
             subTitle = title["http://id.loc.gov/ontologies/bibframe/subtitle"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+
+            subTitleGuid = title["http://id.loc.gov/ontologies/bibframe/subtitle"][0]["@guid"]
+            // look for the html input to see if they had selected a portion of the subtitle to send over as the variant title
+            let subtitleInput = document.querySelector(`[data-guid='${subTitleGuid}']`)
+            if (subtitleInput && subtitleInput.selectionStart != subtitleInput.selectionEnd){
+              subTitle = subTitle.substring(subtitleInput.selectionStart, subtitleInput.selectionEnd)
+            }
+
+
           }
         }
 
@@ -925,8 +936,8 @@
           this.displayInstanceSelectionModal = true
           return
         }
-
         if (!Array.isArray(newRt)){
+          
           activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
           activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
 
@@ -952,7 +963,7 @@
               additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
               //update the value
               additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
-              //Add it
+              //Add it              
               this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
             }
           }
@@ -976,7 +987,7 @@
                 delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
               }
             }
-
+            
             // make adjustment for subtitles in instance
             if (rt.includes(":Work")){
               let additionalTitleStructure = false
@@ -988,6 +999,22 @@
                 additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
                 //update the value
                 additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
+
+                // if there are more mainTitles its because the source was non-latin multi value:
+                if (additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"].length > 1){
+                  // only keep the first one we just set
+                  additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = [additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]]
+                }
+                // and delete the @language if there
+                if (additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["@language"]){
+                  delete additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["@language"]
+                }
+                // and delete anything that is not a http://id.loc.gov/ontologies/bibframe/mainTitle                
+                for (let key in additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]){                  
+                  if (key != "http://id.loc.gov/ontologies/bibframe/mainTitle" && key != "@type" && key != "@guid"){
+                    delete additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0][key]
+                  }
+                }
                 //Add it
                 this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
               }
