@@ -38,6 +38,7 @@ export const usePreferenceStore = defineStore('preference', {
     // SSO JWT token and user info
     jwt: null,
     ssoUser: null,
+    ssoSessionExpired: false,
 
     // show the login box
     showLoginModal: false,
@@ -1638,6 +1639,78 @@ export const usePreferenceStore = defineStore('preference', {
     */
     ssoLogin: function(utilUrl){
       window.location.href = utilUrl + 'auth/login'
+    },
+
+    /**
+    * Start a background timer that refreshes the JWT before it expires.
+    * Checks every 60 seconds; refreshes when within 15 minutes of expiry.
+    * If the token is already expired or refresh fails, redirect to SSO login.
+    * @param {string} utilUrl - the util service base URL
+    */
+    startJwtRefreshTimer: function(utilUrl){
+      if (this._refreshTimer) return // already running
+
+      this._refreshTimer = window.setInterval(async () => {
+        const token = window.localStorage.getItem('marva_jwt')
+        if (!token) return
+
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          if (!payload.exp) return
+
+          const msUntilExpiry = payload.exp * 1000 - Date.now()
+
+          // Already expired — try a silent refresh first (Entra session may still be valid)
+          if (msUntilExpiry <= 0) {
+            console.warn('JWT expired, attempting silent refresh...')
+            try {
+              const resp = await fetch(utilUrl + 'auth/refresh', {
+                headers: { 'Authorization': 'Bearer ' + token }
+              })
+              if (resp.ok) {
+                const data = await resp.json()
+                if (data.token) {
+                  window.localStorage.setItem('marva_jwt', data.token)
+                  this.jwt = data.token
+                  const newPayload = JSON.parse(atob(data.token.split('.')[1]))
+                  this.ssoUser = newPayload
+                  console.log('JWT refreshed after expiry, new expiry:', new Date(newPayload.exp * 1000).toLocaleTimeString())
+                  return
+                }
+              }
+            } catch (e) { /* refresh failed, fall through */ }
+
+            // Refresh failed — mark as expired but don't redirect
+            // The user can keep viewing their current work
+            this.jwt = null
+            this.ssoUser = null
+            this.ssoSessionExpired = true
+            console.warn('SSO session expired. User will need to re-authenticate on next action.')
+            return
+          }
+
+          // Within 15 minutes of expiry — refresh silently
+          if (msUntilExpiry < 15 * 60 * 1000) {
+            const resp = await fetch(utilUrl + 'auth/refresh', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            })
+            if (resp.ok) {
+              const data = await resp.json()
+              if (data.token) {
+                window.localStorage.setItem('marva_jwt', data.token)
+                this.jwt = data.token
+                const newPayload = JSON.parse(atob(data.token.split('.')[1]))
+                this.ssoUser = newPayload
+                console.log('JWT refreshed, new expiry:', new Date(newPayload.exp * 1000).toLocaleTimeString())
+              }
+            } else {
+              console.warn('JWT refresh failed, status:', resp.status)
+            }
+          }
+        } catch (e) {
+          console.error('JWT refresh check error:', e)
+        }
+      }, 60 * 1000) // check every 60 seconds
     },
 
     /**

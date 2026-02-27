@@ -65,7 +65,7 @@ export default {
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection', 'isTestEnv']),
     ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal']),
 
-    ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
+    ...mapState(usePreferenceStore, ['showPrefModal','catCode','ssoSessionExpired']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
     ...mapWritableState(useConfigStore, ['showUpdateAvailableModal','showNonLatinBulkModal','showNonLatinAgentModal']),
 
@@ -104,6 +104,9 @@ export default {
     if (!this.catCode && !hasSsoUser){
       // If SAML SSO is available, redirect to SSO login instead of showing the modal
       this.preferenceStore.ssoLogin(this.configStore.returnUrls.util)
+    } else if (hasSsoUser) {
+      // Start background JWT refresh timer
+      this.preferenceStore.startJwtRefreshTimer(this.configStore.returnUrls.util)
     }
     await this.profileStore.buildProfiles()
       //let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')
@@ -131,6 +134,10 @@ export default {
 </script>
 
 <template>
+  <div v-if="ssoSessionExpired" class="sso-expired-banner">
+    <span>Your session has expired.</span>
+    <button @click="preferenceStore.ssoLogin(configStore.returnUrls.util)">Log In</button>
+  </div>
   <RouterView />
   <LoadingModal/>
 
@@ -188,6 +195,35 @@ export default {
 
 
 <style scoped>
+.sso-expired-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #d32f2f;
+  color: white;
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.sso-expired-banner button {
+  background: white;
+  color: #d32f2f;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
+.sso-expired-banner button:hover {
+  background: #f5f5f5;
+}
 header {
   line-height: 1.5;
   max-height: 100vh;
