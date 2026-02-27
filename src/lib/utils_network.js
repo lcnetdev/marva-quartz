@@ -448,6 +448,29 @@ const utilsNetwork = {
       }
     },
 
+    searchBibId: async function(bibid){
+      if (this.subjectSearchActive){
+        this.controllers["lccnSearchController"].abort()
+        this.controllers["lccnSearchController"] = new AbortController()
+      }
+      this.subjectSearchActive = true
+
+      let url = "https://id.loc.gov/resources/instances/"
+      if (useConfigStore().returnUrls.displayLCOnlyFeatures){
+        url = "https://preprod-8080.id.loc.gov/resources/instances/"
+      }
+      url = url + bibid.trim()
+      let result = await fetch(
+        url,
+        {
+          method: 'GET',
+          signal: this.controllers["lccnSearchController"].signal
+        }
+      )
+      this.subjectSearchActive = false
+      return result
+    },
+
     searchLccn: async function name(lccn) {
       if (this.subjectSearchActive){
         this.controllers["lccnSearchController"].abort()

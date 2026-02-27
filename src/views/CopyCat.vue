@@ -49,12 +49,18 @@
           <hr style="margin-bottom: 10px;;">
           Check for existing record using:
           <div id="container">
-            <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
-              @click="changeSearchType($event)" ref="toggle">
-            <label for="search-type" class="toggle-container">
-              <div>LCCN</div>
-              <div>Other Identifier</div>
-            </label>
+            <div class="match-selection">
+              <form class="match-form">
+                <input type="radio" name="match" id="lccn-match" class="lccn" value="lccn" @click="changeSearchType($event)" checked>
+                <label for="lccn-match" class="lccn">LCCN</label>
+
+                <input type="radio" name="match" id="bib-match"class="bib" value="bibid" @click="changeSearchType($event)">
+                <label for="bib-match" class="bib">Bib ID</label>
+
+                <input type="radio" name="match" id="other-match" class="other" value="other" @click="changeSearchType($event)">
+                <label for="other-match" class="other">Other ID</label>
+              </form>
+            </div>
           </div>
 
           <br>
@@ -74,12 +80,6 @@
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
                 existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
             </h4>
-            <label for="override">Override this match with a BibId? </label>
-            <input name="oveerrid" id="overrid" type="checkbox" v-model="overrideAllow" /><br>
-            <template v-if="overrideAllow">
-              <label for="matchPoint">Known BibId (001): </label>
-              <input name="matchPoint" id="overrideBibid" type="text" v-model="overrideBibid" @input="checkLccn" />
-            </template>
           </template>
           <template v-else>
             <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
@@ -92,6 +92,13 @@
             :disabled="selectedRecordUrl" />
           <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
             badgeType="primary" />
+          <br>
+          <label for="override">Overlay known BibId? </label>
+          <input name="oveerrid" id="overrid" type="checkbox" v-model="overrideAllow" /><br>
+          <template v-if="overrideAllow">
+            <label for="matchPoint">Known BibId (001): </label>
+            <input name="matchPoint" id="overrideBibid" type="text" v-model="overrideBibid" @input="checkLccn" />
+          </template>
           <br><br>
 
           <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority"
@@ -100,6 +107,10 @@
           <input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
           <br>
           <h3>Load with profile:</h3>
+          <Badge v-if="!this.selectedWcRecord" text="(select a record to continue)" badgeType="secondary" :noHover="true" />
+          <template v-if="(!existingLCCN && !existingISBN && !overrideAllow) && selectedWcRecord">
+            <Badge text="No record to overlay. You will create a new record." badgeType="warning" :noHover="true" />
+          </template>
           <template v-if="posting">
             <Badge text="Sending record for processing. This may take a moment." badgeType="info" :noHover="true" />
           </template>
@@ -307,13 +318,8 @@ export default {
 
   methods: {
     changeSearchType: function (event) {
-      if (event.target.checked) {
-        this.searchType = "isbn"
+      this.searchType = event.target.value
 
-        this.isbn = this.wcIndex == 'sn' ? this.wcQuery : ''
-      } else {
-        this.searchType = "lccn"
-      }
       this.checkLccn()
     },
 
@@ -377,14 +383,19 @@ export default {
       return !recordSelected
     },
 
+    /**
+     * TODO: make sure, the xml is building correctl
+     * - override match [good]
+     * - bib match [good]
+     * - other match [good]
+     * - lccn matc
+     */
+
     checkLccn: async function () {
-      console.info("checkLCCN")
-
-
-      console.info("urlToLoad: ", this.urlToLoad)
+      console.info("checkLCCN: ", this.searchType)
       // if (this.urlToLoad.length < 3){ return }
-
       if(this.overrideAllow && this.overrideBibid !=''){
+        console.info("override: ", this.overrideBibid)
         console.info("checking override: ", this.overrideBibid)
         this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
         this.searchType = 'bibid'
@@ -393,10 +404,21 @@ export default {
         this.existingISBN = false
       }
 
-      if (this.searchType == 'lccn') {
+      let recordData = null
+
+      if (this.searchType == 'bibid'){
+        this.checkingLCCN = true
+        let url = "https://preprod-8080.id.loc.gov/resources/instances/" + this.isbn + ".html"
+        let resp = await utilsNetwork.searchBibId(this.isbn)
+        this.checkingLCCN = false
+        if (resp.status == 200){
+          this.existingISBN = true
+          this.existingRecordUrl = url
+          recordData = await resp.text()
+        }
+      } else if (this.searchType == 'lccn') {
         this.checkingLCCN = true
         let resp = await utilsNetwork.searchLccn(this.urlToLoad)
-        console.info("     >>>>> ", resp)
         this.checkingLCCN = false
         try {
           this.existingLCCN = resp.status != 404
@@ -425,13 +447,11 @@ export default {
 
       // check the ISBN
       // else if (!this.existingLCCN && this.wcIndex == "sn"){
-      else if (this.searchType == 'isbn') {
+      else if (this.searchType == 'other') {
         this.checkingLCCN = true
         let potentialISBN = this.isbn
-        console.info("isbn", potentialISBN)
         let resp = await utilsNetwork.searchLccn(potentialISBN)
         this.checkingLCCN = false
-        console.info("resp: ", resp)
         try {
           this.existingISBN = resp.status != 404
           if (this.existingISBN) {
@@ -448,9 +468,11 @@ export default {
 
       console.info("this.existingRecordUrl: ", this.existingRecordUrl)
       if (this.existingRecordUrl) {
-        let data = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
+        if (!recordData){
+          recordData = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
+        }
         const parser = new DOMParser()
-        const doc = parser.parseFromString(data, "text/html")
+        const doc = parser.parseFromString(recordData, "text/html")
         let title = doc.querySelectorAll('[name="dc.title"]')
         this.matchTitle = title[0].content.split("(Instance)")[0]
       }
@@ -487,8 +509,10 @@ export default {
     },
 
     checkRecordHasLccn: function (record) {
+      console.info("hasLCCN?: ", record)
       if (record) {
         let marc010 = this.getMarcFieldAsString(record, "010")
+        console.info("marc010: ", marc010)
         if (!marc010) { return false }
 
         if (marc010.includes('$a')) { return true }
@@ -647,11 +671,15 @@ export default {
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
       let marva001 = false
-      if (this.existingLCCN || this.existingISBN) {
+      if (this.existingLCCN || this.existingISBN || (this.overrideAllow && this.overrideBibid != '')) {
         this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != "") {
-          bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
-          this.createSubField("f", bibId, dummyField)
+          if (this.overrideAllow && this.overrideBibid != ''){
+            this.createSubField("f", this.overrideBibid, dummyField)
+          } else {
+            bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
+            this.createSubField("f", bibId, dummyField)
+          }
         }
       } else {
         marva001 = await utilsNetwork.getMarva001()
@@ -1107,64 +1135,61 @@ p {
 /* toggle */
 /* https://hudecz.medium.com/how-to-create-a-pure-css-toggle-button-2fcc955a8984 */
 #container {
-  margin-left: 5px;
-}
-
-.toggle {
-  display: none;
-}
-
-.toggle-container {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
   width: fit-content;
-  border: 3px solid v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
-  border-radius: 20px;
-  background: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
-  font-weight: bold;
-  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
-  cursor: pointer;
+  display: flex;
+  justify-content: center;
+
 }
 
-.toggle-container::before {
-  content: '';
+.match-selection{
+  padding: 8px 5px 8px 5px !important;
+  align-self: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+
+.match-form > label {
+  margin-left: 10px;
+  border: 2px solid grey;
+  border-radius: 5px;
+  padding: 1px;
+}
+
+.match-form > label:last-child {
+  margin-right: 10px;
+}
+
+.match-selection {
+  background-color: rgba(0, 0, 16, 0.8);
+  padding: 0.4rem 0.4rem 0.1rem 0.4rem;
+  border-radius: 2.2rem;
+}
+
+.match-form > input[type="radio"] {
   position: absolute;
-  width: 50%;
-  height: 100%;
-  left: 0%;
-  border-radius: 20px;
-  background: black;
-  transition: all 0.3s;
+  opacity: 0;
 }
 
-.toggle-container div {
-  padding: 6px;
-  text-align: center;
-  z-index: 1;
+label[class="lccn"],
+label[class="bib"],
+label[class="other"]{
+  font-weight: bold;
+  color: grey;
 }
 
-.toggle:checked+.toggle-container::before {
-  left: 50%;
+label[class="lccn"]:hover,
+input[class="lccn"]:checked + label,
+label[class="lccn"]:focus,
+label[class="bib"]:hover,
+input[class="bib"]:checked + label,
+label[class="bib"]:focus,
+label[class="other"]:hover,
+input[class="other"]:checked + label,
+label[class="other"]:focus {
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");;
+  border: 2px solid v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");;
+
 }
 
-.toggle:checked+.toggle-container div:first-child {
-  color: black;
-  transition: color 0.3s;
-}
-
-.toggle:checked+.toggle-container div:last-child {
-  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
-  transition: color 0.3s;
-}
-
-.toggle+.toggle-container div:first-child {
-  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
-  transition: color 0.3s;
-}
-
-.toggle+.toggle-container div:last-child {
-  color: black;
-  transition: color 0.3s;
-}
 </style>

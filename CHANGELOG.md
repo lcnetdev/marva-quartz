@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 ### Update
 - NAR creation supports 046 for 110 & 111
 
+### Fixed
+- CopyCat overlay override not working like it should
+
 ## [1.4.10] - 2025-02-13
 ### Added
 - Styling for staging
