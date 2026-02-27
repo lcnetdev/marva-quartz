@@ -1019,36 +1019,76 @@ export default {
                             "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": marva001
                           }
                         ],
-                        "http://id.loc.gov/ontologies/bibframe/assigner": [
+                        }
+                      ]
+                    ,
+                    "http://id.loc.gov/ontologies/bibframe/assigner": [
+                      {
+                        "@guid": short.generate(),
+                        "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
+                        "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                        "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
                             "@guid": short.generate(),
-                            "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
-                            "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
-                            "http://www.w3.org/2000/01/rdf-schema#label": [
-                              {
-                                "@guid": short.generate(),
-                                "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
-                              }
-                            ],
-                            "http://id.loc.gov/ontologies/bibframe/code": [
-                              {
-                                "@guid": short.generate(),
-                                "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC",
-                                "@datatype": "http://id.loc.gov/datatypes/orgs/code"
-                              },
-                              {
-                                "@guid": short.generate(),
-                                "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc",
-                                "@datatype": "http://id.loc.gov/datatypes/orgs/normalized"
-                              },
-                              {
-                                "@guid": short.generate(),
-                                "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc",
-                                "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
-                              }
-                            ]
+                            "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congresss"
+                          }
+                        ],
+                        "http://id.loc.gov/ontologies/bibframe/code": [
+                          {
+                            "@guid": short.generate(),
+                            "http://id.loc.gov/ontologies/bibframe/code": "DLC",
+                            "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                          },
+                          {
+                            "@guid": short.generate(),
+                            "http://id.loc.gov/ontologies/bibframe/code": "dlc",
+                            "@datatype": "http://id.loc.gov/datatypes/orgs/normalized"
+                          },
+                          {
+                            "@guid": short.generate(),
+                            "http://id.loc.gov/ontologies/bibframe/code": "US-dlc",
+                            "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
                           }
                         ]
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/descriptionAuthentication": [
+                      {
+                        "@guid": "w5ez1o9m9HqWhxGXkfXhvM",
+                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                            "@guid": "58UfyEnkTdwpL9tKpubExu",
+                            "http://www.w3.org/2000/01/rdf-schema#label": "pcc"
+                          }
+                        ],
+                        "@id": "http://id.loc.gov/vocabulary/marcauthen/pcc",
+                        "@type": "http://id.loc.gov/ontologies/bibframe/DescriptionAuthentication"
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/descriptionConventions": [
+                      {
+                        "@guid": "9M8P9neG1PB199kiVQmfQU",
+                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                            "@guid": "mSgecYzTBHkGEBBTK3FEDj",
+                            "http://www.w3.org/2000/01/rdf-schema#label": "rda"
+                          }
+                        ],
+                        "@id": "http://id.loc.gov/vocabulary/descriptionConventions/rda",
+                        "@type": "http://id.loc.gov/ontologies/bibframe/DescriptionConventions"
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/descriptionLanguage": [
+                      {
+                        "@guid": "kDTk5rNZfag58xhq9T767y",
+                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                            "@guid": "8GwwedvM9MLo2xoG4hBhMZ",
+                            "http://www.w3.org/2000/01/rdf-schema#label": "English"
+                          }
+                        ],
+                        "@id": "http://id.loc.gov/vocabulary/languages/eng",
+                        "@type": "http://id.loc.gov/ontologies/bibframe/Language"
                       }
                     ]
                   }
