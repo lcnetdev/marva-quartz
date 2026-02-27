@@ -1273,10 +1273,17 @@ export default {
               this.activeProfile.rt[rt].ptOrder.splice(startPos+1, 0, 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1')
               this.activeProfile.rt[rt].ptOrder.splice(startPos+2, 0, 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_2')
             }
+
+            // add the defaults
+            //this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+            for (let t of Object.keys(pt)){
+              let target = pt[t]
+              let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
+              this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
+            }
           }
         }
       }
-
 
       this.loadingRecord = false
       if (multiTestFlag) {
