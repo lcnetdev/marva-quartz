@@ -569,7 +569,6 @@ const utilsParse = {
       }
 
       // is there admin metdata in the data? If so we need to insert that profile template into the pt
-
       let adminMetadataCount = xml.getElementsByTagName('bf:adminMetadata').length
       if (adminMetadataCount>0){
         let parent
@@ -615,6 +614,7 @@ const utilsParse = {
         profile.rt[pkey].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
 
       }
+
       // some more optional xml enrichment here to help the process
       // first try to give hints to which PT to use based on some rules we are using at LC
       if (tle == "bf:Work"){
@@ -1937,6 +1937,23 @@ const utilsParse = {
 
 
             }
+
+            // if a "new" record is being loaded, update it
+            if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
+              let status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
+              if (status["@id"] == "http://id.loc.gov/vocabulary/mstatus/n"){
+              // status = change
+                status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
+                status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
+
+                // update date
+                let date = userValue["http://id.loc.gov/ontologies/bibframe/date"][0]
+                date["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]
+
+                // delete userValue["http://id.loc.gov/ontologies/bibframe/status"]
+                // delete userValue["http://id.loc.gov/ontologies/bibframe/date"]
+              }
+            }
           }
 
           // if we're working on the primary admin field
@@ -2002,7 +2019,6 @@ const utilsParse = {
 
 
       }
-
 
       let uniquePropertyURIs  = {}
       // we are now going to do some ananlyis on profile, see how many properties are acutally used, what is not used, etc
