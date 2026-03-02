@@ -1940,18 +1940,20 @@ const utilsParse = {
 
             // if a "new" record is being loaded, update it
             if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
-              let status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
-              if (status["@id"] == "http://id.loc.gov/vocabulary/mstatus/n"){
-              // status = change
-                status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
-                status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
+              if (userValue["http://id.loc.gov/ontologies/bibframe/status"]){
+                let status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
+                if (status["@id"] == "http://id.loc.gov/vocabulary/mstatus/n"){
+                // status = change
+                  status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
+                  status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
 
-                // update date
-                let date = userValue["http://id.loc.gov/ontologies/bibframe/date"][0]
-                date["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]
+                  // update date
+                  let date = userValue["http://id.loc.gov/ontologies/bibframe/date"][0]
+                  date["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]
 
-                // delete userValue["http://id.loc.gov/ontologies/bibframe/status"]
-                // delete userValue["http://id.loc.gov/ontologies/bibframe/date"]
+                  // delete userValue["http://id.loc.gov/ontologies/bibframe/status"]
+                  // delete userValue["http://id.loc.gov/ontologies/bibframe/date"]
+                }
               }
             }
           }
