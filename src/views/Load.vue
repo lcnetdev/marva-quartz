@@ -1059,7 +1059,7 @@ export default {
                           {
                             "@guid": short.generate(),
                             "http://id.loc.gov/ontologies/bibframe/code": "US-dlc",
-                            "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
+                            "@datatype": "http://id.loc.gov/datatypes/codes/iso15511"
                           }
                         ]
                       }
