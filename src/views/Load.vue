@@ -1020,13 +1020,25 @@ export default {
                           }
                         ],
                         }
-                      ]
-                    ,
+                      ],
+                      "http://id.loc.gov/ontologies/bibframe/status": [
+                        {
+                          "@guid": "fbRKPXtZjPU8b8E3dAFDyq",
+                          "@id": "http://id.loc.gov/vocabulary/mstatus/n",
+                          "http://www.w3.org/2000/01/rdf-schema#label": [
+                            {
+                              "@guid": "q5NhmHwzmMpug1UB7wcG8B",
+                              "http://www.w3.org/2000/01/rdf-schema#label": "new "
+                            }
+                          ],
+                          "@type": "http://id.loc.gov/ontologies/bibframe/Status"
+                        }
+                      ],
                     "http://id.loc.gov/ontologies/bibframe/assigner": [
                       {
                         "@guid": short.generate(),
                         "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
-                        "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                        "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
                         "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
                             "@guid": short.generate(),
