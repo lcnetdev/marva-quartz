@@ -392,7 +392,7 @@
         // wrapping this in setTimeout might not be needed anymore
         this.searchTimeout = window.setTimeout(async ()=>{
           this.activeComplexSearchInProgress = true
-          this.activeComplexSearch = []
+          // this.activeComplexSearch = []
           this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
 
           // 2025-03 // there is currently an issue with ID suggest2/ that if you search with SOME diacritics it will fail
@@ -1084,8 +1084,12 @@
             <div class="complex-lookup-modal-search">
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
-                  <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
-				  </div>
+                  <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/>
+                    <label onclick="" class="toggle-btn">{{opt.label}}</label>
+                  </div>
+				        </div>
+                
+                <div style="height: 22px; min-height: 22px;">
                   <div style="z-index: 100; float: left; margin-left: 10px;" v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))">
                     Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
                     Showing "<={{ offsetStep }}" results
@@ -1101,7 +1105,7 @@
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
                       </a>
 
-                      <span class="pagination-label" > Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
+                      <span class="pagination-label" > {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last"}} </span>
 
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
@@ -1113,10 +1117,11 @@
 
                   </div>
                   <div v-else style="min-height: 27px;"></div>
+                </div>
 
 				  <div id="container" v-if="modalSelectOptions.length == 7">
             <span v-if="activeComplexSearch && activeComplexSearch[0]">
-              </br><br><br>
+             
             </span>
             <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
             <label for="search-type" class="toggle-container">

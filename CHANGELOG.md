@@ -2,10 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.12] - 2025-03-6
+### Update
+- NAR: When using the auth label used in the search interface for your 1xx it will maintain the 1001, 1101, etc. instead of overwriting with 1xx##
+- NAR: Auto 046 creation for hyphenated last names now also works for last names sepearted with a space (Jones-Smith, and Jones Smith, will trigger it now)
+- NAR: Will auto cleanup double spaces in the NAR 1xx
+- You can now highlgiht a portion of the Instance Subtitle when using "Send Subtitle to Work Variant" and it will only send the selected (highlighted) text
+
 ## [1.4.11] - 2025-02-27
 ### Update
 - NAR creation supports 046 for 110 & 111 
-- You can now highlgiht a portion of the Instance Subtitle when using "Send Subtitle to Work Variant" and it will only send the selected (highlighted) text
+
 
 ### Fixed
 - CopyCat overlay override not working like it should
