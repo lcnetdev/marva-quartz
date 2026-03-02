@@ -1064,6 +1064,12 @@ export default {
                         ]
                       }
                     ],
+                    "http://id.loc.gov/ontologies/bibframe/date": [
+                      {
+                        "@guid": short.generate(),
+                        "http://id.loc.gov/ontologies/bibframe/date": new Date().toISOString().split('T')[0]
+                      }
+                    ],
                     "http://id.loc.gov/ontologies/bibframe/descriptionAuthentication": [
                       {
                         "@guid": "w5ez1o9m9HqWhxGXkfXhvM",
