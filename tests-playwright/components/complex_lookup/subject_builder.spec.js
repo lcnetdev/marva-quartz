@@ -393,6 +393,42 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Portugal $z Porto');
 });
 
+test('Build heading "Dogs--geo", but the second part isn\'t hierarchicalGeographic', async ({ page }) => {
+    await page.goto('http://localhost:5555/marva/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
+    await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
+    await expect(page.getByRole('heading')).toContainText('sh85038796');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
+
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--atlantic o');
+    await page.getByText('Atlantic Ocean', { exact: true }).first().click();
+    await expect(page.getByRole('heading')).toContainText('sh85009201-781');
+
+    // await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Atlantic Ocean');
+    // await page.getByText('Atlantic Ocean', { exact: true }).click();
+    await expect(page.getByRole('heading')).toContainText('sh85009201-781');
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('Dogs--Atlantic Ocean');
+    await expect(page.locator('#app')).toContainText('150 $aDogs');
+    await expect(page.locator('#app')).toContainText('181 $zAtlantic Ocean');
+    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh85038796');
+    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh85009201-781');
+    await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Atlantic Ocean');
+});
+
 // CYAC
 test('Add a CYAC heading, it has the correct XML', async ({ page }) => {
     await page.goto('http://localhost:5555/marva/');

@@ -92,7 +92,7 @@
                   :class="['simptip-position-bottom', { 'active': (searchMode === 'CHILD') }]">Children's
                   Subjects</button>
                 <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'"
-                  :class="['simptip-position-bottom', { 'active': (searchMode === 'GEO') }]">Indirect Geo</button>
+                  :class="['simptip-position-bottom', { 'active': (searchMode === 'GEO') }]">Geo. Subdiv.</button>
                 <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                 <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'"
                   :class="['simptip-position-bottom', { 'active': (searchMode === 'HUBS') }]">Hubs</button>
