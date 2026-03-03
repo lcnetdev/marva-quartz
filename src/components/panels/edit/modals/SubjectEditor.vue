@@ -2253,15 +2253,15 @@ export default {
         }
         this.selectContext()
 
-      } else if (event.ctrlKey && event.key == "1") {
+      } else if (event.ctrlKey && event.altKey && event.key == "1") {
         this.searchModeSwitch("LCSHNAF")
-      } else if (event.ctrlKey && event.key == "2") {
+      } else if (event.ctrlKey && event.altKey && event.key == "2") {
         this.searchModeSwitch("CHILD")
-      } else if (event.ctrlKey && event.key == "3") {
+      } else if (event.ctrlKey && event.altKey && event.key == "3") {
         this.searchModeSwitch("GEO")
-      } else if (event.ctrlKey && event.key == "4") {
+      } else if (event.ctrlKey && event.altKey && event.key == "4") {
         this.searchModeSwitch("HUBS")
-      } else if (event.ctrlKey && event.key == "5") {
+      } else if (event.ctrlKey && event.altKey && event.key == "5") {
         this.searchModeSwitch("ENTITIES")
       } else if ((this.searchMode == 'GEO' || this.searchMode == 'ENTITIES') && event.key == "-") {
         if (this.components.length > 0) {
