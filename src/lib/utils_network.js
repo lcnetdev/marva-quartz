@@ -2710,8 +2710,6 @@ const utilsNetwork = {
       // this.searchExact(exactPayloadSubject),
       // resultsExactName, resultsExactSubject,
 
-      console.info("mode: ", mode)
-
       if (mode == "LCSHNAF"){
         [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic, resultsSubjectsSimpleComplex] = await Promise.all([
             this.searchComplex(searchPayloadNames),
@@ -2891,10 +2889,6 @@ const utilsNetwork = {
         resultsSubjectsSimple = resultsSubjectsSimpleComplex.concat(resultsSubjectsSimple)
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
-
-      console.info("resultsNamesGeo: ", resultsNamesGeo)
-      console.info("resultsNamesSubdivision: ", resultsNamesSubdivision) // what is this for?
-      console.info("payload: ", searchPayloadNamesSubdivision)
 
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
