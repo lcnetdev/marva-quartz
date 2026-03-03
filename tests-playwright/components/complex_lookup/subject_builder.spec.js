@@ -340,6 +340,7 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
     await page.getByText('Portugal', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('n80049716');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
@@ -375,6 +376,7 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
     await page.getByText('Portugal', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('n80049716');
 
