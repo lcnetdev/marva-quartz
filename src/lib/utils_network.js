@@ -2890,10 +2890,15 @@ const utilsNetwork = {
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
 
+      console.info("==========================================")
+      console.info("resultsNames: ", resultsNames)
+      console.info("resultsNamesGeo: ", resultsNamesGeo)
+      console.info("resultsNamesSubdivision: ", resultsNamesSubdivision)
+
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
-        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : resultsNamesSubdivision,
+        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : [], //resultsNamesSubdivision
         'hierarchicalGeographic': (mode !== 'GEO') ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
