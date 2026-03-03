@@ -2890,11 +2890,6 @@ const utilsNetwork = {
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
 
-      console.info("==========================================")
-      console.info("resultsNames: ", resultsNames)
-      console.info("resultsNamesGeo: ", resultsNamesGeo)
-      console.info("resultsNamesSubdivision: ", resultsNamesSubdivision)
-
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
