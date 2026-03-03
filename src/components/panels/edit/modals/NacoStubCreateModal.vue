@@ -955,9 +955,9 @@
           // Check if oneXX already has a valid tag+indicators prefix (e.g. "10010", "1001 ", "110##")
           let existingPrefix = this.oneXX.match(/^1\d{2}[0-9# ]{2}/)
           if (existingPrefix) {
-            this.oneXX = existingPrefix[0] + '$a' + lastComplexLookupString
+            this.oneXX = existingPrefix[0] + '$a ' + lastComplexLookupString
           } else {
-            this.oneXX = '1XX##$a' + lastComplexLookupString
+            this.oneXX = '1XX##$a ' + lastComplexLookupString
           }
 
         },      
