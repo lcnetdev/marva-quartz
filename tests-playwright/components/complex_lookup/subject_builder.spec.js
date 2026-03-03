@@ -415,9 +415,6 @@ test('Build heading "Dogs--geo", but the second part isn\'t hierarchicalGeograph
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--atlantic o');
     await page.getByText('Atlantic Ocean', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('sh85009201-781');
-
-    // await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Atlantic Ocean');
-    // await page.getByText('Atlantic Ocean', { exact: true }).click();
     await expect(page.getByRole('heading')).toContainText('sh85009201-781');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
