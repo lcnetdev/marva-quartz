@@ -353,6 +353,11 @@ export default {
                 text: 'Add All Defaults',
                 click: () => { this.addAllDefaults() },
                 icon: "clear_all"
+              },
+              {
+                text: 'Derive New Record',
+                click: () => { this.deriveRecord() },
+                icon: "file_copy"
               }
             ]
           }
@@ -1026,6 +1031,18 @@ export default {
   // },
 
   methods: {
+
+    deriveRecord: async function(instOnly=false){
+      console.info("deriveing new record")
+      let newRecordEid = await this.profileStore.deriveNew(instOnly)
+
+      // load the new record from Eid
+      console.info("newRecordEid: ", newRecordEid)
+      if (newRecordEid){
+        let url = "/marva/edit/" + newRecordEid
+        window.open(url, '_blank').focus()
+      }
+    },
 
     profileOrStaging(){
       if (this.isStaging()) {

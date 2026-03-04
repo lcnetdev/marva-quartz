@@ -7588,6 +7588,101 @@ export const useProfileStore = defineStore('profile', {
       return results
     },
 
+    deriveNew: async function(instOnly){
+      console.info("derive from: ", this.activeProfile)
+      let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
+
+
+      /**
+      * [ ] (work) Class Number: 050 00 come in with year omitted;
+      * [ ] (inst) Edition: 250 with place folders.
+      * [x] (inst) Provision Activity: 264 $a $b with a place holder for c.--
+      * [x] (inst) Provision Activity: place holder in the 008 date,
+      * [ ] (inst) Extent: 300 with pages cm;
+      * [ ] (inst) Identifier:020 place holder;
+      * [?] (inst) Admin metadata, update the 001, not sure about the rest
+      * */
+
+      let work = null
+      let instance = null
+      // get work and instance
+      for (let rt in recordCopy.rt){
+        if (rt.includes(":Work")){
+          work = recordCopy.rt[rt]
+        } else if (rt.includes(":Instance")){
+          instance = recordCopy.rt[rt]
+        }
+      }
+
+      console.info("work: ", work)
+      console.info("instance: ", instance)
+
+      if (!instOnly){
+        console.info("create a new record")
+        // update the enumber
+        recordCopy.eId = 'e' + Date.now().toString()
+        console.info("new eId: ", recordCopy.eId)
+
+        // clean up adminMetadata
+        let marva001 = await utilsNetwork.getMarva001()
+        for (let pt in instance.pt){
+          if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata") && instance.pt[pt].adminMetadataType && instance.pt[pt].adminMetadataType == 'primary'){
+            let target = instance.pt[pt]
+            let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]
+            console.info("provision activity: ", userValue)
+            let identifier = userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]
+            // update 001 with internal identifier
+            identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = marva001
+
+            // encoding level
+            let encLvl = userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
+            encLvl["@id"] = "http://id.loc.gov/vocabulary/menclvl/5"
+            encLvl["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] = "5"
+            encLvl["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "preliminary"
+
+            delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
+            delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
+            // remove 9XXs
+            for (let subfield in Object.keys(userValue)){
+              if (subfield.includes("http://id.loc.gov/ontologies/lclocal")){
+                delete userValue[subfield]
+              }
+            }
+          }
+        }
+
+      }
+
+      // adjust provision activity
+      for (let pt in instance.pt){
+        if (pt == 'id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity'){
+          let provAct = instance.pt[pt]
+          let userValue = provAct.userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]
+          console.info("provision activity: ", userValue)
+          userValue["http://id.loc.gov/ontologies/bflc/simpleDate"][0]["http://id.loc.gov/ontologies/bflc/simpleDate"] = '<#####>'
+          userValue["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"] = '<#####>'
+        }
+      }
+
+      let newId = false
+      console.info("recordCopy: ", recordCopy)
+      if (!instOnly){
+        // save to backend
+        let xml = await utilsExport.buildXML(recordCopy)
+        console.info("xml: ", xml.xlmStringBasic)
+        let saved = false
+        if (!this.isTestEnv()){  //Don't try to save if in test env
+          saved = await utilsNetwork.saveRecord(xml.xlmStringBasic, recordCopy.eId)
+          newId = recordCopy.eId
+        }
+
+        console.info("saved: ", saved)
+      }
+
+      return newId
+
+    }
+
 
 
 
