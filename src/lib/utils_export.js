@@ -339,11 +339,14 @@ const utilsExport = {
   * @return {obj}
   */
 	returnWorkFromInstance: function(instanceURI,profile,tleLookup){
+		console.info("returnWorkFromInstance: ", instanceURI, profile, tleLookup)
 		let parser = returnDOMParser()
 		let results = null
 
 		for (let rt in profile.rt){
 			if (profile.rt[rt].instanceOf && profile.rt[rt].URI == instanceURI){
+				// console.info(">>>>>>>>>>>>>>>", profile.rt[rt].instanceOf)
+				// console.info(">>>>>>>>>>>>>>>", tleLookup['Work'][profile.rt[rt].instanceOf])
 				results = (new XMLSerializer()).serializeToString(tleLookup['Work'][profile.rt[rt].instanceOf])
 				results = parser.parseFromString(results, "text/xml").children[0]
 			}
