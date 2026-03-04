@@ -19,6 +19,7 @@
           <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
                 <div>
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                    <button class="instanceDeriveButton" @click="profileStore.deriveNew(profileName)">Derive Instance</button>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance?</button>
                 </div>
           </template>
@@ -67,7 +68,7 @@
         <template v-if="profileName.includes(':Instance') && !this.dualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
             <div class="instanceInfoWrapper">
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                <button class="instanceDeleteButton" @click="profileStore.deriveNew(profileName)">Derive Instance!</button>
+                <button class="instanceDeriveButton" @click="profileStore.deriveNew(profileName)">Derive Instance</button>
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance!</button>
             </div>
         </template>
@@ -550,6 +551,9 @@ div.instanceInfoWrapper {
     padding: 5px;
 }
 
+.instanceDeriveButton{
+  margin-right: 5px;
+}
 .instanceIdentifer {
     font-weight: bold;
     color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
