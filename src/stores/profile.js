@@ -7773,6 +7773,8 @@ export const useProfileStore = defineStore('profile', {
           }
 
           userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = '<#####>'
+
+          console.info("edState: ", edState)
         }
 
         if (pt == 'id_loc_gov_ontologies_bibframe_extent__physical_description'){
@@ -7850,6 +7852,9 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rtOrder.push(newRtId)
 
         this.rtLookup[newRtId] = this.rtLookup[instOnly]
+
+        // rebuild for the updates
+        utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
 
         this.dataChanged()
       }

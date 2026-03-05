@@ -19,7 +19,7 @@
           <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
                 <div>
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                    <button class="instanceDeriveButton" @click="profileStore.deriveNew(profileName)">Derive Instance</button>
+                    <button class="instanceDeriveButton" @click="deriveInstance(profileName)">Derive Instance</button>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance?</button>
                 </div>
           </template>
@@ -68,7 +68,7 @@
         <template v-if="profileName.includes(':Instance') && !this.dualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
             <div class="instanceInfoWrapper">
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                <button class="instanceDeriveButton" @click="profileStore.deriveNew(profileName)">Derive Instance</button>
+                <button class="instanceDeriveButton" @click="deriveInstance(profileName)">Derive Instance</button>
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance!</button>
             </div>
         </template>
@@ -255,6 +255,14 @@
     },
 
     methods: {
+        deriveInstance: function(instance){
+          try{
+            this.profileStore.deriveNew(instance)
+          } catch(err){
+            alert("Unable to derive instance :(")
+            console.error(err)
+          }
+        },
         addComponent: function(profileName, profileCompoent){
           let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
           let structure = this.activeProfile.rt[profileName].pt[profileCompoent]

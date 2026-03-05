@@ -1034,13 +1034,18 @@ export default {
 
     deriveRecord: async function(instOnly=false){
       console.info("deriveing new record")
-      let newRecordEid = await this.profileStore.deriveNew(instOnly)
+      try {
+        let newRecordEid = await this.profileStore.deriveNew(instOnly)
 
-      // load the new record from Eid
-      console.info("newRecordEid: ", newRecordEid)
-      if (newRecordEid){
-        let url = "/marva/edit/" + newRecordEid
-        window.open(url, '_blank').focus()
+        // load the new record from Eid
+        console.info("newRecordEid: ", newRecordEid)
+        if (newRecordEid){
+          let url = "/marva/edit/" + newRecordEid
+          window.open(url, '_blank').focus()
+        }
+      } catch(err){
+        alert('Failed to derive a record')
+        console.error(err)
       }
     },
 
