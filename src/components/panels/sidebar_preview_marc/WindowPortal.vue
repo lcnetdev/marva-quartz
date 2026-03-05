@@ -1,9 +1,20 @@
 <!-- https://stackoverflow.com/questions/49657462/open-a-vuejs-component-on-a-new-window -->
 <template>
         <template v-if="open">
-            <div class="marc-preview-content">
-            <MarcDisplay :previewData="content" selected="" v-if="type == 'marc'"/>
-            </div>
+            <!-- <div class="marc-preview-content">
+                <MarcDisplay :previewData="content" selected="" v-if="type == 'marc'"/>
+            </div> -->
+
+            <template v-for="key in Object.keys(content['versions'])">
+                <div class="conversion-heading">Conversion {{ key }}:</div>
+                <template v-for="(r, idx) of content['versions'][key].record">
+                    <button @click="selected = idx, version=key;" :class='"button-"+idx'>Record: {{ idx+1 }}</button>
+                </template>
+
+                {{ selected }}--{{ version }}
+                <MarcDisplay :previewData="content['versions'][content.default].record[selected]" />
+
+            </template>
         </template>
 </template>
 
@@ -15,7 +26,7 @@ import MarcDisplay from './MarcDisplay.vue'
 
 export default {
     components: {
-      MarcDisplay
+        MarcDisplay
     },
     name: 'window-portal',
     emits: ['close'],
@@ -35,7 +46,15 @@ export default {
         sourceDoc: {
             type: Object,
             default: {}
-        }
+        },
+        version: {
+            type: String,
+            default: ''
+        },
+        selected: {
+            type: Number,
+            default: 0
+        },
     },
     data() {
         return {

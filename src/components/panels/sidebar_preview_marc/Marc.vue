@@ -82,15 +82,14 @@ export default {
     <button class="popout-button" @click="open = !open">
       <span class="material-icons" style="font-size: 14px;">open_in_new</span>
     </button>
-
-    <WindowPortal @close="closeWindow" :open="open" :content="previewData" type="marc" :sourceDoc="sourceDoc">
+    <WindowPortal @close="closeWindow" :open="open" :content="previewData" type="marc" :sourceDoc="sourceDoc" :version="version" :selected="selected">
       <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> why this doesn't work? -->
     </WindowPortal>
 
     <template v-for="key in Object.keys(previewData['versions'])">
       <div class="conversion-heading">Conversion {{ key }}:</div>
       <template v-for="(r, idx) of previewData['versions'][key].record">
-        <button @click="selected = idx, version=key">Record: {{ idx+1 }}</button>
+        <button :class='"button-"+idx' @click="selected = idx, version=key">Record: {{ idx+1 }}</button>
       </template>
 
       <MarcDisplay :previewData="previewData['versions'][previewData.default].record[selected]" />
