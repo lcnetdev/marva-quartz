@@ -1820,6 +1820,18 @@ const utilsExport = {
 
 				multiInstanceRecord.push( (new XMLSerializer()).serializeToString(bf2MarcXmlElRdfMultiInstance))
 			}
+
+			// match items to the instance
+			let bf2MarcItems = rdfBasic.getElementsByTagName("bf:Item")
+			let instanceId = bf2MarcInstances[x].getAttribute('rdf:about')
+			if (bf2MarcItems.length > 0){
+				for (let item of bf2MarcItems){
+					let itemOf = item.firstChild.getAttribute("rdf:resource")
+					if (itemOf == instanceId){
+						bf2MarcXmlElRdfMultiInstance.appendChild(item.cloneNode(true))
+					}
+				}
+			}
 		}
 	}
 
@@ -1829,6 +1841,7 @@ const utilsExport = {
 			bf2MarcXmlElRdf.appendChild(bf2MarcItems[x].cloneNode(true))
 		}
 	}
+	// if there are multiple items
 
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
