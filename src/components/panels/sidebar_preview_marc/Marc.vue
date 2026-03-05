@@ -17,10 +17,12 @@ export default {
       previewData: { default: null, versions: [] },
       timeout: null,
       firstLoad: true,
-      selected: null,
+      selected: 0,
       open: false,
       content: {},
       sourceDoc: {},
+      marcRecordIdx: 0,
+      version: "",
     }
   },
   computed: {
@@ -54,30 +56,12 @@ export default {
   },
 
   created() {
-
-    // this.profileStore.$subscribe(async (mutation, state)=>{
-
-    //   if (mutation && mutation.events && mutation.events.target && mutation.events.target['@guid'] ){
-
-    //     window.clearTimeout(this.timeout)
-    //     this.timeout = window.setTimeout(()=>{
-
-    //       this.refreshMarc()
-
-    //     },500)
-
-
-
-    //   }
-
-
-    // }, { detached: true })
-
     // build the XML on first load
     this.$nextTick(() => {
       window.setTimeout(() => {
 
         this.refreshMarc()
+        this.version = this.previewData.default
 
       }, 1000)
     })
@@ -103,13 +87,16 @@ export default {
       <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> why this doesn't work? -->
     </WindowPortal>
 
-    <ul>
-      <li v-for="ver in previewData.versions">
-        <button @click="selected = ver.version">{{ ver.version }} <span v-if="ver.error">(err)</span></button>
-      </li>
-    </ul>
+    <template v-for="key in Object.keys(previewData['versions'])">
+      <div class="conversion-heading">Conversion {{ key }}:</div>
+      <template v-for="(r, idx) of previewData['versions'][key].record">
+        <button @click="selected = idx, version=key">Record: {{ idx+1 }}</button>
+      </template>
 
-    <MarcDisplay :previewData="previewData" :selected="selected" />
+      <MarcDisplay :previewData="previewData['versions'][previewData.default].record[selected]" />
+
+    </template>
+
   </div>
 </template>
 

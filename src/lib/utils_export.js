@@ -1795,18 +1795,34 @@ const utilsExport = {
 
 	// build the BF2MARC package
 	let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
+	let multiInstanceRecord = [] // Work/instance pair for earch instance
+
 	let bf2MarcWorks = rdfBasic.getElementsByTagName("bf:Work")
 	for (let x = 0; x < bf2MarcWorks.length; x++){
 		if (bf2MarcWorks[x].parentNode && bf2MarcWorks[x].parentNode.tagName && bf2MarcWorks[x].parentNode.tagName.toLowerCase() == 'rdf'){
 			bf2MarcXmlElRdf.appendChild(bf2MarcWorks[x].cloneNode(true))
 		}
 	}
+
 	let bf2MarcInstances = rdfBasic.getElementsByTagName("bf:Instance")
 	for (let x = 0; x < bf2MarcInstances.length; x++){
 		if (bf2MarcInstances[x].parentNode && bf2MarcInstances[x].parentNode.tagName && bf2MarcInstances[x].parentNode.tagName.toLowerCase() == 'rdf'){
 			bf2MarcXmlElRdf.appendChild(bf2MarcInstances[x].cloneNode(true))
 		}
 	}
+	if (bf2MarcInstances.length > 1){
+		for (let x = 0; x < bf2MarcInstances.length; x++){
+			let bf2MarcXmlElRdfMultiInstance = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
+
+			if (bf2MarcInstances[x].parentNode && bf2MarcInstances[x].parentNode.tagName && bf2MarcInstances[x].parentNode.tagName.toLowerCase() == 'rdf'){
+				bf2MarcXmlElRdfMultiInstance.appendChild(bf2MarcWorks[0].cloneNode(true))
+				bf2MarcXmlElRdfMultiInstance.appendChild(bf2MarcInstances[x].cloneNode(true))
+
+				multiInstanceRecord.push( (new XMLSerializer()).serializeToString(bf2MarcXmlElRdfMultiInstance))
+			}
+		}
+	}
+
 	let bf2MarcItems = rdfBasic.getElementsByTagName("bf:Item")
 	for (let x = 0; x < bf2MarcItems.length; x++){
 		if (bf2MarcItems[x].parentNode && bf2MarcItems[x].parentNode.tagName && bf2MarcItems[x].parentNode.tagName.toLowerCase() == 'rdf'){
@@ -1816,7 +1832,9 @@ const utilsExport = {
 
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-	// console.info("strXmlBasic: ", strXmlBasic)
+	console.info("strXmlBasic: ", strXmlBasic)
+
+	console.info("multiInstanceRecord: ", multiInstanceRecord)
 
 	return {
 		xmlDom: rdf,
@@ -1826,7 +1844,8 @@ const utilsExport = {
 		xlmStringBasic: strXmlBasic,
 		voidTitle: xmlVoidDataTitle,
 		voidContributor:xmlVoidDataContributor,
-		componentXmlLookup:componentXmlLookup
+		componentXmlLookup:componentXmlLookup,
+		bf2MarcMulti: multiInstanceRecord,
 	}
   },
 

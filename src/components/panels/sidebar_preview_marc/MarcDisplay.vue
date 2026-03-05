@@ -6,17 +6,17 @@ import { mapStores, mapState, mapWritableState } from 'pinia'
 import { AccordionList, AccordionItem } from "vue3-rich-accordion";
 
 export default {
-    components: {AccordionList, AccordionItem },
+    components: { AccordionList, AccordionItem },
     data() {
         return {
+            selected: 0,
         }
     },
     props: {
         previewData: {
             type: Object,
             default: {}
-        },
-        selected: String
+        }
     },
     computed: {
         ...mapStores(useProfileStore, usePreferenceStore),
@@ -36,63 +36,24 @@ export default {
 
 
 <template>
-    <template v-if="!selected">
-        <template v-for="ver in previewData.versions">
-            <div v-if="ver.default">
-                <div class="version-number">{{ ver.version }}</div>
-                <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-opac-marc-html')"
-                    v-html="ver.marcRecord"></div>
-                <pre v-else>
-            <code>
-              {{ ver.marcRecord }}
-            </code>
-          </pre>
-                <hr>
-            <AccordionList  :open-multiple-items="true">
-                <AccordionItem id="marc-xml" default-opened>
-                    <template #summary>MARC XML</template>
-                    <pre>
-                        <code>
-{{ ver.results.stdout.trim() }}
-                        </code>
-                    </pre>
-                </AccordionItem>
-            </AccordionList>
-            </div>
-        </template>
-
-    </template>
-    <template v-else>
-        <template v-for="ver in previewData.versions">
-            <div v-if="selected == ver.version">
-                <div class="version-number">{{ ver.version }}</div>
-                <template v-if="ver.error">
-
-                    <pre>
-              <code>
-{{ ver.results }}
-              </code>
-            </pre>
-                </template>
-                <template v-else>
-                    <pre>
-              <code>
-{{ ver.marcRecord }}
-              </code>
-            </pre>
-                    <hr>
-                    <pre>
-              <code>
-{{ ver.results.stdout.trim() }}
-              </code>
-            </pre>
-                </template>
-            </div>
-        </template>
-
-
-
-    </template>
+    <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-opac-marc-html')"
+        v-html="previewData.marcRecord"></div>
+    <pre v-else>
+        <code>
+            {{ previewData.marcRecord }}
+        </code>
+    </pre>
+    <hr>
+        <AccordionList :open-multiple-items="true">
+            <AccordionItem id="marc-xml" default-opened>
+                <template #summary>MARC XML</template>
+                <pre>
+                    <code>
+                        {{ previewData.results.stdout.trim() }}
+                    </code>
+                </pre>
+            </AccordionItem>
+        </AccordionList>
 </template>
 
 
@@ -169,7 +130,7 @@ li {
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
 }
 
-div.accordion-list details.accordion-item > div.accordion-item__content {
+div.accordion-list details.accordion-item>div.accordion-item__content {
     padding-top: 0px !important;
     padding-bottom: 0px !important;
 }

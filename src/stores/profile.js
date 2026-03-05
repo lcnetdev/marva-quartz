@@ -3368,51 +3368,41 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.buildXML(this.activeProfile)
       let preview = null
       if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
-        preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
+        if (xml.bf2MarcMulti.length > 1){
+          preview = await utilsNetwork.marcPreview(xml.bf2MarcMulti, false, true)
+        } else {
+          preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
+        }
       } else {
-        preview = await utilsNetwork.marcPreview(xml.bf2Marc, true)
+        if (xml.bf2MarcMulti.length > 1){
+          preview = await utilsNetwork.marcPreview(xml.bf2MarcMulti, true, true)
+        } else {
+          preview = await utilsNetwork.marcPreview(xml.bf2Marc, true)
+        }
+      }
+
+      let data = {}
+      for (let p of preview){
+        for (let obj of p){
+          if (!Object.keys(data).includes(obj.version)){
+            data[obj.version] = {
+              'record': [obj]
+            }
+          } else {
+            data[obj.version].record.push(obj)
+          }
+        }
       }
 
       // clean it up a bit for the component
-      let versions = preview.map((v)=>{ return v.version}).sort().reverse()
+      let versions = Object.keys(data).map((v)=>{ return v}).sort().reverse()
 
-      let results = []
+      let defaultVer = versions[0]
 
-      let newResults = []
-      let selectedDefault = false
-
-
-      for (let v of versions){
-        let toAdd = preview.filter((p) => { return (p.version == v) })[0]
-        if (toAdd.results && toAdd.results.stdout && selectedDefault == false){
-          toAdd.default = true
-          selectedDefault = true
-        }else{
-          toAdd.default = false
-        }
-
-        if (toAdd.results && !toAdd.results.stdout){
-          toAdd.error = true
-        }else{
-          toAdd.error = false
-        }
-        newResults.push(toAdd)
-      }
-
-
-
-      let defaultVer = newResults.filter((p) => { return (p.default == true) })[0]
-      if (defaultVer && defaultVer.default){
-        defaultVer = defaultVer.version
-      }else{
-        defaultVer = null
-      }
       return({
         default: defaultVer,
-        versions: newResults,
+        versions: data, //newResults,
       })
-
-
     },
 
 
