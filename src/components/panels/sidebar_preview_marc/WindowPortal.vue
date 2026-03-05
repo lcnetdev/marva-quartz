@@ -1,20 +1,21 @@
 <!-- https://stackoverflow.com/questions/49657462/open-a-vuejs-component-on-a-new-window -->
 <template>
         <template v-if="open">
-            <!-- <div class="marc-preview-content">
-                <MarcDisplay :previewData="content" selected="" v-if="type == 'marc'"/>
-            </div> -->
+            <div class="marc-preview-content">
 
-            <template v-for="key in Object.keys(content['versions'])">
-                <div class="conversion-heading">Conversion {{ key }}:</div>
-                <template v-for="(r, idx) of content['versions'][key].record">
-                    <button @click="selected = idx, version=key;" :class='"button-"+idx'>Record: {{ idx+1 }}</button>
+                <template v-for="key in Object.keys(content['versions'])">
+                    <div class="conversion-heading">Conversion {{ key }}:</div>
+                    <div class="toggle-btn-grp cssonly">
+                        <div v-for="(r, idx) of content['versions'][key].record">
+                        <input type="radio" :value="idx" class="record-radio" v-model="selected" name="recordSelect" />
+                        <label onclick="" class="toggle-btn">Record {{ idx + 1 }}</label>
+                        </div>
+                    </div>
+
+                    <MarcDisplay :previewData="content['versions'][content.default].record[selected]" />
                 </template>
 
-                {{ selected }}--{{ version }}
-                <MarcDisplay :previewData="content['versions'][content.default].record[selected]" />
-
-            </template>
+            </div>
         </template>
 </template>
 
@@ -60,6 +61,8 @@ export default {
         return {
             windowRef: null,
             currentPanels: null,
+            version: this.version,
+            selected: this.selected,
         }
     },
     computed: {

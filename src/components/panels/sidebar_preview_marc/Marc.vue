@@ -82,15 +82,19 @@ export default {
     <button class="popout-button" @click="open = !open">
       <span class="material-icons" style="font-size: 14px;">open_in_new</span>
     </button>
-    <WindowPortal @close="closeWindow" :open="open" :content="previewData" type="marc" :sourceDoc="sourceDoc" :version="version" :selected="selected">
+    <WindowPortal @close="closeWindow" :open="open" :content="previewData" type="marc" :sourceDoc="sourceDoc"
+      :version="version" :selected="selected">
       <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> why this doesn't work? -->
     </WindowPortal>
 
     <template v-for="key in Object.keys(previewData['versions'])">
       <div class="conversion-heading">Conversion {{ key }}:</div>
-      <template v-for="(r, idx) of previewData['versions'][key].record">
-        <button :class='"button-"+idx' @click="selected = idx, version=key">Record: {{ idx+1 }}</button>
-      </template>
+      <div class="toggle-btn-grp cssonly" v-if="previewData['versions'][key].record.length > 1">
+        <div v-for="(r, idx) of previewData['versions'][key].record">
+          <input type="radio" :value="idx" class="record-radio" v-model="selected" name="recordSelect" />
+          <label onclick="" class="toggle-btn">Record {{ idx + 1 }}</label>
+        </div>
+      </div>
 
       <MarcDisplay :previewData="previewData['versions'][previewData.default].record[selected]" />
 
@@ -100,7 +104,7 @@ export default {
 </template>
 
 <style scoped>
-body{
+body {
   --bg-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')");
 }
 
@@ -178,8 +182,68 @@ li {
   /* background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')"); */
 }
 
-.popout-button{
+:deep().popout-button {
   float: right;
   z-index: 999;
+}
+
+:deep() .toggle-btn-grp div:focus{
+  background-color: red;
+}
+
+:deep() .search-mode-radio:focus {
+  background-color: red;
+  outline: 1px solid black;
+}
+
+:deep() .toggle-btn-grp {
+  margin: 3px 0;
+}
+
+:deep() .toggle-btn-grp.cssonly * {
+  width: 110px;
+  height: 30px;
+  line-height: 30px;
+}
+
+:deep() .toggle-btn-grp.cssonly div {
+  display: inline-block;
+  position: relative;
+  margin: 5px 2px;
+}
+
+:deep() .toggle-btn-grp.cssonly div label {
+  position: absolute;
+  z-index: 0;
+  padding: 0;
+  text-align: center;
+}
+
+:deep() .toggle-btn-grp.cssonly div input {
+  position: absolute;
+  z-index: 1;
+  cursor: pointer;
+  opacity: 0;
+}
+
+:deep() .toggle-btn-grp.cssonly div:hover label {
+  border: solid 1px #a0d5dc !important;
+  background: #f1fdfe;
+}
+
+:deep() .toggle-btn-grp.cssonly div input:checked+label {
+  background: lightskyblue;
+  border: solid 1px blue !important;
+}
+
+:deep() .toggle-btn {
+  text-align: centre;
+  padding: 0.1em 1em;
+  color: #000;
+  background-color: #FFF;
+  border-radius: 10px;
+  display: inline-block;
+  border: solid 1px #CCC;
+  cursor: pointer;
 }
 </style>
