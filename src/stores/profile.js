@@ -7773,6 +7773,7 @@ export const useProfileStore = defineStore('profile', {
           }
 
           userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = '<#####>'
+          userValue["@guid"] = short.generate()
 
           console.info("edState: ", edState)
         }
@@ -7838,7 +7839,29 @@ export const useProfileStore = defineStore('profile', {
         console.info("inserting instance: ", instance)
         let newRtId = instOnly +'_'+instanceCount
 
-        for (let pt in instance.pt){ // TODO, why isn't this changing the guid like it should???
+        for (let pt in instance.pt){
+
+          // replace all the guids in the new instance
+          let replaceGuids = (obj) => {
+            return Object.keys(obj).map(
+              function(key){
+                let value = obj[key]
+                if (key == "@guid"){
+                  console.info("looking at: ", value)
+                  return obj[key] = short.generate()
+                } else if(Array.isArray(value)) {
+                  for (let el in value){
+                    return replaceGuids( value[el] )
+                  }
+                }else if (typeof value === "object"){
+                  return  replaceGuids( value )
+                }
+              }
+            )
+          }
+
+          replaceGuids(instance)
+
           instance.pt[pt]['@guid'] = short.generate()
           // update the parentId
           instance.pt[pt].parentId = instance.pt[pt].parentId.replace(instOnly, newRtId)

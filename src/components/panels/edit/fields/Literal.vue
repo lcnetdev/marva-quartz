@@ -46,7 +46,6 @@
   <template v-else>
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
-        {{ lValue['@guid'] }}<br>{{ pairedLitearlIndicatorLookup[lValue['@guid']] }}
         <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] && preferenceStore.returnValue('--b-edit-main-literal-display-paired-literal-line')" class="literal-paired-indicator" :key="'line-holder-'+preferenceStore.returnValue('--c-edit-main-literal-paired-literal-line-color')">
 
             <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] >0"  v-html="drawIndicator(pairedLitearlIndicatorLookup[lValue['@guid']],lValue['@guid'])">
