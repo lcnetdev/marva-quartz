@@ -2427,6 +2427,8 @@ const utilsParse = {
                 source = 'lcsh'
               } else if (source == 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh'){
                 source = 'lcsh'
+              } else if (source.includes("id.loc.gov/")){
+                source = 'lcsh'
               } else {
                 source = 'unknown'
               }
