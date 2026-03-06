@@ -7838,7 +7838,7 @@ export const useProfileStore = defineStore('profile', {
         console.info("inserting instance: ", instance)
         let newRtId = instOnly +'_'+instanceCount
 
-        for (let pt in instance.pt){
+        for (let pt in instance.pt){ // TODO, why isn't this changing the guid like it should???
           instance.pt[pt]['@guid'] = short.generate()
           // update the parentId
           instance.pt[pt].parentId = instance.pt[pt].parentId.replace(instOnly, newRtId)
