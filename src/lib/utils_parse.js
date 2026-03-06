@@ -2404,7 +2404,6 @@ const utilsParse = {
    * @return {Object} - The profile with reordered subjects
    */
   groupSubjects: function(profile){
-    console.info("groupSubjects")
     // return profile
     // Find the subjects
     let subjects = []
