@@ -2441,9 +2441,6 @@ const utilsParse = {
             source = "unknown"
           }
 
-          console.info("subjUserValue: ", subjUserValue)
-          console.info("source: ", source)
-
           if (Object.keys(subjectSources).includes(source)){
             subjectSources[source].push({value: subjUserValue, id: pt})
           } else {
@@ -2454,9 +2451,6 @@ const utilsParse = {
     }
 
     let sortedSubjects =  Object.keys(subjectSources).sort()
-
-    console.info("subjectSources: ", subjectSources)
-    console.info("sortedSubjects: ", sortedSubjects)
 
     // always have LCSH first and maintain the first subject
     let pos = 0
