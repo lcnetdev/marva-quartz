@@ -2424,6 +2424,8 @@ const utilsParse = {
               source = subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source'][0]['@id']
               if (source == 'http://id.loc.gov/authorities/subjects'){
                 source = 'lcsh'
+              } else if (source == 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh'){
+                source = 'lcsh'
               }
             } else if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].includes("id.loc.gov")){
               source = "lcsh"
@@ -2443,9 +2445,11 @@ const utilsParse = {
       }
     }
 
+    let sortedSubjects =  Object.keys(subjectSources).sort()
+
     // always have LCSH first and maintain the first subject
     let pos = 0
-    for (let t of Object.keys(subjectSources).sort((a,b) => a == 'lcsh' ? -1 : a < b ? 1 : 0)){
+    for (let t of sortedSubjects){
       for (let sub of subjectSources[t]){
         profile.rt[rtTarget].pt[subjectOrder.at(pos)].userValue = sub.value
         pos++
