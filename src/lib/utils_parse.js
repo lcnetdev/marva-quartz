@@ -2404,6 +2404,7 @@ const utilsParse = {
    * @return {Object} - The profile with reordered subjects
    */
   groupSubjects: function(profile){
+    console.info("groupSubjects")
     // return profile
     // Find the subjects
     let subjects = []
@@ -2426,6 +2427,8 @@ const utilsParse = {
                 source = 'lcsh'
               } else if (source == 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh'){
                 source = 'lcsh'
+              } else {
+                source = 'unknown'
               }
             } else if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].includes("id.loc.gov")){
               source = "lcsh"
@@ -2435,6 +2438,9 @@ const utilsParse = {
           } catch{
             source = "unknown"
           }
+
+          console.info("subjUserValue: ", subjUserValue)
+          console.info("source: ", source)
 
           if (Object.keys(subjectSources).includes(source)){
             subjectSources[source].push({value: subjUserValue, id: pt})
@@ -2446,6 +2452,9 @@ const utilsParse = {
     }
 
     let sortedSubjects =  Object.keys(subjectSources).sort()
+
+    console.info("subjectSources: ", subjectSources)
+    console.info("sortedSubjects: ", sortedSubjects)
 
     // always have LCSH first and maintain the first subject
     let pos = 0
