@@ -103,7 +103,7 @@ export default {
     ...mapState(useProfileStore, ['profilesLoaded', 'activeProfile', 'rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
     ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode']),
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
@@ -131,10 +131,14 @@ export default {
 
 
     userName() {
-      if (this.preferenceStore.catInitals && this.preferenceStore.catCode) {
-        return `${this.preferenceStore.catInitals} (${this.preferenceStore.catCode})`
-      } else if (this.preferenceStore.catInitals) {
-        return this.preferenceStore.catInitals
+      let displayName = this.preferenceStore.catInitals
+      if (this.preferenceStore.ssoUser && this.preferenceStore.ssoUser.email){
+        displayName = this.preferenceStore.ssoUser.email.split('@')[0]
+      }
+      if (displayName && this.preferenceStore.catCode) {
+        return `${displayName} (${this.preferenceStore.catCode})`
+      } else if (displayName) {
+        return displayName
       } else {
         ""
       }
@@ -944,14 +948,12 @@ export default {
         )
       }
 
-      // User account button — shows logout option for SSO users
+      // User account button — shows SSO account modal or login modal
       if (this.preferenceStore.ssoUser) {
         menu.push({
           text: this.userName,
           icon: "account_circle",
-          menu: [
-            { text: 'Logout', click: () => { this.preferenceStore.ssoLogout(config.returnUrls.util) }, icon: 'logout' }
-          ]
+          click: () => { this.showLoginModalSSO = true }
         })
       } else {
         menu.push({

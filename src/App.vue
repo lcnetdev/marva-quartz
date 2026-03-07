@@ -4,6 +4,7 @@ import { RouterLink, RouterView } from "vue-router";
 import LoadingModal from "@/components/general/LoadingModal.vue";
 import PreferenceModal from "@/components/general/PreferenceModal.vue";
 import LoginModal from "@/components/panels/nav/LoginModal.vue";
+import LoginModalSSO from "@/components/panels/nav/LoginModalSSO.vue";
 import ScriptshifterConfigModal from "@/components/panels/edit/modals/ScriptshifterConfigModal.vue";
 import DiacriticsConfigModal from "@/components/panels/edit/modals/DiacriticsConfigModal.vue";
 import TextMacroModal from "@/components/panels/edit/modals/TextMacroModal.vue";
@@ -38,6 +39,7 @@ export default {
     LoadingModal,
     PreferenceModal,
     LoginModal,
+    LoginModalSSO,
     ScriptshifterConfigModal,
     ShelfListingModal,
     DiacriticsConfigModal,
@@ -66,7 +68,7 @@ export default {
     ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode','ssoSessionExpired']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal','showLoginModalSSO','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
     ...mapWritableState(useConfigStore, ['showUpdateAvailableModal','showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -97,14 +99,23 @@ export default {
     // Check for SSO token in URL (from SAML callback redirect) before initializing
     const hasSsoUser = this.preferenceStore.handleSsoToken()
 
+    // Clean ?token= from URL after Vue Router is fully ready
+    if (window.location.search.includes('token=')) {
+      this.$router.isReady().then(() => {
+        const query = { ...this.$route.query }
+        delete query.token
+        this.$router.replace({ query })
+      })
+    }
+
     this.preferenceStore.initalize(this.configStore.returnUrls)
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
 
-    if (!this.catCode && !hasSsoUser){
-      // If SAML SSO is available, redirect to SSO login instead of showing the modal
+    if (!hasSsoUser){
+      // No valid JWT — redirect to SSO login
       this.preferenceStore.ssoLogin(this.configStore.returnUrls.util)
-    } else if (hasSsoUser) {
+    } else {
       // Start background JWT refresh timer
       this.preferenceStore.startJwtRefreshTimer(this.configStore.returnUrls.util)
     }
@@ -147,6 +158,9 @@ export default {
   </template>
   <template v-if="showLoginModal==true">
     <LoginModal v-model="showLoginModal" />
+  </template>
+  <template v-if="showLoginModalSSO==true">
+    <LoginModalSSO v-model="showLoginModalSSO" />
   </template>
   <template v-if="showScriptshifterConfigModal==true">
     <ScriptshifterConfigModal v-model="showScriptshifterConfigModal" />

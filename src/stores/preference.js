@@ -42,6 +42,7 @@ export const usePreferenceStore = defineStore('preference', {
 
     // show the login box
     showLoginModal: false,
+    showLoginModalSSO: false,
 
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
 
@@ -1596,10 +1597,8 @@ export const usePreferenceStore = defineStore('preference', {
       const tokenFromUrl = urlParams.get('token')
 
       if (tokenFromUrl) {
+        console.log('SSO: Found token in URL, storing and cleaning')
         window.localStorage.setItem('marva_jwt', tokenFromUrl)
-        // Clean token from URL immediately
-        const cleanUrl = window.location.pathname + window.location.hash
-        window.history.replaceState({}, '', cleanUrl)
       }
 
       // Load JWT from localStorage
@@ -1620,11 +1619,18 @@ export const usePreferenceStore = defineStore('preference', {
         }
         this.jwt = storedToken
         this.ssoUser = payload
-        // Populate catInitals and catCode from SSO claims
+        // Populate catInitals from SSO claims
         this.catInitals = payload.name || payload.email || 'SSO User'
-        this.catCode = payload.email || payload.sub || 'sso'
         window.localStorage.setItem('marva-catInitals', this.catInitals)
-        window.localStorage.setItem('marva-catCode', this.catCode)
+        // Restore catCode from localStorage only, never from JWT
+        let storedCatCode = window.localStorage.getItem('marva-catCode')
+        if (storedCatCode && storedCatCode.trim() != ''){
+          this.catCode = storedCatCode
+        } else {
+          this.catCode = null
+          this.showLoginModalSSO = true
+        }
+        console.log('SSO: User authenticated as', this.catInitals, '| ssoUser set:', !!this.ssoUser)
         return true
       } catch (e) {
         console.error('Failed to decode JWT:', e)
