@@ -26,7 +26,7 @@ export default {
             height: 0,
             top: 100,
             left: 0,
-            initalHeight: 270,
+            initalHeight: 290,
             changedHeight: 650,
             initalLeft: 50,
             initalWidth: 600,
@@ -55,7 +55,7 @@ export default {
             if (this.updateDates){
                 this.initalHeight = 270
             } else {
-                this.initalHeight = 190
+                this.initalHeight = 200
             }
         },
 
