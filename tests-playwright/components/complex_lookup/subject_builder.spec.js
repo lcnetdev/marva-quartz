@@ -539,28 +539,6 @@ test('Add a literal and set type Topic, it has the correct XML', async ({ page }
     await expect(page.locator('#app')).toContainText('literal');
 });
 
-test('Add a literal and set type Genre, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/marva/');
-
-    // Update the preferences for this test
-    let prefs = JSON.stringify(preferences)
-    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
-    await page.reload();
-
-    await page.getByText('Click Here').click();
-    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
-
-    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
-    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('l');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('literal');
-    await page.getByText('literal [Literal]').click();
-    await page.getByText('Topic / Heading ($a $x)').click();
-    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
-    await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<madsrdf:Topicxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
-    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">');
-    await expect(page.locator('#app')).toContainText('literal');
-});
 
 test('Add a literal and set type Geographic, it has the correct XML', async ({ page }) => {
     await page.goto('http://localhost:5555/marva/');
