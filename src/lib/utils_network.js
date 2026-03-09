@@ -2915,8 +2915,6 @@ const utilsNetwork = {
 
       this.subjectSearchActive = false
 
-      // console.info("results: ", results)
-
       return results
     },
 
