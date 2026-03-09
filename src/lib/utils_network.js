@@ -2583,9 +2583,6 @@ const utilsNetwork = {
         signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
       }
 
-      console.info("searchPayloadSubjectsSimpleSubdivision: ", searchPayloadSubjectsSimpleSubdivision)
-      console.info("searchPayloadSubjectsSimpleGeoSubdivision: ", searchPayloadSubjectsSimpleGeoSubdivision)
-
       let searchPayloadSubjectsComplexSubdivision1 = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplexSubdivison1],
@@ -2905,9 +2902,6 @@ const utilsNetwork = {
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
 
-      console.info("resultsSubjectsSimple: ", resultsSubjectsSimple)
-      console.info("resultsPayloadSubjectsSimpleSubdivision: ", resultsPayloadSubjectsSimpleSubdivision)
-
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
@@ -2921,7 +2915,7 @@ const utilsNetwork = {
 
       this.subjectSearchActive = false
 
-      console.info("results: ", results)
+      // console.info("results: ", results)
 
       return results
     },
