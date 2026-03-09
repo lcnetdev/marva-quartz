@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.12] - 2026-03-6
+
+## [1.4.13] - 2025-03-13
+### Update
+- Layout: add hotkey to remove layout: `ctrl+backspace`
+- Subject builder:  label change: `Hierarchical Geo` -> `Geo. Subdiv.`, will include non-hierarchical terms
+- Change shortcut keys for search modes so they don't clash with the layouts
+
+## [1.4.12] - 2025-03-6
 ### Update
 - NAR: When using the auth label used in the search interface for your 1xx it will maintain the 1001, 1101, etc. instead of overwriting with 1xx##
 - NAR: Auto 046 creation for hyphenated last names now also works for last names sepearted with a space (Jones-Smith, and Jones Smith, will trigger it now)
