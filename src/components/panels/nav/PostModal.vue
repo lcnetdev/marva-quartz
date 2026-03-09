@@ -205,7 +205,7 @@
                   <a :href="rl.url+'?blastdacache=' + Date.now()" target="_blank">View {{rl.type}} on {{rl.env}}</a>
                 </div>
                 <div>
-                  <a :href="getLcapUrl(postResults.resourceLinks[0])" target="_blank">Open in LCAP</a>
+                  <a :href="getLcapUrl(postResults.resourceLinks[0])" target="_blank" @click="profileStore.logEvent('CLICKED_OPEN_LCAP')">Open in LCAP</a>
                 </div>
               </div>
             </div>

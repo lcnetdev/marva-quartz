@@ -1644,6 +1644,16 @@ export const usePreferenceStore = defineStore('preference', {
     * @param {string} utilUrl - the util service base URL from configStore.returnUrls.util
     */
     ssoLogin: function(utilUrl){
+      // save current route path so we can redirect back after SSO
+      // strip the base path since router.push will add it back
+      let basePath = import.meta.env.BASE_URL || '/'
+      let currentPath = window.location.pathname + window.location.hash
+      if (currentPath.startsWith(basePath)){
+        currentPath = '/' + currentPath.slice(basePath.length)
+      }
+      if (currentPath && currentPath !== '/'){
+        window.localStorage.setItem('marva-redirectAfterSSO', currentPath)
+      }
       window.location.href = utilUrl + 'auth/login'
     },
 

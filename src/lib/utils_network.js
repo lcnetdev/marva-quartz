@@ -4117,6 +4117,50 @@ const utilsNetwork = {
 
       return content
     },
+    /**
+    * Log an event to the backend reporting endpoint
+    * @async
+    * @param {string} username - the authenticated username (must match JWT)
+    * @param {string} eventType - e.g. "LOAD_FROM_LCCN", "LOAD_FROM_COPYCAT", "CREATED_RECORD"
+    * @param {object} opts - optional fields: eId, lccn, instanceId, metadata
+    * @return {boolean} - true if the event was logged successfully
+    */
+    logEvent: async function(username, eventType, opts = {}){
+      let url = useConfigStore().returnUrls.util + 'events'
+
+      let body = {
+        username: username,
+        eventType: eventType
+      }
+
+      if (opts.eId) body.eId = opts.eId
+      if (opts.lccn) body.lccn = opts.lccn
+      if (opts.instanceId) body.instanceId = opts.instanceId
+      if (opts.metadata) body.metadata = opts.metadata
+
+      try {
+        let response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify(body)
+        })
+
+        if (!response.ok){
+          console.warn('logEvent failed:', response.status, await response.text())
+          return false
+        }
+
+        return true
+      } catch(err) {
+        console.warn('logEvent error:', err)
+        return false
+      }
+    },
+
     async fetchUserPrefs(user){
       let url = useConfigStore().returnUrls.util + 'prefs/' + user
 

@@ -118,6 +118,15 @@ export default {
     } else {
       // Start background JWT refresh timer
       this.preferenceStore.startJwtRefreshTimer(this.configStore.returnUrls.util)
+
+      // Check if we need to redirect back to a page after SSO
+      let redirectPath = window.localStorage.getItem('marva-redirectAfterSSO')
+      if (redirectPath){
+        window.localStorage.removeItem('marva-redirectAfterSSO')
+        this.$router.isReady().then(() => {
+          this.$router.push(redirectPath)
+        })
+      }
     }
     await this.profileStore.buildProfiles()
       //let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')

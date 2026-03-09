@@ -790,6 +790,7 @@ export default {
         // continue on with a empty profile
         try {
           marva001 = await utilsNetwork.getMarva001() // get the Marva001
+          this.profileStore.logEvent('001_REQUESTED', { metadata: [marva001] })
         } catch(err){
           marva001 = '!!testValue!!'
         }
@@ -1223,6 +1224,13 @@ export default {
       if (multiTestFlag) {
         this.$router.push(`/multiedit/`)
         return true
+      }
+
+      // log the event type based on whether this is a new record or a load
+      if (useProfile.neweId){
+        this.profileStore.logEvent('CREATED_RECORD')
+      } else {
+        this.profileStore.logEvent('LOAD_FROM_LCCN')
       }
 
       this.$router.push(`/edit/${useProfile.eId}`)
