@@ -2471,6 +2471,7 @@ const utilsNetwork = {
       let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")+'&rdftype=SimpleType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
 
       let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
+      let subjectUrlSimpleGeoSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions'
       let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
       let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
@@ -2571,6 +2572,20 @@ const utilsNetwork = {
         subdivision: true,
         signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
       }
+
+
+      let searchPayloadSubjectsSimpleGeoSubdivision = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlSimpleGeoSubdivison],
+        searchValue: searchVal,
+        subjectSearch: true,
+        subdivision: true,
+        signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
+      }
+
+      console.info("searchPayloadSubjectsSimpleSubdivision: ", searchPayloadSubjectsSimpleSubdivision)
+      console.info("searchPayloadSubjectsSimpleGeoSubdivision: ", searchPayloadSubjectsSimpleGeoSubdivision)
+
       let searchPayloadSubjectsComplexSubdivision1 = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplexSubdivison1],
@@ -2744,9 +2759,9 @@ const utilsNetwork = {
         ]);
 
       }else if (mode == "GEO"){
-
-        [resultsHierarchicalGeographic] = await Promise.all([
-            this.searchComplex(searchPayloadHierarchicalGeographic)
+        [resultsHierarchicalGeographic, resultsPayloadSubjectsSimpleSubdivision] = await Promise.all([
+            this.searchComplex(searchPayloadHierarchicalGeographic),
+            this.searchComplex(searchPayloadSubjectsSimpleGeoSubdivision)
         ]);
 
       // }else if (mode == "WORKS"){
@@ -2890,10 +2905,13 @@ const utilsNetwork = {
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
 
+      console.info("resultsSubjectsSimple: ", resultsSubjectsSimple)
+      console.info("resultsPayloadSubjectsSimpleSubdivision: ", resultsPayloadSubjectsSimpleSubdivision)
+
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
-        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : resultsNamesSubdivision,
+        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : [], //resultsNamesSubdivision,
         'hierarchicalGeographic': (mode !== 'GEO') ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
@@ -2903,7 +2921,7 @@ const utilsNetwork = {
 
       this.subjectSearchActive = false
 
-      // console.info("results: ", results)
+      console.info("results: ", results)
 
       return results
     },
