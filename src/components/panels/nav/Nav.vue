@@ -224,7 +224,7 @@ export default {
             {
               text: 'LC Marva Manual',
               click: () => {
-                const routeData = window.open('https://www.loc.gov/catworkshop/bibframe/Library-of-Congress-Marva-Quartz-User-Manual.pdf')
+                const routeData = window.open('https://bibframe.org/docs/view/documentation-marva-manual/index.md')
               },
               icon: "📄"
             }
