@@ -7457,18 +7457,22 @@ export const useProfileStore = defineStore('profile', {
             return true
           }
           // fallback on assigner
-          let assigner = data["http://id.loc.gov/ontologies/bibframe/assigner"][0]
-          let id = assigner['@id']
-          let label = assigner["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+          if (data["http://id.loc.gov/ontologies/bibframe/assigner"]){
+            let assigner = data["http://id.loc.gov/ontologies/bibframe/assigner"][0]
+            let id = assigner['@id']
+            let label = assigner["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
 
-          if (!label.includes("Library of Congress")){
+            if (!label.includes("Library of Congress")){
+              return false
+            }
+          } else {
             return false
           }
         }
 
         return true
       } catch(err){
-        console.error("Error with displaySubject preference: ", err)
+        console.error("Error with displayClass preference: ", err)
         return false
       }
     },
@@ -7518,14 +7522,24 @@ export const useProfileStore = defineStore('profile', {
       let subjectCount = 0
       let subjectHidden = 0
       let subjectLast = null
+      let subjectFirst = false
+      let subjectList = []
+      let subjectProfile = null
 
       let classCount = 0
       let classHidden = 0
       let classLast = null
+      let classFirst = false
+      let classList = []
+      let classProfile = null
 
       for (let rt in profile.rt){
         for (let pt in profile.rt[rt].pt){
+
           if (pt.includes("id_loc_gov_ontologies_bibframe_subject__subjects")){
+            if (!subjectFirst){
+              subjectFirst = pt
+            }
             let comp =  profile.rt[rt].pt[pt]
             if (comp.deleted === undefined || (Object.keys(comp).includes('deleted') && comp.deleted != true)){
               subjectCount++
@@ -7534,9 +7548,14 @@ export const useProfileStore = defineStore('profile', {
               subjectHidden++
             }
             subjectLast = comp
+            subjectList.push(comp)
+            subjectProfile = rt
           }
 
           if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers")){
+            if (!classFirst){
+              classFirst = pt
+            }
             let comp =  profile.rt[rt].pt[pt]
             if (comp.deleted === undefined || (Object.keys(comp).includes('deleted') && comp.deleted != true)){
               classCount++
@@ -7545,6 +7564,8 @@ export const useProfileStore = defineStore('profile', {
               classHidden++
             }
             classLast = comp
+            classList.push(comp)
+            classProfile = rt
           }
         }
       }
@@ -7554,13 +7575,34 @@ export const useProfileStore = defineStore('profile', {
         // add an empty subject component
         // componentGuid, structure
         this.duplicateComponent(subjectLast["@guid"], this.returnStructureByGUID(subjectLast["@guid"]))
+
+        // make sure this new component is first
+        let posFirst = profile.rt[subjectProfile].ptOrder.indexOf(subjectFirst)
+        let posLast = profile.rt[subjectProfile].ptOrder.indexOf(subjectLast.id)
+        let newPropertyId = profile.rt[subjectProfile].ptOrder.at(posLast+1)
+        profile.rt[subjectProfile].ptOrder.splice(Number(posFirst), 0, newPropertyId)
+
+        // remove the last subject
+        profile.rt[subjectProfile].ptOrder.splice(posLast+2, 1)
+
       }
 
       let showingClassNumber = classCount - classHidden
       if (showingClassNumber == 0){
-        // add an empty subject component
+        // add an empty classNum component
         // componentGuid, structure
         this.duplicateComponent(classLast["@guid"], this.returnStructureByGUID(classLast["@guid"]))
+
+        // make sure this new component is first
+        let posFirst = profile.rt[classProfile].ptOrder.indexOf(classFirst)
+        let posLast = profile.rt[classProfile].ptOrder.indexOf(classLast.id)
+        let newPropertyId = profile.rt[classProfile].ptOrder.at(posLast+1)
+
+
+        profile.rt[classProfile].ptOrder.splice(Number(posFirst), 0, newPropertyId)
+
+        // remove the last classNum
+        profile.rt[classProfile].ptOrder.splice(posLast+2, 1)
       }
 
       if (subjectHidden > 0){

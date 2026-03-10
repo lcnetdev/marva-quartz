@@ -328,6 +328,10 @@
       },
 
 
+      isAllNonLatin(str) {
+        return !/\p{Script=Latin}/u.test(str);
+      },
+
       showBuildHubStub(){
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
@@ -874,15 +878,41 @@
 
         //Structure that will get the changes and be passed on
         const activeStructure = JSON.parse(JSON.stringify(structure))
-
+        
+        
         let subTitleCheck = false
         let subTitle = false
+        let subTitleLang = false
+        let subTitleGuid = false
         if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){ //if source == instance && there's a subtitle
           let userValue = activeStructure.userValue
           let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
           if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
             subTitleCheck = true
-            subTitle = title["http://id.loc.gov/ontologies/bibframe/subtitle"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+            console.log("This is the subtitle:",title["http://id.loc.gov/ontologies/bibframe/subtitle"])
+            subTitle = []
+            subTitleLang = []
+            // grab any highlighted text before it gets cleared by the click
+            let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
+            window.getSelection().removeAllRanges()
+
+            for (let sub of title["http://id.loc.gov/ontologies/bibframe/subtitle"]){
+              subTitle.push(sub["http://id.loc.gov/ontologies/bibframe/subtitle"])
+              subTitleLang.push(sub["@language"])
+            }
+            // if user had highlighted text and it exists in one of the subtitles, use that instead
+            if (highlightedText.length > 0){
+              for (let sub of title["http://id.loc.gov/ontologies/bibframe/subtitle"]){
+                if (sub["http://id.loc.gov/ontologies/bibframe/subtitle"].includes(highlightedText)){
+                  subTitle = [highlightedText]
+                  if (this.isAllNonLatin(highlightedText) == false){
+                    subTitleLang = false
+                  }
+                  break
+                }
+              }
+            }
+            subTitleGuid = title["http://id.loc.gov/ontologies/bibframe/subtitle"][0]["@guid"]
           }
         }
 
@@ -925,8 +955,8 @@
           this.displayInstanceSelectionModal = true
           return
         }
-
         if (!Array.isArray(newRt)){
+          
           activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
           activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
 
@@ -952,7 +982,7 @@
               additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
               //update the value
               additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
-              //Add it
+              //Add it              
               this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
             }
           }
@@ -976,7 +1006,7 @@
                 delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
               }
             }
-
+            
             // make adjustment for subtitles in instance
             if (rt.includes(":Work")){
               let additionalTitleStructure = false
@@ -987,7 +1017,44 @@
                 // update the type
                 additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
                 //update the value
-                additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
+                
+                let mainTitleArray = additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+                let template = JSON.parse(JSON.stringify(mainTitleArray[0]))
+                if (Array.isArray(subTitle)){
+                  for (let i = 0; i < subTitle.length; i++){
+                    if (mainTitleArray[i]){
+                      mainTitleArray[i]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle[i]
+                    } else {
+                      let newEntry = JSON.parse(JSON.stringify(template))
+                      newEntry["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle[i]
+                      mainTitleArray.push(newEntry)
+                    }
+                    // add in the language if there is one
+                    if (subTitleLang[i]){
+                      mainTitleArray[i]["@language"] = subTitleLang[i]
+                    }
+                  }                 
+
+                } else {
+                  mainTitleArray[0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
+                }
+
+                // if there are more mainTitles than subtitles, trim to match
+                let expectedLength = Array.isArray(subTitle) ? subTitle.length : 1
+                if (mainTitleArray.length > expectedLength){
+                  additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mainTitleArray.slice(0, expectedLength)
+                }
+                // and delete the @language if there
+                // if subTitleLang === false then it is a substring selection so remove the lang
+                if (subTitleLang === false && additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["@language"]){
+                  delete additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["@language"]
+                }
+                // and delete anything that is not a http://id.loc.gov/ontologies/bibframe/mainTitle                
+                for (let key in additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]){                  
+                  if (key != "http://id.loc.gov/ontologies/bibframe/mainTitle" && key != "@type" && key != "@guid"){
+                    delete additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0][key]
+                  }
+                }
                 //Add it
                 this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
               }

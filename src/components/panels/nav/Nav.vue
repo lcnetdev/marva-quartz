@@ -535,6 +535,7 @@ export default {
             disabled: (this.layoutActive) ? false : true,
             class: (this.layoutActive) ? "layout-active" : "layout-not-active",
             title: "Turn off layout",
+            hotkey: "ctrl+backspace",
 
             click: () => {
               this.layoutActive = false
