@@ -7621,7 +7621,6 @@ export const useProfileStore = defineStore('profile', {
     },
 
     deriveNew: async function(instOnly){
-      console.info("derive from: ", this.activeProfile)
       let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
       let instanceCount = 0
 
@@ -7651,11 +7650,6 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      console.info("work: ", work)
-      console.info("instance: ", instance)
-
-      console.info("create a new record")
-
       recordCopy.xmlSource = ''
       recordCopy.deleted = false
       recordCopy.procInfo = "Derive Record"
@@ -7668,11 +7662,8 @@ export const useProfileStore = defineStore('profile', {
 
         // update the enumber
         recordCopy.eId = 'e' + Date.now().toString()
-        console.info("new eId: ", recordCopy.eId)
       } else {
-        console.info("deriving from instance: ", instOnly)
         instance = recordCopy.rt[instOnly]
-        console.info("instance: ", instance)
         let instId = instance.URI.split("/").at(-1)
         if (/-[0-9]{4}/.test(instId)){
           let suffix = Number(instId.slice(-4))
@@ -7682,10 +7673,7 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      // return
-
       for (let source of [work, instance]){
-        console.info("source: ", source)
         // update URI with new 001 id
         if (instOnly && source.URI.includes("/instances/")){
           source.URI = source.URI.split("/")
@@ -7736,7 +7724,6 @@ export const useProfileStore = defineStore('profile', {
               }]
               status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
             }
-            console.info("status: ", status)
             status['@id'] = 'http://id.loc.gov/vocabulary/mstatus/n'
             status['@type'] = 'http://id.loc.gov/ontologies/bibframe/Status'
             status['http://www.w3.org/2000/01/rdf-schema#label'][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "new"
@@ -7767,7 +7754,6 @@ export const useProfileStore = defineStore('profile', {
           if (pt == 'id_loc_gov_ontologies_bibframe_instanceOf__instance_of'){
             let target = source.pt[pt]
             let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/instanceOf"][0]
-            console.info("instanceOf: ", newIdent)
             userValue["@id"] = userValue["@id"].split("/")
             userValue["@id"].splice(-1, 1, newIdent)
             userValue["@id"] = userValue["@id"].join("/")
@@ -7844,7 +7830,7 @@ export const useProfileStore = defineStore('profile', {
 
           if (userValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"]){
             let value = userValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]
-            value["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = ""
+            value["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = "<#####>"
           }
 
           // remove canceled/invalid
@@ -7858,26 +7844,20 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-
-
       let newId = false
-      console.info("recordCopy: ", recordCopy)
 
       // return false
       if (!instOnly){
         // save to backend
         let xml = await utilsExport.buildXML(recordCopy)
-        console.info("xml: ", xml.xlmStringBasic)
         let saved = false
         if (!this.isTestEnv()){  //Don't try to save if in test env
           saved = await utilsNetwork.saveRecord(xml.xlmStringBasic, recordCopy.eId)
           newId = recordCopy.eId
         }
 
-        console.info("saved: ", saved)
         return newId
       } else { //insert the updated instance into the record
-        console.info("inserting instance: ", instance)
         let newRtId = instOnly +'_'+instanceCount
 
         for (let pt in instance.pt){
@@ -7888,7 +7868,6 @@ export const useProfileStore = defineStore('profile', {
               function(key){
                 let value = obj[key]
                 if (key == "@guid"){
-                  console.info("looking at: ", value)
                   return obj[key] = short.generate()
                 } else if(Array.isArray(value)) {
                   for (let el in value){
@@ -7908,7 +7887,6 @@ export const useProfileStore = defineStore('profile', {
           instance.pt[pt].parentId = instance.pt[pt].parentId.replace(instOnly, newRtId)
           instance.pt[pt].parent = instance.pt[pt].parent.replace(instOnly, newRtId)
         }
-        console.info("instanceOf workURI: ", work.URI)
         instance.instanceOf = work.URI
 
         instance.isNew = true
