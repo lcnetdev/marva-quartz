@@ -7872,27 +7872,28 @@ export const useProfileStore = defineStore('profile', {
 
         // update the new admin metadata to have this ID, is this OK?
 
-        for (let pt in instance.pt){
-
-          // replace all the guids in the new instance
-          let replaceGuids = (obj) => {
-            return Object.keys(obj).map(
-              function(key){
-                let value = obj[key]
-                if (key == "@guid"){
-                  return obj[key] = short.generate()
-                } else if(Array.isArray(value)) {
-                  for (let el in value){
-                    return replaceGuids( value[el] )
-                  }
-                }else if (typeof value === "object"){
-                  return  replaceGuids( value )
+        // replace all the guids in the new instance
+        let replaceGuids = (obj) => {
+          return Object.keys(obj).map(
+            function(key){
+              let value = obj[key]
+              if (key == "@guid"){
+                return obj[key] = short.generate()
+              } else if(Array.isArray(value)) {
+                for (let el in value){
+                  return replaceGuids( value[el] )
                 }
+              }else if (typeof value === "object"){
+                return  replaceGuids( value )
               }
-            )
-          }
+            }
+          )
+        }
 
-          replaceGuids(instance)
+        replaceGuids(instance)
+
+
+        for (let pt in instance.pt){
 
           instance.pt[pt]['@guid'] = short.generate()
           // update the parentId
@@ -7904,6 +7905,14 @@ export const useProfileStore = defineStore('profile', {
         instance.isNew = true
         this.activeProfile.rt[newRtId] = instance
         this.activeProfile.rtOrder.push(newRtId)
+
+        // derive as electronic record
+        if (electronic){
+          let mediaType = instance.pt['id_loc_gov_ontologies_bibframe_media__media_type']
+
+          console.info("mediaType: ", mediaType["@guid"])
+          this.setValueSimple(mediaType["@guid"], null, [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/media"}], 'http://id.loc.gov/vocabulary/mediaTypes/c', 'computer (c)')
+        }
 
         this.rtLookup[newRtId] = this.rtLookup[instOnly]
 
