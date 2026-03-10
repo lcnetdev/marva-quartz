@@ -49,10 +49,10 @@ export default {
     closeWindow: function () {
       this.open = false
     },
+
     async refreshMarc() {
       this.previewData = await this.profileStore.marcPreview()
     },
-
   },
 
   created() {

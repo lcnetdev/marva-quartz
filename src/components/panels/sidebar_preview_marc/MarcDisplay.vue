@@ -25,9 +25,49 @@ export default {
         ...mapWritableState(useProfileStore, ['activeComponent']),
     },
     watch: {},
-    methods: {},
-    created() { },
-    updated() { }
+    methods: {
+        // to help with identifying which position a byte is in in the leader & 008
+        positionCounter: function(){
+            console.info("counting: ", document.getElementsByClassName('record'))
+            let leader = document.getElementsByClassName('leader')[0]
+            let zerozero8 = document.querySelector('.tag-008 + .value')
+
+            let valueLeader = leader.innerHTML
+            let value008 = zerozero8.innerHTML
+
+            zerozero8.innerHTML = ''
+            for (let [i, char] of value008.split("").entries()){
+                let c = document.createElement('span')
+                c.setAttribute('class', 'pos-' + i + " simptip-position-top")
+                c.setAttribute('data-tooltip', i)
+
+                if (char == '' || char == " "){
+                    char = '&nbsp;'
+                }
+                c.innerHTML = char
+                zerozero8.appendChild(c)
+            }
+
+            leader.innerHTML = ''
+            for (let [i, char] of valueLeader.replace(/&nbsp;/g, " ").split("").entries()){
+                let c = document.createElement('span')
+                c.setAttribute('class', 'pos-' + i + " simptip-position-bottom")
+                c.setAttribute('data-tooltip', i)
+
+                if (char == '' || char == " "){
+                    char = '&nbsp;'
+                }
+                c.innerHTML = char
+                leader.appendChild(c)
+            }
+
+        },
+    },
+    created() {},
+    updated() { },
+    mounted() {
+        this.positionCounter()
+    }
 }
 
 
@@ -128,6 +168,14 @@ li {
 
 :deep() span.marc.subfield:hover {
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
+}
+
+:deep() span.marc.value > span:hover{
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
+}
+
+:deep() .simptip-position-bottom::after{
+    margin-left: 0px;
 }
 
 div.accordion-list details.accordion-item>div.accordion-item__content {

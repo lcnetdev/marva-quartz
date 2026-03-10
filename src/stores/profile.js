@@ -7808,16 +7808,15 @@ export const useProfileStore = defineStore('profile', {
 
         if (pt == 'id_loc_gov_ontologies_bibframe_editionStatement__edition_statement'){
           let edState = instance.pt[pt]
-          let userValue = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"][0]
 
-          if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].length > 1){ // there's some non-Latin information
-            edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].slice(0, 1)
+          if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"]){
+            let userValue = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"][0]
+            if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].length > 1){ // there's some non-Latin information
+              edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].slice(0, 1)
+            }
+            userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = '<#####>'
+            userValue["@guid"] = short.generate()
           }
-
-          userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = '<#####>'
-          userValue["@guid"] = short.generate()
-
-          console.info("edState: ", edState)
         }
 
         if (pt == 'id_loc_gov_ontologies_bibframe_extent__physical_description'){
