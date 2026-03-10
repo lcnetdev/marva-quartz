@@ -3268,7 +3268,6 @@ const utilsNetwork = {
   * @return {string} - the MARC in XML response
   */
   marcPreview: async function(xml, html=false, multi=false){
-    console.info("requesting preview: ", xml)
     if (!xml){
       return ""
     }
@@ -3280,8 +3279,6 @@ const utilsNetwork = {
       url = url + '/text'
     }
     let content = []
-
-    console.info("url: ", url)
 
     if (!multi){
       const rawResponse = await fetch(url, {
@@ -3308,9 +3305,7 @@ const utilsNetwork = {
       }
     }
 
-    console.info("marc: ", content)
     return content
-
   },
 
 

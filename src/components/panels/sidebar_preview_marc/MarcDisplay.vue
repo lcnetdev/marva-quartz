@@ -28,6 +28,7 @@ export default {
     methods: {
         // to help with identifying which position a byte is in in the leader & 008
         positionCounter: function(){
+            console.info('position?')
             let leader = document.getElementsByClassName('leader')[0]
             let zerozero8 = document.querySelector('.tag-008 + .value')
 
@@ -63,7 +64,9 @@ export default {
         },
     },
     created() {},
-    updated() { },
+    updated() {
+        this.positionCounter()
+    },
     mounted() {
         this.positionCounter()
     }
