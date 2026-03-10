@@ -1588,7 +1588,7 @@ export const useProfileStore = defineStore('profile', {
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
       console.log("componentGuid, fieldGuid, propertyPath, URI, label")
-      console.log(componentGuid, fieldGuid, propertyPath, URI, label)
+      console.log(componentGuid, fieldGuid, JSON.stringify(propertyPath), URI, label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
@@ -7620,7 +7620,7 @@ export const useProfileStore = defineStore('profile', {
       return results
     },
 
-    deriveNew: async function(instOnly){
+    deriveNew: async function(instOnly, electronic){
       let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
       let instanceCount = 0
 
@@ -7710,6 +7710,7 @@ export const useProfileStore = defineStore('profile', {
             if (!instOnly){
               identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = newIdent
             } else {
+              // is this right, or should it be the same? this sets the 001
               let tempId = source.URI.split('/').at(-1)
               identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = tempId
             }
@@ -7736,10 +7737,12 @@ export const useProfileStore = defineStore('profile', {
 
 
             // encoding level
-            let encLvl = userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
-            encLvl["@id"] = "http://id.loc.gov/vocabulary/menclvl/5"
-            encLvl["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] = "5"
-            encLvl["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "preliminary"
+            if (userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"]){
+              let encLvl = userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
+              encLvl["@id"] = "http://id.loc.gov/vocabulary/menclvl/5"
+              encLvl["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] = "5"
+              encLvl["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "preliminary"
+            }
 
             delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
             delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
@@ -7767,7 +7770,7 @@ export const useProfileStore = defineStore('profile', {
           }
 
           // update class number
-          if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers")){
+          if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers") && source.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/classification"]){
             let target = source.pt[pt]
             let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
             let classType = userValue["@type"]
@@ -7786,7 +7789,8 @@ export const useProfileStore = defineStore('profile', {
       // adjust instance
       let foundISBN = false
       for (let pt in instance.pt){
-        if (pt == 'id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity'){
+
+        if (pt == 'id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"]){
           let provAct = instance.pt[pt]
           let userValue = provAct.userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]
 
@@ -7811,20 +7815,20 @@ export const useProfileStore = defineStore('profile', {
           }
         }
 
-        if (pt == 'id_loc_gov_ontologies_bibframe_extent__physical_description'){
+        if (pt == 'id_loc_gov_ontologies_bibframe_extent__physical_description' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/extent"]){
           let extent = instance.pt[pt]
           let userValue = extent.userValue["http://id.loc.gov/ontologies/bibframe/extent"][0]
           userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = '<#####> pages'
         }
 
-        if (pt == 'id_loc_gov_ontologies_bibframe_dimensions__dimensions'){
+        if (pt == 'id_loc_gov_ontologies_bibframe_dimensions__dimensions' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/dimensions"]){
           let dimensions = instance.pt[pt]
           let userValue = dimensions.userValue["http://id.loc.gov/ontologies/bibframe/dimensions"][0]
           userValue["http://id.loc.gov/ontologies/bibframe/dimensions"] = '<#####> cm'
         }
 
         // identifiers, keep 1 lccn, and 1 isbn, but empty them
-        if (pt.includes('id_loc_gov_ontologies_bibframe_identifiedBy__identifiers')){
+        if (pt.includes('id_loc_gov_ontologies_bibframe_identifiedBy__identifiers') && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
           let ident = instance.pt[pt]
           let userValue = ident.userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]
           let idType = userValue["@type"]
