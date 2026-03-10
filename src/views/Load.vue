@@ -258,27 +258,20 @@
                   </select>
                 </div>
 
-                <hr>
-
-                <h2>Test Data:</h2>
-                <table id="test-data-table">
-                  <tr class="test-data" v-for="t in testData">
-                    <td><a :href="t.idUrl">{{ t.label }}</a></td>
-                    <td><button @click="loadTestData(t)">Load with {{ t.profile }} </button></td>
-                  </tr>
-                </table>
-                <!-- <details>
-                  <summary>Test Data</summary>
-                </details> -->
               </div>
 
               <div>
                 <h1>
                   <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"
                     class="material-icons">edit_note</span>
-                  <span>Your Records</span>
+                  <span>Records</span>
                 </h1>
-                <a href="#" @click="loadAllRecords" style="color: inherit;">Show All Records</a>
+                <div class="records-toolbar">
+                  <a href="#" @click="loadAllRecords" style="color: inherit;">Show All Records</a>
+                  <div class="records-search">
+                    <input type="text" v-model="marvaLogSearch" title="Search the Marva Log, enter a identifier and presse [enter]" placeholder="Marva Log (LCCN, Enumber, Bib ID)" class="records-search-input" @keyup.enter="searchMarvaLog">
+                  </div>
+                </div>
                 <div>
                   <div class="saved-records-empty" v-if="continueRecords.length == 0">
                     No saved records found.
@@ -354,11 +347,11 @@
                 </div>
               </div>
 
-              <div>
+              <div class="load-right-column">
                 <h2 style="margin-bottom: 10px;">
                   <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"
                     class="material-icons">edit_document</span>
-                  <span>Create Original BIBFRAME (origbf) Descriptions</span>
+                  <span>Original Bibframe (origbf) Record</span>
                 </h2>
                 <div style="padding:5px;">
                   Use these templates for original BIBFRAME descriptions in Marva and then sent to Folio as Modern MARC
@@ -376,6 +369,17 @@
                     </div>
                   </div>
                 </div>
+
+                <div v-if="showTestData" style="margin-top: 1em;">
+                  <table id="test-data-table">
+                    <tr class="test-data" v-for="t in testData">
+                      <td><a :href="t.idUrl">{{ t.label }}</a></td>
+                      <td><button @click="loadTestData(t)">Load with {{ t.profile }} </button></td>
+                    </tr>
+                  </table>
+                </div>
+
+                <a href="#" @click.prevent="showTestData = !showTestData" class="test-data-toggle">Test Data</a>
               </div>
             </div>
           </pane>
@@ -455,6 +459,8 @@ export default {
       allRecords: [],
       dataTableRecords: [],
       hideOptions: true,
+      showTestData: false,
+      marvaLogSearch: '',
 
       loadingRecord: false,
       loadType: "loadMarc",
@@ -495,6 +501,12 @@ export default {
 
   },
 
+  watch: {
+    '$route.params.searchId': function(newVal){
+      if (newVal) this.searchMarvaLog(newVal)
+    }
+  },
+
   methods: {
     ccSearch: function(isbn){
       this.profileStore.copyCatSearch = isbn
@@ -526,9 +538,8 @@ export default {
     },
 
     openLCAPSyncURL() {
-
+      this.profileStore.logEvent('LCAP_SYNC_REQ', { metadata: [this.urlToLoad] })
       window.open(`http://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/bib?lccn=${this.urlToLoad}&serialization=json`, '_blank')
-
     },
 
 
@@ -558,6 +569,38 @@ export default {
 
 
 
+    },
+
+    searchMarvaLog: async function (value) {
+      let searchVal = (typeof value === 'string') ? value : this.marvaLogSearch
+      if (!searchVal || !searchVal.trim()) return
+      searchVal = searchVal.trim()
+
+      this.profileStore.marvaLogSearchValue = searchVal
+      this.profileStore.marvaLogResults = []
+      this.profileStore.marvaLogLoading = true
+      this.profileStore.showMarvaLogModal = true
+
+      // try as LCCN first
+      let results = await utilsNetwork.queryEvents({ lccn: searchVal })
+      if (results.length > 0){
+        this.profileStore.marvaLogResults = results
+        this.profileStore.marvaLogLoading = false
+        return
+      }
+
+      // try as eId
+      results = await utilsNetwork.queryEvents({ eId: searchVal })
+      if (results.length > 0){
+        this.profileStore.marvaLogResults = results
+        this.profileStore.marvaLogLoading = false
+        return
+      }
+
+      // try as instanceId
+      results = await utilsNetwork.queryEvents({ instanceId: searchVal })
+      this.profileStore.marvaLogResults = results
+      this.profileStore.marvaLogLoading = false
     },
 
     loadAllRecords: async function (event) {
@@ -790,6 +833,7 @@ export default {
         // continue on with a empty profile
         try {
           marva001 = await utilsNetwork.getMarva001() // get the Marva001
+          this.profileStore.logEvent('001_REQUESTED', { metadata: [marva001] })
         } catch(err){
           marva001 = '!!testValue!!'
         }
@@ -1265,6 +1309,13 @@ export default {
         return true
       }
 
+      // log the event type based on whether this is a new record or a load
+      if (useProfile.neweId){
+        this.profileStore.logEvent('CREATED_RECORD')
+      } else {
+        this.profileStore.logEvent('LOAD_FROM_LCCN')
+      }
+
       this.$router.push(`/edit/${useProfile.eId}`)
 
 
@@ -1275,7 +1326,7 @@ export default {
     async refreshSavedRecords() {
       console.log("refreshSavedRecords")
 
-      let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
+      let records = await utilsNetwork.searchSavedRecords()
 
       let lccnLookup = {}
 
@@ -1336,6 +1387,13 @@ export default {
 
     if (window.location.hash && window.location.hash =='#copycat'){
       this.profileStore.copyCatMode = true
+    }
+    if (window.location.hash && window.location.hash.startsWith('#marvalog')){
+      let searchVal = window.location.hash.replace('#marvalog', '')
+      if (searchVal) this.searchMarvaLog(searchVal)
+    }
+    if (this.$route && this.$route.params && this.$route.params.searchId){
+      this.searchMarvaLog(this.$route.params.searchId)
     }
   },
 
@@ -1576,6 +1634,24 @@ span.delete-icon.material-icons:hover{
   color: grey;
 }
 
+.records-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5em;
+}
+
+.records-search {
+  display: flex;
+  align-items: center;
+}
+
+.records-search-input {
+  font-size: 0.85em;
+  padding: 0.25em 0.5em;
+  width: 220px;
+}
+
 .load-columns {
   display: flex;
 }
@@ -1639,6 +1715,20 @@ summary {
   height: 95vh;
   overflow-y: auto;
   padding-bottom: 5em;
+}
+
+.load-right-column {
+  position: relative;
+  min-height: 100%;
+  padding-bottom: 3em;
+}
+
+.test-data-toggle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 0.5em;
+  color: inherit;
 }
 
 .hide-options {

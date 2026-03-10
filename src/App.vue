@@ -4,6 +4,7 @@ import { RouterLink, RouterView } from "vue-router";
 import LoadingModal from "@/components/general/LoadingModal.vue";
 import PreferenceModal from "@/components/general/PreferenceModal.vue";
 import LoginModal from "@/components/panels/nav/LoginModal.vue";
+import LoginModalSSO from "@/components/panels/nav/LoginModalSSO.vue";
 import ScriptshifterConfigModal from "@/components/panels/edit/modals/ScriptshifterConfigModal.vue";
 import DiacriticsConfigModal from "@/components/panels/edit/modals/DiacriticsConfigModal.vue";
 import TextMacroModal from "@/components/panels/edit/modals/TextMacroModal.vue";
@@ -12,6 +13,8 @@ import NonLatinAgentModal from "@/components/panels/edit/modals/NonLatinAgentMod
 import FieldColorsModal from "@/components/panels/edit/modals/FieldColorsModal.vue";
 import HubStubCreateModal from "@/components/panels/edit/modals/HubStubCreateModal.vue";
 import NacoStubCreateModal from "@/components/panels/edit/modals/NacoStubCreateModal.vue";
+import MarvaLogModal from "@/components/panels/nav/MarvaLogModal.vue";
+import UserDirectoryModal from "@/components/panels/nav/UserDirectoryModal.vue";
 
 
 
@@ -38,6 +41,7 @@ export default {
     LoadingModal,
     PreferenceModal,
     LoginModal,
+    LoginModalSSO,
     ScriptshifterConfigModal,
     ShelfListingModal,
     DiacriticsConfigModal,
@@ -48,7 +52,9 @@ export default {
     NonLatinAgentModal,
     FieldColorsModal,
     HubStubCreateModal,
-    NacoStubCreateModal
+    NacoStubCreateModal,
+    MarvaLogModal,
+    UserDirectoryModal
 
   },
   data() {
@@ -63,10 +69,10 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection', 'isTestEnv']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal']),
 
-    ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
+    ...mapState(usePreferenceStore, ['showPrefModal','catCode','ssoSessionExpired']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal','showLoginModalSSO','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
     ...mapWritableState(useConfigStore, ['showUpdateAvailableModal','showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -94,13 +100,37 @@ export default {
 //     const configStore = useConfigStore()
 // const profileStore = useProfileStore()
 
+    // Check for SSO token in URL (from SAML callback redirect) before initializing
+    const hasSsoUser = this.preferenceStore.handleSsoToken()
+
+    // Clean ?token= from URL after Vue Router is fully ready
+    if (window.location.search.includes('token=')) {
+      this.$router.isReady().then(() => {
+        const query = { ...this.$route.query }
+        delete query.token
+        this.$router.replace({ query })
+      })
+    }
 
     this.preferenceStore.initalize(this.configStore.returnUrls)
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
 
-    if (!this.catCode){
-      this.showLoginModal = true
+    if (!hasSsoUser){
+      // No valid JWT — redirect to SSO login
+      this.preferenceStore.ssoLogin(this.configStore.returnUrls.util)
+    } else {
+      // Start background JWT refresh timer
+      this.preferenceStore.startJwtRefreshTimer(this.configStore.returnUrls.util)
+
+      // Check if we need to redirect back to a page after SSO
+      let redirectPath = window.localStorage.getItem('marva-redirectAfterSSO')
+      if (redirectPath){
+        window.localStorage.removeItem('marva-redirectAfterSSO')
+        this.$router.isReady().then(() => {
+          this.$router.push(redirectPath)
+        })
+      }
     }
     await this.profileStore.buildProfiles()
       //let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')
@@ -128,6 +158,10 @@ export default {
 </script>
 
 <template>
+  <div v-if="ssoSessionExpired" class="sso-expired-banner">
+    <span>Your session has expired.</span>
+    <button @click="preferenceStore.ssoLogin(configStore.returnUrls.util)">Log In</button>
+  </div>
   <RouterView />
   <LoadingModal/>
 
@@ -137,6 +171,9 @@ export default {
   </template>
   <template v-if="showLoginModal==true">
     <LoginModal v-model="showLoginModal" />
+  </template>
+  <template v-if="showLoginModalSSO==true">
+    <LoginModalSSO v-model="showLoginModalSSO" />
   </template>
   <template v-if="showScriptshifterConfigModal==true">
     <ScriptshifterConfigModal v-model="showScriptshifterConfigModal" />
@@ -179,12 +216,49 @@ export default {
     <AutoDeweyModal v-model="showAutoDeweyModal"  />
   </template>
 
+  <template v-if="showMarvaLogModal==true">
+    <MarvaLogModal v-model="showMarvaLogModal" />
+  </template>
+
+  <template v-if="showUserDirectoryModal==true">
+    <UserDirectoryModal v-model="showUserDirectoryModal" />
+  </template>
+
 </template>
 
 
 
 
 <style scoped>
+.sso-expired-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #d32f2f;
+  color: white;
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.sso-expired-banner button {
+  background: white;
+  color: #d32f2f;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
+.sso-expired-banner button:hover {
+  background: #f5f5f5;
+}
 header {
   line-height: 1.5;
   max-height: 100vh;

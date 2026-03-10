@@ -103,6 +103,15 @@ export const useProfileStore = defineStore('profile', {
     savedNARModalData:{},
     savedHubModalData:{},
 
+    showMarvaLogModal: false,
+    marvaLogResults: [],
+    marvaLogSearchValue: '',
+    marvaLogLoading: false,
+
+    showUserDirectoryModal: false,
+    userDirectoryResults: [],
+    userDirectoryLoading: false,
+
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -3432,7 +3441,71 @@ export const useProfileStore = defineStore('profile', {
 
       if (saved){
         this.activeProfileSaved = true
+        this.logEvent('SAVED_RECORD')
       }
+    },
+
+    /**
+    * Log an event to the backend, extracting user/record info from current state
+    * @param {string} eventType - e.g. "LOAD_FROM_LCCN", "LOAD_FROM_COPYCAT", "CREATED_RECORD"
+    * @param {object} opts - optional overrides: eId, lccn, instanceId, metadata
+    */
+    logEvent: async function(eventType, opts = {}){
+      let prefStore = usePreferenceStore()
+
+      // get the username from the SSO JWT payload
+      let username = null
+      if (prefStore.ssoUser){
+        username = prefStore.ssoUser.username || prefStore.ssoUser.name || prefStore.ssoUser.email
+      }
+      if (!username){
+        username = prefStore.catInitals
+      }
+      if (!username){
+        console.warn('logEvent: no username available, skipping')
+        return false
+      }
+
+      // pull eId and lccn from activeProfile if not provided
+      let eId = opts.eId || (this.activeProfile && this.activeProfile.eId) || null
+      let lccn = opts.lccn || null
+      let instanceId = opts.instanceId || null
+
+      // try to extract lccn and instanceId from the record XML if available
+      if (!lccn || !instanceId){
+        try {
+          let xml = await utilsExport.buildXML(this.activeProfile)
+          if (xml && xml.xlmStringBasic){
+            let parser = new DOMParser()
+            let doc = parser.parseFromString(xml.xlmStringBasic, 'application/xml')
+            if (!lccn){
+              let lccnEl = doc.getElementsByTagNameNS('http://id.loc.gov/ontologies/lclocal/', 'lccn')[0]
+              if (lccnEl){
+                lccn = lccnEl.textContent
+              }
+            }
+            if (!instanceId){
+              let extEls = doc.getElementsByTagNameNS('http://id.loc.gov/ontologies/lclocal/', 'externalid')
+              for (let el of extEls){
+                if (el.textContent.includes('/instances/')){
+                  instanceId = el.textContent
+                  break
+                }
+              }
+            }
+          }
+        } catch(e){
+          console.warn('logEvent: could not extract XML metadata', e)
+        }
+      }
+
+      let eventOpts = {}
+      if (eId) eventOpts.eId = eId
+      if (lccn) eventOpts.lccn = lccn
+      if (instanceId) eventOpts.instanceId = instanceId
+      if (opts.metadata) eventOpts.metadata = opts.metadata
+
+      return await utilsNetwork.logEvent(username, eventType, eventOpts)
     },
 
     /**
@@ -3499,7 +3572,7 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.status = 'published'
         await this.saveRecord()
 
-
+        this.logEvent('PUBLISHED_RECORD')
 
         const config = useConfigStore()
 
@@ -5745,8 +5818,10 @@ export const useProfileStore = defineStore('profile', {
       //     "postLocation": "http://preprod-8299.id.loc.gov/resources/hubs/bf110051-532b-c50c-5d5c-baa4ea6d2044"
       // }
 
-
-
+      if (pubResuts && pubResuts.status){
+        let hubId = pubResuts.postLocation ? pubResuts.postLocation.split('/').pop() : null
+        this.logEvent('PUBLISHED_HUB', { metadata: [hubId] })
+      }
 
       return pubResuts
 
@@ -6111,6 +6186,9 @@ export const useProfileStore = defineStore('profile', {
     async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
       console.log(oneXX,fourXX,mainTitle,workURI,zero46)
       let lccn = await utilsNetwork.nacoLccn()
+      if (lccn){
+        this.logEvent('NACO_LCCN_ISSUED', { metadata: [lccn] })
+      }
       let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode)
       NARData.lccn = lccn
       return NARData
@@ -6130,6 +6208,11 @@ export const useProfileStore = defineStore('profile', {
       // pubResuts = {'postLocation': 'https://id.loc.gov/authorities/names/n83122656', status: 'published'}
       console.log('pubResuts')
       console.log(pubResuts)
+
+      if (pubResuts && pubResuts.status === 'published'){
+        this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+      }
+
       return {
         xml: xml,
         pubResuts: pubResuts,

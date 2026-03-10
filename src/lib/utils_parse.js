@@ -1946,7 +1946,7 @@ const utilsParse = {
               userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
                 {
                   "@guid": short.generate(),
-                  "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
+                  "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catCode
                 }
               ]
             }

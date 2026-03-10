@@ -35,8 +35,14 @@ export const usePreferenceStore = defineStore('preference', {
     // catRequireCode: false,
     catCode: null,
 
+    // SSO JWT token and user info
+    jwt: null,
+    ssoUser: null,
+    ssoSessionExpired: false,
+
     // show the login box
     showLoginModal: false,
+    showLoginModalSSO: false,
 
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
 
@@ -1573,12 +1579,182 @@ export const usePreferenceStore = defineStore('preference', {
     returnUserNameForPosting: function(){
       return this.catCode.trim()
     },
+    returnSsoUsername: function(){
+      if (this.ssoUser){
+        let username = this.ssoUser.username || this.ssoUser.name || this.ssoUser.email
+        if (username && username.includes('@')){
+          return username.split('@')[0]
+        }
+        return username || null
+      }
+      return null
+    },
 
 
 
 
   },
   actions: {
+
+    /**
+    * Check URL for SSO token, store it, and populate user info from the JWT payload.
+    * Called early in App.vue mounted() before initalize().
+    * @return {boolean} - true if an SSO user is authenticated
+    */
+    handleSsoToken: function(){
+      // Check URL for ?token= from SAML callback redirect
+      const urlParams = new URLSearchParams(window.location.search)
+      const tokenFromUrl = urlParams.get('token')
+
+      if (tokenFromUrl) {
+        console.log('SSO: Found token in URL, storing and cleaning')
+        window.localStorage.setItem('marva_jwt', tokenFromUrl)
+      }
+
+      // Load JWT from localStorage
+      const storedToken = window.localStorage.getItem('marva_jwt')
+      if (!storedToken) {
+        return false
+      }
+
+      // Decode JWT payload (not verification — that happens server-side)
+      try {
+        const payload = JSON.parse(atob(storedToken.split('.')[1]))
+        // Check if expired
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          window.localStorage.removeItem('marva_jwt')
+          this.jwt = null
+          this.ssoUser = null
+          return false
+        }
+        this.jwt = storedToken
+        this.ssoUser = payload
+        // Populate catInitals from SSO claims
+        this.catInitals = payload.name || payload.email || 'SSO User'
+        window.localStorage.setItem('marva-catInitals', this.catInitals)
+        // Restore catCode from localStorage only, never from JWT
+        let storedCatCode = window.localStorage.getItem('marva-catCode')
+        if (storedCatCode && storedCatCode.trim() != ''){
+          this.catCode = storedCatCode
+          // One-time SSO migration: prompt users to confirm their catId on first SSO login
+          // Only check before the cutoff date (March 12 2026)
+          if (Date.now() < new Date('2026-03-12').getTime() && !window.localStorage.getItem('marva-SSOFirstTimeChecked')){
+            window.localStorage.setItem('marva-SSOFirstTimeChecked', 'true')
+            this.showLoginModalSSO = true
+          }
+        } else {
+          this.catCode = null
+          this.showLoginModalSSO = true
+        }
+        console.log('SSO: User authenticated as', this.catInitals, '| ssoUser set:', !!this.ssoUser)
+        return true
+      } catch (e) {
+        console.error('Failed to decode JWT:', e)
+        window.localStorage.removeItem('marva_jwt')
+        return false
+      }
+    },
+
+    /**
+    * Redirect the browser to the SSO login endpoint.
+    * @param {string} utilUrl - the util service base URL from configStore.returnUrls.util
+    */
+    ssoLogin: function(utilUrl){
+      // save current route path so we can redirect back after SSO
+      // strip the base path since router.push will add it back
+      let basePath = import.meta.env.BASE_URL || '/'
+      let currentPath = window.location.pathname + window.location.hash
+      if (currentPath.startsWith(basePath)){
+        currentPath = '/' + currentPath.slice(basePath.length)
+      }
+      if (currentPath && currentPath !== '/'){
+        window.localStorage.setItem('marva-redirectAfterSSO', currentPath)
+      }
+      window.location.href = utilUrl + 'auth/login'
+    },
+
+    /**
+    * Start a background timer that refreshes the JWT before it expires.
+    * Checks every 60 seconds; refreshes when within 15 minutes of expiry.
+    * If the token is already expired or refresh fails, redirect to SSO login.
+    * @param {string} utilUrl - the util service base URL
+    */
+    startJwtRefreshTimer: function(utilUrl){
+      if (this._refreshTimer) return // already running
+
+      this._refreshTimer = window.setInterval(async () => {
+        const token = window.localStorage.getItem('marva_jwt')
+        if (!token) return
+
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          if (!payload.exp) return
+
+          const msUntilExpiry = payload.exp * 1000 - Date.now()
+
+          // Already expired — try a silent refresh first (Entra session may still be valid)
+          if (msUntilExpiry <= 0) {
+            console.warn('JWT expired, attempting silent refresh...')
+            try {
+              const resp = await fetch(utilUrl + 'auth/refresh', {
+                headers: { 'Authorization': 'Bearer ' + token }
+              })
+              if (resp.ok) {
+                const data = await resp.json()
+                if (data.token) {
+                  window.localStorage.setItem('marva_jwt', data.token)
+                  this.jwt = data.token
+                  const newPayload = JSON.parse(atob(data.token.split('.')[1]))
+                  this.ssoUser = newPayload
+                  console.log('JWT refreshed after expiry, new expiry:', new Date(newPayload.exp * 1000).toLocaleTimeString())
+                  return
+                }
+              }
+            } catch (e) { /* refresh failed, fall through */ }
+
+            // Refresh failed — mark as expired but don't redirect
+            // The user can keep viewing their current work
+            this.jwt = null
+            this.ssoUser = null
+            this.ssoSessionExpired = true
+            console.warn('SSO session expired. User will need to re-authenticate on next action.')
+            return
+          }
+
+          // Within 15 minutes of expiry — refresh silently
+          if (msUntilExpiry < 15 * 60 * 1000) {
+            const resp = await fetch(utilUrl + 'auth/refresh', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            })
+            if (resp.ok) {
+              const data = await resp.json()
+              if (data.token) {
+                window.localStorage.setItem('marva_jwt', data.token)
+                this.jwt = data.token
+                const newPayload = JSON.parse(atob(data.token.split('.')[1]))
+                this.ssoUser = newPayload
+                console.log('JWT refreshed, new expiry:', new Date(newPayload.exp * 1000).toLocaleTimeString())
+              }
+            } else {
+              console.warn('JWT refresh failed, status:', resp.status)
+            }
+          }
+        } catch (e) {
+          console.error('JWT refresh check error:', e)
+        }
+      }, 60 * 1000) // check every 60 seconds
+    },
+
+    /**
+    * Clear JWT and redirect to SSO logout endpoint.
+    * @param {string} utilUrl - the util service base URL from configStore.returnUrls.util
+    */
+    ssoLogout: function(utilUrl){
+      window.localStorage.removeItem('marva_jwt')
+      this.jwt = null
+      this.ssoUser = null
+      window.location.href = utilUrl + 'auth/logout'
+    },
 
     /**
     * Setup the preference store, access settings stored in localstorage, etc.
