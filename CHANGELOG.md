@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 ## [1.4.13] - 2025-03-13
 ### Update
 - Layout: add hotkey to remove layout: `ctrl+backspace`
+- Subject builder:  label change: `Hierarchical Geo` -> `Geo. Subdiv.`, will include non-hierarchical terms
+- Change shortcut keys for search modes so they don't clash with the layouts
 
 ## [1.4.12] - 2025-03-6
 ### Update
@@ -13,8 +15,9 @@ All notable changes to this project will be documented in this file.
 - NAR: Auto 046 creation for hyphenated last names now also works for last names sepearted with a space (Jones-Smith, and Jones Smith, will trigger it now)
 - NAR: Will auto cleanup double spaces in the NAR 1xx
 - You can now highlgiht a portion of the Instance Subtitle when using "Send Subtitle to Work Variant" and it will only send the selected (highlighted) text
+- Subject builder: move geo subdivisions into one option, formerly `Hierarchical geo`. Don't show geo subdivisions under LCSH/LCNAF & don't show names as subdivisions
 
-## [1.4.11] - 2025-02-27
+## [1.4.11] - 2026-02-27
 ### Update
 - NAR creation supports 046 for 110 & 111
 
@@ -24,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - Fixed issue with partial in place transliteration when using "Captialize first word" preference
 - Fixed issue with partial in place transliteration when using ko + han mixed languages.
 
-## [1.4.10] - 2025-02-13
+## [1.4.10] - 2026-02-13
 ### Added
 - Styling for staging
 
@@ -41,7 +44,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - More issues with library
 
-## [1.4.9] - 2025-02-13
+## [1.4.9] - 2026-02-13
 ### Update
 - Changes to match backend refactor
 - URL target for navigation to load screen
@@ -54,16 +57,16 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - `$q` not parsing when pasting MARC subject strings
 
-## [1.4.8] - 2025-02-03
+## [1.4.8] - 2026-02-03
 ### Added
 - Support for Subject Entities in Subject Builder
 
-## [1.4.7] - 2025-01-20
+## [1.4.7] - 2026-01-20
 ### Changed
 - ClassWeb search will search `LCSH (w/names)` to do a combined search.
 - Ability to keyword search subject by appending `?` to the search term
 
-## [1.4.6] - 2025-01-16
+## [1.4.6] - 2026-01-16
 ### Added
 - Added support for automatically populating 4xx from the MARC key if present.
 - NAR will strip trailing period if at end of string and previous char is lowercase.
