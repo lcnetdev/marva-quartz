@@ -103,6 +103,15 @@ export const useProfileStore = defineStore('profile', {
     savedNARModalData:{},
     savedHubModalData:{},
 
+    showMarvaLogModal: false,
+    marvaLogResults: [],
+    marvaLogSearchValue: '',
+    marvaLogLoading: false,
+
+    showUserDirectoryModal: false,
+    userDirectoryResults: [],
+    userDirectoryLoading: false,
+
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -5811,7 +5820,7 @@ export const useProfileStore = defineStore('profile', {
 
       if (pubResuts && pubResuts.status){
         let hubId = pubResuts.postLocation ? pubResuts.postLocation.split('/').pop() : null
-        this.logEvent('CREATED_HUB', { metadata: [hubId] })
+        this.logEvent('PUBLISHED_HUB', { metadata: [hubId] })
       }
 
       return pubResuts

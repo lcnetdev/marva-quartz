@@ -2987,19 +2987,15 @@ const utilsNetwork = {
       return resp
      },
 
-     searchSavedRecords: async function(user,search){
+     searchSavedRecords: async function(search){
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
 
-
-
       let url
-      if (user && !search){
-        url = `${utilUrl}myrecords/${utilPath}/${user}`
-      }else if (user && search){
-        url = `${utilUrl}allrecords/${utilPath}/${search}/${user}`
+      if (search){
+        url = `${utilUrl}allrecords/${utilPath}/${search}`
       }else{
-        url = `${utilUrl}allrecords/${utilPath}/`
+        url = `${utilUrl}myrecords/${utilPath}`
       }
       let r = await this.fetchSimpleLookup(url)
 
@@ -4117,6 +4113,108 @@ const utilsNetwork = {
 
       return content
     },
+    /**
+    * Get all users with cataloger ID info
+    * @async
+    * @return {array} - array of user objects
+    */
+    queryUsers: async function(){
+      let url = useConfigStore().returnUrls.util + 'users'
+
+      try {
+        let response = await fetch(url, {
+          headers: {
+            'Accept': 'application/json',
+            ...getAuthHeaders()
+          }
+        })
+
+        if (!response.ok){
+          console.warn('queryUsers failed:', response.status)
+          return []
+        }
+
+        let data = await response.json()
+        return data.results || []
+      } catch(err) {
+        console.warn('queryUsers error:', err)
+        return []
+      }
+    },
+
+    /**
+    * Query the event log
+    * @async
+    * @param {object} params - query params: eId, lccn, instanceId, username, region, limit
+    * @return {array} - array of event objects
+    */
+    queryEvents: async function(params = {}){
+      let url = useConfigStore().returnUrls.util + 'events'
+
+      let queryParts = []
+      for (let key of ['eId', 'lccn', 'instanceId', 'username', 'region', 'limit']){
+        if (params[key] != null){
+          queryParts.push(`${key}=${encodeURIComponent(params[key])}`)
+        }
+      }
+      if (queryParts.length > 0){
+        url += '?' + queryParts.join('&')
+      }
+
+      try {
+        let response = await fetch(url, {
+          headers: {
+            'Accept': 'application/json',
+            ...getAuthHeaders()
+          }
+        })
+
+        if (!response.ok){
+          console.warn('queryEvents failed:', response.status)
+          return []
+        }
+
+        let data = await response.json()
+        return data.results || []
+      } catch(err) {
+        console.warn('queryEvents error:', err)
+        return []
+      }
+    },
+
+    /**
+    * Update the cataloger ID for a user
+    * @async
+    * @param {string} username - the username (must match JWT)
+    * @param {string} catId - the cataloger code
+    * @return {boolean} - true if updated successfully
+    */
+    updateUserCatId: async function(username, catId){
+      let url = useConfigStore().returnUrls.util + 'users/' + encodeURIComponent(username) + '/catId'
+
+      try {
+        let response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify({ catId: catId })
+        })
+
+        if (!response.ok){
+          console.warn('updateUserCatId failed:', response.status, await response.text())
+          return false
+        }
+
+        return true
+      } catch(err) {
+        console.warn('updateUserCatId error:', err)
+        return false
+      }
+    },
+
     /**
     * Log an event to the backend reporting endpoint
     * @async

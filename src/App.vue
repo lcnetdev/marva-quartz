@@ -13,6 +13,8 @@ import NonLatinAgentModal from "@/components/panels/edit/modals/NonLatinAgentMod
 import FieldColorsModal from "@/components/panels/edit/modals/FieldColorsModal.vue";
 import HubStubCreateModal from "@/components/panels/edit/modals/HubStubCreateModal.vue";
 import NacoStubCreateModal from "@/components/panels/edit/modals/NacoStubCreateModal.vue";
+import MarvaLogModal from "@/components/panels/nav/MarvaLogModal.vue";
+import UserDirectoryModal from "@/components/panels/nav/UserDirectoryModal.vue";
 
 
 
@@ -50,7 +52,9 @@ export default {
     NonLatinAgentModal,
     FieldColorsModal,
     HubStubCreateModal,
-    NacoStubCreateModal
+    NacoStubCreateModal,
+    MarvaLogModal,
+    UserDirectoryModal
 
   },
   data() {
@@ -65,7 +69,7 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection', 'isTestEnv']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode','ssoSessionExpired']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showLoginModalSSO','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
@@ -210,6 +214,14 @@ export default {
 
   <template v-if="showAutoDeweyModal==true">
     <AutoDeweyModal v-model="showAutoDeweyModal"  />
+  </template>
+
+  <template v-if="showMarvaLogModal==true">
+    <MarvaLogModal v-model="showMarvaLogModal" />
+  </template>
+
+  <template v-if="showUserDirectoryModal==true">
+    <UserDirectoryModal v-model="showUserDirectoryModal" />
   </template>
 
 </template>

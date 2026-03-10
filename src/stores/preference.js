@@ -1579,6 +1579,16 @@ export const usePreferenceStore = defineStore('preference', {
     returnUserNameForPosting: function(){
       return this.catCode.trim()
     },
+    returnSsoUsername: function(){
+      if (this.ssoUser){
+        let username = this.ssoUser.username || this.ssoUser.name || this.ssoUser.email
+        if (username && username.includes('@')){
+          return username.split('@')[0]
+        }
+        return username || null
+      }
+      return null
+    },
 
 
 
@@ -1626,6 +1636,12 @@ export const usePreferenceStore = defineStore('preference', {
         let storedCatCode = window.localStorage.getItem('marva-catCode')
         if (storedCatCode && storedCatCode.trim() != ''){
           this.catCode = storedCatCode
+          // One-time SSO migration: prompt users to confirm their catId on first SSO login
+          // Only check before the cutoff date (March 12 2026)
+          if (Date.now() < new Date('2026-03-12').getTime() && !window.localStorage.getItem('marva-SSOFirstTimeChecked')){
+            window.localStorage.setItem('marva-SSOFirstTimeChecked', 'true')
+            this.showLoginModalSSO = true
+          }
         } else {
           this.catCode = null
           this.showLoginModalSSO = true

@@ -1,6 +1,7 @@
 <script>
   import { usePreferenceStore } from '@/stores/preference'
   import { useConfigStore } from '@/stores/config'
+  import utilsNetwork from '@/lib/utils_network'
 
   import { mapStores, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
@@ -57,6 +58,13 @@
           }
 
           window.localStorage.setItem('marva-catCode', this.catCode)
+
+          // update catId on the backend
+          let prefStore = usePreferenceStore()
+          let username = prefStore.returnSsoUsername
+          if (username){
+            utilsNetwork.updateUserCatId(username, this.catCode.trim())
+          }
 
           this.showLoginModalSSO = false
 
