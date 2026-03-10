@@ -7636,6 +7636,7 @@ export const useProfileStore = defineStore('profile', {
       * [x] (inst) edition statement with non-Latin
       * [x] (inst) provision activity dates with non-Latin
       *
+      * TODO: Derive Instance: what happens with the 001? should match the instance id?
       * */
 
       let work = null
@@ -7649,6 +7650,8 @@ export const useProfileStore = defineStore('profile', {
           instance = recordCopy.rt[rt]
         }
       }
+
+      let newRtId = instOnly +'_'+instanceCount
 
       recordCopy.xmlSource = ''
       recordCopy.deleted = false
@@ -7706,6 +7709,9 @@ export const useProfileStore = defineStore('profile', {
             // update 001 with internal identifier
             if (!instOnly){
               identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = newIdent
+            } else {
+              let tempId = source.URI.split('/').at(-1)
+              identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = tempId
             }
 
             //status
@@ -7858,7 +7864,9 @@ export const useProfileStore = defineStore('profile', {
 
         return newId
       } else { //insert the updated instance into the record
-        let newRtId = instOnly +'_'+instanceCount
+        newRtId = instOnly +'_'+instanceCount
+
+        // update the new admin metadata to have this ID, is this OK?
 
         for (let pt in instance.pt){
 

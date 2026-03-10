@@ -28,7 +28,6 @@ export default {
     methods: {
         // to help with identifying which position a byte is in in the leader & 008
         positionCounter: function(){
-            console.info('position?')
             let leader = document.getElementsByClassName('leader')[0]
             let zerozero8 = document.querySelector('.tag-008 + .value')
 
@@ -172,6 +171,7 @@ li {
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
 }
 
+:deep() div.marc.leader > span:hover,
 :deep() span.marc.value > span:hover{
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
 }
