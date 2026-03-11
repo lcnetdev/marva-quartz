@@ -683,6 +683,7 @@ export default {
         }
       } else {
         marva001 = await utilsNetwork.getMarva001()
+        this.profileStore.logEvent('001_REQUESTED', { metadata: [marva001] })
         this.createSubField("x", marva001, dummyField)
       }
 
@@ -867,6 +868,8 @@ export default {
         this.$router.push(`/multiedit/`)
         return true
       }
+
+      this.profileStore.logEvent('LOAD_FROM_COPYCAT')
 
       this.$router.push(`/edit/${useProfile.eId}`)
     },

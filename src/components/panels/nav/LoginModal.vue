@@ -87,10 +87,19 @@
     },
 
     mounted() {
+      // If SSO user is already authenticated, auto-close the login modal
+      const prefStore = usePreferenceStore()
+      if (prefStore.ssoUser) {
+        this.showLoginModal = false
+        return
+      }
+
       this.$nextTick(()=>{
         console.log(this.$refs.catInitals)
         window.setTimeout(()=>{
-          this.$refs.catInitals.focus()
+          if (this.$refs.catInitals) {
+            this.$refs.catInitals.focus()
+          }
         },10)
       })
 

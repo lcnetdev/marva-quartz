@@ -4,7 +4,18 @@ import {usePreferenceStore} from "../stores/preference";
 import short from 'short-uuid'
 const translator = short();
 
-
+/**
+ * Returns an Authorization header object if an SSO JWT is stored.
+ * Merge this into fetch options headers for util-service requests.
+ * @return {object} - e.g. { 'Authorization': 'Bearer <token>' } or {}
+ */
+function getAuthHeaders() {
+  const token = window.localStorage.getItem('marva_jwt')
+  if (token) {
+    return { 'Authorization': 'Bearer ' + token }
+  }
+  return {}
+}
 
 const utilsNetwork = {
 
@@ -311,6 +322,11 @@ const utilsNetwork = {
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
       }
+      // Add auth headers for util-service requests
+      const authHdrs = getAuthHeaders()
+      if (Object.keys(authHdrs).length > 0) {
+        options.headers = { ...options.headers, ...authHdrs }
+      }
       // console.log("url:",url)
       // console.log('options:',options)
       let data = null
@@ -407,7 +423,7 @@ const utilsNetwork = {
 
       let returnUrls = useConfigStore().returnUrls
 
-      let r = await fetch(returnUrls.util + 'lccnnaco')
+      let r = await fetch(returnUrls.util + 'lccnnaco', { headers: getAuthHeaders() })
 
       let data = await r.json()
       return data.id
@@ -418,7 +434,7 @@ const utilsNetwork = {
 
       let returnUrls = useConfigStore().returnUrls
 
-      let r = await fetch(returnUrls.util + 'status')
+      let r = await fetch(returnUrls.util + 'status', { headers: getAuthHeaders() })
 
       let data = await r.json()
       return data
@@ -428,7 +444,7 @@ const utilsNetwork = {
     recordHistory: async function(bibid){
       if (bibid){
         let returnUrls = useConfigStore().returnUrls
-        let r = await fetch(returnUrls.util + 'history' + '/' + bibid)
+        let r = await fetch(returnUrls.util + 'history' + '/' + bibid, { headers: getAuthHeaders() })
         let data = await r.json()
         return data
       }
@@ -439,7 +455,7 @@ const utilsNetwork = {
       let returnUrls = useConfigStore().returnUrls
 
       try {
-        let r = await fetch(returnUrls.util + 'marva001')
+        let r = await fetch(returnUrls.util + 'marva001', { headers: getAuthHeaders() })
         let data = await r.json()
         return data.marva001
       } catch(err) {
@@ -2756,9 +2772,10 @@ const utilsNetwork = {
         ]);
 
       }else if (mode == "GEO"){
-        [resultsHierarchicalGeographic, resultsPayloadSubjectsSimpleSubdivision] = await Promise.all([
+        [resultsHierarchicalGeographic, resultsPayloadSubjectsSimpleSubdivision, resultsNamesSubdivision] = await Promise.all([
             this.searchComplex(searchPayloadHierarchicalGeographic),
-            this.searchComplex(searchPayloadSubjectsSimpleGeoSubdivision)
+            this.searchComplex(searchPayloadSubjectsSimpleGeoSubdivision),
+            this.searchComplex(searchPayloadNamesSubdivision),
         ]);
 
       // }else if (mode == "WORKS"){
@@ -2905,7 +2922,7 @@ const utilsNetwork = {
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
-        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : [], //resultsNamesSubdivision,
+        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : resultsNamesSubdivision,
         'hierarchicalGeographic': (mode !== 'GEO') ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
@@ -2931,6 +2948,7 @@ const utilsNetwork = {
         method: 'PUT', // Method itself
         headers: {
           'Content-type': 'application/xml', // Indicates the content
+          ...getAuthHeaders()
         },
         signal: AbortSignal.timeout(3000),  // add a timeout
         body: xml // We send data in JSON format
@@ -2973,7 +2991,7 @@ const utilsNetwork = {
        // }
        // console.log('options:',options)
        try{
-         let response = await fetch(url);
+         let response = await fetch(url, { headers: getAuthHeaders() });
 
          let data =  await response.text()
 
@@ -2996,7 +3014,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: ""
       });
@@ -3004,19 +3023,17 @@ const utilsNetwork = {
       return resp
      },
 
-     searchSavedRecords: async function(user,search){
+     searchSavedRecords: async function(search, allRecords){
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
 
-
-
       let url
-      if (user && !search){
-        url = `${utilUrl}myrecords/${utilPath}/${user}`
-      }else if (user && search){
-        url = `${utilUrl}allrecords/${utilPath}/${search}/${user}`
+      if (search){
+        url = `${utilUrl}allrecords/${utilPath}/${search}`
+      }else if (allRecords){
+        url = `${utilUrl}allrecords/${utilPath}`
       }else{
-        url = `${utilUrl}allrecords/${utilPath}/`
+        url = `${utilUrl}myrecords/${utilPath}`
       }
       let r = await this.fetchSimpleLookup(url)
 
@@ -3050,7 +3067,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       //signal: AbortSignal.timeout(5000),
       body: JSON.stringify({rdfxml: xml})
@@ -3081,7 +3099,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       //signal: AbortSignal.timeout(5000),
       body: JSON.stringify({rdfxml: xml})
@@ -3124,7 +3143,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({
         query: query,
@@ -3163,7 +3183,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
     });
@@ -3200,7 +3221,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
     });
@@ -3240,7 +3262,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({name: uuid, rdfxml:xml, eid: eid, hub:postingHub})
     });
@@ -3485,7 +3508,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           log: log,
@@ -3514,7 +3538,8 @@ const utilsNetwork = {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
           },
 
         });
@@ -3598,7 +3623,7 @@ const utilsNetwork = {
 
     async linkedDataBaseRelated(isbn){
       let returnUrls = useConfigStore().returnUrls
-      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn)
+      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn, { headers: getAuthHeaders() })
       let data = await r.json()
       console.log("linkedDataBaseRelated data:",data)
       return data
@@ -3855,7 +3880,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         //signal: AbortSignal.timeout(5000),
         body: JSON.stringify({uris: contributorsUris})
@@ -4130,7 +4156,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: JSON.stringify(data)
       });
@@ -4139,6 +4166,152 @@ const utilsNetwork = {
 
       return content
     },
+    /**
+    * Get all users with cataloger ID info
+    * @async
+    * @return {array} - array of user objects
+    */
+    queryUsers: async function(){
+      let url = useConfigStore().returnUrls.util + 'users'
+
+      try {
+        let response = await fetch(url, {
+          headers: {
+            'Accept': 'application/json',
+            ...getAuthHeaders()
+          }
+        })
+
+        if (!response.ok){
+          console.warn('queryUsers failed:', response.status)
+          return []
+        }
+
+        let data = await response.json()
+        return data.results || []
+      } catch(err) {
+        console.warn('queryUsers error:', err)
+        return []
+      }
+    },
+
+    /**
+    * Query the event log
+    * @async
+    * @param {object} params - query params: eId, lccn, instanceId, username, region, limit
+    * @return {array} - array of event objects
+    */
+    queryEvents: async function(params = {}){
+      let url = useConfigStore().returnUrls.util + 'events'
+
+      let queryParts = []
+      for (let key of ['eId', 'lccn', 'instanceId', 'username', 'region', 'limit']){
+        if (params[key] != null){
+          queryParts.push(`${key}=${encodeURIComponent(params[key])}`)
+        }
+      }
+      if (queryParts.length > 0){
+        url += '?' + queryParts.join('&')
+      }
+
+      try {
+        let response = await fetch(url, {
+          headers: {
+            'Accept': 'application/json',
+            ...getAuthHeaders()
+          }
+        })
+
+        if (!response.ok){
+          console.warn('queryEvents failed:', response.status)
+          return []
+        }
+
+        let data = await response.json()
+        return data.results || []
+      } catch(err) {
+        console.warn('queryEvents error:', err)
+        return []
+      }
+    },
+
+    /**
+    * Update the cataloger ID for a user
+    * @async
+    * @param {string} username - the username (must match JWT)
+    * @param {string} catId - the cataloger code
+    * @return {boolean} - true if updated successfully
+    */
+    updateUserCatId: async function(username, catId){
+      let url = useConfigStore().returnUrls.util + 'users/' + encodeURIComponent(username) + '/catId'
+
+      try {
+        let response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify({ catId: catId })
+        })
+
+        if (!response.ok){
+          console.warn('updateUserCatId failed:', response.status, await response.text())
+          return false
+        }
+
+        return true
+      } catch(err) {
+        console.warn('updateUserCatId error:', err)
+        return false
+      }
+    },
+
+    /**
+    * Log an event to the backend reporting endpoint
+    * @async
+    * @param {string} username - the authenticated username (must match JWT)
+    * @param {string} eventType - e.g. "LOAD_FROM_LCCN", "LOAD_FROM_COPYCAT", "CREATED_RECORD"
+    * @param {object} opts - optional fields: eId, lccn, instanceId, metadata
+    * @return {boolean} - true if the event was logged successfully
+    */
+    logEvent: async function(username, eventType, opts = {}){
+      let url = useConfigStore().returnUrls.util + 'events'
+
+      let body = {
+        username: username,
+        eventType: eventType
+      }
+
+      if (opts.eId) body.eId = opts.eId
+      if (opts.lccn) body.lccn = opts.lccn
+      if (opts.instanceId) body.instanceId = opts.instanceId
+      if (opts.metadata) body.metadata = opts.metadata
+
+      try {
+        let response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify(body)
+        })
+
+        if (!response.ok){
+          console.warn('logEvent failed:', response.status, await response.text())
+          return false
+        }
+
+        return true
+      } catch(err) {
+        console.warn('logEvent error:', err)
+        return false
+      }
+    },
+
     async fetchUserPrefs(user){
       let url = useConfigStore().returnUrls.util + 'prefs/' + user
 
@@ -4146,7 +4319,8 @@ const utilsNetwork = {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 
