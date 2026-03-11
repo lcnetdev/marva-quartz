@@ -3022,13 +3022,15 @@ const utilsNetwork = {
       return resp
      },
 
-     searchSavedRecords: async function(search){
+     searchSavedRecords: async function(search, allRecords){
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
 
       let url
       if (search){
         url = `${utilUrl}allrecords/${utilPath}/${search}`
+      }else if (allRecords){
+        url = `${utilUrl}allrecords/${utilPath}`
       }else{
         url = `${utilUrl}myrecords/${utilPath}`
       }

@@ -610,7 +610,7 @@ export default {
       this.displayAllRecords = true
       this.isLoadingAllRecords = true
 
-      let allRecordsRaw = await utilsNetwork.searchSavedRecords()
+      let allRecordsRaw = await utilsNetwork.searchSavedRecords(null, true)
       let dashBoard = {
         byTimePeriod: {
           'last24Hours': {
