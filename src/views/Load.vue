@@ -504,6 +504,9 @@ export default {
   watch: {
     '$route.params.searchId': function(newVal){
       if (newVal) this.searchMarvaLog(newVal)
+    },
+    'preferenceStore.showLoginModalSSO': function(newVal, oldVal){
+      if (oldVal && !newVal) this.refreshSavedRecords()
     }
   },
 
@@ -1324,9 +1327,19 @@ export default {
 
 
     async refreshSavedRecords() {
-      console.log("refreshSavedRecords")
+      
 
       let records = await utilsNetwork.searchSavedRecords()
+
+      // filter records to only show those matching the current cataloger ID
+      let currentCatCode = this.preferenceStore.catCode
+      if (currentCatCode){
+        let catCodeLower = currentCatCode.trim().toLowerCase()
+        records = records.filter(r => {
+          let match = r.user && r.user.match(/\(([^)]+)\)/)
+          return match && match[1].trim().toLowerCase() === catCodeLower
+        })
+      }
 
       let lccnLookup = {}
 
