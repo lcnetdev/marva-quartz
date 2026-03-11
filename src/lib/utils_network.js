@@ -2772,9 +2772,10 @@ const utilsNetwork = {
         ]);
 
       }else if (mode == "GEO"){
-        [resultsHierarchicalGeographic, resultsPayloadSubjectsSimpleSubdivision] = await Promise.all([
+        [resultsHierarchicalGeographic, resultsPayloadSubjectsSimpleSubdivision, resultsNamesSubdivision] = await Promise.all([
             this.searchComplex(searchPayloadHierarchicalGeographic),
-            this.searchComplex(searchPayloadSubjectsSimpleGeoSubdivision)
+            this.searchComplex(searchPayloadSubjectsSimpleGeoSubdivision),
+            this.searchComplex(searchPayloadNamesSubdivision),
         ]);
 
       // }else if (mode == "WORKS"){
@@ -2921,7 +2922,7 @@ const utilsNetwork = {
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
-        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : [], //resultsNamesSubdivision,
+        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : resultsNamesSubdivision,
         'hierarchicalGeographic': (mode !== 'GEO') ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
