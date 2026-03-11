@@ -56,7 +56,7 @@
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -83,7 +83,7 @@
 
     mounted() {
       this.$nextTick(()=>{
-     
+
       })
 
     }
@@ -101,7 +101,7 @@
       :hide-overlay="true"
       :overlay-transition="'vfm-fade'"
 
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -119,11 +119,11 @@
               <button class="close-button" @pointerup="showDebugModal=false">X</button>
             </div>
 
-            <vue-json-pretty 
+            <vue-json-pretty
               :path="'res'"
               :highlightMouseoverNode="true"
               :collapsedOnClickBrackets="true"
-              :data="debugModalData"      
+              :data="debugModalData"
               >
             </vue-json-pretty>
 
@@ -141,7 +141,7 @@
 
 <style scoped>
 
- 
+
 
   .checkbox-option{
     width: 20px;
@@ -180,7 +180,7 @@
   }
   .debug-modal{
     background-color: white;
-    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27); 
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     border-radius: 1em;
     padding:1em;
