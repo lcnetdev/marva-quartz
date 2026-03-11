@@ -56,6 +56,7 @@ export default {
                 if (char == '' || char == " "){
                     char = '&nbsp;'
                 }
+
                 c.innerHTML = char
                 leader.appendChild(c)
             }
