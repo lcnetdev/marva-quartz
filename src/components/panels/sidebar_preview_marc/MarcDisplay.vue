@@ -47,9 +47,6 @@ export default {
                 zerozero8.appendChild(c)
             }
 
-            console.info("valueLeader: ", valueLeader)
-            console.info("split: ", valueLeader.replace(/&nbsp;/g, " ").split(""))
-
             leader.innerHTML = ''
             for (let [i, char] of valueLeader.replace(/&nbsp;/g, " ").split("").entries()){
                 let c = document.createElement('span')
