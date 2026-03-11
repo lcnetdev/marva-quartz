@@ -739,6 +739,7 @@ test('Able to add an edited subject', async ({ page }) => {
     await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
     await page.reload();
 
+    await page.getByRole('link', { name: 'Test Data' }).click();
     await page.getByRole('row', { name: 'Schooling under control Load' }).getByRole('button').click();
     await page.getByRole('link', { name: 'Public schools--Austria--History--18th century', exact: true }).click();
     await expect(page.getByRole('dialog')).toContainText('Add [SHIFT+Enter]');

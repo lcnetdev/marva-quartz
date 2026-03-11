@@ -289,7 +289,7 @@
                                   <span
                                     class="material-icons delete-icon"
                                     @click.stop.prevent="removeRecord(record)"
-                                    v-if="!Object.keys(record).includes('title') && !Object.keys(record).includes('lccn')"
+                                    v-if="!record.title && !record.lccn"
                                     >
                                     delete_forever
                                   </span>
@@ -527,7 +527,7 @@ export default {
       let config = useConfigStore()
 
       let target = record.eid
-      let user = this.preferenceStore.returnUserNameForSaving
+      let user = record.user
       let loc = config.returnUrls.env
 
       let resp = await utilsNetwork.deleteMyRecord(user, target, loc)
