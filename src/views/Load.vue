@@ -1718,15 +1718,15 @@ summary {
 }
 
 .load-right-column {
-  position: relative;
-  min-height: 100%;
-  padding-bottom: 3em;
+  display: flex;
+  flex-direction: column;
+  height: 95vh;
+  overflow-y: auto;
 }
 
 .test-data-toggle {
-  position: absolute;
-  bottom: 0;
-  right: 0;
+  margin-top: auto;
+  align-self: flex-end;
   padding: 0.5em;
   color: inherit;
 }
