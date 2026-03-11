@@ -1726,6 +1726,7 @@ summary {
 
 .test-data-toggle {
   margin-top: auto;
+  margin-bottom: 30px;
   align-self: flex-end;
   padding: 0.5em;
   color: inherit;
