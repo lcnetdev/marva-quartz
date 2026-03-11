@@ -156,7 +156,7 @@ test('Write the entire string before validation', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
-    await page.getByText('Portugal--Porto', { exact: true }).click();
+    await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
@@ -188,7 +188,7 @@ test('Validate string as each piece is written', async ({ page }) => {
     await page.getByText('Dogs', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal‑‑porto');
-    await page.getByText('Portugal--Porto', { exact: true }).click();
+    await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+1');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal‑‑Porto--history');
     await page.getByText('History', { exact: true }).nth(1).click();
@@ -279,7 +279,7 @@ test('Build heading "Dogs--geo", but the geo headings is typed before selecting 
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal--porto');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
-    await page.getByText('Portugal--Porto', { exact: true }).click();
+    await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('n50006403-781');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
@@ -310,7 +310,7 @@ test('Build heading "Dogs--geo", but the geo headings is typed after selecting "
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal‑‑porto');
-    await page.getByText('Portugal--Porto', { exact: true }).click();
+    await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('n50006403-781');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
@@ -416,7 +416,6 @@ test('Build heading "Dogs--geo", but the second part isn\'t hierarchicalGeograph
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--atlantic o');
     await page.getByText('Atlantic Ocean', { exact: true }).first().click();
-    await expect(page.getByRole('heading')).toContainText('sh85009201-781');
     await expect(page.getByRole('heading')).toContainText('sh85009201-781');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
@@ -740,6 +739,7 @@ test('Able to add an edited subject', async ({ page }) => {
     await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
     await page.reload();
 
+    await page.getByRole('link', { name: 'Test Data' }).click();
     await page.getByRole('row', { name: 'Schooling under control Load' }).getByRole('button').click();
     await page.getByRole('link', { name: 'Public schools--Austria--History--18th century', exact: true }).click();
     await expect(page.getByRole('dialog')).toContainText('Add [SHIFT+Enter]');
