@@ -61,6 +61,7 @@ import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
 import StatusIndicator from './nav_components/StatusIndicator.vue'
 import RecordHistory from './nav_components/RecordHistory.vue'
 import SystemStatus from './nav_components/SystemStatus.vue'
+import short from 'short-uuid'
 
 
 import TimeAgo from 'javascript-time-ago'
@@ -94,7 +95,6 @@ export default {
       default: [],
       type: Array
     }
-
   },
   computed: {
 
@@ -104,7 +104,7 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
-    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal']),
+    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showCipModal', 'showUserDirectoryModal']),
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
 
@@ -366,10 +366,29 @@ export default {
                 text: 'Add All Defaults',
                 click: () => { this.addAllDefaults() },
                 icon: "clear_all"
+              },
+              {
+                text: 'Derive New Record',
+                click: () => { this.deriveRecord() },
+                icon: "file_copy"
               }
             ]
           }
         )
+      }
+
+      if (!this.disable.includes('Tools') && this.isStaging() && this.$route.path.startsWith('/edit/')) {
+        for (let sub in menu) {
+          if (menu[sub].text == 'Tools') {
+            menu[sub].menu.push(
+              {
+                text: 'Finish CIP',
+                click: () => { this.showCipModal = true },
+                icon: "incomplete_circle"
+              }
+            )
+          }
+        }
       }
 
       if (this.$route.path.startsWith('/edit/') && this.preferenceStore.returnValue('--c-general-ad-hoc')) {
@@ -1044,6 +1063,21 @@ export default {
 
   methods: {
 
+    deriveRecord: async function(instOnly=false){
+      try {
+        let newRecordEid = await this.profileStore.deriveNew(instOnly, false)
+
+        // load the new record from Eid
+        if (newRecordEid){
+          let url = "/marva/edit/" + newRecordEid
+          window.open(url, '_blank').focus()
+        }
+      } catch(err){
+        alert('Failed to derive a record')
+        console.error(err)
+      }
+    },
+
     profileOrStaging(){
       if (this.isStaging()) {
         return  "STAGING: "
@@ -1398,6 +1432,7 @@ export default {
         console.error('Failed to fetch dancer workspaces:', error)
       }
     },
+
 
     addAllDefaults: function () {
       for (let rt in this.activeProfile.rt) {

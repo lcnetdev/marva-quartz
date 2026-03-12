@@ -112,6 +112,7 @@ export const useProfileStore = defineStore('profile', {
     userDirectoryResults: [],
     userDirectoryLoading: false,
 
+    showCipModal: false,
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -1597,7 +1598,7 @@ export const useProfileStore = defineStore('profile', {
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
       console.log("componentGuid, fieldGuid, propertyPath, URI, label")
-      console.log(componentGuid, fieldGuid, propertyPath, URI, label)
+      console.log(componentGuid, fieldGuid, JSON.stringify(propertyPath), URI, label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
@@ -1983,6 +1984,10 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
+      console.info("setValueLiteral")
+      console.info(componentGuid)
+      console.info(fieldGuid)
+      console.info(JSON.stringify(propertyPath))
       //Save
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
@@ -3377,51 +3382,41 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.buildXML(this.activeProfile)
       let preview = null
       if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
-        preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
+        if (xml.bf2MarcMulti.length > 1){
+          preview = await utilsNetwork.marcPreview(xml.bf2MarcMulti, false, true)
+        } else {
+          preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
+        }
       } else {
-        preview = await utilsNetwork.marcPreview(xml.bf2Marc, true)
+        if (xml.bf2MarcMulti.length > 1){
+          preview = await utilsNetwork.marcPreview(xml.bf2MarcMulti, true, true)
+        } else {
+          preview = await utilsNetwork.marcPreview(xml.bf2Marc, true)
+        }
+      }
+
+      let data = {}
+      for (let p of preview){
+        for (let obj of p){
+          if (!Object.keys(data).includes(obj.version)){
+            data[obj.version] = {
+              'record': [obj]
+            }
+          } else {
+            data[obj.version].record.push(obj)
+          }
+        }
       }
 
       // clean it up a bit for the component
-      let versions = preview.map((v)=>{ return v.version}).sort().reverse()
+      let versions = Object.keys(data).map((v)=>{ return v}).sort().reverse()
 
-      let results = []
+      let defaultVer = versions[0]
 
-      let newResults = []
-      let selectedDefault = false
-
-
-      for (let v of versions){
-        let toAdd = preview.filter((p) => { return (p.version == v) })[0]
-        if (toAdd.results && toAdd.results.stdout && selectedDefault == false){
-          toAdd.default = true
-          selectedDefault = true
-        }else{
-          toAdd.default = false
-        }
-
-        if (toAdd.results && !toAdd.results.stdout){
-          toAdd.error = true
-        }else{
-          toAdd.error = false
-        }
-        newResults.push(toAdd)
-      }
-
-
-
-      let defaultVer = newResults.filter((p) => { return (p.default == true) })[0]
-      if (defaultVer && defaultVer.default){
-        defaultVer = defaultVer.version
-      }else{
-        defaultVer = null
-      }
       return({
         default: defaultVer,
-        versions: newResults,
+        versions: data, //newResults,
       })
-
-
     },
 
 
@@ -7712,6 +7707,317 @@ export const useProfileStore = defineStore('profile', {
 
       return results
     },
+
+    deriveNew: async function(instOnly, electronic){
+      let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
+      let instanceCount = 0
+
+      /**
+      * [x] (work) Class Number: 050 00 come in with year omitted;
+      * [x] (inst) Edition: 250 with place folders.
+      * [x] (inst) Provision Activity: 264 $a $b with a place holder for c.--
+      * [x] (inst) Provision Activity: place holder in the 008 date,
+      * [x] (inst) Extent/Dimensions: 300 with pages cm;
+      * [x] (inst) Identifier:020 place holder;
+      * [?] (inst) Admin metadata, update the 001, not sure about the rest
+      *
+      * [x] (inst) edition statement with non-Latin
+      * [x] (inst) provision activity dates with non-Latin
+      *
+      * */
+
+      let work = null
+      let instances = []
+      // get work and instance
+      for (let rt in recordCopy.rt){
+        if (rt.includes(":Work")){
+          work = recordCopy.rt[rt]
+        } else if (rt.includes(":Instance")){
+          instanceCount++
+          instances.push(recordCopy.rt[rt])
+        }
+      }
+
+      let newRtId = instOnly +'_'+instanceCount
+
+      recordCopy.xmlSource = ''
+      recordCopy.deleted = false
+      recordCopy.procInfo = "Derive Record"
+      recordCopy.derived = true
+
+      let newIdent = ""
+      // clean up adminMetadata
+      if (!instOnly){
+        newIdent = await utilsNetwork.getMarva001()
+
+        // update the enumber
+        recordCopy.eId = 'e' + Date.now().toString()
+      } else {
+        instances = recordCopy.rt[instOnly]
+        let instId = instances.URI.split("/").at(-1)
+        if (/-[0-9]{4}/.test(instId)){
+          let suffix = Number(instId.slice(-4))
+          newIdent = instId + (suffix+1)
+        } else {
+          newIdent = utilsProfile.suggestURI(this.activeProfile,'bf:Instance', work.URI).split("/").at(-1)
+        }
+      }
+
+      if (!Array.isArray(instances)){
+        instances = [instances]
+      }
+
+      for (let source of [work, ...instances]){
+        // update URI with new 001 id
+        if (instOnly && source.URI.includes("/instances/")){
+          source.URI = source.URI.split("/")
+          source.URI.splice(-1, 1, newIdent)
+          source.URI = source.URI.join("/")
+        } else if (!instOnly){
+          source.URI = source.URI.split("/")
+          source.URI.splice(-1, 1, newIdent)
+          source.URI = source.URI.join("/")
+        }
+
+
+        source.unusedXml = '' // could this be bad?
+        // remove xmlSource
+        source.xmlSource = ''
+
+        if (source.instanceOf){
+          source.instanceOf = source.instanceOf.split("/")
+          source.instanceOf.splice(-1, 1, newIdent)
+          source.instanceOf = source.instanceOf.join("/")
+        }
+
+        for (let pt in source.pt){
+          if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata") && source.pt[pt].adminMetadataType && source.pt[pt].adminMetadataType == 'primary'){
+            let target = source.pt[pt]
+
+            target.xmlSource = ''
+
+            let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]
+            let identifier = userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]
+            // update 001 with internal identifier
+            if (!instOnly){
+              identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = newIdent
+            } else {
+              // is this right, or should it be the same? this sets the 001
+              let tempId = source.URI.split('/').at(-1)
+              identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = tempId
+            }
+
+            //status
+            let status = null
+            if (userValue["http://id.loc.gov/ontologies/bibframe/status"]){
+              status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
+            } else {
+              userValue["http://id.loc.gov/ontologies/bibframe/status"] = [{
+                '@guid': short.generate(),
+                "http://www.w3.org/2000/01/rdf-schema#label": [
+                  {
+                    '@guid': short.generate(),
+                    "http://www.w3.org/2000/01/rdf-schema#label": "new"
+                  }
+                ]
+              }]
+              status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
+            }
+            status['@id'] = 'http://id.loc.gov/vocabulary/mstatus/n'
+            status['@type'] = 'http://id.loc.gov/ontologies/bibframe/Status'
+            status['http://www.w3.org/2000/01/rdf-schema#label'][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "new"
+
+
+            // encoding level
+            if (userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"]){
+              let encLvl = userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
+              encLvl["@id"] = "http://id.loc.gov/vocabulary/menclvl/5"
+              encLvl["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] = "5"
+              encLvl["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "preliminary"
+            }
+            delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
+            delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
+            // remove 9XXs
+            for (let subfield in Object.keys(userValue)){
+              if (subfield.includes("http://id.loc.gov/ontologies/lclocal")){
+                delete userValue[subfield]
+              }
+            }
+          } else if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
+            delete source.pt[pt] // delete other admin metadata fields
+            // delete from ptOrder
+            let idx = source.ptOrder.indexOf(pt)
+            source.ptOrder.splice(idx, 1)
+          }
+
+          // update instance of URI
+          if (pt == 'id_loc_gov_ontologies_bibframe_instanceOf__instance_of'){
+            let target = source.pt[pt]
+            let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/instanceOf"][0]
+            userValue["@id"] = userValue["@id"].split("/")
+            userValue["@id"].splice(-1, 1, newIdent)
+            userValue["@id"] = userValue["@id"].join("/")
+            target.xmlSource = ''
+          }
+
+          // update class number
+          if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers") && source.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/classification"]){
+            let target = source.pt[pt]
+            let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+            let classType = userValue["@type"]
+
+            if (classType == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
+              let itemPort = userValue["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]
+              let value = itemPort["http://id.loc.gov/ontologies/bibframe/itemPortion"]
+              if (/ [0-9]{4}/.test(value)){
+                itemPort["http://id.loc.gov/ontologies/bibframe/itemPortion"] = value.replace(/ [0-9]{4}/, "<#####>")
+              }
+            }
+          }
+        }
+      }
+
+      // adjust instance
+      let foundISBN = false
+      for (let instance of instances){
+        for (let pt in instance.pt){
+          if (pt == 'id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"]){
+            let provAct = instance.pt[pt]
+            let userValue = provAct.userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]
+
+            userValue["http://id.loc.gov/ontologies/bflc/simpleDate"][0]["http://id.loc.gov/ontologies/bflc/simpleDate"] = '<#####>'
+            userValue["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"] = '<#####>'
+
+            if (userValue["http://id.loc.gov/ontologies/bflc/simpleDate"].length > 1){
+              userValue["http://id.loc.gov/ontologies/bflc/simpleDate"] = userValue["http://id.loc.gov/ontologies/bflc/simpleDate"].slice(0,1)
+            }
+          }
+
+          if (pt == 'id_loc_gov_ontologies_bibframe_editionStatement__edition_statement'){
+            let edState = instance.pt[pt]
+
+            if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"]){
+              let userValue = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"][0]
+              if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].length > 1){ // there's some non-Latin information
+                edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].slice(0, 1)
+              }
+              userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = '<#####>'
+              userValue["@guid"] = short.generate()
+            }
+          }
+
+          if (pt == 'id_loc_gov_ontologies_bibframe_extent__physical_description' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/extent"]){
+            let extent = instance.pt[pt]
+            let userValue = extent.userValue["http://id.loc.gov/ontologies/bibframe/extent"][0]
+            userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = '<#####> pages'
+          }
+
+          if (pt == 'id_loc_gov_ontologies_bibframe_dimensions__dimensions' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/dimensions"]){
+            let dimensions = instance.pt[pt]
+            let userValue = dimensions.userValue["http://id.loc.gov/ontologies/bibframe/dimensions"][0]
+            userValue["http://id.loc.gov/ontologies/bibframe/dimensions"] = '<#####> cm'
+          }
+
+          // identifiers, keep 1 lccn, and 1 isbn, but empty them
+          if (pt.includes('id_loc_gov_ontologies_bibframe_identifiedBy__identifiers') && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
+            let ident = instance.pt[pt]
+            let userValue = ident.userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]
+            let idType = userValue["@type"]
+
+            if (foundISBN){ //There's already an ISBN, delete any others
+              delete instance.pt[pt]
+              continue
+            }
+
+            if (userValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"]){
+              let value = userValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]
+              value["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = "<#####>"
+            }
+
+            // remove canceled/invalid
+            if (userValue['http://id.loc.gov/ontologies/bibframe/status']){
+              delete userValue['http://id.loc.gov/ontologies/bibframe/status']
+            }
+
+            if (idType == 'http://id.loc.gov/ontologies/bibframe/Isbn'){
+              foundISBN = true
+            }
+          }
+        }
+      }
+
+      let newId = false
+
+      // return false
+      if (!instOnly){
+        // save to backend
+        let xml = await utilsExport.buildXML(recordCopy)
+        let saved = false
+        if (!this.isTestEnv()){  //Don't try to save if in test env
+          saved = await utilsNetwork.saveRecord(xml.xlmStringBasic, recordCopy.eId)
+          newId = recordCopy.eId
+        }
+
+        return newId
+      } else { //insert the updated instance into the record
+        newRtId = instOnly +'_'+instanceCount
+
+        // update the new admin metadata to have this ID, is this OK?
+
+        // replace all the guids in the new instance
+        let replaceGuids = (obj) => {
+          return Object.keys(obj).map(
+            function(key){
+              let value = obj[key]
+              if (key == "@guid"){
+                return obj[key] = short.generate()
+              } else if(Array.isArray(value)) {
+                for (let el in value){
+                  return replaceGuids( value[el] )
+                }
+              }else if (typeof value === "object"){
+                return  replaceGuids( value )
+              }
+            }
+          )
+        }
+
+        for (let instance of instances){
+          replaceGuids(instance)
+
+
+          for (let pt in instance.pt){
+
+            instance.pt[pt]['@guid'] = short.generate()
+            // update the parentId
+            instance.pt[pt].parentId = instance.pt[pt].parentId.replace(instOnly, newRtId)
+            instance.pt[pt].parent = instance.pt[pt].parent.replace(instOnly, newRtId)
+          }
+          instance.instanceOf = work.URI
+
+          instance.isNew = true
+          this.activeProfile.rt[newRtId] = instance
+          this.activeProfile.rtOrder.push(newRtId)
+        }
+
+        // derive as electronic record
+        if (electronic){
+          let mediaType = instance.pt['id_loc_gov_ontologies_bibframe_media__media_type']
+
+          this.setValueSimple(mediaType["@guid"], null, [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/media"}], 'http://id.loc.gov/vocabulary/mediaTypes/c', 'computer (c)')
+        }
+
+        this.rtLookup[newRtId] = this.rtLookup[instOnly]
+
+        // rebuild for the updates
+        utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
+
+        this.dataChanged()
+      }
+
+      return false
+
+    }
 
 
 
