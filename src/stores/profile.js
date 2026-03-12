@@ -7784,6 +7784,7 @@ export const useProfileStore = defineStore('profile', {
           source.instanceOf.splice(-1, 1, newIdent)
           source.instanceOf = source.instanceOf.join("/")
         }
+
         for (let pt in source.pt){
           if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata") && source.pt[pt].adminMetadataType && source.pt[pt].adminMetadataType == 'primary'){
             let target = source.pt[pt]
@@ -7829,7 +7830,6 @@ export const useProfileStore = defineStore('profile', {
               encLvl["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] = "5"
               encLvl["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "preliminary"
             }
-
             delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
             delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
             // remove 9XXs
@@ -7874,7 +7874,7 @@ export const useProfileStore = defineStore('profile', {
 
       // adjust instance
       let foundISBN = false
-      for (let instance in instances){
+      for (let instance of instances){
         for (let pt in instance.pt){
           if (pt == 'id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"]){
             let provAct = instance.pt[pt]
