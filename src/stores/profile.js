@@ -10,6 +10,8 @@ import utilsNetwork from '@/lib/utils_network';
 import utilsParse from '@/lib/utils_parse';
 import utilsRDF from '@/lib/utils_rdf';
 import utilsExport from '@/lib/utils_export';
+import { parseDimensions } from '@/lib/parseDimensions';
+
 // import utilsMisc from '@/lib/utils_misc';
 
 import shortCodesOverrides from "@/lib/shortCodesOverrides.json"
@@ -3894,6 +3896,110 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    /**
+     * Pass the component GUID to use and it will insert a MLC number into the userValue
+     * based on the dimensions in the instance otherwise it will ask the user to give the size
+    **/
+    insertMLCNumber: async function(componentGuid){
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      console.log("insert into",pt)
+
+      // look for the dimensions in the instance
+      let dimensions = null
+      for (let rtId in this.activeProfile.rt){
+        console.log("looking at rt",rtId)
+        console.log("URI",this.activeProfile.rt[rtId].URI)
+        if (this.activeProfile.rt[rtId].URI && this.activeProfile.rt[rtId].URI.indexOf('/instances/')>-1){
+          let instancePt = this.activeProfile.rt[rtId].pt
+          for (let ptId in instancePt){
+            console.log("looking at pt",ptId)
+            console.log("propertyURI",instancePt[ptId].propertyURI)
+            if (instancePt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/dimensions' && instancePt[ptId].userValue && instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'] && instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'][0]['http://id.loc.gov/ontologies/bibframe/dimensions']){
+            dimensions = instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'][0]['http://id.loc.gov/ontologies/bibframe/dimensions']
+            break
+            }
+          }
+          if (dimensions){
+            break
+          }
+        }
+      }
+      console.log("dimensions",dimensions)
+      if (dimensions){
+        let size = parseDimensions(dimensions)
+        console.log("size",size)
+        // if it wasnt able to parse it unset it
+        if (!size || !size.size){
+          dimensions = null
+        }else{
+          dimensions = size.size
+        }
+      }
+
+      if (!dimensions){
+        dimensions = prompt("Could not find dimensions in the record. Please enter the MLC size to use: S, M, L or F")
+        // check they did it right
+        if (dimensions && ['S','M','L','F'].includes(dimensions.toUpperCase())){
+          dimensions = dimensions.toUpperCase()
+        }else{
+          alert("Invalid size entered. Try inserting MLC again and enter S, M, L or F. ")
+          return
+        }
+      
+      }else{
+        // it did parse scuessfully convert the lib respomse into the size letter
+        if (dimensions== 'small'){
+          dimensions = 'S'
+        }else if (dimensions == 'medium'){
+          dimensions = 'M'
+        }else if (dimensions == 'large'){
+          dimensions = 'L'
+        }else if (dimensions == 'oversize' || dimensions == 'folio'){
+          dimensions = 'F'
+        }else{
+          alert("Error in parsing dimensions. ", dimensions)
+          return
+        }
+      }
+
+      console.log("final dimensions",dimensions)
+      // now ask the API for the next number
+      let number = await utilsNetwork.getMLCNumber(dimensions)
+      console.log("MLC number", number)
+      // now update the userValue of the pt with that number
+      // it goes into the userValue -> http://id.loc.gov/ontologies/bibframe/classification[0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+      if (!pt.userValue){
+        pt.userValue = {}
+      }
+      let dataFieldGuid = short.generate()
+      if (!pt.userValue['http://id.loc.gov/ontologies/bibframe/classification']){
+        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] = [{
+          "@guid": short.generate(),
+          "@type": "http://id.loc.gov/ontologies/bibframe/ClassificationLcc",
+          "http://id.loc.gov/ontologies/bibframe/classificationPortion": [{
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }]
+        }]
+      }else if (!pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'] = [{
+          "@guid": dataFieldGuid,
+          "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+        }]
+      }else{
+        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] = {
+          "@guid": dataFieldGuid,
+          "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+        }
+      }
+
+
+      return dataFieldGuid
+
+
+    },
+
 
     /**
     * If it is a LCC component info about the LCC numbers
@@ -4759,6 +4865,9 @@ export const useProfileStore = defineStore('profile', {
 
         // they changed something
         this.dataChanged()
+
+        // send back the component guid incase the UI needs to do something with it
+        return newPt['@guid']
 
       }else{
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
