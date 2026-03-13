@@ -530,6 +530,9 @@ export default {
       let user = record.user
       let loc = config.returnUrls.env
 
+      // form name (catid), doesn't work. Only the name appears to be saved in the backend
+      user = user.split("(")[0].trim()
+
       let resp = await utilsNetwork.deleteMyRecord(user, target, loc)
 
       this.refreshSavedRecords()
@@ -1327,7 +1330,7 @@ export default {
 
 
     async refreshSavedRecords() {
-      
+
 
       let records = await utilsNetwork.searchSavedRecords()
 
