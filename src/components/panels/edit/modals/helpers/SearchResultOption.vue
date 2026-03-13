@@ -2,6 +2,15 @@
     <div v-if="searchResults && searchResults[searchType].length > 0" class="subject-section"
         :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
         <span class="subject-results-heading">{{ label }}</span>
+        <span id="search-in-holder" v-if="label == 'LCNAF'">
+            &nbsp;
+            <button @click="setNafSearch('auth')" :class="[{ 'active': (nafSearch === 'auth') }]">auth</button>
+            <button @click="setNafSearch('person')" :class="[{ 'active': (nafSearch === 'person') }]">person</button>
+            <button @click="setNafSearch('corp')" :class="[{ 'active': (nafSearch === 'corp') }]">corp</button>
+            <button @click="setNafSearch('conf')" :class="[{ 'active': (nafSearch === 'conf') }]">conf</button>
+            <button @click="setNafSearch('geo')" :class="[{ 'active': (nafSearch === 'geo') }]">geo</button>
+            <button @click="setNafSearch('all')" :class="[{ 'active': (nafSearch === 'all') }]">all</button>
+        </span>
         <div v-for="(value, ix) in searchResults[searchType]" @click="$emit('selectContext', calculateIndex(ix))"
             @mouseover="setPickPosition(calculateIndex(ix))" :data-id="calculateIndex(ix)" :key="value.uri"
             :class="['fake-option', {'not-usable': !checkIsUsable(value), 'unselected': (pickPostion != calculateIndex(ix)), 'selected': (pickPostion == calculateIndex(ix)), 'picked': (pickLookup[calculateIndex(ix)] && pickLookup[calculateIndex(ix)].picked) }]">
@@ -61,6 +70,7 @@ export default {
     data: function () {
         return {
             pickPostion: 0,
+            nafSearch: 'auth',
         }
     },
 
@@ -72,6 +82,22 @@ export default {
     },
 
     methods: {
+        setNafSearch: function(searchType){
+            this.nafSearch = searchType
+
+            let searchMap = {
+                'auth': 'NAF Auth Names',
+                'person': 'NAF Personal Names',
+                'corp': 'NAF Corporate Name',
+                'conf': 'NAF Conference Name',
+                'geo': 'NAF Geographic',
+                'all': 'NAF All'
+            }
+
+
+            this.$emit('nafSearch', searchMap[searchType])
+        },
+
         checkFromRda: function (data) {
             let notes = data.extra.notes || []
             let isRda = false
@@ -184,6 +210,20 @@ export default {
 
 .large-container {
   height: 90%;
+}
+
+#search-in-holder button {
+  font-size: 0.85em;
+  background-color: white;
+  color: black;
+  border: solid 1px #c1c1c1;
+}
+
+#search-in-holder .active {
+  background-color: whitesmoke;
+  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+  -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+  box-shadow: inset 0px 0px 5px #c1c1c1;
 }
 
 </style>

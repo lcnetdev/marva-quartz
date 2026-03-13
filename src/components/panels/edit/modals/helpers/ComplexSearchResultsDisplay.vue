@@ -48,6 +48,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                @nafSearch="nafSearch"
             />
             <SearchResultOption
                 searchType="subjectsComplex"
@@ -156,6 +157,11 @@ export default {
         selectContext: function(idx){
             this.$emit('selectContext', idx)
         },
+
+        nafSearch: function(type){
+            this.$emit('nafSearch', type)
+        },
+
         loadContext:function(pickPosition){
             if (this.pickCurrent == null) {
                 this.pickPostion = pickPosition

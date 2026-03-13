@@ -107,7 +107,7 @@
                 <div v-if="activeSearch !== false">{{ activeSearch }}</div>
                 <div v-if="searchResults !== null" style="height: 100%">
                   <ComplexSearchResultsDisplay :searchResults="searchResults" :pickLookup="pickLookup"
-                    :searchMode="searchMode" @loadContext="loadContext" @selectContext="selectContext" />
+                    :searchMode="searchMode" @loadContext="loadContext" @selectContext="selectContext" @nafSearch="nafSearch"/>
 
                 </div>
               </div>
@@ -803,6 +803,8 @@ export default {
       lookup: {},
       searchResults: null,
       activeSearch: false,
+
+      nafSearchType: 'NAF Auth Names',
 
       pickPostion: 0,
       pickLookup: {},
@@ -1613,7 +1615,7 @@ export default {
       }
 
       if (searchString.length > 2){
-        that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
+        that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode, that.nafSearchType)
       } else {
         return
       }
@@ -2029,6 +2031,27 @@ export default {
       if (this.contextData) {
         this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
       }
+    },
+
+    nafSearch: async function(type){
+      this.nafSearchType = type
+      const numResultsNames = usePreferenceStore().returnValue('--b-edit-complex-number-names')
+
+      // we just want to update the name search results
+      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0][type].url.replace('<QUERY>', this.components[0].label).replace('&count=30','&count='+numResultsNames).replace("<OFFSET>", "1")+'&keepdiacritics=true'
+
+      let searchPayloadNames = {
+        processor: 'lcAuthorities',
+        url: [namesUrl],
+        searchValue: this.components[0].label,
+        subjectSearch: true,
+        signal: utilsNetwork.controllers.controllerNames.signal,
+      }
+
+      let tempResults = await utilsNetwork.searchComplex(searchPayloadNames)
+      this.searchResults.names = tempResults.sort((a,b) => { return (a.suggestLabel > b.suggestLabel) ? -1 : (a.suggestLabel < b.suggestLabel) ? 1 : 0 })
+
+      this.buildPickLookup()
     },
 
     selectContext: async function (pickPostion, update = true) {

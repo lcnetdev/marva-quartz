@@ -327,6 +327,7 @@ const utilsNetwork = {
       if (Object.keys(authHdrs).length > 0) {
         options.headers = { ...options.headers, ...authHdrs }
       }
+
       // console.log("url:",url)
       // console.log('options:',options)
       let data = null
@@ -2455,6 +2456,7 @@ const utilsNetwork = {
     * @param {string} searchVal - the value to search lcsh for
     * @param {string} complexVal - The orginal full string
     * @param {string} mode - the search mode LCSHNAF GEO WORKS HUBS
+    * @param {string} nameSearch - what kind of name search to do
     * @return {} -
     */
     subjectSearch: async function(searchVal, complexVal, complexSub, mode){
@@ -2737,6 +2739,7 @@ const utilsNetwork = {
       // this.searchExact(exactPayloadName),
       // this.searchExact(exactPayloadSubject),
       // resultsExactName, resultsExactSubject,
+
 
       if (mode == "LCSHNAF"){
         [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic, resultsSubjectsSimpleComplex] = await Promise.all([
