@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 - Subject builder:  label change: `Hierarchical Geo` -> `Geo. Subdiv.`, will include non-hierarchical terms
 - Change shortcut keys for search modes so they don't clash with the layouts
 - Subject builder: NAF search can be limited like the contributor search
+- Single Sign-On Added (https://bibframe.org/docs/view/documentation-marva-manual/accessing-marva.md)
+- Marva Event History (https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/marva-history-log.md)
+- Marva User Directory (https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/user-directory.md)
+
 
 ## [1.4.12] - 2025-03-6
 ### Update
