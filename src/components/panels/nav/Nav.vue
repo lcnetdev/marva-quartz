@@ -685,6 +685,8 @@ export default {
             // active: this.happy,
             icon: (this.activeProfileSaved) ? "turned_in" : "turned_in_not",
             class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
+            title: "Save locally",
+            hotkey: "ctrl+s",
 
 
             click: () => { this.profileStore.saveRecord() }
@@ -772,6 +774,20 @@ export default {
 
       if (this.activeProfile.id && this.$route.name == 'Edit') {
         menu.push(
+          {
+            text:"",
+            title: "Undo",
+            icon: "undo",
+            hotkey: "ctrl+z",
+            click: () => { this.profileStore.undoChange() }
+          },
+          {
+            text:"",
+            title: "Redo",
+            icon: "redo",
+            hotkey: "ctrl+y",
+            click: () => { this.profileStore.redoChange() }
+          },
           {
             text: this.profileOrStaging() + this.activeProfile.id,
             class: "current-profile",

@@ -1322,6 +1322,9 @@ export default {
         this.profileStore.logEvent('LOAD_FROM_LCCN')
       }
 
+      // save the initial state of the record
+      this.profileStore.saveState()
+
       this.$router.push(`/edit/${useProfile.eId}`)
 
 
