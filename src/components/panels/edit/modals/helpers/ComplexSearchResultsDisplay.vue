@@ -39,6 +39,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
             <SearchResultOption
                 searchType="names"
@@ -48,6 +49,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
                 @nafSearch="nafSearch"
             />
             <SearchResultOption
@@ -58,6 +60,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
             <SearchResultOption
                 searchType="subjectsChildrenComplex"
@@ -67,6 +70,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
             <SearchResultOption
                 searchType="subjectsChildren"
@@ -76,6 +80,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
 
             <SearchResultOption
@@ -86,6 +91,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
         </div>
     </div>

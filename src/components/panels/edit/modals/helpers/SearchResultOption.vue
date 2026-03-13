@@ -2,7 +2,7 @@
     <div v-if="searchResults && searchResults[searchType].length > 0" class="subject-section"
         :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
         <span class="subject-results-heading">{{ label }}</span>
-        <span id="search-in-holder" v-if="label == 'LCNAF'">
+        <span id="search-in-holder" v-if="label == 'LCNAF' && !['GEO', 'HUBS', 'ENTITIES'].includes(searchMode)">
             &nbsp;
             <button @click="setNafSearch('auth')" :class="[{ 'active': (nafSearch === 'auth') }]">auth</button>
             <button @click="setNafSearch('person')" :class="[{ 'active': (nafSearch === 'person') }]">person</button>
@@ -61,7 +61,8 @@ export default {
         label: String,
         index: String,
         searchResults: Object,
-        pickLookup: Object
+        pickLookup: Object,
+        searchMode: String
 
     },
 
