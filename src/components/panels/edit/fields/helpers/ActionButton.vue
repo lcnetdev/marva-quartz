@@ -128,11 +128,11 @@
               </button>
         </template>
 
-        <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
+        <!-- <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
           <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="insertMLCNumber()" :style="buttonStyle">
             MLC Number
           </button>
-        </template>
+        </template> -->
 
         <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
           <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()" :style="buttonStyle">
