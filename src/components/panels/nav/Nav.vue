@@ -779,6 +779,7 @@ export default {
             title: "Undo",
             icon: "undo",
             hotkey: "ctrl+z",
+            // class: (this.profileStore.undoRecords.length > 0) ? "active" : "inactive",
             click: () => { this.profileStore.undoChange() }
           },
           {
@@ -786,6 +787,7 @@ export default {
             title: "Redo",
             icon: "redo",
             hotkey: "ctrl+y",
+            // class: (this.profileStore.redoRecords.length > 0) ? "active" : "inactive",
             click: () => { this.profileStore.redoChange() }
           },
           {
@@ -1646,6 +1648,10 @@ export default {
 
 .staging-warning {
   background-color: rgb(255, 196, 0) !important;
+}
+
+:deep() div.bar-button.inactive {
+  pointer-events: none;
 }
 
 
