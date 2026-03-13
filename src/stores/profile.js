@@ -7741,7 +7741,11 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
-    undoChange: function(){
+    undoChange: async function(){
+      if (this.undoRecords.length < 1){
+        alert("Nothing to undo. We can't go back anymore.")
+        return
+      }
       let profile = JSON.stringify(this.activeProfile)
 
       // go back
@@ -7755,9 +7759,15 @@ export const useProfileStore = defineStore('profile', {
         this.redoRecords.shift()
         this.redoRecords.push(profile)
       }
+      // trigger xml refresh
+      this.dataChangedTimestamp = Date.now()
     },
 
-    redoChange: function(){
+    redoChange: async function(){
+      if (this.redoRecords.length < 1){
+        alert("Nothing to redo. We can't go forward anymore.")
+        return
+      }
       // let profile = JSON.stringify(this.activeProfile)
       this.currentState = JSON.stringify(this.activeProfile)
 
@@ -7771,6 +7781,9 @@ export const useProfileStore = defineStore('profile', {
 
       let last = this.redoRecords.pop()
       this.activeProfile = JSON.parse(last)
+
+      // trigger xml refresh
+      this.dataChangedTimestamp = Date.now()
     },
 
 
