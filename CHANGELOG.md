@@ -3,11 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.4.13] - 2025-03-13
+## [1.5.2] - 2025-03-13
 ### Update
 - Layout: add hotkey to remove layout: `ctrl+backspace`
 - Subject builder:  label change: `Hierarchical Geo` -> `Geo. Subdiv.`, will include non-hierarchical terms
 - Change shortcut keys for search modes so they don't clash with the layouts
+- Subject builder: NAF search can be limited like the contributor search
 
 ## [1.4.12] - 2025-03-6
 ### Update
