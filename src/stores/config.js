@@ -536,6 +536,12 @@ export const useConfigStore = defineStore('config', {
       "All":{"url":"http://id.loc.gov/authorities/performanceMediums/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
       }
     ]},
+    "http://preprod.id.loc.gov/authorities/performanceMediums" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+      "All":{"url":"http://id.loc.gov/authorities/performanceMediums/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+      }
+    ]},
+
 
 
     "http://id.loc.gov/authorities/subjects" : {
@@ -589,7 +595,18 @@ export const useConfigStore = defineStore('config', {
 				}
 			]
 		},
-
+    "http://preprod.id.loc.gov/vocabulary/maudience" : {
+			"name":"audience",
+			"type":"complex",
+			"processor" : 'lcAuthorities',
+			"modes":[
+				{
+          'MARC Audience':{"url": "https://preprod.id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+					'LCDGT':{"url": "https://preprod.id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+          'LCSH':{"url": "https://preprod.id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+				}
+			]
+		},
 
     "HierarchicalGeographic": {
       "name":"names",
@@ -629,16 +646,31 @@ export const useConfigStore = defineStore('config', {
 
 
     "http://id.loc.gov/entities/providers" : {"name":"providers", "type":"complex", "modes":[]},
+
     "http://id.loc.gov/entities/relationships" : {"name":"relationships", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
       "All":{"url":"https://id.loc.gov/entities/relationships/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
       }
     ]},
+    "http://preprod.id.loc.gov/entities/relationships" : {"name":"relationships", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+      "All":{"url":"https://preprod.id.loc.gov/entities/relationships/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+      }
+    ]},
+
+
     "http://id.loc.gov/vocabulary/geographicAreas" : {"name":"geographicAreas", "processor" : 'lcAuthorities', "type":"complex", "minCharBeforeSearch":2, "modes":[
       {
       "All":{"url":"https://id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
       }
     ]},
+    "http://preprod.id.loc.gov/vocabulary/geographicAreas" : {"name":"geographicAreas", "processor" : 'lcAuthorities', "type":"complex", "minCharBeforeSearch":2, "modes":[
+      {
+      "All":{"url":"https://preprod.id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+      }
+    ]},
+
+
 
     "https://preprod-8230.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {

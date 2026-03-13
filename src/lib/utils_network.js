@@ -3026,6 +3026,20 @@ const utilsNetwork = {
       return resp
      },
 
+     getMLCNumber: async function(size){
+      // let utilUrl = useConfigStore().returnUrls.util
+      // let url = `${utilUrl}mlcgenerator/${size}`
+      // let r = await this.fetchSimpleLookup(url)
+
+      // mock response until backend is ready
+      let r = {"generator": "mlc_2026", "sequence": "mlcs", "status": "OK", "nextValue": "MLCM 2026/00165"}
+
+      if (r && r.nextValue){
+        return r.nextValue
+      }
+      return false
+     },
+
      searchSavedRecords: async function(search, allRecords){
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
