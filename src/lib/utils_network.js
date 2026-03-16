@@ -121,6 +121,9 @@ const utilsNetwork = {
                 let labelData = null                // it has a URI and that URI is not the parent uri
                 // assume it is one of the values we want
                 // also skip any blank nodes
+                if (parentURI.includes("preprod.id")){
+                  parentURI = parentURI.replace("preprod.", "")
+                }
                 if (d['@id'] && d['@id'] != parentURI && !d['@id'].includes('_:') ){
 
                     this.possibleLabelURIs.forEach((labelURI)=>{
