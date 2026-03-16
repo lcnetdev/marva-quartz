@@ -2178,7 +2178,6 @@ const utilsParse = {
 
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
     // save for undo
-    console.info("save from transformation")
     useProfileStore().saveState(profile)
 
     return profile

@@ -173,7 +173,7 @@ export const useProfileStore = defineStore('profile', {
     currentState: null,
     undoRecords: [],
     redoRecords: [],
-    undoRedoLimit: 5
+    undoRedoLimit: 10
   }),
   getters: {
 
@@ -7722,7 +7722,6 @@ export const useProfileStore = defineStore('profile', {
     // ---------------------------UNDO STUFF BELOW HERE--------------------------------------
     saveState: function(profile=false){
       // profile is populated when the record is loaded from the URL
-      console.info("saveState")
       if (!profile){
         profile = JSON.stringify(this.activeProfile)
       } else {
