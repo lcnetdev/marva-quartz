@@ -3946,7 +3946,7 @@ export const useProfileStore = defineStore('profile', {
           alert("Invalid size entered. Try inserting MLC again and enter S, M, L or F. ")
           return
         }
-      
+
       }else{
         // it did parse scuessfully convert the lib respomse into the size letter
         if (dimensions== 'small'){
@@ -6829,6 +6829,20 @@ export const useProfileStore = defineStore('profile', {
         },
         {}
       );
+
+
+      // update uris to be more generic.
+      let ordereString = JSON.stringify(orderedFound)
+      let libraryString = JSON.stringify(orderedLibrary)
+
+      ordereString = ordereString.replaceAll("//id.loc.gov", "//example.com")
+      libraryString = libraryString.replaceAll("//id.loc.gov", "//example.com")
+
+      ordereString = ordereString.replaceAll("//preprod.id.loc.gov", "//example.com")
+      libraryString = libraryString.replaceAll("//preprod.id.loc.gov", "//example.com")
+
+      orderedFound = JSON.parse(ordereString)
+      orderedLibrary = JSON.parse(libraryString)
 
       // console.info("existing: ", JSON.stringify(orderedFound))
       // console.info("library: ", JSON.stringify(orderedLibrary))
