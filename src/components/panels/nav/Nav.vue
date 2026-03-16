@@ -259,7 +259,31 @@ export default {
           {
             text: 'Add Item',
             click: () => { this.addItem() }
-          }
+          },
+          {
+            text: 'Edit', icon: 'access_time', menu: [
+              //  if (this.activeProfile.id && this.$route.name == 'Edit') {
+                // menu.push(
+                  {
+                    text:"Undo",
+                    title: "Undo",
+                    icon: "undo",
+                    hotkey: "ctrl+z",
+
+                    click: () => { this.profileStore.undoChange() }
+                  },
+                  {
+                    text: "Redo",
+                    title: "Redo",
+                    icon: "redo",
+                    hotkey: "ctrl+y",
+                    // class: (this.profileStore.redoRecords.length > 0) ? "active" : "inactive",
+                    click: () => { this.profileStore.redoChange() }
+                  }
+                // )
+              // }
+            ]
+          },
         )
       }
 
@@ -770,32 +794,6 @@ export default {
             }
           )
         }
-      }
-
-      if (this.activeProfile.id && this.$route.name == 'Edit') {
-        menu.push(
-          {
-            text:"",
-            title: "Undo",
-            icon: "undo",
-            hotkey: "ctrl+z",
-            // class: (this.profileStore.undoRecords.length > 0) ? "active" : "inactive",
-            click: () => { this.profileStore.undoChange() }
-          },
-          {
-            text:"",
-            title: "Redo",
-            icon: "redo",
-            hotkey: "ctrl+y",
-            // class: (this.profileStore.redoRecords.length > 0) ? "active" : "inactive",
-            click: () => { this.profileStore.redoChange() }
-          },
-          {
-            text: this.profileOrStaging() + this.activeProfile.id,
-            class: "current-profile",
-
-          }
-        )
       }
 
       if (this.activeProfile.id && this.$route.name == 'Edit' && config.returnUrls.displayLCOnlyFeatures && this.windowWidth > 1500) {
