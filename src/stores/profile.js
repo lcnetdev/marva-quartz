@@ -6831,12 +6831,15 @@ export const useProfileStore = defineStore('profile', {
       );
 
 
-      // update and //id.loc.gov to //preprod.id.loc.gov
+      // update uris to be more generic.
       let ordereString = JSON.stringify(orderedFound)
       let libraryString = JSON.stringify(orderedLibrary)
 
-      ordereString = ordereString.replaceAll("//id.loc.gov", "//preprod.id.loc.gov")
-      libraryString = libraryString.replaceAll("//id.loc.gov", "//preprod.id.loc.gov")
+      ordereString = ordereString.replaceAll("//id.loc.gov", "//example.com")
+      libraryString = libraryString.replaceAll("//id.loc.gov", "//example.com")
+
+      ordereString = ordereString.replaceAll("//preprod.id.loc.gov", "//example.com")
+      libraryString = libraryString.replaceAll("//preprod.id.loc.gov", "//example.com")
 
       orderedFound = JSON.parse(ordereString)
       orderedLibrary = JSON.parse(libraryString)
