@@ -7763,6 +7763,11 @@ export const useProfileStore = defineStore('profile', {
       }
       // trigger xml refresh
       this.dataChangedTimestamp = Date.now()
+
+      this.activeProfileSaved = false
+      if (usePreferenceStore().returnValue('--b-general-auto-save')){
+        this.saveRecord()
+      }
     },
 
     redoChange: async function(){
@@ -7786,6 +7791,11 @@ export const useProfileStore = defineStore('profile', {
 
       // trigger xml refresh
       this.dataChangedTimestamp = Date.now()
+
+      this.activeProfileSaved = false
+      if (usePreferenceStore().returnValue('--b-general-auto-save')){
+        this.saveRecord()
+      }
     },
 
 
