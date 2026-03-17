@@ -259,7 +259,31 @@ export default {
           {
             text: 'Add Item',
             click: () => { this.addItem() }
-          }
+          },
+          {
+            text: 'Edit', icon: 'access_time', menu: [
+              //  if (this.activeProfile.id && this.$route.name == 'Edit') {
+                // menu.push(
+                  {
+                    text:"Undo",
+                    title: "Undo",
+                    icon: "undo",
+                    hotkey: "ctrl+z",
+
+                    click: () => { this.profileStore.undoChange() }
+                  },
+                  {
+                    text: "Redo",
+                    title: "Redo",
+                    icon: "redo",
+                    hotkey: "ctrl+y",
+                    // class: (this.profileStore.redoRecords.length > 0) ? "active" : "inactive",
+                    click: () => { this.profileStore.redoChange() }
+                  }
+                // )
+              // }
+            ]
+          },
         )
       }
 
@@ -349,12 +373,14 @@ export default {
               { is: 'separator' },
               {
                 text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
+                hotkey: 'ctrl+alt+c',
                 click: () => { this.preferenceStore.toggleCopyMode() },
                 icon: this.preferenceStore.copyMode ? "content_copy" : "block"
               },
               {
                 text: "Paste Content",
                 icon: "content_paste",
+                hotkey: "alt+v",
                 click: () => {
                   this.$nextTick(() => {
                     this.profileStore.pasteSelected()
@@ -685,6 +711,8 @@ export default {
             // active: this.happy,
             icon: (this.activeProfileSaved) ? "turned_in" : "turned_in_not",
             class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
+            title: "Save locally",
+            hotkey: "ctrl+s",
 
 
             click: () => { this.profileStore.saveRecord() }
@@ -768,16 +796,6 @@ export default {
             }
           )
         }
-      }
-
-      if (this.activeProfile.id && this.$route.name == 'Edit') {
-        menu.push(
-          {
-            text: this.profileOrStaging() + this.activeProfile.id,
-            class: "current-profile",
-
-          }
-        )
       }
 
       if (this.activeProfile.id && this.$route.name == 'Edit' && config.returnUrls.displayLCOnlyFeatures && this.windowWidth > 1500) {
@@ -885,6 +903,7 @@ export default {
               text: "Copy Selected",
               icon: "content_copy",
               id: "copy-selected-button",
+              hotkey: "alt+c",
               click: () => {
                 this.$nextTick(() => {
                   this.profileStore.copySelected()
@@ -894,6 +913,7 @@ export default {
             {
               text: "Paste Content",
               icon: "content_paste",
+              hotkey: "alt+v",
               click: () => {
                 this.$nextTick(() => {
                   this.profileStore.pasteSelected()
@@ -1014,6 +1034,7 @@ export default {
           {
             text: !this.allSelected ? "Select All" : "Deselect All",
             icon: !this.allSelected ? "select_all" : "deselect",
+            hotkey: "alt+a",
             click: () => {
               this.$nextTick(() => {
                 this.selectAll()
@@ -1630,6 +1651,10 @@ export default {
 
 .staging-warning {
   background-color: rgb(255, 196, 0) !important;
+}
+
+:deep() div.bar-button.inactive {
+  pointer-events: none;
 }
 
 

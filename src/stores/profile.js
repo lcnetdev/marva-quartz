@@ -170,6 +170,12 @@ export const useProfileStore = defineStore('profile', {
     hiddenClassNumbers: false,
 
     localMarva: false,
+
+    // undo
+    currentState: null,
+    undoRecords: [],
+    redoRecords: [],
+    undoRedoLimit: 10
   }),
   getters: {
 
@@ -5088,17 +5094,17 @@ export const useProfileStore = defineStore('profile', {
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
         // console.log("Data changed, this.activeProfile", this.activeProfile)
+
+        // save the current record for undo
+        this.saveState()
+
         // if they have auto save on then save it also
         if (usePreferenceStore().returnValue('--b-general-auto-save')){
-
           this.saveRecord()
-
-
         }
 
       },500)
     },
-
 
     /**
     * A helper that can be run before loading a new record to do any maintenance needed
@@ -7834,6 +7840,84 @@ export const useProfileStore = defineStore('profile', {
       }
 
       return results
+    },
+
+    // ---------------------------UNDO STUFF BELOW HERE--------------------------------------
+    saveState: function(profile=false){
+      // profile is populated when the record is loaded from the URL
+      if (!profile){
+        profile = JSON.stringify(this.activeProfile)
+      } else {
+        profile = JSON.stringify(profile)
+      }
+
+      if (this.currentState){
+        if (this.undoRecords.length < this.undoRedoLimit){
+          this.undoRecords.push(this.currentState)
+        } else { // remove the oldest profile
+          this.undoRecords.shift()
+          this.undoRecords.push(this.currentState)
+        }
+      }
+
+      this.currentState = profile
+
+
+    },
+
+    undoChange: async function(){
+      if (this.undoRecords.length < 1){
+        alert("Nothing to undo. We can't go back anymore.")
+        return
+      }
+      let profile = JSON.stringify(this.activeProfile)
+
+      // go back
+      let last = this.undoRecords.pop()
+      this.activeProfile = JSON.parse(last)
+
+      // save the profile to redo
+      if (this.redoRecords.length < this.undoRedoLimit){
+        this.redoRecords.push(profile)
+      } else { // remove the oldest profile
+        this.redoRecords.shift()
+        this.redoRecords.push(profile)
+      }
+      // trigger xml refresh
+      this.dataChangedTimestamp = Date.now()
+
+      this.activeProfileSaved = false
+      if (usePreferenceStore().returnValue('--b-general-auto-save')){
+        this.saveRecord()
+      }
+    },
+
+    redoChange: async function(){
+      if (this.redoRecords.length < 1){
+        alert("Nothing to redo. We can't go forward anymore.")
+        return
+      }
+      // let profile = JSON.stringify(this.activeProfile)
+      this.currentState = JSON.stringify(this.activeProfile)
+
+      // save the profile to undo
+      if (this.undoRecords.length < this.undoRedoLimit){
+        this.undoRecords.push(this.currentState)
+      } else { // remove the oldest profile
+        this.undoRecords.shift()
+        this.undoRecords.push(this.currentState)
+      }
+
+      let last = this.redoRecords.pop()
+      this.activeProfile = JSON.parse(last)
+
+      // trigger xml refresh
+      this.dataChangedTimestamp = Date.now()
+
+      this.activeProfileSaved = false
+      if (usePreferenceStore().returnValue('--b-general-auto-save')){
+        this.saveRecord()
+      }
     },
 
 

@@ -2,8 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.3] - 2026-03-20
+## Added
+- Undo/redo support for 10 changes. `ctrl+z`, `ctrl+y`
 
-## [1.5.2] - 2025-03-13
+## Update
+- Save has a shortcut. `ctrl+s`
+- Shortcuts for copy/paste
+
+## [1.5.2] - 2026-03-13
 ### Update
 - Layout: add hotkey to remove layout: `ctrl+backspace`
 - Subject builder:  label change: `Hierarchical Geo` -> `Geo. Subdiv.`, will include non-hierarchical terms
@@ -14,7 +21,7 @@ All notable changes to this project will be documented in this file.
 - Marva User Directory (https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/user-directory.md)
 
 
-## [1.4.12] - 2025-03-6
+## [1.4.12] - 2026-03-6
 ### Update
 - NAR: When using the auth label used in the search interface for your 1xx it will maintain the 1001, 1101, etc. instead of overwriting with 1xx##
 - NAR: Auto 046 creation for hyphenated last names now also works for last names sepearted with a space (Jones-Smith, and Jones Smith, will trigger it now)
