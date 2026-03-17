@@ -687,44 +687,52 @@
             if (dollarKey.d){
 
               let lifeDates  = dollarKey.d.split('-')
-              // Personal Name 100
-              if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
-                this.zero46 = {}
-                this.zero46.f = lifeDates[0]
-                if (lifeDates[1].trim().length>0){
-                  this.zero46.g = lifeDates[1]
-                }
 
-              }
-              if (lifeDates.length==1 && (fieldTag == '100' || fieldTag == 100)){
-                this.zero46 = {}
-                this.zero46.f = lifeDates[0]
-              }
-              // Corporate Name 110
-              if (lifeDates.length>1 && (fieldTag == '110' || fieldTag == 110)){
-                this.zero46 = {}
-                this.zero46.q = lifeDates[0]
-                if (lifeDates[1].trim().length>0){
-                  this.zero46.r = lifeDates[1]
-                }
+              // if the first part is empty, or starts with a YYYY build the 046, otherwise don't
+              let dateCheck = /^[0-9]{4}/.test(lifeDates[0]) || lifeDates[0] == ""
 
-              }
-              if (lifeDates.length==1 && (fieldTag == '110' || fieldTag == 110)){
+              if (!dateCheck){
                 this.zero46 = {}
-                this.zero46.s = lifeDates[0]
-              }
-              // Conf Name 111
-              if (lifeDates.length>1 && (fieldTag == '111' || fieldTag == 111)){
-                this.zero46 = {}
-                this.zero46.s = lifeDates[0]
-                if (lifeDates[1].trim().length>0){
-                  this.zero46.t = lifeDates[1]
-                }
+              } else {
+                // Personal Name 100
+                if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
+                  this.zero46 = {}
+                  this.zero46.f = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.g = lifeDates[1]
+                  }
 
-              }
-              if (lifeDates.length==1 && (fieldTag == '111' || fieldTag == 111)){
-                this.zero46 = {}
-                this.zero46.q = lifeDates[0]
+                }
+                if (lifeDates.length==1 && (fieldTag == '100' || fieldTag == 100)){
+                  this.zero46 = {}
+                  this.zero46.f = lifeDates[0]
+                }
+                // Corporate Name 110
+                if (lifeDates.length>1 && (fieldTag == '110' || fieldTag == 110)){
+                  this.zero46 = {}
+                  this.zero46.q = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.r = lifeDates[1]
+                  }
+
+                }
+                if (lifeDates.length==1 && (fieldTag == '110' || fieldTag == 110)){
+                  this.zero46 = {}
+                  this.zero46.s = lifeDates[0]
+                }
+                // Conf Name 111
+                if (lifeDates.length>1 && (fieldTag == '111' || fieldTag == 111)){
+                  this.zero46 = {}
+                  this.zero46.s = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.t = lifeDates[1]
+                  }
+
+                }
+                if (lifeDates.length==1 && (fieldTag == '111' || fieldTag == 111)){
+                  this.zero46 = {}
+                  this.zero46.q = lifeDates[0]
+                }
               }
             }
 
@@ -960,7 +968,7 @@
             this.oneXX = '1XX##$a ' + lastComplexLookupString
           }
 
-        },      
+        },
         addRow(){
 
           this.extraMarcStatements.push({
@@ -1306,6 +1314,7 @@
           // rebuild 046 if $d is present
           if (this.oneXX.includes("$d")){
             let tmp046 = this.build046()
+
             // Delete the existing 046
             let existing046 = false
             for (let idx in this.extraMarcStatements){
@@ -1314,19 +1323,25 @@
                 existing046 = idx
               }
             }
-            if (existing046){
-              if (this.getOneXXtag() == '151'){ // if it would be empty don't add it
-                this.extraMarcStatements.splice(existing046, 1)
-                this.zero46 = {}
-                return
+
+            if (tmp046.value != ""){
+              if (existing046){
+                if (this.getOneXXtag() == '151'){ // if it would be empty don't add it
+                  this.extraMarcStatements.splice(existing046, 1)
+                  this.zero46 = {}
+                  return
+                }
+                this.extraMarcStatements[existing046] = tmp046
+              } else {
+                if (this.getOneXXtag() == '151'){
+                  this.zero46 = {}
+                  return
+                }
+                this.extraMarcStatements.push(tmp046)
               }
-              this.extraMarcStatements[existing046] = tmp046
-            } else {
-              if (this.getOneXXtag() == '151'){
-                this.zero46 = {}
-                return
-              }
-              this.extraMarcStatements.push(tmp046)
+            } else if (existing046){ // remove the exising 046
+              this.extraMarcStatements.splice(existing046, 1)
+              return
             }
           }
 
@@ -1567,10 +1582,10 @@
           if (this.lastComplexLookupString.trim() != ''){
             const yearMatch = this.lastComplexLookupString.match(/(\d{4})/)
             if (yearMatch) {
-              // Only insert if not already preceded by $d
+              // Only insert if not already preceded by $d, and there isn't already a $d,
               const year = yearMatch[1]
               const idx = this.lastComplexLookupString.indexOf(year)
-              if (idx > 0 && !/\$d\s*$/.test(this.lastComplexLookupString.slice(0, idx))) {
+              if (!this.lastComplexLookupString.includes("$d") && idx > 0 && !/\$d\s*$/.test(this.lastComplexLookupString.slice(0, idx))) {
                 this.lastComplexLookupString =
                   this.lastComplexLookupString.slice(0, idx) +
                   ' $d ' +
