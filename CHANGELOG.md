@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.5.3] - 2026-03-13
+## [1.5.3] - 2026-03-20
 ## Added
 - Undo/redo support for 10 changes. `ctrl+z`, `ctrl+y`
 
