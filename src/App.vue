@@ -116,7 +116,10 @@ export default {
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
 
-    if (!hasSsoUser){
+    if (this.configStore.returnUrls.disableSSO) {
+      // SSO disabled for this region — show the standard login modal
+      this.preferenceStore.showLoginModal = true
+    } else if (!hasSsoUser){
       // No valid JWT — redirect to SSO login
       this.preferenceStore.ssoLogin(this.configStore.returnUrls.util)
     } else {
