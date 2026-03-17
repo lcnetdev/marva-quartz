@@ -2105,11 +2105,12 @@ const utilsParse = {
           // now look into the rt of this propertiy to see what properties we have sucuessfully mapped and things we did not map
           let allUris = [profile.rt[pkey].pt[key].propertyURI]
           profile.rt[pkey].pt[key].valueConstraint.valueTemplateRefs.forEach((rtName)=>{
-            // console.log('----')
-            // console.log(profile.rt[pkey].pt[key])
-            // console.log(pkey,key)
-            // console.log(profile.rt[pkey].pt[key].valueConstraint.valueTemplateRefs)
-            // console.log(rtName)
+            console.log('----')
+            console.log(profile.rt[pkey].pt[key])
+            console.log(pkey,key)
+            console.log(profile.rt[pkey].pt[key].valueConstraint.valueTemplateRefs)
+            console.log(rtName)
+
             useProfileStore().rtLookup[rtName].propertyTemplates.forEach((ptObj)=>{
               if (allUris.indexOf(ptObj.propertyURI)==-1){
                 allUris.push(ptObj.propertyURI)

@@ -3040,6 +3040,71 @@ const utilsNetwork = {
       return false
      },
 
+     /**
+      * Given a subject/genreForm URI from id.loc.gov, fetches the madsrdf_raw.xml
+      * and extracts the madsrdf:classification resource URI.
+      * If no classification is found directly, follows the first componentList entry and retries.
+      * @param {string} uri - e.g. "http://id.loc.gov/authorities/subjects/sh85072708"
+      * @return {string|null} - the classification resource URI or null
+      */
+     getSubjectClassification: async function(uri){
+      if (!uri) return null
+
+      let url = uri.replace('http://', 'https://') + '.madsrdf_raw.xml'
+
+      try {
+        let response = await fetch(url)
+        if (!response.ok) return null
+        let xmlText = await response.text()
+        let parser = new DOMParser()
+        let doc = parser.parseFromString(xmlText, 'application/xml')
+
+        // extract classification from a parsed XML doc
+        // handles both rdf:resource attribute and literal lcc:ClassNumber > madsrdf:code
+        let extractClassification = function(xmlDoc){
+          let classification = xmlDoc.getElementsByTagNameNS('http://www.loc.gov/mads/rdf/v1#', 'classification')
+          if (classification.length > 0){
+            let resource = classification[0].getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'resource')
+            if (resource) return resource.split('/').pop()
+            // check for literal lcc:ClassNumber > madsrdf:code
+            let code = classification[0].getElementsByTagNameNS('http://www.loc.gov/mads/rdf/v1#', 'code')
+            if (code.length > 0 && code[0].textContent){
+              return code[0].textContent.trim()
+            }
+          }
+          return null
+        }
+
+        // look for madsrdf:classification
+        let result = extractClassification(doc)
+        if (result) return result
+
+        // no classification, check componentList and follow the first entry
+        let componentList = doc.getElementsByTagNameNS('http://www.loc.gov/mads/rdf/v1#', 'componentList')
+        if (componentList.length > 0){
+          let firstChild = componentList[0].firstElementChild
+          if (firstChild){
+            let about = firstChild.getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'about')
+            if (about){
+              // follow the first component's URI
+              let url2 = about.replace('http://', 'https://') + '.madsrdf_raw.xml'
+              let response2 = await fetch(url2)
+              if (!response2.ok) return null
+              let xmlText2 = await response2.text()
+              let doc2 = parser.parseFromString(xmlText2, 'application/xml')
+              let result2 = extractClassification(doc2)
+              if (result2) return result2
+            }
+          }
+        }
+
+        return null
+      } catch(e) {
+        console.error('Error fetching subject classification:', e)
+        return null
+      }
+     },
+
      searchSavedRecords: async function(search, allRecords){
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env

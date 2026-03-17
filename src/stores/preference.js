@@ -1435,6 +1435,20 @@ export const usePreferenceStore = defineStore('preference', {
         index: 7
       },
 
+
+      '--b-shelflist-mlc-division' : {
+        desc: 'Auto insert this Divsion value after the MLCX part of a MLC number.',
+        descShort: 'MLC Division',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 8
+      },
+
+
+
+
+
     '--b-edit-main-splitpane-edit-inline-mode' : {
       desc: 'Compact Advanced Modular Mode.',
       descShort: 'Use CAMM Mode',

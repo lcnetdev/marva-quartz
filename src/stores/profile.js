@@ -169,6 +169,9 @@ export const useProfileStore = defineStore('profile', {
     hiddenSubjects: false,
     hiddenClassNumbers: false,
 
+
+    
+
     localMarva: false,
   }),
   getters: {
@@ -2233,7 +2236,7 @@ export const useProfileStore = defineStore('profile', {
 
 
           // also remove the paired literal lines if needed
-          console.log("Building lines")
+          // console.log("Building lines")
           utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
 
 
@@ -2269,6 +2272,19 @@ export const useProfileStore = defineStore('profile', {
         }
 
 
+
+        // this is a hook to watch for MLC numbering configuration
+        // if they add a divsion to the MLC number or remove it then we want to flip a flag
+        // so that the next MLC number generated will also insert the divsion or not
+        if (propertyPath.some((pp) => pp.propertyURI.includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")) && value.startsWith("MLC")){
+          console.log("--------MLC change detected------------")
+          let mlcMatch = value.match(/^MLC[SMLF]([A-Z])/i)
+          if (mlcMatch) {
+            usePreferenceStore().setValue('--b-shelflist-mlc-division',mlcMatch[1].toUpperCase())
+          } else {
+            usePreferenceStore().setValue('--b-shelflist-mlc-division',"")
+          }            
+        }        
 
 
         // console.log("Before prune")
@@ -3904,7 +3920,9 @@ export const useProfileStore = defineStore('profile', {
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       console.log("insert into",pt)
+      let enhanceResults = await this.mlcNumberEnhance()
 
+      console.log("enhance results",enhanceResults)
       // look for the dimensions in the instance
       let dimensions = null
       for (let rtId in this.activeProfile.rt){
@@ -3967,6 +3985,20 @@ export const useProfileStore = defineStore('profile', {
       // now ask the API for the next number
       let number = await utilsNetwork.getMLCNumber(dimensions)
       console.log("MLC number", number)
+
+      let division = usePreferenceStore().returnValue('--b-shelflist-mlc-division')
+      if (division && division != ""){
+        // they have used a divsion before or set it so insert the value in the correct place in the MLC number
+        number = number.slice(0, 4) + division + number.slice(4)
+      }
+
+      if (enhanceResults.useP){
+        number = number + ' (P)'
+      }else if (enhanceResults.useLCC){
+        number = number + ` (${enhanceResults.useLCC})`
+      }
+
+
       // now update the userValue of the pt with that number
       // it goes into the userValue -> http://id.loc.gov/ontologies/bibframe/classification[0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
       if (!pt.userValue){
@@ -4305,6 +4337,154 @@ export const useProfileStore = defineStore('profile', {
       //ClassificationLcc
       // console.log("RETRUN FA:LSE 3")
       return false
+
+    },
+
+    /**
+    * Walks the active profile and extracts subject and genreForm labels/URIs,
+    * then looks up classification URIs for each subject
+    * @return {object} - {subjects: [], genreForms: []}
+    */
+    mlcNumberEnhance: async function(){
+
+      let subjects = []
+      let genreForms = []
+
+      for (let rtId in this.activeProfile.rt){
+        if (rtId.indexOf(":Work") > -1){
+          for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+            let pt = this.activeProfile.rt[rtId].pt[ptId]
+
+            // collect subjects
+            if (pt && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' && !pt.deleted){
+              let uv = pt.userValue
+              if (uv && uv['http://id.loc.gov/ontologies/bibframe/subject'] && uv['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && uv['http://id.loc.gov/ontologies/bibframe/subject'][0]){
+                let subj = uv['http://id.loc.gov/ontologies/bibframe/subject'][0]
+                let label = null
+                let uri = null
+                if (subj['http://www.w3.org/2000/01/rdf-schema#label'] && subj['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && subj['http://www.w3.org/2000/01/rdf-schema#label'][0] && subj['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+                  label = subj['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+                } else if (subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length > 0 && subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0] && subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
+                  label = subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+                }
+                // get URI: top-level @id, or first componentList entry's @id
+                if (subj['@id']){
+                  uri = subj['@id']
+                } else if (subj['http://www.loc.gov/mads/rdf/v1#componentList'] && subj['http://www.loc.gov/mads/rdf/v1#componentList'].length > 0 && subj['http://www.loc.gov/mads/rdf/v1#componentList'][0] && subj['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']){
+                  uri = subj['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']
+                }
+                if (label){
+                  subjects.push({label: label, uri: uri})
+                }
+              }
+            }
+
+            // collect genreForms
+            if (pt && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/genreForm' && !pt.deleted){
+              let uv = pt.userValue
+              if (uv && uv['http://id.loc.gov/ontologies/bibframe/genreForm'] && uv['http://id.loc.gov/ontologies/bibframe/genreForm'].length > 0 && uv['http://id.loc.gov/ontologies/bibframe/genreForm'][0]){
+                let gf = uv['http://id.loc.gov/ontologies/bibframe/genreForm'][0]
+                let label = null
+                let uri = null
+                if (gf['http://www.w3.org/2000/01/rdf-schema#label'] && gf['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && gf['http://www.w3.org/2000/01/rdf-schema#label'][0] && gf['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+                  label = gf['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+                } else if (gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length > 0 && gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0] && gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
+                  label = gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+                }
+                // get URI: top-level @id, or first componentList entry's @id
+                if (gf['@id']){
+                  uri = gf['@id']
+                } else if (gf['http://www.loc.gov/mads/rdf/v1#componentList'] && gf['http://www.loc.gov/mads/rdf/v1#componentList'].length > 0 && gf['http://www.loc.gov/mads/rdf/v1#componentList'][0] && gf['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']){
+                  uri = gf['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']
+                }
+                if (label){
+                  genreForms.push({label: label, uri: uri})
+                }
+              }
+            }
+
+          }
+        }
+      }
+
+      // look up classification for the first subject only
+      let useLCC = null
+      if (subjects.length > 0 && subjects[0].uri){
+        let classification = await utilsNetwork.getSubjectClassification(subjects[0].uri)
+        if (classification && classification.length > 0){
+          useLCC = classification.charAt(0)
+        }
+      }
+
+      // determine P-class from genreForms
+      // URIs that indicate useP = true (fiction-related)
+      let pClassTrueURIs = [
+        'http://id.loc.gov/authorities/genreForms/gf2014026339',
+        'http://id.loc.gov/authorities/genreForms/gf2014026243',
+        'http://id.loc.gov/authorities/genreForms/gf2014026259',
+        'http://id.loc.gov/authorities/genreForms/gf2018026099',
+        'http://id.loc.gov/authorities/genreForms/gf2015026019',
+        'http://id.loc.gov/authorities/genreForms/gf2014026456',
+        'http://id.loc.gov/authorities/genreForms/gf2015026020',
+        'http://id.loc.gov/authorities/genreForms/gf2014026518',
+        'http://id.loc.gov/authorities/genreForms/gf2014026542',
+        'http://id.loc.gov/authorities/genreForms/gf2014026559'
+      ]
+      // URIs that map to specific letter codes (also useP = true)
+      let pClassLetterURIs = {
+        'http://id.loc.gov/authorities/genreForms/gf2014026297': 'd',
+        'http://id.loc.gov/authorities/genreForms/gf2014026094': 'e',
+        'http://id.loc.gov/authorities/genreForms/gf2015026020': 'f',
+        'http://id.loc.gov/authorities/genreForms/gf2014026110': 'h',
+        'http://id.loc.gov/authorities/genreForms/gf2014026141': 'i',
+        'http://id.loc.gov/authorities/genreForms/gf2014026054': 'i',
+        'http://id.loc.gov/authorities/genreForms/gf2014026542': 'j',
+        'http://id.loc.gov/authorities/genreForms/gf2014026488': 'p',
+        'http://id.loc.gov/authorities/genreForms/gf2014026481': 'p',
+        'http://id.loc.gov/authorities/genreForms/gf2011026363': 's'
+      }
+
+      let useP = false
+      for (let gf of genreForms){
+        // check URI matches
+        if (gf.uri && pClassTrueURIs.includes(gf.uri)){
+          useP = true
+          break
+        }
+        if (gf.uri && pClassLetterURIs[gf.uri]){
+          useP = true
+          break
+        }
+        // check label patterns
+        let label = (gf.label || '').toLowerCase()
+        if (label.includes('fiction') && !label.includes('onfiction')){
+          useP = true
+          break
+        }
+        if ((gf.label || '').includes('(Fiction)')){
+          useP = true
+          break
+        }
+        if (label.includes('humor')){
+          useP = true
+          break
+        }
+        if (label.includes('poetry')){
+          useP = true
+          break
+        }
+        if (label.includes('speeches')){
+          useP = true
+          break
+        }
+      }
+
+      return {
+        subjects: subjects,
+        genreForms: genreForms,
+        useP: useP,
+        useLCC: useLCC
+      }
 
     },
 
