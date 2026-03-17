@@ -373,12 +373,14 @@ export default {
               { is: 'separator' },
               {
                 text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
+                hotkey: 'ctrl+alt+c',
                 click: () => { this.preferenceStore.toggleCopyMode() },
                 icon: this.preferenceStore.copyMode ? "content_copy" : "block"
               },
               {
                 text: "Paste Content",
                 icon: "content_paste",
+                hotkey: "alt+v",
                 click: () => {
                   this.$nextTick(() => {
                     this.profileStore.pasteSelected()
@@ -901,6 +903,7 @@ export default {
               text: "Copy Selected",
               icon: "content_copy",
               id: "copy-selected-button",
+              hotkey: "alt+c",
               click: () => {
                 this.$nextTick(() => {
                   this.profileStore.copySelected()
@@ -910,6 +913,7 @@ export default {
             {
               text: "Paste Content",
               icon: "content_paste",
+              hotkey: "alt+v",
               click: () => {
                 this.$nextTick(() => {
                   this.profileStore.pasteSelected()
@@ -1030,6 +1034,7 @@ export default {
           {
             text: !this.allSelected ? "Select All" : "Deselect All",
             icon: !this.allSelected ? "select_all" : "deselect",
+            hotkey: "alt+a",
             click: () => {
               this.$nextTick(() => {
                 this.selectAll()

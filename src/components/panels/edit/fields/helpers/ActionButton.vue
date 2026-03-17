@@ -495,7 +495,7 @@
 
 
       shortCutPressed: function(){
-
+        console.info("pressed?")
 
         // start fishing for the popup div
         let popoverDetectTimeout
@@ -878,8 +878,8 @@
 
         //Structure that will get the changes and be passed on
         const activeStructure = JSON.parse(JSON.stringify(structure))
-        
-        
+
+
         let subTitleCheck = false
         let subTitle = false
         let subTitleLang = false
@@ -956,7 +956,7 @@
           return
         }
         if (!Array.isArray(newRt)){
-          
+
           activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
           activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
 
@@ -982,7 +982,7 @@
               additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
               //update the value
               additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
-              //Add it              
+              //Add it
               this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
             }
           }
@@ -1006,7 +1006,7 @@
                 delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
               }
             }
-            
+
             // make adjustment for subtitles in instance
             if (rt.includes(":Work")){
               let additionalTitleStructure = false
@@ -1017,7 +1017,7 @@
                 // update the type
                 additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
                 //update the value
-                
+
                 let mainTitleArray = additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
                 let template = JSON.parse(JSON.stringify(mainTitleArray[0]))
                 if (Array.isArray(subTitle)){
@@ -1033,7 +1033,7 @@
                     if (subTitleLang[i]){
                       mainTitleArray[i]["@language"] = subTitleLang[i]
                     }
-                  }                 
+                  }
 
                 } else {
                   mainTitleArray[0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
@@ -1049,8 +1049,8 @@
                 if (subTitleLang === false && additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["@language"]){
                   delete additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["@language"]
                 }
-                // and delete anything that is not a http://id.loc.gov/ontologies/bibframe/mainTitle                
-                for (let key in additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]){                  
+                // and delete anything that is not a http://id.loc.gov/ontologies/bibframe/mainTitle
+                for (let key in additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]){
                   if (key != "http://id.loc.gov/ontologies/bibframe/mainTitle" && key != "@type" && key != "@guid"){
                     delete additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0][key]
                   }
