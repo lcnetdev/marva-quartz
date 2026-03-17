@@ -495,8 +495,6 @@
 
 
       shortCutPressed: function(){
-        console.info("pressed?")
-
         // start fishing for the popup div
         let popoverDetectTimeout
         popoverDetectTimeout = window.setInterval(()=>{
