@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ## Update
 - Save has a shortcut. `ctrl+s`
+- Shortcuts for copy/paste
 
 ## [1.5.2] - 2026-03-13
 ### Update
