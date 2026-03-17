@@ -329,10 +329,13 @@ const utilsNetwork = {
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
       }
-      // Add auth headers for util-service requests
-      const authHdrs = getAuthHeaders()
-      if (Object.keys(authHdrs).length > 0) {
-        options.headers = { ...options.headers, ...authHdrs }
+      // Add auth headers for util-service requests, but not for id.loc.gov / preprod id.loc.gov (except preprod-3001)
+      const isIdLocGov = /^https:\/\/(preprod(-(?!3001)\d+)?\.)?id\.loc\.gov/i.test(url)
+      if (!isIdLocGov) {
+        const authHdrs = getAuthHeaders()
+        if (Object.keys(authHdrs).length > 0) {
+          options.headers = { ...options.headers, ...authHdrs }
+        }
       }
 
       // console.log("url:",url)
