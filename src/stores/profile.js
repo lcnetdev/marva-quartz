@@ -7837,7 +7837,7 @@ export const useProfileStore = defineStore('profile', {
       return results
     },
 
-    deriveNew: async function(instOnly, electronic){
+    deriveNew: async function(instOnly, electronic=false){
       let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
       let instanceCount = 0
 
@@ -7867,7 +7867,7 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      let newRtId = instOnly +'_'+instanceCount
+      let newRtId
 
       recordCopy.xmlSource = ''
       recordCopy.deleted = false

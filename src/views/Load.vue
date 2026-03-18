@@ -1043,6 +1043,17 @@ export default {
               targetTemplate = "lc:RT:bf2:AdminMetadata"
             }
 
+            /**
+             * Add something like:
+             *
+             * bf:agent/bf:Agent[@rdf:about="http://id.loc.gov/vocabulary/organizations/dlc"]/bf:Code = DLC
+             *
+             * ???? this might not be the right one. TODO: where should this ^ go? maybe in the derived instance...
+             *    Putting it here does seem to work for a derived instance, but not a new, empty record -- that doesn't make sense
+             *              it's looking for status = new
+             *
+             */
+
             // Add the Admin Metadata with the eNumber
             pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
               "mandatory": false,
@@ -1073,8 +1084,21 @@ export default {
                           }
                         ],
                         }
-                      ]
-                    ,
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/agent": [
+                      {
+                        "@guid": short.generate(),
+                        "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+                        "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+                        "http://id.loc.gov/ontologies/bibframe/code": [
+                          {
+                            "@guid": short.generate(),
+                            "http://id.loc.gov/ontologies/bibframe/code": "DLC",
+                            "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                          }
+                        ]
+                      }
+                    ],
                     "http://id.loc.gov/ontologies/bibframe/assigner": [
                       {
                         "@guid": short.generate(),
