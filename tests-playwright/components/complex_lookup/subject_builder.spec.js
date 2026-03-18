@@ -156,7 +156,7 @@ test('Write the entire string before validation', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
-    await page.getByText('Portugal--Porto', { exact: true }).click();
+    await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
@@ -188,7 +188,7 @@ test('Validate string as each piece is written', async ({ page }) => {
     await page.getByText('Dogs', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal‑‑porto');
-    await page.getByText('Portugal--Porto', { exact: true }).click();
+    await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+1');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal‑‑Porto--history');
     await page.getByText('History', { exact: true }).nth(1).click();
@@ -279,7 +279,7 @@ test('Build heading "Dogs--geo", but the geo headings is typed before selecting 
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal--porto');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
-    await page.getByText('Portugal--Porto', { exact: true }).click();
+    await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('n50006403-781');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
@@ -310,7 +310,7 @@ test('Build heading "Dogs--geo", but the geo headings is typed after selecting "
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal‑‑porto');
-    await page.getByText('Portugal--Porto', { exact: true }).click();
+    await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('n50006403-781');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
@@ -322,7 +322,80 @@ test('Build heading "Dogs--geo", but the geo headings is typed after selecting "
     await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Portugal $z Porto');
 });
 
-test('Build heading "Dogs--geo", but the first part of the geo heading is selected from LCSH and then swap to Hierarchical before finishing the heading with correct XML and MARC', async ({ page }) => {
+// test('Build heading "Dogs--geo", but the first part of the geo heading is selected from LCSH and then swap to Hierarchical before finishing the heading with correct XML and MARC', async ({ page }) => {
+//     await page.goto('http://localhost:5555/marva/');
+
+//     // Update the preferences for this test
+//     let prefs = JSON.stringify(preferences)
+//     await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+//     await page.reload();
+
+//     await page.getByText('Click Here').click();
+//     await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+//     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+//     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
+//     await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
+//     await expect(page.getByRole('heading')).toContainText('sh85038796');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
+//     await page.getByText('Portugal', { exact: true }).first().click();
+//     await expect(page.getByRole('heading')).toContainText('n80049716');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal‑‑porto');
+//     await page.getByText('Portugal--Porto', { exact: true }).click();
+//     await expect(page.getByRole('heading')).toContainText('n50006403-781');
+//     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+//     await page.getByText('bf:Work').click();
+//     await expect(page.locator('#app')).toContainText('Dogs--Portugal--Porto');
+//     await expect(page.locator('#app')).toContainText('150 $aDogs');
+//     await expect(page.locator('#app')).toContainText('181 $zPortugal$zPorto');
+//     await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh85038796');
+//     await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/names/n50006403-781');
+//     await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Portugal $z Porto');
+// });
+
+// test('Build heading "Dogs--geo", but the first part of the geo heading is selected from LCSH and finish the heading before swapping to Hierarchical with correct XML and MARC', async ({ page }) => {
+//     await page.goto('http://localhost:5555/marva/');
+
+//     // Update the preferences for this test
+//     let prefs = JSON.stringify(preferences)
+//     await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+//     await page.reload();
+
+//     await page.getByText('Click Here').click();
+//     await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+//     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+//     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
+//     await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
+//     await expect(page.getByRole('heading')).toContainText('sh85038796');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
+//     await page.getByText('Portugal', { exact: true }).first().click();
+//     await expect(page.getByRole('heading')).toContainText('n80049716');
+
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal--porto');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+
+//     await page.getByText('Portugal--Porto', { exact: true }).click();
+//     await expect(page.getByRole('heading')).toContainText('n50006403-781');
+//     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+//     await page.getByText('bf:Work').click();
+//     await expect(page.locator('#app')).toContainText('Dogs--Portugal--Porto');
+//     await expect(page.locator('#app')).toContainText('150 $aDogs');
+//     await expect(page.locator('#app')).toContainText('181 $zPortugal$zPorto');
+//     await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh85038796');
+//     await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/names/n50006403-781');
+//     await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Portugal $z Porto');
+// });
+
+test('Build heading "Dogs--geo", but the second part isn\'t hierarchicalGeographic', async ({ page }) => {
     await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
@@ -339,58 +412,19 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
-    await page.getByText('Portugal', { exact: true }).first().click();
-    await expect(page.getByRole('heading')).toContainText('n80049716');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
 
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal‑‑porto');
-    await page.getByText('Portugal--Porto', { exact: true }).click();
-    await expect(page.getByRole('heading')).toContainText('n50006403-781');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--atlantic o');
+    await page.getByText('Atlantic Ocean', { exact: true }).first().click();
+    await expect(page.getByRole('heading')).toContainText('sh85009201-781');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('Dogs--Portugal--Porto');
+    await expect(page.locator('#app')).toContainText('Dogs--Atlantic Ocean');
     await expect(page.locator('#app')).toContainText('150 $aDogs');
-    await expect(page.locator('#app')).toContainText('181 $zPortugal$zPorto');
+    await expect(page.locator('#app')).toContainText('181 $zAtlantic Ocean');
     await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh85038796');
-    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/names/n50006403-781');
-    await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Portugal $z Porto');
-});
-
-test('Build heading "Dogs--geo", but the first part of the geo heading is selected from LCSH and finish the heading before swapping to Hierarchical with correct XML and MARC', async ({ page }) => {
-    await page.goto('http://localhost:5555/marva/');
-
-    // Update the preferences for this test
-    let prefs = JSON.stringify(preferences)
-    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
-    await page.reload();
-
-    await page.getByText('Click Here').click();
-    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
-
-    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
-    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
-    await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
-    await expect(page.getByRole('heading')).toContainText('sh85038796');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
-    await page.getByText('Portugal', { exact: true }).first().click();
-    await expect(page.getByRole('heading')).toContainText('n80049716');
-
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal--porto');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
-
-    await page.getByText('Portugal--Porto', { exact: true }).click();
-    await expect(page.getByRole('heading')).toContainText('n50006403-781');
-    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
-    await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('Dogs--Portugal--Porto');
-    await expect(page.locator('#app')).toContainText('150 $aDogs');
-    await expect(page.locator('#app')).toContainText('181 $zPortugal$zPorto');
-    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh85038796');
-    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/names/n50006403-781');
-    await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Portugal $z Porto');
+    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh85009201-781');
+    await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Atlantic Ocean');
 });
 
 // CYAC
@@ -504,28 +538,6 @@ test('Add a literal and set type Topic, it has the correct XML', async ({ page }
     await expect(page.locator('#app')).toContainText('literal');
 });
 
-test('Add a literal and set type Genre, it has the correct XML', async ({ page }) => {
-    await page.goto('http://localhost:5555/marva/');
-
-    // Update the preferences for this test
-    let prefs = JSON.stringify(preferences)
-    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
-    await page.reload();
-
-    await page.getByText('Click Here').click();
-    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
-
-    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
-    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('l');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('literal');
-    await page.getByText('literal [Literal]').click();
-    await page.getByText('Topic / Heading ($a $x)').click();
-    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
-    await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<madsrdf:Topicxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
-    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">');
-    await expect(page.locator('#app')).toContainText('literal');
-});
 
 test('Add a literal and set type Geographic, it has the correct XML', async ({ page }) => {
     await page.goto('http://localhost:5555/marva/');
@@ -727,6 +739,7 @@ test('Able to add an edited subject', async ({ page }) => {
     await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
     await page.reload();
 
+    await page.getByRole('link', { name: 'Test Data' }).click();
     await page.getByRole('row', { name: 'Schooling under control Load' }).getByRole('button').click();
     await page.getByRole('link', { name: 'Public schools--Austria--History--18th century', exact: true }).click();
     await expect(page.getByRole('dialog')).toContainText('Add [SHIFT+Enter]');

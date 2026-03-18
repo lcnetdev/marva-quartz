@@ -4,7 +4,18 @@ import {usePreferenceStore} from "../stores/preference";
 import short from 'short-uuid'
 const translator = short();
 
-
+/**
+ * Returns an Authorization header object if an SSO JWT is stored.
+ * Merge this into fetch options headers for util-service requests.
+ * @return {object} - e.g. { 'Authorization': 'Bearer <token>' } or {}
+ */
+function getAuthHeaders() {
+  const token = window.localStorage.getItem('marva_jwt')
+  if (token) {
+    return { 'Authorization': 'Bearer ' + token }
+  }
+  return {}
+}
 
 const utilsNetwork = {
 
@@ -110,7 +121,13 @@ const utilsNetwork = {
                 let labelData = null                // it has a URI and that URI is not the parent uri
                 // assume it is one of the values we want
                 // also skip any blank nodes
-                if (d['@id'] && d['@id'] != parentURI && !d['@id'].includes('_:') ){
+
+                // the length of the @id should be more than parentId for the elements that should be included
+                let parentUriLength = parentURI.split("/").length
+                let dIdLength = d['@id'].split("/").length
+
+                // if (d['@id'] && d['@id'] != parentURI && !d['@id'].includes('_:') ){
+                if (d['@id'] && dIdLength > parentUriLength && !d['@id'].includes('_:') ){
 
                     this.possibleLabelURIs.forEach((labelURI)=>{
                         // if it has this label URI and does not yet have a label
@@ -300,6 +317,7 @@ const utilsNetwork = {
 
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
+      url = url.replace('memberOf=-https://id.loc.gov/','memberOf=-http://id.loc.gov/')
 
 
       // can't use firewall servers on bibframe.org
@@ -311,6 +329,15 @@ const utilsNetwork = {
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
       }
+      // Add auth headers for util-service requests, but not for id.loc.gov / preprod id.loc.gov (except preprod-3001)
+      const isIdLocGov = /^https:\/\/(preprod(-(?!3001)\d+)?\.)?id\.loc\.gov/i.test(url)
+      if (!isIdLocGov) {
+        const authHdrs = getAuthHeaders()
+        if (Object.keys(authHdrs).length > 0) {
+          options.headers = { ...options.headers, ...authHdrs }
+        }
+      }
+
       // console.log("url:",url)
       // console.log('options:',options)
       let data = null
@@ -407,7 +434,7 @@ const utilsNetwork = {
 
       let returnUrls = useConfigStore().returnUrls
 
-      let r = await fetch(returnUrls.util + 'lccnnaco')
+      let r = await fetch(returnUrls.util + 'lccnnaco', { headers: getAuthHeaders() })
 
       let data = await r.json()
       return data.id
@@ -418,7 +445,7 @@ const utilsNetwork = {
 
       let returnUrls = useConfigStore().returnUrls
 
-      let r = await fetch(returnUrls.util + 'status')
+      let r = await fetch(returnUrls.util + 'status', { headers: getAuthHeaders() })
 
       let data = await r.json()
       return data
@@ -428,7 +455,7 @@ const utilsNetwork = {
     recordHistory: async function(bibid){
       if (bibid){
         let returnUrls = useConfigStore().returnUrls
-        let r = await fetch(returnUrls.util + 'history' + '/' + bibid)
+        let r = await fetch(returnUrls.util + 'history' + '/' + bibid, { headers: getAuthHeaders() })
         let data = await r.json()
         return data
       }
@@ -439,7 +466,7 @@ const utilsNetwork = {
       let returnUrls = useConfigStore().returnUrls
 
       try {
-        let r = await fetch(returnUrls.util + 'marva001')
+        let r = await fetch(returnUrls.util + 'marva001', { headers: getAuthHeaders() })
         let data = await r.json()
         return data.marva001
       } catch(err) {
@@ -2439,6 +2466,7 @@ const utilsNetwork = {
     * @param {string} searchVal - the value to search lcsh for
     * @param {string} complexVal - The orginal full string
     * @param {string} mode - the search mode LCSHNAF GEO WORKS HUBS
+    * @param {string} nameSearch - what kind of name search to do
     * @return {} -
     */
     subjectSearch: async function(searchVal, complexVal, complexSub, mode){
@@ -2464,20 +2492,21 @@ const utilsNetwork = {
       this.subjectSearchActive = true
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Auth Names'].url.replace('<QUERY>',searchVal).replace('&count=30','&count='+numResultsNames).replace("<OFFSET>", "1")+'&keepdiacritics=true'
       let namesGeoUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Geographic'].url.replace('<QUERY>',searchVal).replace('&count=30','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic&keepdiacritics=true'
-      let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=30','&count=5').replace("<OFFSET>", "1")+'&keepdiacritics=true' //&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions
+      let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=30','&count=5').replace("<OFFSET>", "1")+'&keepdiacritics=true&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       let subjectUrlComplexSearchVal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
       let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")+'&rdftype=SimpleType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
 
       let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
+      let subjectUrlSimpleGeoSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions'
       let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
       let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
       // To find Complex "Use"s for simple headings
       let subjectUrlSimpleComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")+'&rdftype=SimpleType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
 
-      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
+      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       // let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
       // let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
@@ -2485,7 +2514,7 @@ const utilsNetwork = {
       let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/hubs'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
       let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/hubs'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
 
-      let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&memberOf=-http://id.loc.gov/authorities/subjects/collection_Subdivisions'
       let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
 
@@ -2571,6 +2600,17 @@ const utilsNetwork = {
         subdivision: true,
         signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
       }
+
+
+      let searchPayloadSubjectsSimpleGeoSubdivision = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlSimpleGeoSubdivison],
+        searchValue: searchVal,
+        subjectSearch: true,
+        subdivision: true,
+        signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
+      }
+
       let searchPayloadSubjectsComplexSubdivision1 = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplexSubdivison1],
@@ -2710,6 +2750,7 @@ const utilsNetwork = {
       // this.searchExact(exactPayloadSubject),
       // resultsExactName, resultsExactSubject,
 
+
       if (mode == "LCSHNAF"){
         [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic, resultsSubjectsSimpleComplex] = await Promise.all([
             this.searchComplex(searchPayloadNames),
@@ -2744,9 +2785,10 @@ const utilsNetwork = {
         ]);
 
       }else if (mode == "GEO"){
-
-        [resultsHierarchicalGeographic] = await Promise.all([
-            this.searchComplex(searchPayloadHierarchicalGeographic)
+        [resultsHierarchicalGeographic, resultsPayloadSubjectsSimpleSubdivision, resultsNamesSubdivision] = await Promise.all([
+            this.searchComplex(searchPayloadHierarchicalGeographic),
+            this.searchComplex(searchPayloadSubjectsSimpleGeoSubdivision),
+            this.searchComplex(searchPayloadNamesSubdivision),
         ]);
 
       // }else if (mode == "WORKS"){
@@ -2894,7 +2936,7 @@ const utilsNetwork = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
         'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : resultsNamesSubdivision,
-        'hierarchicalGeographic': pos == 0 ? [] : resultsHierarchicalGeographic,
+        'hierarchicalGeographic': (mode !== 'GEO') ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
         'exact': exact,
@@ -2902,6 +2944,8 @@ const utilsNetwork = {
       }
 
       this.subjectSearchActive = false
+
+      // console.info("results: ", results)
 
       return results
     },
@@ -2919,6 +2963,7 @@ const utilsNetwork = {
         method: 'PUT', // Method itself
         headers: {
           'Content-type': 'application/xml', // Indicates the content
+          ...getAuthHeaders()
         },
         signal: AbortSignal.timeout(3000),  // add a timeout
         body: xml // We send data in JSON format
@@ -2961,7 +3006,7 @@ const utilsNetwork = {
        // }
        // console.log('options:',options)
        try{
-         let response = await fetch(url);
+         let response = await fetch(url, { headers: getAuthHeaders() });
 
          let data =  await response.text()
 
@@ -2984,7 +3029,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: ""
       });
@@ -2992,19 +3038,31 @@ const utilsNetwork = {
       return resp
      },
 
-     searchSavedRecords: async function(user,search){
+     getMLCNumber: async function(size){
+      // let utilUrl = useConfigStore().returnUrls.util
+      // let url = `${utilUrl}mlcgenerator/${size}`
+      // let r = await this.fetchSimpleLookup(url)
+
+      // mock response until backend is ready
+      let r = {"generator": "mlc_2026", "sequence": "mlcs", "status": "OK", "nextValue": "MLCM 2026/00165"}
+
+      if (r && r.nextValue){
+        return r.nextValue
+      }
+      return false
+     },
+
+     searchSavedRecords: async function(search, allRecords){
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
 
-
-
       let url
-      if (user && !search){
-        url = `${utilUrl}myrecords/${utilPath}/${user}`
-      }else if (user && search){
-        url = `${utilUrl}allrecords/${utilPath}/${search}/${user}`
+      if (search){
+        url = `${utilUrl}allrecords/${utilPath}/${search}`
+      }else if (allRecords){
+        url = `${utilUrl}allrecords/${utilPath}`
       }else{
-        url = `${utilUrl}allrecords/${utilPath}/`
+        url = `${utilUrl}myrecords/${utilPath}`
       }
       let r = await this.fetchSimpleLookup(url)
 
@@ -3038,7 +3096,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       //signal: AbortSignal.timeout(5000),
       body: JSON.stringify({rdfxml: xml})
@@ -3069,7 +3128,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       //signal: AbortSignal.timeout(5000),
       body: JSON.stringify({rdfxml: xml})
@@ -3112,7 +3172,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({
         query: query,
@@ -3151,7 +3212,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
     });
@@ -3188,7 +3250,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
     });
@@ -3228,7 +3291,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({name: uuid, rdfxml:xml, eid: eid, hub:postingHub})
     });
@@ -3270,7 +3334,8 @@ const utilsNetwork = {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: JSON.stringify({rdfxml:xml})
     });
@@ -3457,7 +3522,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           log: log,
@@ -3486,7 +3552,8 @@ const utilsNetwork = {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
           },
 
         });
@@ -3570,7 +3637,7 @@ const utilsNetwork = {
 
     async linkedDataBaseRelated(isbn){
       let returnUrls = useConfigStore().returnUrls
-      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn)
+      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn, { headers: getAuthHeaders() })
       let data = await r.json()
       console.log("linkedDataBaseRelated data:",data)
       return data
@@ -3827,7 +3894,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         //signal: AbortSignal.timeout(5000),
         body: JSON.stringify({uris: contributorsUris})
@@ -4102,7 +4170,8 @@ const utilsNetwork = {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         },
         body: JSON.stringify(data)
       });
@@ -4111,6 +4180,152 @@ const utilsNetwork = {
 
       return content
     },
+    /**
+    * Get all users with cataloger ID info
+    * @async
+    * @return {array} - array of user objects
+    */
+    queryUsers: async function(){
+      let url = useConfigStore().returnUrls.util + 'users'
+
+      try {
+        let response = await fetch(url, {
+          headers: {
+            'Accept': 'application/json',
+            ...getAuthHeaders()
+          }
+        })
+
+        if (!response.ok){
+          console.warn('queryUsers failed:', response.status)
+          return []
+        }
+
+        let data = await response.json()
+        return data.results || []
+      } catch(err) {
+        console.warn('queryUsers error:', err)
+        return []
+      }
+    },
+
+    /**
+    * Query the event log
+    * @async
+    * @param {object} params - query params: eId, lccn, instanceId, username, region, limit
+    * @return {array} - array of event objects
+    */
+    queryEvents: async function(params = {}){
+      let url = useConfigStore().returnUrls.util + 'events'
+
+      let queryParts = []
+      for (let key of ['eId', 'lccn', 'instanceId', 'username', 'region', 'limit']){
+        if (params[key] != null){
+          queryParts.push(`${key}=${encodeURIComponent(params[key])}`)
+        }
+      }
+      if (queryParts.length > 0){
+        url += '?' + queryParts.join('&')
+      }
+
+      try {
+        let response = await fetch(url, {
+          headers: {
+            'Accept': 'application/json',
+            ...getAuthHeaders()
+          }
+        })
+
+        if (!response.ok){
+          console.warn('queryEvents failed:', response.status)
+          return []
+        }
+
+        let data = await response.json()
+        return data.results || []
+      } catch(err) {
+        console.warn('queryEvents error:', err)
+        return []
+      }
+    },
+
+    /**
+    * Update the cataloger ID for a user
+    * @async
+    * @param {string} username - the username (must match JWT)
+    * @param {string} catId - the cataloger code
+    * @return {boolean} - true if updated successfully
+    */
+    updateUserCatId: async function(username, catId){
+      let url = useConfigStore().returnUrls.util + 'users/' + encodeURIComponent(username) + '/catId'
+
+      try {
+        let response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify({ catId: catId })
+        })
+
+        if (!response.ok){
+          console.warn('updateUserCatId failed:', response.status, await response.text())
+          return false
+        }
+
+        return true
+      } catch(err) {
+        console.warn('updateUserCatId error:', err)
+        return false
+      }
+    },
+
+    /**
+    * Log an event to the backend reporting endpoint
+    * @async
+    * @param {string} username - the authenticated username (must match JWT)
+    * @param {string} eventType - e.g. "LOAD_FROM_LCCN", "LOAD_FROM_COPYCAT", "CREATED_RECORD"
+    * @param {object} opts - optional fields: eId, lccn, instanceId, metadata
+    * @return {boolean} - true if the event was logged successfully
+    */
+    logEvent: async function(username, eventType, opts = {}){
+      let url = useConfigStore().returnUrls.util + 'events'
+
+      let body = {
+        username: username,
+        eventType: eventType
+      }
+
+      if (opts.eId) body.eId = opts.eId
+      if (opts.lccn) body.lccn = opts.lccn
+      if (opts.instanceId) body.instanceId = opts.instanceId
+      if (opts.metadata) body.metadata = opts.metadata
+
+      try {
+        let response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify(body)
+        })
+
+        if (!response.ok){
+          console.warn('logEvent failed:', response.status, await response.text())
+          return false
+        }
+
+        return true
+      } catch(err) {
+        console.warn('logEvent error:', err)
+        return false
+      }
+    },
+
     async fetchUserPrefs(user){
       let url = useConfigStore().returnUrls.util + 'prefs/' + user
 
@@ -4118,7 +4333,8 @@ const utilsNetwork = {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
         }
       });
 

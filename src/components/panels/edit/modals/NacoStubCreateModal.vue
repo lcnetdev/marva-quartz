@@ -594,6 +594,7 @@
 
         checkOneXX(){
           this.oneXXErrors = []
+          this.oneXX = this.oneXX.replace(/  +/g, ' ')
 
           if (this.oneXX.length<3){ return true}
 
@@ -686,44 +687,52 @@
             if (dollarKey.d){
 
               let lifeDates  = dollarKey.d.split('-')
-              // Personal Name 100
-              if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
-                this.zero46 = {}
-                this.zero46.f = lifeDates[0]
-                if (lifeDates[1].trim().length>0){
-                  this.zero46.g = lifeDates[1]
-                }
 
-              }
-              if (lifeDates.length==1 && (fieldTag == '100' || fieldTag == 100)){
-                this.zero46 = {}
-                this.zero46.f = lifeDates[0]
-              }
-              // Corporate Name 110
-              if (lifeDates.length>1 && (fieldTag == '110' || fieldTag == 110)){
-                this.zero46 = {}
-                this.zero46.q = lifeDates[0]
-                if (lifeDates[1].trim().length>0){
-                  this.zero46.r = lifeDates[1]
-                }
+              // if the first part is empty, or starts with a YYYY build the 046, otherwise don't
+              let dateCheck = /^[0-9]{4}/.test(lifeDates[0]) || lifeDates[0] == ""
 
-              }
-              if (lifeDates.length==1 && (fieldTag == '110' || fieldTag == 110)){
+              if (!dateCheck){
                 this.zero46 = {}
-                this.zero46.s = lifeDates[0]
-              }
-              // Conf Name 111
-              if (lifeDates.length>1 && (fieldTag == '111' || fieldTag == 111)){
-                this.zero46 = {}
-                this.zero46.s = lifeDates[0]
-                if (lifeDates[1].trim().length>0){
-                  this.zero46.t = lifeDates[1]
-                }
+              } else {
+                // Personal Name 100
+                if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
+                  this.zero46 = {}
+                  this.zero46.f = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.g = lifeDates[1]
+                  }
 
-              }
-              if (lifeDates.length==1 && (fieldTag == '111' || fieldTag == 111)){
-                this.zero46 = {}
-                this.zero46.q = lifeDates[0]
+                }
+                if (lifeDates.length==1 && (fieldTag == '100' || fieldTag == 100)){
+                  this.zero46 = {}
+                  this.zero46.f = lifeDates[0]
+                }
+                // Corporate Name 110
+                if (lifeDates.length>1 && (fieldTag == '110' || fieldTag == 110)){
+                  this.zero46 = {}
+                  this.zero46.q = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.r = lifeDates[1]
+                  }
+
+                }
+                if (lifeDates.length==1 && (fieldTag == '110' || fieldTag == 110)){
+                  this.zero46 = {}
+                  this.zero46.s = lifeDates[0]
+                }
+                // Conf Name 111
+                if (lifeDates.length>1 && (fieldTag == '111' || fieldTag == 111)){
+                  this.zero46 = {}
+                  this.zero46.s = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.t = lifeDates[1]
+                  }
+
+                }
+                if (lifeDates.length==1 && (fieldTag == '111' || fieldTag == 111)){
+                  this.zero46 = {}
+                  this.zero46.q = lifeDates[0]
+                }
               }
             }
 
@@ -736,45 +745,47 @@
             }
 
             if (dollarKey.a){
-              if (/[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)){
-              //  console.log("found a hyphenated name")
+              // Check for compound last names: hyphenated ("Jacobsen-Smith, Alejandro") or spaced ("Jacobsen Smith, Alejandro")
+              let isHyphenated = /[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)
+              let isSpacedCompound = !isHyphenated && /[A-Z][a-z]+ [A-Z][a-z]+,/.test(dollarKey.a)
+
+              if (isHyphenated || isSpacedCompound){
+               let separator = isHyphenated ? '-' : ' '
                if (dollarKey.a.split(',')[0]){
-                let hyphenated = dollarKey.a.split(',')[0].split('-')
-                // console.log(hyphenated)
-                if (hyphenated.length == 2){
-                  let newDollarA = `${hyphenated[1]}, ${dollarKey.a.split(',')[1].trim()} ${hyphenated[0]}-`
-                  let hyphenated4xx = {}
+                let compoundParts = dollarKey.a.split(',')[0].split(separator)
+                if (compoundParts.length == 2){
+                  let trailingSeparator = isHyphenated ? separator : ''
+                  let newDollarA = `${compoundParts[1]}, ${dollarKey.a.split(',')[1].trim()} ${compoundParts[0]}${trailingSeparator}`
+                  let compound4xx = {}
                   for (let partKey of Object.keys(dollarKey)){
-                    hyphenated4xx[partKey] = dollarKey[partKey]
+                    compound4xx[partKey] = dollarKey[partKey]
                   }
-                  hyphenated4xx.a = newDollarA
+                  compound4xx.a = newDollarA
 
                   // turn it into a 4xx
-                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.split('');
-                  hyphenated4xx.fieldTag[0] = '4';
-                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.join('');
+                  compound4xx.fieldTag = compound4xx.fieldTag.split('');
+                  compound4xx.fieldTag[0] = '4';
+                  compound4xx.fieldTag = compound4xx.fieldTag.join('');
                   let subfields = ""
-                  for (let key in hyphenated4xx){
+                  for (let key in compound4xx){
                     if (key.length==1){
-                      subfields = subfields + '$'+key+' '+hyphenated4xx[key] + ' '
+                      subfields = subfields + '$'+key+' '+compound4xx[key] + ' '
                     }
                   }
-                  hyphenated4xx.preview = `${hyphenated4xx.fieldTag} ${hyphenated4xx.indicators.replace(/\s/g,'#')} ${subfields}`
-                  // console.log("hyphenated4xx",hyphenated4xx)
-                  this.hyphenated4xx = hyphenated4xx
+                  compound4xx.preview = `${compound4xx.fieldTag} ${compound4xx.indicators.replace(/\s/g,'#')} ${subfields}`
+                  this.hyphenated4xx = compound4xx
                   this.buildHyphenated4xx = true
 
                   if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
                     // if there isn't a 4xx field already in advanced mode
                     if (this.extraMarcStatements.length > 0){
 
-
                       // remove all the 4xx fields from extraMarcStatements that are autoGenerated
                       this.extraMarcStatements = this.extraMarcStatements.filter(field => !(field.fieldTag.startsWith("4") && field.autoGenerated));
 
                       this.extraMarcStatements.push({
-                        fieldTag: hyphenated4xx.fieldTag,
-                        indicators: hyphenated4xx.indicators.replace(/\s/g,'#'),
+                        fieldTag: compound4xx.fieldTag,
+                        indicators: compound4xx.indicators.replace(/\s/g,'#'),
                         value: subfields,
                         autoGenerated: true,
                       })
@@ -783,14 +794,9 @@
                   }
                 }
 
-
-
                }
 
-
-
               }
-
 
             }
 
@@ -816,9 +822,9 @@
 
         checkFourXX(){
 
-
-
           this.fourXXErrors = []
+          this.fourXX = this.fourXX.replace(/  +/g, ' ')
+
           if (this.fourXX.length<3){ return true}
 
           // check the auth label for a textmacro and update it
@@ -950,12 +956,19 @@
           }
 
 
-
-
-
-
         },
 
+        set1xxFromSearchString(lastComplexLookupString){
+
+          // Check if oneXX already has a valid tag+indicators prefix (e.g. "10010", "1001 ", "110##")
+          let existingPrefix = this.oneXX.match(/^1\d{2}[0-9# ]{2}/)
+          if (existingPrefix) {
+            this.oneXX = existingPrefix[0] + '$a ' + lastComplexLookupString
+          } else {
+            this.oneXX = '1XX##$a ' + lastComplexLookupString
+          }
+
+        },
         addRow(){
 
           this.extraMarcStatements.push({
@@ -1301,6 +1314,7 @@
           // rebuild 046 if $d is present
           if (this.oneXX.includes("$d")){
             let tmp046 = this.build046()
+
             // Delete the existing 046
             let existing046 = false
             for (let idx in this.extraMarcStatements){
@@ -1309,19 +1323,25 @@
                 existing046 = idx
               }
             }
-            if (existing046){
-              if (this.getOneXXtag() == '151'){ // if it would be empty don't add it
-                this.extraMarcStatements.splice(existing046, 1)
-                this.zero46 = {}
-                return
+
+            if (tmp046.value != ""){
+              if (existing046){
+                if (this.getOneXXtag() == '151'){ // if it would be empty don't add it
+                  this.extraMarcStatements.splice(existing046, 1)
+                  this.zero46 = {}
+                  return
+                }
+                this.extraMarcStatements[existing046] = tmp046
+              } else {
+                if (this.getOneXXtag() == '151'){
+                  this.zero46 = {}
+                  return
+                }
+                this.extraMarcStatements.push(tmp046)
               }
-              this.extraMarcStatements[existing046] = tmp046
-            } else {
-              if (this.getOneXXtag() == '151'){
-                this.zero46 = {}
-                return
-              }
-              this.extraMarcStatements.push(tmp046)
+            } else if (existing046){ // remove the exising 046
+              this.extraMarcStatements.splice(existing046, 1)
+              return
             }
           }
 
@@ -1562,10 +1582,10 @@
           if (this.lastComplexLookupString.trim() != ''){
             const yearMatch = this.lastComplexLookupString.match(/(\d{4})/)
             if (yearMatch) {
-              // Only insert if not already preceded by $d
+              // Only insert if not already preceded by $d, and there isn't already a $d,
               const year = yearMatch[1]
               const idx = this.lastComplexLookupString.indexOf(year)
-              if (idx > 0 && !/\$d\s*$/.test(this.lastComplexLookupString.slice(0, idx))) {
+              if (!this.lastComplexLookupString.includes("$d") && idx > 0 && !/\$d\s*$/.test(this.lastComplexLookupString.slice(0, idx))) {
                 this.lastComplexLookupString =
                   this.lastComplexLookupString.slice(0, idx) +
                   ' $d ' +
@@ -1785,7 +1805,7 @@
 
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1; position: relative;">
-                  <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
+                  <button class="paste-from-search simptip-position-left" @click="set1xxFromSearchString(lastComplexLookupString); checkOneXX()" v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <!-- <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-"> -->
                   <textarea
                     ref="nar-1xx"
@@ -1798,7 +1818,7 @@
                     ></textarea>
 
                   <div v-if="populatedValue && populatedValue.marcKey && (!populatedValue.marcKey.includes(lastComplexLookupString.replace(/ *(\$[a-z]) */g, '$1')))">
-                    (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
+                    (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="set1xxFromSearchString(lastComplexLookupString); checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
                   </div>
                 </div>
               </div>

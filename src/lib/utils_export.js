@@ -1392,8 +1392,12 @@ const utilsExport = {
 		// Add in a adminMetadata to the resources with this user id
 		// catInitals.log(profile)
 		//get user info from preferenceStore instead of the profile
-		let userInitial = usePreferenceStore().catInitals
-		let catCode = usePreferenceStore().catCode
+		let prefStore = usePreferenceStore()
+		let userInitial = prefStore.catInitals
+		if (prefStore.ssoUser && prefStore.ssoUser.email){
+			userInitial = prefStore.ssoUser.email.split('@')[0]
+		}
+		let catCode = prefStore.catCode
 		let user = `${userInitial} (${catCode})`
 		profile.user = user
 		// let catCode = profile.user.split(" (")
