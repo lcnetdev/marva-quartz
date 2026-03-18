@@ -1,6 +1,9 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.6.x] - 2025-03-20
+### Added
+- Introduced MLC Number Generator (https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/mlc-numbers.md)
 
 
 ## [1.5.2] - 2025-03-13
