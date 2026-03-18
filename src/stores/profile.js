@@ -8146,7 +8146,8 @@ export const useProfileStore = defineStore('profile', {
 
       return false
 
-    }
+    },
+
     // ---------------------------UNDO STUFF BELOW HERE--------------------------------------
     saveState: function(profile=false){
       // profile is populated when the record is loaded from the URL
