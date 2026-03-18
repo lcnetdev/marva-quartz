@@ -3027,12 +3027,9 @@ const utilsNetwork = {
      },
 
      getMLCNumber: async function(size){
-      // let utilUrl = useConfigStore().returnUrls.util
-      // let url = `${utilUrl}mlcgenerator/${size}`
-      // let r = await this.fetchSimpleLookup(url)
-
-      // mock response until backend is ready
-      let r = {"generator": "mlc_2026", "sequence": "mlcs", "status": "OK", "nextValue": "MLCM 2026/00165"}
+      let url = useConfigStore().returnUrls.folioMLCEndpoint + `?sequence=mlc${size}`
+      let r = await fetch(url, { headers: getAuthHeaders() })
+      r = await r.json()
 
       if (r && r.nextValue){
         return r.nextValue

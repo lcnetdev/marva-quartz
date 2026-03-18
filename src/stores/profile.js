@@ -3919,20 +3919,15 @@ export const useProfileStore = defineStore('profile', {
     insertMLCNumber: async function(componentGuid){
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      console.log("insert into",pt)
       let enhanceResults = await this.mlcNumberEnhance()
 
-      console.log("enhance results",enhanceResults)
+      // console.log("enhance results",enhanceResults)
       // look for the dimensions in the instance
       let dimensions = null
       for (let rtId in this.activeProfile.rt){
-        console.log("looking at rt",rtId)
-        console.log("URI",this.activeProfile.rt[rtId].URI)
         if (this.activeProfile.rt[rtId].URI && this.activeProfile.rt[rtId].URI.indexOf('/instances/')>-1){
           let instancePt = this.activeProfile.rt[rtId].pt
           for (let ptId in instancePt){
-            console.log("looking at pt",ptId)
-            console.log("propertyURI",instancePt[ptId].propertyURI)
             if (instancePt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/dimensions' && instancePt[ptId].userValue && instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'] && instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'][0]['http://id.loc.gov/ontologies/bibframe/dimensions']){
             dimensions = instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'][0]['http://id.loc.gov/ontologies/bibframe/dimensions']
             break
@@ -3943,10 +3938,8 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-      console.log("dimensions",dimensions)
       if (dimensions){
         let size = parseDimensions(dimensions)
-        console.log("size",size)
         // if it wasnt able to parse it unset it
         if (!size || !size.size){
           dimensions = null
@@ -3981,10 +3974,9 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      console.log("final dimensions",dimensions)
       // now ask the API for the next number
-      let number = await utilsNetwork.getMLCNumber(dimensions)
-      console.log("MLC number", number)
+      let number = await utilsNetwork.getMLCNumber(dimensions.toLowerCase())
+      this.logEvent('REQUESTED_MLC_NUMBER', { metadata: [number] })
 
       let division = usePreferenceStore().returnValue('--b-shelflist-mlc-division')
       if (division && division != ""){

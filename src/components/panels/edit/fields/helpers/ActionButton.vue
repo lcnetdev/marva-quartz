@@ -846,7 +846,7 @@
         
 
         let newGuid = await this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
-        console.log("New guid for MLC number:", newGuid)
+        
         let dataGuid = await this.profileStore.insertMLCNumber(newGuid)
         this.sendFocusHome()
 
