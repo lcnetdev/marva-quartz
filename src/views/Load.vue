@@ -1084,6 +1084,20 @@ export default {
                           "@type": "http://id.loc.gov/ontologies/bibframe/Status"
                         }
                       ],
+                    "http://id.loc.gov/ontologies/bibframe/agent": [
+                      {
+                        "@guid": short.generate(),
+                        "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+                        "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+                        "http://id.loc.gov/ontologies/bibframe/code": [
+                          {
+                            "@guid": short.generate(),
+                            "http://id.loc.gov/ontologies/bibframe/code": "DLC",
+                            "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                          }
+                        ]
+                      }
+                    ],
                     "http://id.loc.gov/ontologies/bibframe/assigner": [
                       {
                         "@guid": short.generate(),
