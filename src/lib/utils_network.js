@@ -121,7 +121,13 @@ const utilsNetwork = {
                 let labelData = null                // it has a URI and that URI is not the parent uri
                 // assume it is one of the values we want
                 // also skip any blank nodes
-                if (d['@id'] && d['@id'] != parentURI && !d['@id'].includes('_:') ){
+
+                // the length of the @id should be more than parentId for the elements that should be included
+                let parentUriLength = parentURI.split("/").length
+                let dIdLength = d['@id'].split("/").length
+
+                // if (d['@id'] && d['@id'] != parentURI && !d['@id'].includes('_:') ){
+                if (d['@id'] && dIdLength > parentUriLength && !d['@id'].includes('_:') ){
 
                     this.possibleLabelURIs.forEach((labelURI)=>{
                         // if it has this label URI and does not yet have a label
@@ -311,6 +317,7 @@ const utilsNetwork = {
 
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
+      url = url.replace('memberOf=-https://id.loc.gov/','memberOf=-http://id.loc.gov/')
 
 
       // can't use firewall servers on bibframe.org
@@ -322,11 +329,15 @@ const utilsNetwork = {
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
       }
-      // Add auth headers for util-service requests
-      const authHdrs = getAuthHeaders()
-      if (Object.keys(authHdrs).length > 0) {
-        options.headers = { ...options.headers, ...authHdrs }
+      // Add auth headers for util-service requests, but not for id.loc.gov / preprod id.loc.gov (except preprod-3001)
+      const isIdLocGov = /^https:\/\/(preprod(-(?!3001)\d+)?\.)?id\.loc\.gov/i.test(url)
+      if (!isIdLocGov) {
+        const authHdrs = getAuthHeaders()
+        if (Object.keys(authHdrs).length > 0) {
+          options.headers = { ...options.headers, ...authHdrs }
+        }
       }
+
       // console.log("url:",url)
       // console.log('options:',options)
       let data = null
@@ -2455,6 +2466,7 @@ const utilsNetwork = {
     * @param {string} searchVal - the value to search lcsh for
     * @param {string} complexVal - The orginal full string
     * @param {string} mode - the search mode LCSHNAF GEO WORKS HUBS
+    * @param {string} nameSearch - what kind of name search to do
     * @return {} -
     */
     subjectSearch: async function(searchVal, complexVal, complexSub, mode){
@@ -2502,7 +2514,7 @@ const utilsNetwork = {
       let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/hubs'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
       let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/hubs'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
 
-      let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&memberOf=-http://id.loc.gov/authorities/subjects/collection_Subdivisions'
       let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
 
@@ -2738,6 +2750,7 @@ const utilsNetwork = {
       // this.searchExact(exactPayloadSubject),
       // resultsExactName, resultsExactSubject,
 
+
       if (mode == "LCSHNAF"){
         [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic, resultsSubjectsSimpleComplex] = await Promise.all([
             this.searchComplex(searchPayloadNames),
@@ -2932,6 +2945,8 @@ const utilsNetwork = {
 
       this.subjectSearchActive = false
 
+      // console.info("results: ", results)
+
       return results
     },
 
@@ -3021,6 +3036,20 @@ const utilsNetwork = {
       });
 
       return resp
+     },
+
+     getMLCNumber: async function(size){
+      // let utilUrl = useConfigStore().returnUrls.util
+      // let url = `${utilUrl}mlcgenerator/${size}`
+      // let r = await this.fetchSimpleLookup(url)
+
+      // mock response until backend is ready
+      let r = {"generator": "mlc_2026", "sequence": "mlcs", "status": "OK", "nextValue": "MLCM 2026/00165"}
+
+      if (r && r.nextValue){
+        return r.nextValue
+      }
+      return false
      },
 
      searchSavedRecords: async function(search, allRecords){

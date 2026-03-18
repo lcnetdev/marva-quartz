@@ -128,11 +128,18 @@
               </button>
         </template>
 
+        <!-- <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
+          <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="insertMLCNumber()" :style="buttonStyle">
+            MLC Number
+          </button>
+        </template> -->
+
         <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
           <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()" :style="buttonStyle">
             <span class="">🤖</span>AutoDewey
           </button>
         </template>
+
 
         <template v-if="showHideElementButton()">
           <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="hideElement()" :style="buttonStyle">
@@ -212,6 +219,7 @@
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
+  import { nextTick } from 'vue'
 
   export default {
     components: {
@@ -495,8 +503,6 @@
 
 
       shortCutPressed: function(){
-
-
         // start fishing for the popup div
         let popoverDetectTimeout
         popoverDetectTimeout = window.setInterval(()=>{
@@ -830,6 +836,28 @@
       //     this.$emit('actionButtonCommand', cmd)
       //     this.showActionButtonMenu=false
       // }
+
+
+      insertMLCNumber: async function(){
+        // let lccn = this.profileStore.returnLccInfo(this.guid)
+        // this.profileStore.insertMLCNumber(this.guid, lccn)
+
+        
+
+        let newGuid = await this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+        console.log("New guid for MLC number:", newGuid)
+        let dataGuid = await this.profileStore.insertMLCNumber(newGuid)
+        this.sendFocusHome()
+
+
+      nextTick(() => {
+        let el = document.querySelector(`[data-guid="${dataGuid}"]`)
+        if (el) el.focus()
+      })
+
+
+
+      },
 
       convertLcc2Dewey: function(){
         const parent = this.profileStore.returnStructureByComponentGuid(this.guid)

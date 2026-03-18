@@ -2177,6 +2177,8 @@ const utilsParse = {
     profile = this.extractISBN(profile)
 
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
+    // save for undo
+    useProfileStore().saveState(profile)
 
     return profile
   },

@@ -10,6 +10,8 @@ import utilsNetwork from '@/lib/utils_network';
 import utilsParse from '@/lib/utils_parse';
 import utilsRDF from '@/lib/utils_rdf';
 import utilsExport from '@/lib/utils_export';
+import { parseDimensions } from '@/lib/parseDimensions';
+
 // import utilsMisc from '@/lib/utils_misc';
 
 import shortCodesOverrides from "@/lib/shortCodesOverrides.json"
@@ -169,6 +171,12 @@ export const useProfileStore = defineStore('profile', {
     hiddenClassNumbers: false,
 
     localMarva: false,
+
+    // undo
+    currentState: null,
+    undoRecords: [],
+    redoRecords: [],
+    undoRedoLimit: 10
   }),
   getters: {
 
@@ -3889,6 +3897,110 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    /**
+     * Pass the component GUID to use and it will insert a MLC number into the userValue
+     * based on the dimensions in the instance otherwise it will ask the user to give the size
+    **/
+    insertMLCNumber: async function(componentGuid){
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      console.log("insert into",pt)
+
+      // look for the dimensions in the instance
+      let dimensions = null
+      for (let rtId in this.activeProfile.rt){
+        console.log("looking at rt",rtId)
+        console.log("URI",this.activeProfile.rt[rtId].URI)
+        if (this.activeProfile.rt[rtId].URI && this.activeProfile.rt[rtId].URI.indexOf('/instances/')>-1){
+          let instancePt = this.activeProfile.rt[rtId].pt
+          for (let ptId in instancePt){
+            console.log("looking at pt",ptId)
+            console.log("propertyURI",instancePt[ptId].propertyURI)
+            if (instancePt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/dimensions' && instancePt[ptId].userValue && instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'] && instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'][0]['http://id.loc.gov/ontologies/bibframe/dimensions']){
+            dimensions = instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'][0]['http://id.loc.gov/ontologies/bibframe/dimensions']
+            break
+            }
+          }
+          if (dimensions){
+            break
+          }
+        }
+      }
+      console.log("dimensions",dimensions)
+      if (dimensions){
+        let size = parseDimensions(dimensions)
+        console.log("size",size)
+        // if it wasnt able to parse it unset it
+        if (!size || !size.size){
+          dimensions = null
+        }else{
+          dimensions = size.size
+        }
+      }
+
+      if (!dimensions){
+        dimensions = prompt("Could not find dimensions in the record. Please enter the MLC size to use: S, M, L or F")
+        // check they did it right
+        if (dimensions && ['S','M','L','F'].includes(dimensions.toUpperCase())){
+          dimensions = dimensions.toUpperCase()
+        }else{
+          alert("Invalid size entered. Try inserting MLC again and enter S, M, L or F. ")
+          return
+        }
+
+      }else{
+        // it did parse scuessfully convert the lib respomse into the size letter
+        if (dimensions== 'small'){
+          dimensions = 'S'
+        }else if (dimensions == 'medium'){
+          dimensions = 'M'
+        }else if (dimensions == 'large'){
+          dimensions = 'L'
+        }else if (dimensions == 'oversize' || dimensions == 'folio'){
+          dimensions = 'F'
+        }else{
+          alert("Error in parsing dimensions. ", dimensions)
+          return
+        }
+      }
+
+      console.log("final dimensions",dimensions)
+      // now ask the API for the next number
+      let number = await utilsNetwork.getMLCNumber(dimensions)
+      console.log("MLC number", number)
+      // now update the userValue of the pt with that number
+      // it goes into the userValue -> http://id.loc.gov/ontologies/bibframe/classification[0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+      if (!pt.userValue){
+        pt.userValue = {}
+      }
+      let dataFieldGuid = short.generate()
+      if (!pt.userValue['http://id.loc.gov/ontologies/bibframe/classification']){
+        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] = [{
+          "@guid": short.generate(),
+          "@type": "http://id.loc.gov/ontologies/bibframe/ClassificationLcc",
+          "http://id.loc.gov/ontologies/bibframe/classificationPortion": [{
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }]
+        }]
+      }else if (!pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'] = [{
+          "@guid": dataFieldGuid,
+          "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+        }]
+      }else{
+        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] = {
+          "@guid": dataFieldGuid,
+          "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+        }
+      }
+
+
+      return dataFieldGuid
+
+
+    },
+
 
     /**
     * If it is a LCC component info about the LCC numbers
@@ -4755,6 +4867,9 @@ export const useProfileStore = defineStore('profile', {
         // they changed something
         this.dataChanged()
 
+        // send back the component guid incase the UI needs to do something with it
+        return newPt['@guid']
+
       }else{
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
 
@@ -4974,17 +5089,17 @@ export const useProfileStore = defineStore('profile', {
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
         // console.log("Data changed, this.activeProfile", this.activeProfile)
+
+        // save the current record for undo
+        this.saveState()
+
         // if they have auto save on then save it also
         if (usePreferenceStore().returnValue('--b-general-auto-save')){
-
           this.saveRecord()
-
-
         }
 
       },500)
     },
-
 
     /**
     * A helper that can be run before loading a new record to do any maintenance needed
@@ -6716,6 +6831,20 @@ export const useProfileStore = defineStore('profile', {
         {}
       );
 
+
+      // update uris to be more generic.
+      let ordereString = JSON.stringify(orderedFound)
+      let libraryString = JSON.stringify(orderedLibrary)
+
+      ordereString = ordereString.replaceAll("//id.loc.gov", "//example.com")
+      libraryString = libraryString.replaceAll("//id.loc.gov", "//example.com")
+
+      ordereString = ordereString.replaceAll("//preprod.id.loc.gov", "//example.com")
+      libraryString = libraryString.replaceAll("//preprod.id.loc.gov", "//example.com")
+
+      orderedFound = JSON.parse(ordereString)
+      orderedLibrary = JSON.parse(libraryString)
+
       // console.info("existing: ", JSON.stringify(orderedFound))
       // console.info("library: ", JSON.stringify(orderedLibrary))
 
@@ -8018,6 +8147,83 @@ export const useProfileStore = defineStore('profile', {
       return false
 
     }
+    // ---------------------------UNDO STUFF BELOW HERE--------------------------------------
+    saveState: function(profile=false){
+      // profile is populated when the record is loaded from the URL
+      if (!profile){
+        profile = JSON.stringify(this.activeProfile)
+      } else {
+        profile = JSON.stringify(profile)
+      }
+
+      if (this.currentState){
+        if (this.undoRecords.length < this.undoRedoLimit){
+          this.undoRecords.push(this.currentState)
+        } else { // remove the oldest profile
+          this.undoRecords.shift()
+          this.undoRecords.push(this.currentState)
+        }
+      }
+
+      this.currentState = profile
+
+
+    },
+
+    undoChange: async function(){
+      if (this.undoRecords.length < 1){
+        alert("Nothing to undo. We can't go back anymore.")
+        return
+      }
+      let profile = JSON.stringify(this.activeProfile)
+
+      // go back
+      let last = this.undoRecords.pop()
+      this.activeProfile = JSON.parse(last)
+
+      // save the profile to redo
+      if (this.redoRecords.length < this.undoRedoLimit){
+        this.redoRecords.push(profile)
+      } else { // remove the oldest profile
+        this.redoRecords.shift()
+        this.redoRecords.push(profile)
+      }
+      // trigger xml refresh
+      this.dataChangedTimestamp = Date.now()
+
+      this.activeProfileSaved = false
+      if (usePreferenceStore().returnValue('--b-general-auto-save')){
+        this.saveRecord()
+      }
+    },
+
+    redoChange: async function(){
+      if (this.redoRecords.length < 1){
+        alert("Nothing to redo. We can't go forward anymore.")
+        return
+      }
+      // let profile = JSON.stringify(this.activeProfile)
+      this.currentState = JSON.stringify(this.activeProfile)
+
+      // save the profile to undo
+      if (this.undoRecords.length < this.undoRedoLimit){
+        this.undoRecords.push(this.currentState)
+      } else { // remove the oldest profile
+        this.undoRecords.shift()
+        this.undoRecords.push(this.currentState)
+      }
+
+      let last = this.redoRecords.pop()
+      this.activeProfile = JSON.parse(last)
+
+      // trigger xml refresh
+      this.dataChangedTimestamp = Date.now()
+
+      this.activeProfileSaved = false
+      if (usePreferenceStore().returnValue('--b-general-auto-save')){
+        this.saveRecord()
+      }
+    },
 
 
 
