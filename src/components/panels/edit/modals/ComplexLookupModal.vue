@@ -1238,7 +1238,7 @@
                     <!-- Labels & Relationships -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
+                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul class="details-list">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
