@@ -1947,6 +1947,9 @@ const utilsParse = {
                   status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
                   status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
 
+
+                  console.info("userValue: ", JSON.parse(JSON.stringify(userValue)))
+
                   // update date
                   let date = userValue["http://id.loc.gov/ontologies/bibframe/date"][0]
                   date["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]

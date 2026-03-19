@@ -3413,7 +3413,7 @@ export const useProfileStore = defineStore('profile', {
           preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
         }
       } else {
-        if (xml.bf2MarcMulti.length > 1){
+        if (xml.bf2MarcMulti && xml.bf2MarcMulti.length > 1){
           preview = await utilsNetwork.marcPreview(xml.bf2MarcMulti, true, true)
         } else {
           preview = await utilsNetwork.marcPreview(xml.bf2Marc, true)
@@ -8137,6 +8137,19 @@ export const useProfileStore = defineStore('profile', {
               encLvl["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] = "5"
               encLvl["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "preliminary"
             }
+
+            // date
+            if (!userValue["http://id.loc.gov/ontologies/bibframe/date"]){
+              userValue["http://id.loc.gov/ontologies/bibframe/date"] = [
+                {
+                  '@guid': short.generate(),
+                  "http://id.loc.gov/ontologies/bibframe/date": new Date().toISOString().split('T')[0]
+                }
+              ]
+            } else {
+              userValue["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]
+            }
+
             delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
             delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
             // remove 9XXs
