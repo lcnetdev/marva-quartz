@@ -1944,8 +1944,13 @@ const utilsParse = {
                 let status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
                 if (status["@id"] == "http://id.loc.gov/vocabulary/mstatus/n"){
                 // status = change
-                  status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
-                  status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
+                  if (profile.procInfo != "Derive Record"){
+                    status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
+                    status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
+                  }
+
+
+                  console.info("userValue: ", JSON.parse(JSON.stringify(userValue)))
 
                   // update date
                   let date = userValue["http://id.loc.gov/ontologies/bibframe/date"][0]
@@ -2270,7 +2275,6 @@ const utilsParse = {
 
     }
 
-
     for (let rt of profile.rtOrder){
       for (let pt of profile.rt[rt].ptOrder){
         let ptObj = profile.rt[rt].pt[pt]
@@ -2278,17 +2282,18 @@ const utilsParse = {
             // e.g.
             // only array > 1 make it here
             if (value.filter((v)=>{ return (v['@language'])}).length >= 1){
-              // only arrays with @language in them make it here and only if they do nt all have it
-              value.forEach((v, index)=>{
-                // if (index == 0){
-                if (index % 2 === 0){
-                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = value.length
-                }else if (index == value.length-1){
-                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
-                }else{
-                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
-                }
-              })
+                // only arrays with @language in them make it here and only if they do nt all have it
+                value.forEach((v, index)=>{
+                  // if (index == 0){
+                  if (index % 2 === 0){
+                    useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = value.length
+                  }else if (index == value.length-1){
+                    useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
+                  }else{
+                    useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
+                  }
+                })
+
             }
         });
       }

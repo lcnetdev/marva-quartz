@@ -470,6 +470,9 @@ const utilsProfile = {
     let xml = await utilsNetwork.loadSavedRecord(recordId)
     let meta = this.returnMetaFromSavedXML(xml)
 
+    console.info("xml: ", xml)
+    console.info("meta: ", meta)
+
     utilsParse.parseXml(meta.xml)
     // alert(parseBfdb.hasItem)
 
@@ -534,6 +537,8 @@ const utilsProfile = {
     let transformResults  = await utilsParse.transformRts(useProfile)
 
     transformResults = this.reorderRTOrder(transformResults)
+
+    console.info("transformResults: ", transformResults)
 
 
     return transformResults

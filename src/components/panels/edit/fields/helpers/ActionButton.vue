@@ -584,6 +584,7 @@
         } else {
           // // look up one level & use the appropriate structure
           let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+
           if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
             for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
               if (vRt==this.structure.parentId && this.profileStore.rtLookup[vRt]){

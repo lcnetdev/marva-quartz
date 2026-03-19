@@ -838,8 +838,11 @@ export default {
       } else if (this.urlToLoad == 'new') {
         // continue on with a empty profile
         try {
-          marva001 = await utilsNetwork.getMarva001() // get the Marva001
-          this.profileStore.logEvent('001_REQUESTED', { metadata: [marva001] })
+          if (useConfigStore().returnUrls.env == 'production' || useConfigStore().returnUrls.dev){
+            marva001 = await utilsNetwork.getMarva001() // get the Marva001
+          } else {
+            marva001 = 'stagingRecord' + Date.now().toString()
+          }
         } catch(err){
           marva001 = '!!testValue!!'
         }
@@ -1039,6 +1042,7 @@ export default {
               console.warn("Using default template for admin metadata: ", err)
               targetTemplate = "lc:RT:bf2:AdminMetadata"
             }
+
 
             // Add the Admin Metadata with the eNumber
             pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
