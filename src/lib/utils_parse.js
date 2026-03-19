@@ -1944,8 +1944,10 @@ const utilsParse = {
                 let status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
                 if (status["@id"] == "http://id.loc.gov/vocabulary/mstatus/n"){
                 // status = change
-                  status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
-                  status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
+                  if (profile.procInfo != "Derive Record"){
+                    status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
+                    status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
+                  }
 
 
                   console.info("userValue: ", JSON.parse(JSON.stringify(userValue)))
