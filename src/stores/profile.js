@@ -171,7 +171,7 @@ export const useProfileStore = defineStore('profile', {
     hiddenClassNumbers: false,
 
 
-    
+
 
     localMarva: false,
 
@@ -2294,8 +2294,8 @@ export const useProfileStore = defineStore('profile', {
             usePreferenceStore().setValue('--b-shelflist-mlc-division',mlcMatch[1].toUpperCase())
           } else {
             usePreferenceStore().setValue('--b-shelflist-mlc-division',"")
-          }            
-        }        
+          }
+        }
 
 
         // console.log("Before prune")
@@ -3404,6 +3404,7 @@ export const useProfileStore = defineStore('profile', {
     */
     marcPreview: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
+
       let preview = null
       if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
         if (xml.bf2MarcMulti.length > 1){

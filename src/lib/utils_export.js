@@ -573,6 +573,8 @@ const utilsExport = {
         		// extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
 
+				if (!ptObj){ continue }
+
 				if (ptObj.deleted){
 					continue
 				}
