@@ -1070,13 +1070,39 @@ export default {
                           }
                         ],
                         }
-                      ]
-                    ,
+                      ],
+                      "http://id.loc.gov/ontologies/bibframe/status": [
+                        {
+                          "@guid": "fbRKPXtZjPU8b8E3dAFDyq",
+                          "@id": "http://id.loc.gov/vocabulary/mstatus/n",
+                          "http://www.w3.org/2000/01/rdf-schema#label": [
+                            {
+                              "@guid": "q5NhmHwzmMpug1UB7wcG8B",
+                              "http://www.w3.org/2000/01/rdf-schema#label": "new "
+                            }
+                          ],
+                          "@type": "http://id.loc.gov/ontologies/bibframe/Status"
+                        }
+                      ],
+                    "http://id.loc.gov/ontologies/bibframe/agent": [
+                      {
+                        "@guid": short.generate(),
+                        "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+                        "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+                        "http://id.loc.gov/ontologies/bibframe/code": [
+                          {
+                            "@guid": short.generate(),
+                            "http://id.loc.gov/ontologies/bibframe/code": "DLC",
+                            "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                          }
+                        ]
+                      }
+                    ],
                     "http://id.loc.gov/ontologies/bibframe/assigner": [
                       {
                         "@guid": short.generate(),
                         "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
-                        "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                        "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
                         "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
                             "@guid": short.generate(),
@@ -1097,9 +1123,15 @@ export default {
                           {
                             "@guid": short.generate(),
                             "http://id.loc.gov/ontologies/bibframe/code": "US-dlc",
-                            "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
+                            "@datatype": "http://id.loc.gov/datatypes/codes/iso15511"
                           }
                         ]
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/date": [
+                      {
+                        "@guid": short.generate(),
+                        "http://id.loc.gov/ontologies/bibframe/date": new Date().toISOString().split('T')[0]
                       }
                     ],
                     "http://id.loc.gov/ontologies/bibframe/descriptionAuthentication": [
@@ -1139,6 +1171,25 @@ export default {
                         ],
                         "@id": "http://id.loc.gov/vocabulary/languages/eng",
                         "@type": "http://id.loc.gov/ontologies/bibframe/Language"
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bflc/catalogerId": [
+                      {
+                        "@guid": "fgHPJYcNZNBkeELEUv1M3E",
+                        "http://id.loc.gov/ontologies/bflc/catalogerId": this.preferenceStore.catInitals
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bflc/encodingLevel": [
+                      {
+                        "@guid": "dnad4YqMcoo2ro8FVkCxfB",
+                        "@id": "http://id.loc.gov/vocabulary/menclvl/5",
+                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                            "@guid": "ncCaUaqE51cuig7YYnDThG",
+                            "http://www.w3.org/2000/01/rdf-schema#label": "preliminary "
+                          }
+                        ],
+                        "@type": "http://id.loc.gov/ontologies/bflc/EncodingLevel"
                       }
                     ]
                   }
@@ -1304,10 +1355,17 @@ export default {
               this.activeProfile.rt[rt].ptOrder.splice(startPos+1, 0, 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1')
               this.activeProfile.rt[rt].ptOrder.splice(startPos+2, 0, 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_2')
             }
+
+            // add the defaults
+            //this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+            for (let t of Object.keys(pt)){
+              let target = pt[t]
+              let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
+              this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
+            }
           }
         }
       }
-
 
       this.loadingRecord = false
       if (multiTestFlag) {
