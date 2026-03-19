@@ -128,11 +128,11 @@
               </button>
         </template>
 
-        <!-- <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
+        <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
           <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="insertMLCNumber()" :style="buttonStyle">
             MLC Number
           </button>
-        </template> -->
+        </template>
 
         <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
           <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()" :style="buttonStyle">
@@ -845,7 +845,7 @@
         
 
         let newGuid = await this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
-        console.log("New guid for MLC number:", newGuid)
+        
         let dataGuid = await this.profileStore.insertMLCNumber(newGuid)
         this.sendFocusHome()
 

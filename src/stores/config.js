@@ -7,8 +7,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 5,
-    versionPatch: 2,
+    versionMinor: 6,
+    versionPatch: 0,
 
 
 
@@ -96,6 +96,8 @@ export const useConfigStore = defineStore('config', {
         bfdb : 'https://preprod-8230.id.loc.gov/',
         isBibframeDotOrg: false,
 
+        folioMLCEndpoint: 'http://localhost:9401/marva/util/folio/next-mlc/staging',
+
         dancerEnabled: true,
         dancerWorkspaceList: "http://localhost:9401/marva/dancer/api/serve/workspaces",
 
@@ -120,6 +122,9 @@ export const useConfigStore = defineStore('config', {
         worldCat: 'https://preprod-3001.id.loc.gov/marva/util/worldcat/',
         copyCatUpload: 'https://preprod-3001.id.loc.gov/marva/util/copycat/upload/stag', // change ports for production
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
+
+        folioMLCEndpoint: 'https://preprod-3001.id.loc.gov/marva/util/folio/next-mlc/staging',
+
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
@@ -151,6 +156,8 @@ export const useConfigStore = defineStore('config', {
         // these are DCTap profile, editable at https://editor.id.loc.gov/marva/dancer/
         profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/profile',
         starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/starting-points',
+
+        folioMLCEndpoint: 'https://editor.id.loc.gov/marva/util/folio/next-mlc/production',
 
 
         lcap: 'https://lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
