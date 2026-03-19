@@ -8150,6 +8150,22 @@ export const useProfileStore = defineStore('profile', {
               userValue["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]
             }
 
+            // agent
+            userValue["http://id.loc.gov/ontologies/bibframe/agent"] = [
+              {
+                "@guid": short.generate(),
+                "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+                "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+                "http://id.loc.gov/ontologies/bibframe/code": [
+                  {
+                    "@guid": short.generate(),
+                    "http://id.loc.gov/ontologies/bibframe/code": "DLC",
+                    "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                  }
+                ]
+              }
+            ]
+
             delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
             delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
             // remove 9XXs
