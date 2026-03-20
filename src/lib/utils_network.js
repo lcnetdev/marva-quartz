@@ -3042,6 +3042,15 @@ const utilsNetwork = {
       let url = useConfigStore().returnUrls.folioMLCEndpoint + `?sequence=mlc${size}`
       let r = await fetch(url, { headers: getAuthHeaders() })
       r = await r.json()
+      // let r = {
+      //     "generator": "mlc_2026",
+      //     "sequence": "mlcm",
+      //     "status": "OK",
+      //     "nextValue": "MLCM 2026/00156"
+      // }
+      // alert("Remove test response")
+
+
 
       if (r && r.nextValue){
         return r.nextValue
