@@ -4007,23 +4007,91 @@ export const useProfileStore = defineStore('profile', {
         pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] = [{
           "@guid": short.generate(),
           "@type": "http://id.loc.gov/ontologies/bibframe/ClassificationLcc",
+          "http://id.loc.gov/ontologies/bibframe/assigner": [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress"
+            }]
+          }],
           "http://id.loc.gov/ontologies/bibframe/classificationPortion": [{
             "@guid": dataFieldGuid,
             "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }],
+          "http://id.loc.gov/ontologies/bibframe/status": [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/mstatus/uba",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Status",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "used by assigner"
+            }]
           }]
         }]
-      }else if (!pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
-        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'] = [{
-          "@guid": dataFieldGuid,
-          "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
-        }]
       }else{
-        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] = {
-          "@guid": dataFieldGuid,
-          "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+        let classEntry = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+        if (!classEntry['@guid']) classEntry['@guid'] = short.generate()
+        if (!classEntry['@type']) classEntry['@type'] = "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/assigner']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/assigner'] = [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress"
+            }]
+          }]
+        }
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/status']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/status'] = [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/mstatus/uba",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Status",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "used by assigner"
+            }]
+          }]
+        }
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion'] = [{
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }]
+        }else{
+          classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] = {
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }
         }
       }
 
+      // remove any empty classification entries (cloned but never populated)
+      for (let rtId in this.activeProfile.rt){
+        for (let ptId in this.activeProfile.rt[rtId].pt){
+          let ptObj = this.activeProfile.rt[rtId].pt[ptId]
+          if (ptObj.propertyURI === 'http://id.loc.gov/ontologies/bibframe/classification' && ptObj.userValue){
+            if (!ptObj.userValue['http://id.loc.gov/ontologies/bibframe/classification']){
+              // userValue only has @root, nothing else — mark as deleted
+              ptObj.deleted = true
+            }else{
+              let classArr = ptObj.userValue['http://id.loc.gov/ontologies/bibframe/classification']
+              for (let i = classArr.length - 1; i >= 0; i--){
+                if (!classArr[i]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+                  classArr.splice(i, 1)
+                }
+              }
+            }
+          }
+        }
+      }
+
+
+
+      this.dataChanged()
 
       return dataFieldGuid
 

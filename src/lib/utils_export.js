@@ -1294,6 +1294,7 @@ const utilsExport = {
 								// console.log(ptObj.propertyURI, 'Does not have @type, something is wrong here', userValue)
 								// console.log("suggest type is:",await this.suggestType(ptObj.propertyURI))
 								console.warn("Should not be here")
+								console.log("ptObj", ptObj)
 								// alert("Not everything entered was serialized into XML, please report this record and check the output.")
 							}
 
