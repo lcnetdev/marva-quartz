@@ -6566,6 +6566,8 @@ export const useProfileStore = defineStore('profile', {
 
       if (pubResuts && pubResuts.status === 'published'){
         this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+      }else if (pubResuts && pubResuts.status === true){
+        this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
       }
 
       return {
