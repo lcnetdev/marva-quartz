@@ -346,7 +346,7 @@ const utilsNetwork = {
         if (response.status == 404){
           return false
         }
-        if (url.includes('.rdf') || url.includes('.xml') || url.includes('.html')){
+        if (url.includes('.rdf') || url.includes('.xml') || url.includes('.html') || url.includes('.txt')){
           data =  await response.text()
         }else{
           data =  await response.json()

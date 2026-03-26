@@ -173,6 +173,9 @@
     </pane>
   </splitpanes>
 
+  <!-- <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :guid="guid" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" /> -->
+  <RecordComparison ref="RecordComparisonModal" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" />
+
 </template>
 
 
@@ -198,6 +201,7 @@ import en from 'javascript-time-ago/locale/en'
 import CopyCatCard from './copyCatComponents/CopyCatCard.vue'
 import Pagination from './copyCatComponents/Pagination.vue'
 import Badge from './copyCatComponents/Badge.vue'
+import RecordComparison from './copyCatComponents/RecordComparison.vue'
 
 import { DataTable } from "@jobinsjp/vue3-datatable"
 import "@jobinsjp/vue3-datatable/dist/style.css"
@@ -208,7 +212,7 @@ const timeAgo = new TimeAgo('en-US')
 const decimalTranslator = short("0123456789");
 
 export default {
-  components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge },
+  components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge, RecordComparison },
   data() {
     return {
 
@@ -282,6 +286,10 @@ export default {
       overrideAllow: false,
       overrideBibid: "",
 
+      displayCompModal: false,
+      existingMarc: {},
+      selectedMarc: {},
+
     }
   },
   computed: {
@@ -317,6 +325,11 @@ export default {
   watch: {},
 
   methods: {
+    hideCompModal: function(){
+      this.displayCompModal = false;
+    },
+
+
     changeSearchType: function (event) {
       this.searchType = event.target.value
 
@@ -621,6 +634,23 @@ export default {
 
     loadCopyCat: async function (profile) { // load into BFDB/ID
       let continueWithLoad = true
+
+      // marc record: https://id.loc.gov/resources/instances/<bibid>.bf2m.txt
+      let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
+      console.info("existingMarcUrl: ", existingMarcUrl)
+      let existingMarc = false
+      if (existingMarcUrl){
+        this.existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
+        this.existingMarc = this.existingMarc
+      }
+      this.selectedMarc = this.selectedWcRecord.marcHTML
+      console.info("existingMarc: ", existingMarc)
+      console.info("selected: ", this.selectedWcRecord)
+
+      this.displayCompModal = true
+
+
+      return
       if (this.existingLCCN) {
         continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
       }
@@ -703,6 +733,8 @@ export default {
 
       console.info("strXmlBasic: ", strXmlBasic)
 
+      return
+
       this.posting = true
       this.postResults = {}
 
@@ -756,7 +788,6 @@ export default {
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
       if (this.lccnLoadSelected) {
-
         this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
 
       }
