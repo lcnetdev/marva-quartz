@@ -17,7 +17,7 @@
                         <h3>CopyCat Record</h3>
                         <div class="marc-wrapper record-copycat">
                             <div class="marc" v-html="recordCopyCat"></div>
-                            {{ recordCopyCat }}
+                            <!-- {{ recordCopyCat }} -->
                         </div>
                     </pane>
                     <pane max-size="50">
@@ -119,6 +119,8 @@ export default {
 
     margin-top: 5px;
     margin-left: 1%;
+
+    font-family: monospace, monospace;
 }
 
 .record-copycat {
@@ -133,4 +135,10 @@ export default {
     overflow-wrap: anywhere;
 }
 
+</style>
+
+<style>
+span.indicators{
+    white-space: pre;
+}
 </style>
