@@ -104,7 +104,7 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
-    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal']),
+    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal']),
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
 
@@ -356,6 +356,11 @@ export default {
                   this.deweyData = {}
                   this.showAutoDeweyModal = true
                 }, icon: "smart_toy"
+              },
+              {
+                text: "Yoshino Subjects", click: () => {
+                  this.showYoshinoSubjectsModal = true
+                }, icon: "auto_awesome"
               },
 
               { is: 'separator' },

@@ -22,6 +22,7 @@ import UserDirectoryModal from "@/components/panels/nav/UserDirectoryModal.vue";
 
 import ShelfListingModal from "@/components/panels/edit/modals/ShelfListing.vue";
 import AutoDeweyModal from "./components/panels/edit/modals/AutoDeweyModal.vue";
+import YoshinoSubjectsModal from "./components/panels/edit/modals/YoshinoSubjectsModal.vue";
 import UpdateAvailableModal from "@/components/general/UpdateAvailableModal.vue";
 
 
@@ -47,6 +48,7 @@ export default {
     DiacriticsConfigModal,
     UpdateAvailableModal,
     AutoDeweyModal,
+    YoshinoSubjectsModal,
     TextMacroModal,
     NonLatinBulkModal,
     NonLatinAgentModal,
@@ -69,7 +71,7 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection', 'isTestEnv']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode','ssoSessionExpired']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showLoginModalSSO','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
@@ -217,6 +219,10 @@ export default {
 
   <template v-if="showAutoDeweyModal==true">
     <AutoDeweyModal v-model="showAutoDeweyModal"  />
+  </template>
+
+  <template v-if="showYoshinoSubjectsModal==true">
+    <YoshinoSubjectsModal v-model="showYoshinoSubjectsModal"  />
   </template>
 
   <template v-if="showMarvaLogModal==true">
