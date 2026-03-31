@@ -21,7 +21,9 @@
                         </div>
                     </pane>
                     <pane max-size="50">
-                        <h3>Existing BFDB Record</h3><a href="">link to BFDB</a>
+                        <span class="heading">
+                            <h3>Existing BFDB Record</h3> <a href="">link to BFDB</a>
+                        </span>
                         <div class="marc-wrapper record-existing">
                             <pre>
                                 {{ recordExisting }}
@@ -30,8 +32,11 @@
                     </pane>
                 </splitpanes>
 
-                <div class="footer">
-                    <h1>Buttons here</h1>
+                <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`"
+                    class="footer">
+                    <h1>Some kind of message about what's going to happen.</h1>
+                    <button>Continue</button>
+                    <button>Cancel</button>
                 </div>
             </div>
         </div>
@@ -124,7 +129,7 @@ export default {
 }
 
 .record-copycat {
-    background-color: #efefef;
+    background-color: #e3ffd8;
     width: inherit;
     overflow-wrap: anywhere;
 }
@@ -135,10 +140,23 @@ export default {
     overflow-wrap: anywhere;
 }
 
+.heading h3{
+    display: inline-block;
+}
+
+.footer {
+    padding: 10px;
+}
+
 </style>
 
 <style>
 span.indicators{
     white-space: pre;
 }
+
+div.marc.field {
+    text-indent: 4em hanging;
+}
+
 </style>
