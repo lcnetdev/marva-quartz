@@ -174,7 +174,7 @@
   </splitpanes>
 
   <!-- <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :guid="guid" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" /> -->
-  <RecordComparison ref="RecordComparisonModal" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" />
+  <RecordComparison ref="RecordComparisonModal" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" @cancelCopyCat="callbackCancel" @createCopyCat="callbackCreate"/>
 
 </template>
 
@@ -289,6 +289,7 @@ export default {
       displayCompModal: false,
       existingMarc: {},
       selectedMarc: {},
+      continueWithLoad: false,
 
     }
   },
@@ -325,6 +326,18 @@ export default {
   watch: {},
 
   methods: {
+    callbackCreate: function(){
+      console.info("callbackCreate")
+      this.continueWithLoad = true
+      this.displayCompModal = false
+    },
+
+    callbackCancel: function(){
+      console.info("cancelCopyCat")
+      this.continueWithLoad = false
+      this.displayCompModal = false
+    },
+
     hideCompModal: function(){
       this.displayCompModal = false;
     },
@@ -633,7 +646,7 @@ export default {
     },
 
     loadCopyCat: async function (profile) { // load into BFDB/ID
-      let continueWithLoad = true
+      this.continueWithLoad = true
 
       // marc record: https://id.loc.gov/resources/instances/<bibid>.bf2m.txt
       let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
@@ -648,6 +661,10 @@ export default {
       console.info("selected: ", this.selectedWcRecord)
 
       this.displayCompModal = true
+
+      if (!this.continueWithLoad){
+        return
+      }
 
 
       return

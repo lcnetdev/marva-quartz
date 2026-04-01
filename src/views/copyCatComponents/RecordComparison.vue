@@ -25,18 +25,22 @@
                             <h3>Existing BFDB Record</h3> <a href="">link to BFDB</a>
                         </span>
                         <div class="marc-wrapper record-existing">
-                            <pre>
+                            <pre v-if="Object.keys(recordExisting).lenght > 0">
                                 {{ recordExisting }}
                             </pre>
+                            <div v-else>
+                                No existing record in BFDB.
+                            </div>
                         </div>
                     </pane>
                 </splitpanes>
 
                 <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`"
                     class="footer">
-                    <h1>Some kind of message about what's going to happen.</h1>
-                    <button>Continue</button>
-                    <button>Cancel</button>
+                    <h1 v-if="Object.keys(recordExisting).lenght > 0">There is an existing record. If you continue, the copycat record will overlay the existing record.</h1>
+                    <h1 v-else>There is no existing record. If you continue, you will create a new record.</h1>
+                    <button @click="createCopyCat">Continue</button>
+                    <button @click="cancelCopyCat">Cancel</button>
                 </div>
             </div>
         </div>
@@ -73,25 +77,35 @@ export default {
     components: { Splitpanes, Pane, Nav, VueFinalModal },
 
     data() {
-        return {}
+        return {
+            message: '',
+        }
     },
     computed: {
         ...mapStores(usePreferenceStore),
         ...mapStores(useConfigStore),
     },
 
-    watch: {},
+    watch: { },
 
     methods: {
+        createCopyCat: function(){
+            console.info("creating")
+            this.$emit('createCopyCat')
+        },
+
+        cancelCopyCat: function(){
+            console.info("canceling")
+            this.$emit('cancelCopyCat')
+        },
+
         closeEditor: function () {
             this.$emit('hideCompModal', true)
         },
     },
 
     mounted: async function () { },
-    created: async function () {
-        this.recordCopyCat = this.recordCopyCat.replace("> <", ">&nbsp;<")
-    }
+    created: async function () { }
 }
 
 </script>
