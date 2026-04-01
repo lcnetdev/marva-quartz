@@ -132,6 +132,8 @@ export const useProfileStore = defineStore('profile', {
     },
 
     showYoshinoSubjectsModal: false,
+    yoshinoResults: null,
+    yoshinoInsertedSubjects: [],
 
     cammModeErrors: {
 
@@ -6663,8 +6665,10 @@ export const useProfileStore = defineStore('profile', {
      * @param {string} label - The subject heading label
      * @param {string} source - The vocabulary source name (e.g. "Library of Congress Subject Headings")
      * @param {array} components - Parsed component data from the RDF [{label, uri, type, marcKey}, ...]
+     * @param {string|null} uri - Top-level subject URI (e.g. from rdf:about on the subject element)
+     * @param {string|null} marcKey - Top-level marcKey for the whole heading
      */
-    yoshinoInsertSubject: async function(label, source, components) {
+    yoshinoInsertSubject: async function(label, source, components, uri, marcKey) {
       let activeProfile = this.activeProfile
       let workRt = null
       let emptySubjectPt = null
@@ -6722,6 +6726,19 @@ export const useProfileStore = defineStore('profile', {
         }],
       }
 
+      // Set top-level @id if provided (the URI of the whole subject heading)
+      if (uri) {
+        subjectValue['@id'] = uri
+      }
+
+      // Set top-level marcKey if provided
+      if (marcKey) {
+        subjectValue['http://id.loc.gov/ontologies/bflc/marcKey'] = [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bflc/marcKey': marcKey
+        }]
+      }
+
       // Use rich component data if available for complex subjects
       if (components && components.length > 1) {
         subjectValue['@type'] = 'madsrdf:ComplexSubject'
@@ -6746,17 +6763,8 @@ export const useProfileStore = defineStore('profile', {
           return comp
         })
       } else if (components && components.length === 1) {
-        // Solo subject with rich data
+        // Solo subject with rich data - type from component
         subjectValue['@type'] = components[0].type || 'http://www.loc.gov/mads/rdf/v1#Topic'
-        if (components[0].uri) {
-          subjectValue['@id'] = components[0].uri
-        }
-        if (components[0].marcKey) {
-          subjectValue['http://id.loc.gov/ontologies/bflc/marcKey'] = [{
-            '@guid': translator.new(),
-            'http://id.loc.gov/ontologies/bflc/marcKey': components[0].marcKey
-          }]
-        }
       } else if (label.includes('--')) {
         // Fallback: parse from label if no component data
         subjectValue['@type'] = 'madsrdf:ComplexSubject'
@@ -6812,6 +6820,15 @@ export const useProfileStore = defineStore('profile', {
         '@root': 'http://id.loc.gov/ontologies/bibframe/subject',
         'http://id.loc.gov/ontologies/bibframe/subject': [subjectValue]
       }
+
+      console.log('--- Yoshino: Insert Subject ---')
+      console.log('Label:', label)
+      console.log('Source:', source)
+      console.log('Top-level URI:', uri)
+      console.log('Top-level marcKey:', marcKey)
+      console.log('Components:', JSON.parse(JSON.stringify(components || [])))
+      console.log('Built userValue:', JSON.parse(JSON.stringify(targetPt.userValue)))
+
       targetPt.hasData = true
       targetPt.userModified = true
       targetPt.dataLoaded = false

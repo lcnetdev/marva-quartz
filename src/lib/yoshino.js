@@ -87,7 +87,22 @@ function yoshinoParseRdf(xmlText) {
 
   // Extract subjects
   for (const subjEl of Array.from(work.getElementsByTagNameNS(NS.bf, 'subject'))) {
-    const labelEls = Array.from(subjEl.getElementsByTagNameNS(NS.madsrdf, 'authoritativeLabel'))
+    // Get the label from the direct child element's rdfs:label or madsrdf:authoritativeLabel
+    // Must avoid picking up nested labels inside componentList
+    const topChild = subjEl.children[0]
+    if (!topChild) continue
+
+    // Prefer rdfs:label directly on the top child (not nested)
+    let labelEls = []
+    for (const el of Array.from(topChild.getElementsByTagNameNS(NS.rdfs, 'label'))) {
+      if (el.parentElement === topChild) { labelEls.push(el); break }
+    }
+    // Fall back to madsrdf:authoritativeLabel directly on the top child
+    if (!labelEls.length) {
+      for (const el of Array.from(topChild.getElementsByTagNameNS(NS.madsrdf, 'authoritativeLabel'))) {
+        if (el.parentElement === topChild) { labelEls.push(el); break }
+      }
+    }
     if (!labelEls.length || !labelEls[0].textContent) continue
 
     let isBisac = false
@@ -106,13 +121,28 @@ function yoshinoParseRdf(xmlText) {
     const label = labelEls[0].textContent.trim()
     const xml = new XMLSerializer().serializeToString(subjEl)
 
+    // Extract top-level subject URI and marcKey from the direct child element (e.g. <bf:Topic rdf:about="...">)
+    let topUri = null
+    let topMarcKey = null
+    if (topChild) {
+      topUri = topChild.getAttributeNS(NS.rdf, 'about') || null
+      // Get the direct marcKey on the top-level element (not nested inside componentList)
+      for (const mk of Array.from(topChild.getElementsByTagNameNS(NS.bflc, 'marcKey'))) {
+        // Only take marcKey that is a direct child of the top element, not inside componentList
+        if (mk.parentElement === topChild) {
+          topMarcKey = mk.textContent?.trim() || null
+          break
+        }
+      }
+    }
+
     // Extract component list details (URIs, types, marcKeys)
     const components = []
     const compListEls = subjEl.getElementsByTagNameNS(NS.madsrdf, 'componentList')
     if (compListEls.length > 0) {
       for (const child of Array.from(compListEls[0].children)) {
         const compUri = child.getAttributeNS(NS.rdf, 'about') || null
-        const compLabel = child.getElementsByTagNameNS(NS.madsrdf, 'authoritativeLabel')[0]?.textContent?.trim()
+        let compLabel = child.getElementsByTagNameNS(NS.madsrdf, 'authoritativeLabel')[0]?.textContent?.trim()
           || child.getElementsByTagNameNS(NS.rdfs, 'label')[0]?.textContent?.trim()
           || null
         // Determine type from element local name (Topic, Geographic, Temporal, GenreForm, etc.)
@@ -121,6 +151,15 @@ function yoshinoParseRdf(xmlText) {
           : child.localName
         const marcKeyEl = child.getElementsByTagNameNS(NS.bflc, 'marcKey')[0]
         const compMarcKey = marcKeyEl?.textContent?.trim() || null
+
+        // For HierarchicalGeographic, build full label from marcKey subfields (e.g. "181 $zNew York (State)$zNew York" -> "New York (State)--New York")
+        if (compMarcKey && child.localName === 'HierarchicalGeographic') {
+          const subfields = compMarcKey.replace(/^\d+\s*/, '').split('$').filter(Boolean)
+          const parts = subfields.map(sf => sf.substring(1).trim()).filter(Boolean)
+          if (parts.length > 1) {
+            compLabel = parts.join('--')
+          }
+        }
 
         if (compLabel) {
           components.push({
@@ -131,33 +170,33 @@ function yoshinoParseRdf(xmlText) {
           })
         }
       }
-    } else {
-      // Simple subject - extract URI, type, marcKey from the top-level child element (e.g. <bf:Topic rdf:about="...">)
-      const topChild = subjEl.children[0]
-      if (topChild) {
-        const topUri = topChild.getAttributeNS(NS.rdf, 'about') || null
-        const topType = topChild.namespaceURI === NS.madsrdf
-          ? 'http://www.loc.gov/mads/rdf/v1#' + topChild.localName
-          : topChild.namespaceURI === NS.bf
-            ? 'http://id.loc.gov/ontologies/bibframe/' + topChild.localName
-            : topChild.localName
-        const topMarcKeyEl = topChild.getElementsByTagNameNS(NS.bflc, 'marcKey')[0]
-        const topMarcKey = topMarcKeyEl?.textContent?.trim() || null
-        components.push({
-          label,
-          uri: topUri,
-          type: topType,
-          marcKey: topMarcKey,
-        })
-      }
+    } else if (topChild) {
+      // Simple subject - use top-level data as the single component
+      const topType = topChild.namespaceURI === NS.madsrdf
+        ? 'http://www.loc.gov/mads/rdf/v1#' + topChild.localName
+        : topChild.namespaceURI === NS.bf
+          ? 'http://id.loc.gov/ontologies/bibframe/' + topChild.localName
+          : topChild.localName
+      components.push({
+        label,
+        uri: topUri,
+        type: topType,
+        marcKey: topMarcKey,
+      })
     }
 
-    subjects.push({
+    const subjectData = {
       label,
       xml,
       source: sourceName || 'Library of Congress Subject Headings',
       components,
-    })
+      uri: topUri,
+      marcKey: topMarcKey,
+    }
+    console.log('--- Yoshino: Parsed Subject ---')
+    console.log('Subject XML:', xml)
+    console.log('Parsed data:', JSON.parse(JSON.stringify(subjectData)))
+    subjects.push(subjectData)
   }
 
   // Extract LCC classifications
@@ -310,12 +349,6 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
     throw new Error('No similar records found.')
   }
 
-  const idToLccn = {}
-  for (const r of classifyRes.search_results) {
-    const id = r.metadata?.['001'] || r.lc_001
-    if (id && r.metadata?.LCCN) idToLccn[id] = r.metadata.LCCN
-  }
-
   // Step 2: Client-side enrich
   onStatus(`Fetching BIBFRAME data for ${ids.length} records...`)
   const base = await yoshinoResolveBaseUrl()
@@ -329,18 +362,21 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
   const subjectSourceMap = {}
   const subjectXmlMap = {}
   const subjectComponentsMap = {}
+  const subjectUriMap = {}
+  const subjectMarcKeyMap = {}
 
   for (const { id, xml } of rdfResults) {
     if (!xml) continue
     const parsed = yoshinoParseRdf(xml)
-    const lccn = idToLccn[id]
     for (const s of parsed.subjects) {
       if (!subjectSources[s.label]) {
         allSubjects.push(s.label)
         subjectSources[s.label] = s.source
         subjectXmlMap[s.label] = s.xml
         subjectComponentsMap[s.label] = s.components
-        if (lccn) subjectSourceMap[s.label] = lccn
+        if (s.uri) subjectUriMap[s.label] = s.uri
+        if (s.marcKey) subjectMarcKeyMap[s.label] = s.marcKey
+        subjectSourceMap[s.label] = id
       }
     }
   }
@@ -374,6 +410,8 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
     subjectSourceMap,
     subjectXmlMap,
     subjectComponentsMap,
+    subjectUriMap,
+    subjectMarcKeyMap,
   }
 }
 

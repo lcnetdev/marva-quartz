@@ -69,9 +69,9 @@
                                                 <span class="yoshino-subject-label">{{ subj }}</span>
                                                 <span class="yoshino-subject-source" v-if="results.subjectSources[subj]">{{ results.subjectSources[subj] }}</span>
                                                 <a v-if="results.subjectSourceMap[subj]"
-                                                   :href="'https://lccn.loc.gov/' + results.subjectSourceMap[subj]"
+                                                   :href="'https://preprod.id.loc.gov/resources/works/' + results.subjectSourceMap[subj]"
                                                    target="_blank"
-                                                   class="yoshino-lccn-link">LCCN</a>
+                                                   class="yoshino-lccn-link">source</a>
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
@@ -93,9 +93,9 @@
                                                 <span class="yoshino-subject-label">{{ subj }}</span>
                                                 <span class="yoshino-subject-source" v-if="results.subjectSources[subj]">{{ results.subjectSources[subj] }}</span>
                                                 <a v-if="results.subjectSourceMap[subj]"
-                                                   :href="'https://lccn.loc.gov/' + results.subjectSourceMap[subj]"
+                                                   :href="'https://preprod.id.loc.gov/resources/works/' + results.subjectSourceMap[subj]"
                                                    target="_blank"
-                                                   class="yoshino-lccn-link">LCCN</a>
+                                                   class="yoshino-lccn-link">source</a>
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
@@ -350,15 +350,23 @@
             loading: false,
             error: null,
             statusMessage: '',
-            results: null,
-            insertedSubjects: new Set(),
         }
     },
 
     computed: {
         ...mapStores(useProfileStore),
         ...mapState(useProfileStore, ['activeProfile']),
-        ...mapWritableState(useProfileStore, ['showYoshinoSubjectsModal']),
+        ...mapWritableState(useProfileStore, ['showYoshinoSubjectsModal', 'yoshinoResults', 'yoshinoInsertedSubjects']),
+
+        results: {
+            get() { return this.yoshinoResults },
+            set(val) { this.yoshinoResults = val },
+        },
+
+        insertedSubjects: {
+            get() { return new Set(this.yoshinoInsertedSubjects) },
+            set(val) { this.yoshinoInsertedSubjects = Array.from(val) },
+        },
 
         summaryTruncated() {
             if (!this.summary) return null
@@ -376,7 +384,9 @@
         },
 
         closeModal: function() {
-            this.reset()
+            this.loading = false
+            this.error = null
+            this.statusMessage = ''
             this.showYoshinoSubjectsModal = false
         },
 
@@ -384,6 +394,7 @@
             this.loading = false
             this.error = null
             this.results = null
+            this.insertedSubjects = new Set()
             this.statusMessage = ''
             this.extractProfileData()
         },
@@ -417,7 +428,9 @@
         insertSubject: function(label) {
             const source = this.results?.subjectSources[label] || ''
             const components = this.results?.subjectComponentsMap[label] || []
-            this.profileStore.yoshinoInsertSubject(label, source, components)
+            const uri = this.results?.subjectUriMap[label] || null
+            const marcKey = this.results?.subjectMarcKeyMap[label] || null
+            this.profileStore.yoshinoInsertSubject(label, source, components, uri, marcKey)
             this.insertedSubjects.add(label)
             // Force reactivity for the Set
             this.insertedSubjects = new Set(this.insertedSubjects)
