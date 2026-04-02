@@ -317,6 +317,24 @@ function yoshinoExtractCreator(activeProfile) {
 }
 
 /**
+ * Extract Contents note (tableOfContents) from activeProfile Work.
+ */
+function yoshinoExtractContents(activeProfile) {
+  for (let rt of activeProfile.rtOrder) {
+    if (rt.indexOf(':Work') === -1) continue
+    for (let ptId of activeProfile.rt[rt].ptOrder) {
+      let pt = activeProfile.rt[rt].pt[ptId]
+      if (pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/tableOfContents') {
+        if (pt.userValue?.['http://id.loc.gov/ontologies/bibframe/tableOfContents']?.[0]?.['http://www.w3.org/2000/01/rdf-schema#label']?.[0]?.['http://www.w3.org/2000/01/rdf-schema#label']) {
+          return pt.userValue['http://id.loc.gov/ontologies/bibframe/tableOfContents'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+        }
+      }
+    }
+  }
+  return null
+}
+
+/**
  * Run the full Yoshino classification pipeline.
  *
  * @param {string} title - Work title
@@ -325,20 +343,23 @@ function yoshinoExtractCreator(activeProfile) {
  * @param {function} onStatus - Callback for status updates: onStatus(message)
  * @returns {object} { recommended, allSubjects, subjectSources, subjectSourceMap, enrichResult }
  */
-async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}, topK = 10) {
+async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}, topK = 10, content = '') {
   // Step 1: Vector search
   onStatus('Searching for similar records...')
+  let classifyBody = {
+    action: 'classify',
+    title,
+    summary,
+    creator,
+    top_k: topK,
+    ids_only: true,
+  }
+  if (content) classifyBody.content = content
+
   const classifyRes = await fetch(LAMBDA_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action: 'classify',
-      title,
-      summary,
-      creator,
-      top_k: topK,
-      ids_only: true,
-    }),
+    body: JSON.stringify(classifyBody),
   }).then(r => r.json())
 
   const ids = classifyRes.search_results
@@ -420,4 +441,5 @@ export {
   yoshinoExtractTitle,
   yoshinoExtractSummary,
   yoshinoExtractCreator,
+  yoshinoExtractContents,
 }

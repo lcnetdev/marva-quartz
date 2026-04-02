@@ -40,6 +40,10 @@
                             <label>Creator:</label>
                             <span class="yoshino-value">{{ creator || '(not found)' }}</span>
                         </div>
+                        <div class="yoshino-field">
+                            <label>Contents:</label>
+                            <span class="yoshino-value">{{ contents ? (contents.length > 200 ? contents.substring(0, 200) + '...' : contents) : '(not found)' }}</span>
+                        </div>
                         <div style="margin-top: 12px">
                             <button @click="runClassify()" :disabled="!title">Get Subject Recommendations</button>
                         </div>
@@ -333,7 +337,7 @@
     import VueDragResize from 'vue3-drag-resize'
     import { mapStores, mapState, mapWritableState } from 'pinia'
     import { useProfileStore } from '@/stores/profile'
-    import { yoshinoClassify, yoshinoExtractTitle, yoshinoExtractSummary, yoshinoExtractCreator } from '@/lib/yoshino'
+    import { yoshinoClassify, yoshinoExtractTitle, yoshinoExtractSummary, yoshinoExtractCreator, yoshinoExtractContents } from '@/lib/yoshino'
 
     export default {
     name: "YoshinoSubjectsModal",
@@ -347,6 +351,7 @@
             title: null,
             summary: null,
             creator: null,
+            contents: null,
             loading: false,
             error: null,
             statusMessage: '',
@@ -403,6 +408,7 @@
             this.title = yoshinoExtractTitle(this.activeProfile)
             this.summary = yoshinoExtractSummary(this.activeProfile)
             this.creator = yoshinoExtractCreator(this.activeProfile)
+            this.contents = yoshinoExtractContents(this.activeProfile)
         },
 
         runClassify: async function() {
@@ -416,7 +422,9 @@
                     this.title,
                     this.summary || '',
                     this.creator || '',
-                    (msg) => { this.statusMessage = msg }
+                    (msg) => { this.statusMessage = msg },
+                    10,
+                    this.contents || ''
                 )
             } catch (e) {
                 this.error = e.message || 'An error occurred during classification.'
