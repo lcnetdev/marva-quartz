@@ -1207,6 +1207,7 @@ export default {
             }
 
             // Add the eNumber to the instance identifier
+            /*
             if (Object.keys(pt).includes("id_loc_gov_ontologies_bibframe_identifiedBy__identifiers")) {
               pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers'].userValue = {
                 "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
@@ -1249,6 +1250,7 @@ export default {
                 ]
               }
             }
+            */
 
             this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
 
