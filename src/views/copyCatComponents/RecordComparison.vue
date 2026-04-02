@@ -25,7 +25,7 @@
                             <h3>Existing BFDB Record</h3> <a href="">link to BFDB</a>
                         </span>
                         <div class="marc-wrapper record-existing">
-                            <pre v-if="Object.keys(recordExisting).lenght > 0">
+                            <pre v-if="recordExisting.length > 0">
                                 {{ recordExisting }}
                             </pre>
                             <div v-else>

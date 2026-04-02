@@ -653,11 +653,11 @@ export default {
       console.info("existingMarcUrl: ", existingMarcUrl)
       let existingMarc = false
       if (existingMarcUrl){
-        this.existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
-        this.existingMarc = this.existingMarc
+        existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
+        this.existingMarc = existingMarc
       }
       this.selectedMarc = this.selectedWcRecord.marcHTML
-      console.info("existingMarc: ", existingMarc)
+      console.info("existingMarc: ", this.existingMarc)
       console.info("selected: ", this.selectedWcRecord)
 
       this.displayCompModal = true
