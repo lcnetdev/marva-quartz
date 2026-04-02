@@ -15,6 +15,7 @@ import HubStubCreateModal from "@/components/panels/edit/modals/HubStubCreateMod
 import NacoStubCreateModal from "@/components/panels/edit/modals/NacoStubCreateModal.vue";
 import MarvaLogModal from "@/components/panels/nav/MarvaLogModal.vue";
 import UserDirectoryModal from "@/components/panels/nav/UserDirectoryModal.vue";
+import FolioSyncModal from "@/components/panels/nav/FolioSyncModal.vue";
 
 
 
@@ -56,7 +57,8 @@ export default {
     HubStubCreateModal,
     NacoStubCreateModal,
     MarvaLogModal,
-    UserDirectoryModal
+    UserDirectoryModal,
+    FolioSyncModal
 
   },
   data() {
@@ -71,7 +73,7 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection', 'isTestEnv']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal', 'showFolioSyncModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode','ssoSessionExpired']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showLoginModalSSO','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
@@ -231,6 +233,10 @@ export default {
 
   <template v-if="showUserDirectoryModal==true">
     <UserDirectoryModal v-model="showUserDirectoryModal" />
+  </template>
+
+  <template v-if="showFolioSyncModal==true">
+    <FolioSyncModal v-model="showFolioSyncModal" />
   </template>
 
 </template>

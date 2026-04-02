@@ -114,6 +114,8 @@ export const useProfileStore = defineStore('profile', {
     userDirectoryResults: [],
     userDirectoryLoading: false,
 
+    showFolioSyncModal: false,
+
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
