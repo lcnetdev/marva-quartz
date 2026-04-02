@@ -130,7 +130,7 @@ export default {
     },
 
     yoshinoAllowedUsers() {
-      return ['jdoe','nalf','ncooey','cyea','sfol','kevinford','cgir','pkho','hhuh','kilau','smcc','mattmiller','jmoon','amors','mnaz','fosorio','mpol','eram','trod','yshi','tsod','atau','stellier','ntra','ctur','jowill']
+      return ['jdoe','nalf','ncooey','cyea','sfol','kevinford','cgir','pkho','hhuh','kilau','smcc','mattmiller','jmoon','amors','mnaz','fosorio','mpol','eram','trod','yshi','tsod','atau','stellier','ntra','ctur','jowill','gago','cbarna']
     },
 
     yoshinoAllowed() {
@@ -391,8 +391,7 @@ export default {
               ...(this.yoshinoAllowed ? [{
                 text: "Yoshino Subjects", click: () => {
                   this.showYoshinoSubjectsModal = true
-                }, icon: "auto_awesome",
-                disabled: !this.yoshinoHasSummary
+                }, icon: "auto_awesome"
               }] : []),
 
               { is: 'separator' },
