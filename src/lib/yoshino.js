@@ -213,8 +213,39 @@ function yoshinoParseRdf(xmlText) {
 }
 
 /**
+ * Pick the best value from an array of entries that may have @language tags.
+ * Prefers non-Latin script (has @language but not xx-latn), then any with @language, then first.
+ * @param {array} entries - Array of objects with @language and a value key
+ * @param {string} valueKey - The property key holding the actual string value
+ * @returns {string|null}
+ */
+function yoshinoPickBestLangValue(entries, valueKey) {
+  if (!entries || !entries.length) return null
+
+  // Only one entry, just use it
+  if (entries.length === 1) return entries[0][valueKey] || null
+
+  // 1. Prefer one with @language that is NOT latn
+  for (let entry of entries) {
+    if (entry['@language'] && !entry['@language'].toLowerCase().includes('latn')) {
+      return entry[valueKey] || null
+    }
+  }
+
+  // 2. Pick one that has a @language value (any)
+  for (let entry of entries) {
+    if (entry['@language']) {
+      return entry[valueKey] || null
+    }
+  }
+
+  // 3. Fallback to first
+  return entries[0][valueKey] || null
+}
+
+/**
  * Extract title from the Instance record in activeProfile.
- * Combines mainTitle + subtitle if both are present.
+ * Combines mainTitle + subtitle + partName. Prefers non-Latin scripts when present.
  */
 function yoshinoExtractTitle(activeProfile) {
   for (let rt of activeProfile.rtOrder) {
@@ -225,38 +256,26 @@ function yoshinoExtractTitle(activeProfile) {
         let titleObj = pt.userValue?.['http://id.loc.gov/ontologies/bibframe/title']?.[0]
         if (!titleObj) continue
 
-        let mainTitleEntries = titleObj['http://id.loc.gov/ontologies/bibframe/mainTitle']
-        if (!mainTitleEntries || !mainTitleEntries[0]) continue
-
-        // Find best mainTitle: prefer Latin script, then no language tag, then first
-        let mainTitle = null
-        for (let entry of mainTitleEntries) {
-          if (entry['@language'] && entry['@language'].toLowerCase().indexOf('latn') > -1) {
-            mainTitle = entry['http://id.loc.gov/ontologies/bibframe/mainTitle']
-            break
-          }
-        }
-        if (!mainTitle) {
-          for (let entry of mainTitleEntries) {
-            if (!entry['@language']) {
-              mainTitle = entry['http://id.loc.gov/ontologies/bibframe/mainTitle']
-              break
-            }
-          }
-        }
-        if (!mainTitle) {
-          mainTitle = mainTitleEntries[0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
-        }
+        let mainTitle = yoshinoPickBestLangValue(
+          titleObj['http://id.loc.gov/ontologies/bibframe/mainTitle'],
+          'http://id.loc.gov/ontologies/bibframe/mainTitle'
+        )
         if (!mainTitle) continue
 
-        // Check for subtitle
-        let subtitle = null
-        let subtitleEntries = titleObj['http://id.loc.gov/ontologies/bibframe/subtitle']
-        if (subtitleEntries && subtitleEntries[0] && subtitleEntries[0]['http://id.loc.gov/ontologies/bibframe/subtitle']) {
-          subtitle = subtitleEntries[0]['http://id.loc.gov/ontologies/bibframe/subtitle']
-        }
+        let subtitle = yoshinoPickBestLangValue(
+          titleObj['http://id.loc.gov/ontologies/bibframe/subtitle'],
+          'http://id.loc.gov/ontologies/bibframe/subtitle'
+        )
 
-        return subtitle ? `${mainTitle}: ${subtitle}` : mainTitle
+        let partName = yoshinoPickBestLangValue(
+          titleObj['http://id.loc.gov/ontologies/bibframe/partName'],
+          'http://id.loc.gov/ontologies/bibframe/partName'
+        )
+
+        let result = mainTitle
+        if (subtitle) result += ': ' + subtitle
+        if (partName) result += '. ' + partName
+        return result
       }
     }
   }
