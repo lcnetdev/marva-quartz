@@ -57,7 +57,8 @@
 
                     <div v-if="error" class="yoshino-error">
                         <p>{{ error }}</p>
-                        <button @click="reset()">Try Again</button>
+                        <button v-if="noSubjectsFound && topK < 20" @click="increaseAndRetry()">Increase number of resources returned</button>
+                        <button v-else @click="reset()">Try Again</button>
                     </div>
 
                     <div v-if="results && !loading" class="yoshino-results">
@@ -354,6 +355,8 @@
             contents: null,
             loading: false,
             error: null,
+            noSubjectsFound: false,
+            topK: 10,
             statusMessage: '',
         }
     },
@@ -398,6 +401,8 @@
         reset: function() {
             this.loading = false
             this.error = null
+            this.noSubjectsFound = false
+            this.topK = 10
             this.results = null
             this.insertedSubjects = new Set()
             this.statusMessage = ''
@@ -414,6 +419,7 @@
         runClassify: async function() {
             this.loading = true
             this.error = null
+            this.noSubjectsFound = false
             this.results = null
             this.insertedSubjects = new Set()
 
@@ -423,14 +429,24 @@
                     this.summary || '',
                     this.creator || '',
                     (msg) => { this.statusMessage = msg },
-                    10,
+                    this.topK,
                     this.contents || ''
                 )
             } catch (e) {
                 this.error = e.message || 'An error occurred during classification.'
+                if (this.error.toLowerCase().includes('no subjects found')) {
+                    this.noSubjectsFound = true
+                }
             } finally {
                 this.loading = false
             }
+        },
+
+        increaseAndRetry: function() {
+            this.topK = 20
+            this.error = null
+            this.noSubjectsFound = false
+            this.runClassify()
         },
 
         insertSubject: function(label) {
