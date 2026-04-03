@@ -35,7 +35,8 @@
                     </pane>
                 </splitpanes>
 
-                <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`"
+                <div v-if="!preview"
+                    :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`"
                     class="footer">
                     <h1 v-if="Object.keys(recordExisting).lenght > 0">There is an existing record. If you continue, the copycat record will overlay the existing record.</h1>
                     <h1 v-else>There is no existing record. If you continue, you will create a new record.</h1>
@@ -73,6 +74,7 @@ export default {
     props: {
         recordCopyCat: String,
         recordExisting: String,
+        preview: Boolean,
     },
     components: { Splitpanes, Pane, Nav, VueFinalModal },
 

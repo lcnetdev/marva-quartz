@@ -66,14 +66,14 @@
           <br>
           <template v-if="searchType != 'lccn'">
             <label for="matchPoint">Match on: </label>
-            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn('other')" />
           </template>
 
-          <template v-if="existingLCCN || existingISBN">
+          <template v-if="existingLCCN || existingISBN || overrideAllow">
             <Badge v-if="existingLCCN"
               text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
-            <Badge v-if="existingISBN"
+            <Badge v-if="existingISBN || overrideAllow"
               text="A record with this identifier might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <h4>
@@ -88,7 +88,7 @@
 
           <br>
           <label for="lccn">LCCN: </label>
-          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
+          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn('lccn')"
             :disabled="selectedRecordUrl" />
           <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
             badgeType="primary" />
@@ -174,7 +174,7 @@
   </splitpanes>
 
   <!-- <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :guid="guid" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" /> -->
-  <RecordComparison ref="RecordComparisonModal" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" @cancelCopyCat="callbackCancel" @createCopyCat="callbackCreate"/>
+  <RecordComparison ref="RecordComparisonModal" :preview="compPreview" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" @cancelCopyCat="callbackCancel" @createCopyCat="callbackCreate"/>
 
 </template>
 
@@ -290,6 +290,7 @@ export default {
       existingMarc: {},
       selectedMarc: {},
       continueWithLoad: false,
+      compPreview: false,
 
     }
   },
@@ -346,7 +347,7 @@ export default {
     changeSearchType: function (event) {
       this.searchType = event.target.value
 
-      this.checkLccn()
+      this.checkLccn(this.searchType)
     },
 
     printMarc: function () {
@@ -417,14 +418,15 @@ export default {
      * - lccn matc
      */
 
-    checkLccn: async function () {
+    checkLccn: async function (type=lccn) {
+      this.searchType = type
       console.info("checkLCCN: ", this.searchType)
       // if (this.urlToLoad.length < 3){ return }
       if(this.overrideAllow && this.overrideBibid !=''){
         console.info("override: ", this.overrideBibid)
         console.info("checking override: ", this.overrideBibid)
         this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
-        this.searchType = 'bibid'
+        this.searchType = 'override'
       } else {
         this.existingLCCN = false
         this.existingISBN = false
@@ -433,9 +435,11 @@ export default {
       let recordData = null
 
       if (this.searchType == 'bibid'){
+        console.info("searching bibid")
         this.checkingLCCN = true
         let url = "https://preprod-8080.id.loc.gov/resources/instances/" + this.isbn + ".html"
         let resp = await utilsNetwork.searchBibId(this.isbn)
+        console.info("resp: ", resp)
         this.checkingLCCN = false
         if (resp.status == 200){
           this.existingISBN = true
@@ -535,10 +539,10 @@ export default {
     },
 
     checkRecordHasLccn: function (record) {
-      console.info("hasLCCN?: ", record)
+      // console.info("hasLCCN?: ", record)
       if (record) {
         let marc010 = this.getMarcFieldAsString(record, "010")
-        console.info("marc010: ", marc010)
+        // console.info("marc010: ", marc010)
         if (!marc010) { return false }
 
         if (marc010.includes('$a')) { return true }
