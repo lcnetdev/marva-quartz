@@ -45,12 +45,12 @@ export const useConfigStore = defineStore('config', {
         // starting: 'http://localhost:9401/util/profiles/starting/prod',
 
         // offical stage profiles that work outside firewall
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-profiles.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-starting.json',
 
         // offical prod profiles that work outside firewall
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
 
         // offical stage profiles inside the firewall
         // starting: 'https://preprod-3001.id.loc.gov/marva/util/profiles/starting/stage',
@@ -84,8 +84,8 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
         publish : 'http://localhost:9401/marva/util/publish/staging',
         validate: 'http://localhost:9401/marva/util/validate/prod',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
@@ -179,8 +179,8 @@ export const useConfigStore = defineStore('config', {
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
         bfdb : 'https://id.loc.gov/',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
         id: 'https://id.loc.gov/',
         env : 'production',
         publicEndpoints:true,
@@ -202,8 +202,8 @@ export const useConfigStore = defineStore('config', {
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
         bfdb : 'https://id.loc.gov/',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
         id: 'https://id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
