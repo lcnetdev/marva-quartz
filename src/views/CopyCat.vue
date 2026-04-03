@@ -79,6 +79,7 @@
             <h4>
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
                 existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
+              &nbsp;<button @click="showComp">Compare</button>
             </h4>
           </template>
           <template v-else>
@@ -327,6 +328,19 @@ export default {
   watch: {},
 
   methods: {
+    showComp: async function(){
+      this.compPreview = true
+      this.selectedMarc = this.selectedWcRecord.marcHTML
+
+      let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
+      let existingMarc = false
+      if (existingMarcUrl){
+        existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
+        this.existingMarc = existingMarc
+      }
+
+      this.displayCompModal = true
+    },
     callbackCreate: function(){
       console.info("callbackCreate")
       this.continueWithLoad = true
@@ -380,7 +394,7 @@ export default {
       // check if there's an LCCN in the record
       let existingLccn = this.loadLccnFromRecord(value)
       this.selectedRecordUrl = existingLccn
-      this.checkLccn()
+      this.checkLccn('lccn')
       console.info("load: ", existingLccn)
       console.info("this.selectedRecordUrl: ", this.selectedRecordUrl)
     },
