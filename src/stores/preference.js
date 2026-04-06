@@ -336,6 +336,25 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Previews',
           range: null
       },
+      '--n-edit-main-splitpane-marc-font-weight' : {
+          desc: 'The boldness level of the MARC preview text.',
+          descShort: 'MARC Boldness',
+          value: 400,
+          type: 'number',
+          step: 100,
+          group: 'Sidebars - Previews',
+          range: [100,1000]
+      },
+      '--c-edit-main-splitpane-marc-font-family' : {
+          value:'Avenir, Helvetica, Arial, sans-serif',
+          desc: 'The font of the MARC preview text.',
+          descShort: 'MARC Font',
+          value: 'monospace',
+          type: 'font',
+          group: 'Sidebars - Previews',
+          range: null
+      },
+
       '--b-edit-main-splitpane-opac-no-scrollbar' : {
           desc: 'Do not display a scroll bar in the preview side panels.',
           descShort: 'No Scrollbar',
