@@ -828,6 +828,7 @@
 
           this.fourXXErrors = []
           this.fourXX = this.fourXX.replace(/  +/g, ' ')
+          this.fourXX = this.fourXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
           if (this.fourXX.length<3){ return true}
 
