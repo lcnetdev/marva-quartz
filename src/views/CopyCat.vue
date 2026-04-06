@@ -118,7 +118,7 @@
           <template></template>
           <div class="load-buttons">
             <button :class="['load-button', { 'disabled-button': disableCopyCatButtons() }]"
-              @click="loadCopyCat(s.instance)" v-for="s in startingPointsFiltered">
+              @click="compareRecords(s.instance)" v-for="s in startingPointsFiltered">
               {{ s.name }}
             </button>
           </div>
@@ -292,6 +292,7 @@ export default {
       selectedMarc: {},
       continueWithLoad: false,
       compPreview: false,
+      targetProfile: null,
 
     }
   },
@@ -345,12 +346,17 @@ export default {
       console.info("callbackCreate")
       this.continueWithLoad = true
       this.displayCompModal = false
+
+
+      this.loadCopyCat(this.targetProfile)
     },
 
     callbackCancel: function(){
       console.info("cancelCopyCat")
       this.continueWithLoad = false
       this.displayCompModal = false
+
+      return
     },
 
     hideCompModal: function(){
@@ -663,8 +669,9 @@ export default {
       }
     },
 
-    loadCopyCat: async function (profile) { // load into BFDB/ID
-      this.continueWithLoad = true
+    compareRecords: async function(profile){
+      this.targetProfile = profile
+      this.continueWithLoad = false
 
       // marc record: https://id.loc.gov/resources/instances/<bibid>.bf2m.txt
       let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
@@ -678,30 +685,21 @@ export default {
       console.info("existingMarc: ", this.existingMarc)
       console.info("selected: ", this.selectedWcRecord)
 
+      this.compPreview = false
       this.displayCompModal = true
-
-      if (!this.continueWithLoad){
-        return
-      }
+    },
 
 
-      return
-      if (this.existingLCCN) {
-        continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
-      }
-      if (this.existingISBN) {
-        continueWithLoad = confirm("There is a record that matches this ISBN. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
-      }
-      if (!continueWithLoad) { return }
+    loadCopyCat: async function (profile) { // load into BFDB/ID
 
       let xml = this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
 
       xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
       let continueWithLccn = true
       // if (!this.copyCatLccn){
-      if (this.urlToLoad.length != 10) {
-        continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
-      }
+      // if (this.urlToLoad.length != 10) {
+      //   continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
+      // }
 
 
       if (!continueWithLccn) { return }
