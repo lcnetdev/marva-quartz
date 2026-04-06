@@ -43,6 +43,11 @@
                     <button @click="createCopyCat">Continue</button>
                     <button @click="cancelCopyCat">Cancel</button>
                 </div>
+                <div v-else
+                    :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`"
+                    class="footer">
+                    <button @click="cancelCopyCat">Cancel</button>
+                </div>
             </div>
         </div>
 
