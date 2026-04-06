@@ -595,6 +595,10 @@
         checkOneXX(){
           this.oneXXErrors = []
           this.oneXX = this.oneXX.replace(/  +/g, ' ')
+          this.oneXX = this.oneXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
+
+          
+          
 
           if (this.oneXX.length<3){ return true}
 
@@ -1599,7 +1603,7 @@
 
 
           this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
-          console.log("populatedValue",this.populatedValue)
+          // console.log("populatedValue",this.populatedValue)
           if (this.populatedValue && this.populatedValue.marcKey && !resetMode){
 
             // we never want 7xx so replace it
