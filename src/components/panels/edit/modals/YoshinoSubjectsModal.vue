@@ -80,7 +80,7 @@
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
-                                                    class="yoshino-insert-btn">Insert</button>
+                                                    :class="results.subjectUncontrolledMap[subj] ? 'yoshino-insert-btn yoshino-insert-btn-uncontrolled' : 'yoshino-insert-btn'">{{ results.subjectUncontrolledMap[subj] ? 'Insert Uncontrolled' : 'Insert' }}</button>
                                             <span v-else class="yoshino-inserted-label">Inserted</span>
                                         </div>
                                     </li>
@@ -104,7 +104,7 @@
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
-                                                    class="yoshino-insert-btn">Insert</button>
+                                                    :class="results.subjectUncontrolledMap[subj] ? 'yoshino-insert-btn yoshino-insert-btn-uncontrolled' : 'yoshino-insert-btn'">{{ results.subjectUncontrolledMap[subj] ? 'Insert Uncontrolled' : 'Insert' }}</button>
                                             <span v-else class="yoshino-inserted-label">Inserted</span>
                                         </div>
                                     </li>
@@ -294,6 +294,14 @@
 
     .yoshino-insert-btn:hover {
         background-color: #1565c0;
+    }
+
+    .yoshino-insert-btn-uncontrolled {
+        background-color: #e65100;
+    }
+
+    .yoshino-insert-btn-uncontrolled:hover {
+        background-color: #bf360c;
     }
 
     .yoshino-inserted {
