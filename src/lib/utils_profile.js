@@ -212,11 +212,15 @@ const utilsProfile = {
   * @async
   * @param {object} pt - the pt field for that component
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
+  * @param {boolean} allowMulti - whether to allow multiple values for the property
   * @return {array} - will return an array with the pt as 0 and the new @guid of the blanknode as 1
   */
-  buildBlanknode: function(pt,propertyPath){
+  buildBlanknode: function(pt,propertyPath,allowMulti=false){
       // link to the base userValue
       let pointer = pt.userValue
+      let lastPointer = null
+
+      let allPropertyPathsExist = true
 
       for (let p of propertyPath){
         // the property path has two parts
@@ -230,7 +234,8 @@ const utilsProfile = {
             // always create a guid for it
             '@guid' : short.generate()
           }]
-
+          allPropertyPathsExist = false
+          if (pointer){lastPointer = pointer}
           // relink to the first blank node
           pointer = pointer[p][0]
 
@@ -244,6 +249,7 @@ const utilsProfile = {
               pointer[p][0]['@guid'] = short.generate()
             }
             // console.log("Linink to",pointer[p][0])
+            if (pointer){lastPointer = pointer}
             pointer = pointer[p][0]
           }else{
             console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
@@ -254,6 +260,22 @@ const utilsProfile = {
       // console.log("pointer is",pointer)
       if (!pointer || !pointer['@guid']){
         console.error("There was an unknown error trying to create a blank node in", propertyPath, ' in ', pt)
+      }
+
+      // console.log("allPropertyPathsExist",allPropertyPathsExist)
+
+      // if allowMulti then we want to back track and add a new obj to the last pointer and create a new 
+      // blank node id. only if we did not create a new path along the way, meaning we are adding on to this one
+      if (allPropertyPathsExist && allowMulti == true){
+        // console.log("lastPointer",lastPointer)
+        // console.log("Make another blank node in this level", propertyPath[propertyPath.length-1].propertyURI)
+        // console.log("-->",lastPointer[propertyPath[propertyPath.length-1].propertyURI])
+
+        lastPointer[propertyPath[propertyPath.length-1].propertyURI].push({
+          '@guid' : short.generate()
+        })
+        pointer = lastPointer[propertyPath[propertyPath.length-1].propertyURI][lastPointer[propertyPath[propertyPath.length-1].propertyURI].length-1]
+
       }
 
       this.setTypesForBlankNode(pt,propertyPath)

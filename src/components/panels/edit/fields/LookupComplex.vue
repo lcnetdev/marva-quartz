@@ -426,6 +426,10 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
+      // console.log("this.complexLookupValues",this.complexLookupValues)
+      // console.log("contextValue: ", contextValue)
+      // console.log("propertyPath: ", this.propertyPath)
+      // console.log("profile structure: ", this.structure)
       if (contextValue.literal){
         this.profileStore.setValueComplex(
             this.guid,
@@ -437,6 +441,32 @@ export default {
             {},
             null,
           )
+      
+      }else if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bflc/creatorCharacteristic"){
+
+          delete contextValue.typeFull
+
+          let type = (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0]
+          if (type == 'Authority'){
+            // use the dataTypeURI from this field's own structure, not the parent component's
+            if (this.structure.valueConstraint && this.structure.valueConstraint.valueDataType && this.structure.valueConstraint.valueDataType.dataTypeURI){
+              type = this.structure.valueConstraint.valueDataType.dataTypeURI
+            }
+          }
+
+          this.profileStore.setValueComplex(
+            this.guid,
+            null,
+            this.propertyPath,
+            contextValue.uri,
+            contextValue.title,
+            type,
+            contextValue.extra,
+            (contextValue.extra && contextValue.extra.marcKeys) ? contextValue.extra.marcKeys[0] : null,
+            true // allowMulti
+          )
+
+
       } else if (Object.keys(contextValue.extra).length == 0){
         // Intended audience mixes simple and complex lookups, so do check
         this.profileStore.setValueSimple(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title[0])
@@ -528,10 +558,17 @@ export default {
       }
 
       // if there is already a value abort
-      if (this.complexLookupValues.length > 0 && this.marcDeliminatedLCSHMode == false){
+      if (this.complexLookupValues.length > 0 && 
+          this.marcDeliminatedLCSHMode == false &&
+          this.structure.propertyURI != "http://id.loc.gov/ontologies/bflc/creatorCharacteristic" // testing multiple creator charateristics
+          ){
         this.searchValue = ""
         return false
       }
+
+
+
+      
 
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
 

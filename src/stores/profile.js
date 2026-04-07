@@ -2647,10 +2647,11 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} URI - the URI for the value
     * @param {string} label - the label to use
     * @param {string} type - the URI of the type to use, like http://www.loc.gov/mads/rdf/v1#CorporateName
+    * @param {boolean} allowMulti - prevents the create blank node from overwriting the last value and attempts to make a new one
 
     * @return {void}
     */
-    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
+    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null, allowMulti=false ){
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2704,9 +2705,10 @@ export const useProfileStore = defineStore('profile', {
 
         if (blankNode === false){
           // create the path to the blank node
-          let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+          let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath,allowMulti)
+          
 
-          pt = buildBlankNodeResult[0]
+          pt = buildBlankNodeResult[0] // in this response [0] is the pt and [1] is the guid of the new blank node
 
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
@@ -3011,7 +3013,7 @@ export const useProfileStore = defineStore('profile', {
         console.error('setValueComplex: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
 
-      console.log("pt is ", JSON.stringify(pt.userValue))
+      // console.log("pt is ", JSON.stringify(pt.userValue))
     },
 
     /**
