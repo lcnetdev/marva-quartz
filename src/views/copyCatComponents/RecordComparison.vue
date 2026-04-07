@@ -141,7 +141,7 @@ export default {
     overflow-y: hidden;
     overflow: scroll;
     position: fixed;
-    height: 80%;
+    height: fit-content;
 
     margin-top: 5px;
     margin-left: 1%;
@@ -169,15 +169,37 @@ export default {
     padding: 10px;
 }
 
+
+
 </style>
 
 <style>
+pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    /* text-indent: 4em hanging; */
+}
+
 span.indicators{
     white-space: pre;
 }
 
 div.marc.field {
     text-indent: 4em hanging;
+}
+
+.tag-001,
+.tag-002,
+.tag-003,
+.tag-004,
+.tag-005,
+.tag-006,
+.tag-007,
+.tag-008 {
+    padding-right: 25px;
 }
 
 </style>

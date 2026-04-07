@@ -288,7 +288,7 @@ export default {
       overrideBibid: "",
 
       displayCompModal: false,
-      existingMarc: {},
+      existingMarc: false,
       selectedMarc: {},
       continueWithLoad: false,
       compPreview: false,
@@ -334,10 +334,8 @@ export default {
       this.selectedMarc = this.selectedWcRecord.marcHTML
 
       let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
-      let existingMarc = false
-      if (existingMarcUrl){
-        existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
-        this.existingMarc = existingMarc
+      if (existingMarcUrl && !this.existingMarc){
+        this.existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
       }
 
       this.displayCompModal = true
@@ -439,6 +437,7 @@ export default {
      */
 
     checkLccn: async function (type=lccn) {
+      this.existingMarc = false // reset this if the check triggers
       this.searchType = type
       console.info("checkLCCN: ", this.searchType)
       // if (this.urlToLoad.length < 3){ return }
@@ -695,14 +694,6 @@ export default {
       let xml = this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
 
       xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
-      let continueWithLccn = true
-      // if (!this.copyCatLccn){
-      // if (this.urlToLoad.length != 10) {
-      //   continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
-      // }
-
-
-      if (!continueWithLccn) { return }
 
       let parser = new DOMParser()
       xml = parser.parseFromString(xml, "text/xml")
