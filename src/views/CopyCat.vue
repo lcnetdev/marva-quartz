@@ -757,7 +757,7 @@ export default {
 
       console.info("strXmlBasic: ", strXmlBasic)
 
-      return
+      // return
 
       this.posting = true
       this.postResults = {}
