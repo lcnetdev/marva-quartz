@@ -185,6 +185,18 @@ function yoshinoParseRdf(xmlText) {
       })
     }
 
+    // Check if this subject is uncontrolled (has rdf:type bflc:Uncontrolled)
+    let uncontrolled = false
+    if (topChild) {
+      for (const typeEl of Array.from(topChild.getElementsByTagNameNS(NS.rdf, 'type'))) {
+        if (typeEl.parentElement === topChild &&
+            typeEl.getAttributeNS(NS.rdf, 'resource') === 'http://id.loc.gov/ontologies/bflc/Uncontrolled') {
+          uncontrolled = true
+          break
+        }
+      }
+    }
+
     const subjectData = {
       label,
       xml,
@@ -192,6 +204,7 @@ function yoshinoParseRdf(xmlText) {
       components,
       uri: topUri,
       marcKey: topMarcKey,
+      uncontrolled,
     }
     console.log('--- Yoshino: Parsed Subject ---')
     console.log('Subject XML:', xml)
@@ -404,6 +417,7 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
   const subjectComponentsMap = {}
   const subjectUriMap = {}
   const subjectMarcKeyMap = {}
+  const subjectUncontrolledMap = {}
 
   for (const { id, xml } of rdfResults) {
     if (!xml) continue
@@ -416,6 +430,7 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
         subjectComponentsMap[s.label] = s.components
         if (s.uri) subjectUriMap[s.label] = s.uri
         if (s.marcKey) subjectMarcKeyMap[s.label] = s.marcKey
+        if (s.uncontrolled) subjectUncontrolledMap[s.label] = true
         subjectSourceMap[s.label] = id
       }
     }
@@ -452,6 +467,7 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
     subjectComponentsMap,
     subjectUriMap,
     subjectMarcKeyMap,
+    subjectUncontrolledMap,
   }
 }
 
