@@ -775,9 +775,18 @@ export default {
         return
       }
 
+      // console.info("getting recordId")
+      // console.info("this.existingLCCN: ", this.existingLCCN)
+      // console.info("this.existingISBN: ", this.existingISBN)
+      // console.info("bibId: ", bibId)
+
       let recordId = ''
       if (this.existingLCCN || this.existingISBN) {
-        recordId = bibId
+        if (this.overrideAllow){
+          recordId = this.overrideBibid
+        } else {
+          recordId = bibId
+        }
       } else {
         if (useConfigStore().returnUrls.env != 'production'){
           recordId = marva001
@@ -788,6 +797,7 @@ export default {
       }
 
       console.info("recordId: ", recordId)
+
       if(useConfigStore().returnUrls.env == 'staging'){
         this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
       } else {
