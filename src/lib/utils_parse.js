@@ -476,7 +476,7 @@ const utilsParse = {
       let isHub = false
       if (pkey.includes(':Work')){
         tle = "bf:Work"
-      }else if (pkey.includes(':Instance')){
+      }else if (pkey.endsWith(':Instance')){
         tle = "bf:Instance"
       }else if (pkey.includes(':Item')){
         tle = "bf:Item"
