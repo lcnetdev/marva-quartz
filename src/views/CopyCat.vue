@@ -336,6 +336,7 @@ export default {
       let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
       if (existingMarcUrl && !this.existingMarc){
         this.existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
+        this.existingMarc = this.htmlify(this.existingMarc)
       }
 
       this.displayCompModal = true
@@ -668,6 +669,40 @@ export default {
       }
     },
 
+    htmlify: function(marcBlob){
+      console.info("marcBlob: ", marcBlob)
+
+      let formattedMarcRecord = ["<div class='marc record'>"];
+
+
+      for (let [idx, line] of marcBlob.split("\n").entries()){
+        if (idx == 0){
+          let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
+          formattedMarcRecord.push(leader);
+        } else {
+          let tag = String(line.slice(0,3))
+          let value = null;                 // fixed fields?
+          let indicators = null;
+          let subfields = [];               // subfields
+          console.info("line: ", line)
+          if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
+            value = line.slice(7)
+          } else {
+            indicators = line.slice(3, 7)
+            subfields = line.slice(7)
+          }
+          console.info("\ttag: '", tag, "'")
+          console.info("\tvalue: ", value)
+          console.info("\tindicators: ", indicators)
+          console.info("\tsubfields: ", subfields)
+        }
+      }
+
+      console.info("formattedMarcRecord: ", formattedMarcRecord)
+
+      return marcBlob
+    },
+
     compareRecords: async function(profile){
       this.targetProfile = profile
       this.continueWithLoad = false
@@ -677,8 +712,10 @@ export default {
       console.info("existingMarcUrl: ", existingMarcUrl)
       let existingMarc = false
       if (existingMarcUrl){
+        console.info("getting")
         existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
         this.existingMarc = existingMarc
+        this.existingMarc = this.htmlify(this.existingMarc)
       }
       this.selectedMarc = this.selectedWcRecord.marcHTML
       console.info("existingMarc: ", this.existingMarc)
