@@ -597,8 +597,8 @@
           this.oneXX = this.oneXX.replace(/  +/g, ' ')
           this.oneXX = this.oneXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
-          
-          
+
+
 
           if (this.oneXX.length<3){ return true}
 
@@ -731,11 +731,10 @@
                   if (lifeDates[1].trim().length>0){
                     this.zero46.t = lifeDates[1]
                   }
-
                 }
                 if (lifeDates.length==1 && (fieldTag == '111' || fieldTag == 111)){
                   this.zero46 = {}
-                  this.zero46.q = lifeDates[0]
+                  this.zero46.s = lifeDates[0]
                 }
               }
             }
