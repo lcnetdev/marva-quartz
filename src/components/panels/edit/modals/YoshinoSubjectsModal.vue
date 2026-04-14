@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div ref="yoshinoModalContainer" class="yoshino-modal-container">
-                    <h1 style="margin-left: 5px">Yoshino Subjects</h1>
+                    <h1 style="margin-left: 5px">Subject Suggest</h1>
 
                     <div v-if="!results && !loading && !error" class="yoshino-input-section">
                         <div class="yoshino-field">
@@ -34,7 +34,21 @@
                         </div>
                         <div class="yoshino-field">
                             <label>Summary:</label>
-                            <span class="yoshino-value">{{ summaryTruncated || '(not found)' }}</span>
+                            <div v-if="summaryAlternatives.length > 0" class="yoshino-radio-group">
+                                <label class="yoshino-radio-option">
+                                    <input type="radio" name="summary-source" value="record" v-model="summarySource" @change="summary = recordSummary">
+                                    <span class="yoshino-radio-source">Record</span>
+                                    <span class="yoshino-radio-text">{{ recordSummary ? (recordSummary.length > 200 ? recordSummary.substring(0, 200) + '...' : recordSummary) : '(not found)' }}</span>
+                                    <span v-if="recordSummary" class="yoshino-word-count">({{ recordSummary.split(/\s+/).length }} words)</span>
+                                </label>
+                                <label v-for="(alt, idx) in summaryAlternatives" :key="'sum-alt-'+idx" class="yoshino-radio-option">
+                                    <input type="radio" name="summary-source" :value="'alt-sum-'+idx" v-model="summarySource" @change="summary = alt.value">
+                                    <span class="yoshino-radio-source">{{ alt.label }}</span>
+                                    <span class="yoshino-radio-text">{{ alt.value.length > 200 ? alt.value.substring(0, 200) + '...' : alt.value }}</span>
+                                    <span class="yoshino-word-count">({{ alt.value.split(/\s+/).length }} words)</span>
+                                </label>
+                            </div>
+                            <span v-else class="yoshino-value">{{ summaryTruncated || '(not found)' }}</span>
                         </div>
                         <div class="yoshino-field">
                             <label>Creator:</label>
@@ -42,7 +56,21 @@
                         </div>
                         <div class="yoshino-field">
                             <label>Contents:</label>
-                            <span class="yoshino-value">{{ contents ? (contents.length > 200 ? contents.substring(0, 200) + '...' : contents) : '(not found)' }}</span>
+                            <div v-if="contentsAlternatives.length > 0" class="yoshino-radio-group">
+                                <label class="yoshino-radio-option">
+                                    <input type="radio" name="contents-source" value="record" v-model="contentsSource" @change="contents = recordContents">
+                                    <span class="yoshino-radio-source">Record</span>
+                                    <span class="yoshino-radio-text">{{ recordContents ? (recordContents.length > 200 ? recordContents.substring(0, 200) + '...' : recordContents) : '(not found)' }}</span>
+                                    <span v-if="recordContents" class="yoshino-word-count">({{ recordContents.split(/\s+/).length }} words)</span>
+                                </label>
+                                <label v-for="(alt, idx) in contentsAlternatives" :key="'toc-alt-'+idx" class="yoshino-radio-option">
+                                    <input type="radio" name="contents-source" :value="'alt-toc-'+idx" v-model="contentsSource" @change="contents = alt.value">
+                                    <span class="yoshino-radio-source">{{ alt.label }}</span>
+                                    <span class="yoshino-radio-text">{{ alt.value.length > 200 ? alt.value.substring(0, 200) + '...' : alt.value }}</span>
+                                    <span class="yoshino-word-count">({{ alt.value.split(/\s+/).length }} words)</span>
+                                </label>
+                            </div>
+                            <span v-else class="yoshino-value">{{ contents ? (contents.length > 200 ? contents.substring(0, 200) + '...' : contents) : '(not found)' }}</span>
                         </div>
                         <div style="margin-top: 12px">
                             <button @click="runClassify()" :disabled="!title">Get Subject Recommendations</button>
@@ -67,7 +95,7 @@
                                 <h2>Recommended Subjects</h2>
                                 <div v-if="results.recommended.length === 0" class="yoshino-empty">No recommended subjects found.</div>
                                 <ul>
-                                    <li v-for="(subj, idx) in results.recommended" :key="'rec-'+idx"
+                                    <li v-for="(subj, idx) in sortedRecommended" :key="'rec-'+idx"
                                         :class="{'yoshino-inserted': insertedSubjects.has(subj)}">
                                         <div class="yoshino-subject-row">
                                             <div class="yoshino-subject-info">
@@ -80,7 +108,7 @@
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
-                                                    :class="results.subjectUncontrolledMap[subj] ? 'yoshino-insert-btn yoshino-insert-btn-uncontrolled' : 'yoshino-insert-btn'">{{ results.subjectUncontrolledMap[subj] ? 'Insert Uncontrolled' : 'Insert' }}</button>
+                                                    :class="(results.subjectUncontrolledMap[subj] || (results.subjectSources[subj] && !results.subjectSources[subj].endsWith('Subject Headings'))) ? 'yoshino-insert-btn yoshino-insert-btn-uncontrolled' : 'yoshino-insert-btn'">{{ results.subjectUncontrolledMap[subj] ? 'Insert Uncontrolled' : (results.subjectSources[subj] && !results.subjectSources[subj].endsWith('Subject Headings')) ? 'Insert non-LC' : 'Insert' }}</button>
                                             <span v-else class="yoshino-inserted-label">Inserted</span>
                                         </div>
                                     </li>
@@ -91,7 +119,7 @@
                                 <h2>Other Subjects</h2>
                                 <div v-if="results.otherSubjects.length === 0" class="yoshino-empty">No additional subjects found.</div>
                                 <ul>
-                                    <li v-for="(subj, idx) in results.otherSubjects" :key="'other-'+idx"
+                                    <li v-for="(subj, idx) in sortedOtherSubjects" :key="'other-'+idx"
                                         :class="{'yoshino-inserted': insertedSubjects.has(subj)}">
                                         <div class="yoshino-subject-row">
                                             <div class="yoshino-subject-info">
@@ -104,7 +132,7 @@
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
-                                                    :class="results.subjectUncontrolledMap[subj] ? 'yoshino-insert-btn yoshino-insert-btn-uncontrolled' : 'yoshino-insert-btn'">{{ results.subjectUncontrolledMap[subj] ? 'Insert Uncontrolled' : 'Insert' }}</button>
+                                                    :class="(results.subjectUncontrolledMap[subj] || (results.subjectSources[subj] && !results.subjectSources[subj].endsWith('Subject Headings'))) ? 'yoshino-insert-btn yoshino-insert-btn-uncontrolled' : 'yoshino-insert-btn'">{{ results.subjectUncontrolledMap[subj] ? 'Insert Uncontrolled' : (results.subjectSources[subj] && !results.subjectSources[subj].endsWith('Subject Headings')) ? 'Insert non-LC' : 'Insert' }}</button>
                                             <span v-else class="yoshino-inserted-label">Inserted</span>
                                         </div>
                                     </li>
@@ -113,6 +141,7 @@
                         </div>
 
                         <div class="yoshino-actions">
+                            <button v-if="topK < 20" @click="moreSuggestions()">More Suggestions</button>
                             <button @click="reset()">Search Again</button>
                             <button @click="closeModal()">Done</button>
                         </div>
@@ -169,6 +198,55 @@
 
     .yoshino-value {
         color: #333;
+    }
+
+    .yoshino-radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 2px;
+    }
+
+    .yoshino-radio-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 4px 6px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: normal;
+        min-width: 0;
+    }
+
+    .yoshino-radio-option:hover {
+        background: #f0f0f0;
+    }
+
+    .yoshino-radio-option input[type="radio"] {
+        margin-top: 3px;
+        flex-shrink: 0;
+    }
+
+    .yoshino-radio-source {
+        font-size: 0.78rem;
+        font-weight: bold;
+        color: #1976d2;
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-width: 60px;
+    }
+
+    .yoshino-radio-text {
+        font-size: 0.82rem;
+        color: #444;
+        line-height: 1.3;
+    }
+
+    .yoshino-word-count {
+        font-size: 0.75rem;
+        color: #888;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .yoshino-warning {
@@ -361,6 +439,10 @@
             summary: null,
             creator: null,
             contents: null,
+            recordSummary: null,
+            recordContents: null,
+            summarySource: 'record',
+            contentsSource: 'record',
             loading: false,
             error: null,
             noSubjectsFound: false,
@@ -371,8 +453,46 @@
 
     computed: {
         ...mapStores(useProfileStore),
-        ...mapState(useProfileStore, ['activeProfile']),
+        ...mapState(useProfileStore, ['activeProfile', 'linkedData']),
         ...mapWritableState(useProfileStore, ['showYoshinoSubjectsModal', 'yoshinoResults', 'yoshinoInsertedSubjects']),
+
+        summaryAlternatives() {
+            let alts = []
+            if (this.linkedData && this.linkedData.noteContent) {
+                for (let item of this.linkedData.noteContent) {
+                    alts.push({ label: 'OCLC (' + item.id + ')', value: item.value })
+                }
+            }
+            if (this.linkedData && this.linkedData.booksellerResults) {
+                for (let result of this.linkedData.booksellerResults) {
+                    if (result.sections && result.sections.description) {
+                        for (let desc of result.sections.description) {
+                            alts.push({ label: result.site, value: desc })
+                        }
+                    }
+                }
+            }
+            return alts
+        },
+
+        contentsAlternatives() {
+            let alts = []
+            if (this.linkedData && this.linkedData.noteTOC) {
+                for (let item of this.linkedData.noteTOC) {
+                    alts.push({ label: 'OCLC (' + item.id + ')', value: item.value })
+                }
+            }
+            if (this.linkedData && this.linkedData.booksellerResults) {
+                for (let result of this.linkedData.booksellerResults) {
+                    if (result.sections && result.sections.table_of_contents) {
+                        for (let toc of result.sections.table_of_contents) {
+                            alts.push({ label: result.site, value: toc })
+                        }
+                    }
+                }
+            }
+            return alts
+        },
 
         results: {
             get() { return this.yoshinoResults },
@@ -387,6 +507,16 @@
         summaryTruncated() {
             if (!this.summary) return null
             return this.summary.length > 200 ? this.summary.substring(0, 200) + '...' : this.summary
+        },
+
+        sortedRecommended() {
+            if (!this.results || !this.results.recommended) return []
+            return [...this.results.recommended].sort((a, b) => a.localeCompare(b))
+        },
+
+        sortedOtherSubjects() {
+            if (!this.results || !this.results.otherSubjects) return []
+            return [...this.results.otherSubjects].sort((a, b) => a.localeCompare(b))
         },
     },
 
@@ -422,6 +552,12 @@
             this.summary = yoshinoExtractSummary(this.activeProfile)
             this.creator = yoshinoExtractCreator(this.activeProfile)
             this.contents = yoshinoExtractContents(this.activeProfile)
+            this.recordSummary = this.summary
+            this.recordContents = this.contents
+            this.summarySource = this.summary ? 'record' : (this.summaryAlternatives.length > 0 ? 'alt-sum-0' : 'record')
+            this.contentsSource = this.contents ? 'record' : (this.contentsAlternatives.length > 0 ? 'alt-toc-0' : 'record')
+            if (!this.summary && this.summaryAlternatives.length > 0) this.summary = this.summaryAlternatives[0].value
+            if (!this.contents && this.contentsAlternatives.length > 0) this.contents = this.contentsAlternatives[0].value
         },
 
         runClassify: async function() {
@@ -454,6 +590,11 @@
             this.topK = 20
             this.error = null
             this.noSubjectsFound = false
+            this.runClassify()
+        },
+
+        moreSuggestions: function() {
+            this.topK = 20
             this.runClassify()
         },
 

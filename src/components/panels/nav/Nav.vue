@@ -389,9 +389,9 @@ export default {
                 }, icon: "smart_toy"
               },
               ...(this.yoshinoAllowed ? [{
-                text: "Yoshino Subjects", click: () => {
+                text: "Subject Suggest", click: () => {
                   this.showYoshinoSubjectsModal = true
-                }, icon: "auto_awesome"
+                }, icon: "radar"
               }] : []),
 
               { is: 'separator' },
