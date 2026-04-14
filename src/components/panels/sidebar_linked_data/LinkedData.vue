@@ -128,6 +128,7 @@
                   cover_image_url: data.cover_image_url,
                   sections: data.sections
                 })
+                this.linkedData.booksellerResults = this.booksellerResults
                 succeeded = true
                 break
               }
@@ -144,6 +145,11 @@
         if (!succeeded){
           this.failedSellers[site] = true
         }
+
+        window.setInterval(() => {
+            console.log("profileStore.linkedData", this.profileStore.linkedData)  
+
+          }, 1000)
       },
 
       addBooksellerItem(site, sectionKey, value){
@@ -268,6 +274,7 @@
       activeProfile(newVal, oldVal) {
         this.failedSellers = {}
         this.booksellerResults = []
+        this.linkedData.booksellerResults = []
         this.requestLinkedDataBuild()
       },
       activeIsbn() {
@@ -390,14 +397,14 @@
       </template>
 
       <div v-if="linkedData.isbn && linkedData.isbn.length > 0">
-        <div>Amazon Links</div>
+        <!-- <div>Amazon Links</div>
         <button style="margin-left: 1em;" @click="allAmazonLinks(linkedData.isbn)">Open All</button>
         <template v-for="(isbn, index) in linkedData.isbn">
           <div class="value" v-if="isbn.length==10">
             <a :href="'https://www.amazon.com/dp/' + isbn +'/'" target="_blank">{{ isbn }}</a>
           </div>
 
-        </template>
+        </template> -->
 
       </div>
 

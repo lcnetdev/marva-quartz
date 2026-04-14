@@ -130,6 +130,9 @@ export default {
       // Start background JWT refresh timer
       this.preferenceStore.startJwtRefreshTimer(this.configStore.returnUrls.util)
 
+      // Fetch feature flags for the authenticated user
+      this.preferenceStore.fetchFeatureFlags(this.configStore.returnUrls.util)
+
       // Check if we need to redirect back to a page after SSO
       let redirectPath = window.localStorage.getItem('marva-redirectAfterSSO')
       if (redirectPath){
