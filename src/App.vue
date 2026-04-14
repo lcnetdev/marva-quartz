@@ -59,7 +59,7 @@ export default {
     NacoStubCreateModal,
     MarvaLogModal,
     UserDirectoryModal,
-    CipModal
+    CipModal,
     FolioSyncModal
 
   },
