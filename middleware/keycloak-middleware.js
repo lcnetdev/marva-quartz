@@ -1,0 +1,525 @@
+/* eslint-disable no-console */
+const http = require('http')
+const crypto = require('crypto')
+const fs = require('fs')
+const path = require('path')
+
+const PORT = Number(process.env.PORT || 9401)
+const BASE_PATH = normalizeBasePath(process.env.BASE_PATH || '/marva/util')
+
+const KEYCLOAK_AUTH_PATH = trimTrailingSlash(
+  process.env.KEYCLOAK_EXTERNAL_URL || process.env.KEYCLOAK_AUTH_PATH || ''
+)
+const KEYCLOAK_INTERNAL_AUTH_PATH = trimTrailingSlash(
+  process.env.KEYCLOAK_INTERNAL_URL || process.env.KEYCLOAK_INTERNAL_AUTH_PATH || KEYCLOAK_AUTH_PATH
+)
+const KEYCLOAK_REALM = (process.env.KEYCLOAK_REALM || 'bluecore').trim()
+const KEYCLOAK_ISSUER_PUBLIC = trimTrailingSlash(
+  process.env.KEYCLOAK_ISSUER_PUBLIC ||
+  process.env.KEYCLOAK_ISSUER ||
+  (KEYCLOAK_AUTH_PATH ? `${KEYCLOAK_AUTH_PATH}/realms/${KEYCLOAK_REALM}` : '')
+)
+const KEYCLOAK_ISSUER_INTERNAL = trimTrailingSlash(
+  process.env.KEYCLOAK_ISSUER_INTERNAL ||
+  process.env.KEYCLOAK_ISSUER ||
+  (KEYCLOAK_INTERNAL_AUTH_PATH ? `${KEYCLOAK_INTERNAL_AUTH_PATH}/realms/${KEYCLOAK_REALM}` : '')
+)
+const KEYCLOAK_CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID || ''
+const KEYCLOAK_CLIENT_SECRET = process.env.KEYCLOAK_CLIENT_SECRET || ''
+const KEYCLOAK_REDIRECT_URI = process.env.KEYCLOAK_REDIRECT_URI || `http://localhost:${PORT}${BASE_PATH}/auth/callback`
+const KEYCLOAK_SCOPE = process.env.KEYCLOAK_SCOPE || 'openid profile email'
+const KEYCLOAK_INTERNAL_HOST_HEADER = (
+  process.env.KEYCLOAK_INTERNAL_HOST_HEADER ||
+  getUrlHostPort(KEYCLOAK_ISSUER_PUBLIC)
+).trim()
+const KEYCLOAK_INTERNAL_FORWARDED_PROTO = (
+  process.env.KEYCLOAK_INTERNAL_FORWARDED_PROTO ||
+  getUrlProtocol(KEYCLOAK_ISSUER_PUBLIC) ||
+  'http'
+).trim()
+
+const MARVA_REDIRECT_BASE = process.env.MARVA_REDIRECT_BASE || 'http://localhost:4444/marva/'
+const MARVA_LOGOUT_REDIRECT = process.env.MARVA_LOGOUT_REDIRECT || MARVA_REDIRECT_BASE
+
+const UPSTREAM_UTIL_BASE = process.env.UPSTREAM_UTIL_BASE || ''
+const CORS_ORIGIN = process.env.CORS_ORIGIN || '*'
+const FEATURE_FLAGS = (process.env.FEATURE_FLAGS || '')
+  .split(',')
+  .map((v) => v.trim())
+  .filter(Boolean)
+const MIDDLEWARE_LOG_FILE = process.env.MIDDLEWARE_LOG_FILE || ''
+
+const tokenStore = new Map()
+const subjectIndex = new Map()
+const pendingStates = new Map()
+
+const AUTHORIZATION_ENDPOINT = `${KEYCLOAK_ISSUER_PUBLIC}/protocol/openid-connect/auth`
+const TOKEN_ENDPOINT = `${KEYCLOAK_ISSUER_INTERNAL}/protocol/openid-connect/token`
+const LOGOUT_ENDPOINT = `${KEYCLOAK_ISSUER_PUBLIC}/protocol/openid-connect/logout`
+
+if (!KEYCLOAK_ISSUER_PUBLIC || !KEYCLOAK_ISSUER_INTERNAL || !KEYCLOAK_CLIENT_ID) {
+  logEvent('warn', 'incomplete-config', {
+    hasClientId: Boolean(KEYCLOAK_CLIENT_ID),
+    hasPublicIssuer: Boolean(KEYCLOAK_ISSUER_PUBLIC),
+    hasInternalIssuer: Boolean(KEYCLOAK_ISSUER_INTERNAL)
+  })
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    if (!req.url) {
+      return writeJson(res, 400, { error: 'Missing URL' })
+    }
+
+    if (req.method === 'OPTIONS') {
+      writeCorsHeaders(res)
+      res.writeHead(204)
+      res.end()
+      return
+    }
+
+    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
+    const pathname = url.pathname
+
+    if (!pathname.startsWith(BASE_PATH)) {
+      return writeJson(res, 404, { error: 'Not found' })
+    }
+
+    if (pathname === `${BASE_PATH}/auth/login`) {
+      return handleLogin(req, res, url)
+    }
+
+    if (pathname === `${BASE_PATH}/auth/callback`) {
+      return handleCallback(req, res, url)
+    }
+
+    if (pathname === `${BASE_PATH}/auth/refresh`) {
+      return handleRefresh(req, res)
+    }
+
+    if (pathname === `${BASE_PATH}/auth/logout`) {
+      return handleLogout(req, res)
+    }
+
+    if (pathname === `${BASE_PATH}/my-features`) {
+      return writeJson(res, 200, { features: FEATURE_FLAGS })
+    }
+
+    return proxyToUpstream(req, res, url)
+  } catch (error) {
+    logEvent('error', 'unhandled-request-error', { error: String(error?.message || error) })
+    return writeJson(res, 500, { error: 'Unhandled middleware error' })
+  }
+})
+
+server.listen(PORT, () => {
+  logEvent('info', 'middleware-started', {
+    port: PORT,
+    basePath: BASE_PATH,
+    logFile: MIDDLEWARE_LOG_FILE || null,
+    tokenHostHeader: KEYCLOAK_INTERNAL_HOST_HEADER || null
+  })
+})
+
+setInterval(cleanupStores, 60_000).unref()
+
+async function handleLogin(_req, res, url) {
+  if (!KEYCLOAK_ISSUER_PUBLIC || !KEYCLOAK_CLIENT_ID) {
+    logEvent('error', 'login-config-missing')
+    return writeJson(res, 500, { error: 'Keycloak configuration missing' })
+  }
+
+  const state = randomString(24)
+  const returnTo = sanitizeReturnTo(url.searchParams.get('returnTo') || MARVA_REDIRECT_BASE)
+  pendingStates.set(state, { returnTo, createdAt: Date.now() })
+  logEvent('info', 'login-redirect', { returnTo })
+
+  const authUrl = new URL(AUTHORIZATION_ENDPOINT)
+  authUrl.searchParams.set('client_id', KEYCLOAK_CLIENT_ID)
+  authUrl.searchParams.set('response_type', 'code')
+  authUrl.searchParams.set('scope', KEYCLOAK_SCOPE)
+  authUrl.searchParams.set('redirect_uri', KEYCLOAK_REDIRECT_URI)
+  authUrl.searchParams.set('state', state)
+
+  writeCorsHeaders(res)
+  res.writeHead(302, { Location: authUrl.toString() })
+  res.end()
+}
+
+async function handleCallback(_req, res, url) {
+  const code = url.searchParams.get('code')
+  const state = url.searchParams.get('state')
+  const oauthError = url.searchParams.get('error')
+
+  const stateData = state ? pendingStates.get(state) : null
+  if (state) pendingStates.delete(state)
+
+  const returnTo = sanitizeReturnTo(stateData?.returnTo || MARVA_REDIRECT_BASE)
+
+  if (oauthError) {
+    logEvent('warn', 'callback-oauth-error', { oauthError })
+    const errUrl = new URL(returnTo)
+    errUrl.searchParams.set('auth_error', oauthError)
+    writeCorsHeaders(res)
+    res.writeHead(302, { Location: errUrl.toString() })
+    res.end()
+    return
+  }
+
+  if (!code || !stateData) {
+    logEvent('warn', 'callback-invalid-state-or-code')
+    return writeJson(res, 400, { error: 'Invalid OAuth callback state/code' })
+  }
+
+  let tokenResponse
+  try {
+    tokenResponse = await exchangeToken({
+      grantType: 'authorization_code',
+      code
+    })
+  } catch (error) {
+    logEvent('error', 'token-exchange-network-error', {
+      issuer: KEYCLOAK_ISSUER_INTERNAL,
+      error: String(error?.message || error)
+    })
+    return writeJson(res, 502, {
+      error: 'Token exchange network error',
+      issuer: KEYCLOAK_ISSUER_INTERNAL
+    })
+  }
+
+  if (!tokenResponse.ok) {
+    const errTxt = await tokenResponse.text()
+    logEvent('error', 'token-exchange-failed', { status: tokenResponse.status, detail: errTxt })
+    return writeJson(res, 502, { error: 'Token exchange failed', detail: errTxt })
+  }
+
+  const payload = await tokenResponse.json()
+  const accessToken = payload.access_token
+  const refreshToken = payload.refresh_token
+  const idToken = payload.id_token
+  if (!accessToken || !refreshToken) {
+    return writeJson(res, 502, { error: 'Keycloak token response missing access/refresh token' })
+  }
+
+  const claims = decodeJwtPayload(accessToken)
+  const subject = claims?.sub || claims?.preferred_username || claims?.email || randomString(12)
+  const expiresAt = claims?.exp ? claims.exp * 1000 : Date.now() + 50 * 60 * 1000
+
+  tokenStore.set(accessToken, { refreshToken, idToken, subject, expiresAt })
+  subjectIndex.set(subject, accessToken)
+
+  const redirectUrl = new URL(returnTo)
+  redirectUrl.searchParams.set('token', accessToken)
+  logEvent('info', 'callback-success', {
+    subject: subject || null,
+    returnTo
+  })
+
+  writeCorsHeaders(res)
+  res.writeHead(302, { Location: redirectUrl.toString() })
+  res.end()
+}
+
+async function handleRefresh(req, res) {
+  const oldToken = getBearerToken(req)
+  if (!oldToken) {
+    logEvent('warn', 'refresh-missing-bearer')
+    return writeJson(res, 401, { error: 'Missing bearer token' })
+  }
+
+  let session = tokenStore.get(oldToken)
+  if (!session) {
+    const claims = decodeJwtPayload(oldToken)
+    const subject = claims?.sub || claims?.preferred_username || claims?.email
+    if (subject && subjectIndex.has(subject)) {
+      session = tokenStore.get(subjectIndex.get(subject))
+    }
+  }
+
+  if (!session?.refreshToken) {
+    logEvent('warn', 'refresh-session-not-found')
+    return writeJson(res, 401, { error: 'Refresh session not found; login required' })
+  }
+
+  let refreshResponse
+  try {
+    refreshResponse = await exchangeToken({
+      grantType: 'refresh_token',
+      refreshToken: session.refreshToken
+    })
+  } catch (error) {
+    logEvent('warn', 'refresh-network-error', {
+      issuer: KEYCLOAK_ISSUER_INTERNAL,
+      error: String(error?.message || error)
+    })
+    return writeJson(res, 401, {
+      error: 'Refresh network error',
+      issuer: KEYCLOAK_ISSUER_INTERNAL
+    })
+  }
+
+  if (!refreshResponse.ok) {
+    const errTxt = await refreshResponse.text()
+    const currentClaims = decodeJwtPayload(oldToken) || {}
+    logEvent('warn', 'refresh-failed', {
+      status: refreshResponse.status,
+      detail: errTxt,
+      tokenIssuer: currentClaims.iss || null,
+      refreshIssuerEndpoint: KEYCLOAK_ISSUER_INTERNAL
+    })
+    return writeJson(res, 401, { error: 'Refresh failed', detail: errTxt })
+  }
+
+  const payload = await refreshResponse.json()
+  const newAccessToken = payload.access_token
+  const newRefreshToken = payload.refresh_token || session.refreshToken
+  const newIdToken = payload.id_token || session.idToken
+
+  if (!newAccessToken) {
+    return writeJson(res, 502, { error: 'Refresh response missing access token' })
+  }
+
+  const claims = decodeJwtPayload(newAccessToken)
+  const subject = claims?.sub || session.subject
+  const expiresAt = claims?.exp ? claims.exp * 1000 : Date.now() + 50 * 60 * 1000
+
+  tokenStore.delete(oldToken)
+  tokenStore.set(newAccessToken, {
+    refreshToken: newRefreshToken,
+    idToken: newIdToken,
+    subject,
+    expiresAt
+  })
+  subjectIndex.set(subject, newAccessToken)
+  logEvent('info', 'refresh-success', { subject: subject || null })
+
+  return writeJson(res, 200, { token: newAccessToken })
+}
+
+async function handleLogout(req, res) {
+  const token = getBearerToken(req)
+  const session = token ? tokenStore.get(token) : null
+
+  if (token) tokenStore.delete(token)
+  if (session?.subject) subjectIndex.delete(session.subject)
+  logEvent('info', 'logout-redirect', { hasSession: Boolean(session) })
+
+  const logoutUrl = new URL(LOGOUT_ENDPOINT)
+  logoutUrl.searchParams.set('client_id', KEYCLOAK_CLIENT_ID)
+  logoutUrl.searchParams.set('post_logout_redirect_uri', MARVA_LOGOUT_REDIRECT)
+  if (session?.idToken) {
+    logoutUrl.searchParams.set('id_token_hint', session.idToken)
+  }
+
+  writeCorsHeaders(res)
+  res.writeHead(302, { Location: logoutUrl.toString() })
+  res.end()
+}
+
+async function proxyToUpstream(req, res, url) {
+  if (!UPSTREAM_UTIL_BASE) {
+    return writeJson(res, 404, { error: 'No upstream configured for this util route' })
+  }
+
+  const upstreamBase = trimTrailingSlash(UPSTREAM_UTIL_BASE)
+  const pathFromBase = url.pathname.slice(BASE_PATH.length)
+  const proxyTarget = `${upstreamBase}${pathFromBase}${url.search}`
+
+  const headers = { ...req.headers }
+  delete headers.host
+  delete headers['content-length']
+
+  const body = req.method === 'GET' || req.method === 'HEAD'
+    ? undefined
+    : await readRequestBody(req)
+
+  let response
+  try {
+    response = await fetch(proxyTarget, {
+      method: req.method,
+      headers,
+      body,
+      redirect: 'manual'
+    })
+  } catch (error) {
+    logEvent('error', 'upstream-proxy-error', {
+      target: proxyTarget,
+      error: String(error?.message || error)
+    })
+    return writeJson(res, 502, {
+      error: 'Upstream util request failed',
+      target: proxyTarget
+    })
+  }
+
+  writeCorsHeaders(res)
+  res.statusCode = response.status
+  response.headers.forEach((value, key) => {
+    if (key.toLowerCase() === 'content-length') return
+    if (key.toLowerCase() === 'content-encoding') return
+    if (key.toLowerCase() === 'transfer-encoding') return
+    res.setHeader(key, value)
+  })
+
+  const responseBuffer = Buffer.from(await response.arrayBuffer())
+  logEvent('info', 'upstream-proxy-response', {
+    method: req.method,
+    path: pathFromBase || '/',
+    status: response.status
+  })
+  res.end(responseBuffer)
+}
+
+async function exchangeToken({ grantType, code, refreshToken }) {
+  const body = new URLSearchParams()
+  body.set('grant_type', grantType)
+  body.set('client_id', KEYCLOAK_CLIENT_ID)
+  body.set('redirect_uri', KEYCLOAK_REDIRECT_URI)
+  if (KEYCLOAK_CLIENT_SECRET) {
+    body.set('client_secret', KEYCLOAK_CLIENT_SECRET)
+  }
+  if (grantType === 'authorization_code') {
+    body.set('code', code || '')
+  } else if (grantType === 'refresh_token') {
+    body.set('refresh_token', refreshToken || '')
+  }
+
+  const headers = {
+    'content-type': 'application/x-www-form-urlencoded'
+  }
+  if (KEYCLOAK_INTERNAL_HOST_HEADER) {
+    headers.host = KEYCLOAK_INTERNAL_HOST_HEADER
+    headers['x-forwarded-host'] = KEYCLOAK_INTERNAL_HOST_HEADER
+    headers['x-forwarded-proto'] = KEYCLOAK_INTERNAL_FORWARDED_PROTO
+  }
+
+  return fetch(TOKEN_ENDPOINT, {
+    method: 'POST',
+    headers,
+    body: body.toString()
+  })
+}
+
+function writeJson(res, statusCode, payload) {
+  writeCorsHeaders(res)
+  const data = JSON.stringify(payload)
+  res.writeHead(statusCode, {
+    'content-type': 'application/json; charset=utf-8',
+    'cache-control': 'no-store'
+  })
+  res.end(data)
+}
+
+function writeCorsHeaders(res) {
+  res.setHeader('access-control-allow-origin', CORS_ORIGIN)
+  res.setHeader('access-control-allow-methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
+  res.setHeader('access-control-allow-headers', 'Content-Type, Authorization, Accept')
+}
+
+function getBearerToken(req) {
+  const header = req.headers.authorization || ''
+  if (!header.toLowerCase().startsWith('bearer ')) return null
+  return header.slice(7).trim()
+}
+
+function readRequestBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = []
+    req.on('data', (chunk) => chunks.push(chunk))
+    req.on('end', () => resolve(Buffer.concat(chunks)))
+    req.on('error', reject)
+  })
+}
+
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split('.')[1]
+    if (!payload) return null
+    return JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'))
+  } catch {
+    return null
+  }
+}
+
+function randomString(size) {
+  return crypto.randomBytes(size).toString('hex')
+}
+
+function sanitizeReturnTo(returnTo) {
+  try {
+    const parsed = new URL(returnTo)
+    return parsed.toString()
+  } catch {
+    return MARVA_REDIRECT_BASE
+  }
+}
+
+function cleanupStores() {
+  const now = Date.now()
+  for (const [state, data] of pendingStates) {
+    if (now - data.createdAt > 10 * 60 * 1000) {
+      pendingStates.delete(state)
+    }
+  }
+  for (const [accessToken, session] of tokenStore) {
+    if (session.expiresAt && now > session.expiresAt + 24 * 60 * 60 * 1000) {
+      tokenStore.delete(accessToken)
+      if (session.subject && subjectIndex.get(session.subject) === accessToken) {
+        subjectIndex.delete(session.subject)
+      }
+    }
+  }
+}
+
+function normalizeBasePath(input) {
+  const path = input.startsWith('/') ? input : `/${input}`
+  return trimTrailingSlash(path)
+}
+
+function trimTrailingSlash(input) {
+  return input.endsWith('/') ? input.slice(0, -1) : input
+}
+
+function getUrlHostPort(input) {
+  try {
+    return new URL(input).host
+  } catch {
+    return ''
+  }
+}
+
+function getUrlProtocol(input) {
+  try {
+    return new URL(input).protocol.replace(':', '')
+  } catch {
+    return ''
+  }
+}
+
+function logEvent(level, event, meta = {}) {
+  const payload = {
+    ts: new Date().toISOString(),
+    level,
+    event,
+    ...meta
+  }
+  const line = `[keycloak-middleware] ${JSON.stringify(payload)}`
+
+  if (level === 'error') {
+    console.error(line)
+  } else if (level === 'warn') {
+    console.warn(line)
+  } else {
+    console.log(line)
+  }
+
+  if (!MIDDLEWARE_LOG_FILE) return
+  try {
+    const dir = path.dirname(MIDDLEWARE_LOG_FILE)
+    fs.mkdirSync(dir, { recursive: true })
+    fs.appendFileSync(MIDDLEWARE_LOG_FILE, line + '\n', 'utf8')
+  } catch (e) {
+    console.error('[keycloak-middleware] failed to write log file:', e?.message || e)
+  }
+}
