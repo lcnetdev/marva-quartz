@@ -690,6 +690,7 @@
 
             if (dollarKey.d){
 
+              dollarKey.d = dollarKey.d.replace(":", "")
               let lifeDates  = dollarKey.d.split('-')
 
               // if the first part is empty, or starts with a YYYY build the 046, otherwise don't
