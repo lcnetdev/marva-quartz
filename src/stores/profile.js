@@ -115,6 +115,8 @@ export const useProfileStore = defineStore('profile', {
     userDirectoryLoading: false,
 
     showCipModal: false,
+    showFolioSyncModal: false,
+
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -131,6 +133,10 @@ export const useProfileStore = defineStore('profile', {
       guid: null,
       structure: null,
     },
+
+    showYoshinoSubjectsModal: false,
+    yoshinoResults: null,
+    yoshinoInsertedSubjects: [],
 
     cammModeErrors: {
 
@@ -1000,55 +1006,55 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-      // HACKHACKHACKHACK
-      if (config.returnUrls.env != 'production'){
-          startingPointData.json.splice(2,0,{
-              "menuGroup": "GPO Monograph",
-              "menuItems": [
-                  {
-                      "label": "Instance",
-                      "type": [
-                          "http://id.loc.gov/ontologies/bibframe/Instance"
-                      ],
-                      "useResourceTemplates": [
-                          "lc:RT:bf2:GPOMono:Instance"
-                      ]
-                  },
-                  {
-                      "label": "Work",
-                      "type": [
-                          "http://id.loc.gov/ontologies/bibframe/Work"
-                      ],
-                      "useResourceTemplates": [
-                          "lc:RT:bf2:GPOMono:Work"
-                      ]
-                  }
-              ]
-          })
-          startingPointData.json.splice(3,0,{
-              "menuGroup": "GPO Serial",
-              "menuItems": [
-                  {
-                      "label": "Instance",
-                      "type": [
-                          "http://id.loc.gov/ontologies/bibframe/Instance"
-                      ],
-                      "useResourceTemplates": [
-                          "lc:RT:bf2:GPOSerial:Instance"
-                      ]
-                  },
-                  {
-                      "label": "Work",
-                      "type": [
-                          "http://id.loc.gov/ontologies/bibframe/Work"
-                      ],
-                      "useResourceTemplates": [
-                          "lc:RT:bf2:GPOSerial:Work"
-                      ]
-                  }
-              ]
-          })
-      }
+      // // removed march 2026
+      // if (config.returnUrls.env != 'production'){
+      //     startingPointData.json.splice(2,0,{
+      //         "menuGroup": "GPO Monograph",
+      //         "menuItems": [
+      //             {
+      //                 "label": "Instance",
+      //                 "type": [
+      //                     "http://id.loc.gov/ontologies/bibframe/Instance"
+      //                 ],
+      //                 "useResourceTemplates": [
+      //                     "lc:RT:bf2:GPOMono:Instance"
+      //                 ]
+      //             },
+      //             {
+      //                 "label": "Work",
+      //                 "type": [
+      //                     "http://id.loc.gov/ontologies/bibframe/Work"
+      //                 ],
+      //                 "useResourceTemplates": [
+      //                     "lc:RT:bf2:GPOMono:Work"
+      //                 ]
+      //             }
+      //         ]
+      //     })
+      //     startingPointData.json.splice(3,0,{
+      //         "menuGroup": "GPO Serial",
+      //         "menuItems": [
+      //             {
+      //                 "label": "Instance",
+      //                 "type": [
+      //                     "http://id.loc.gov/ontologies/bibframe/Instance"
+      //                 ],
+      //                 "useResourceTemplates": [
+      //                     "lc:RT:bf2:GPOSerial:Instance"
+      //                 ]
+      //             },
+      //             {
+      //                 "label": "Work",
+      //                 "type": [
+      //                     "http://id.loc.gov/ontologies/bibframe/Work"
+      //                 ],
+      //                 "useResourceTemplates": [
+      //                     "lc:RT:bf2:GPOSerial:Work"
+      //                 ]
+      //             }
+      //         ]
+      //     })
+      // }
 
 
       startingPointData.json.forEach((sp)=>{
@@ -4003,23 +4009,91 @@ export const useProfileStore = defineStore('profile', {
         pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] = [{
           "@guid": short.generate(),
           "@type": "http://id.loc.gov/ontologies/bibframe/ClassificationLcc",
+          "http://id.loc.gov/ontologies/bibframe/assigner": [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress"
+            }]
+          }],
           "http://id.loc.gov/ontologies/bibframe/classificationPortion": [{
             "@guid": dataFieldGuid,
             "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }],
+          "http://id.loc.gov/ontologies/bibframe/status": [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/mstatus/uba",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Status",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "used by assigner"
+            }]
           }]
         }]
-      }else if (!pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
-        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'] = [{
-          "@guid": dataFieldGuid,
-          "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
-        }]
       }else{
-        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] = {
-          "@guid": dataFieldGuid,
-          "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+        let classEntry = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+        if (!classEntry['@guid']) classEntry['@guid'] = short.generate()
+        if (!classEntry['@type']) classEntry['@type'] = "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/assigner']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/assigner'] = [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress"
+            }]
+          }]
+        }
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/status']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/status'] = [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/mstatus/uba",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Status",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "used by assigner"
+            }]
+          }]
+        }
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion'] = [{
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }]
+        }else{
+          classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] = {
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }
         }
       }
 
+      // remove any empty classification entries (cloned but never populated)
+      for (let rtId in this.activeProfile.rt){
+        for (let ptId in this.activeProfile.rt[rtId].pt){
+          let ptObj = this.activeProfile.rt[rtId].pt[ptId]
+          if (ptObj.propertyURI === 'http://id.loc.gov/ontologies/bibframe/classification' && ptObj.userValue){
+            if (!ptObj.userValue['http://id.loc.gov/ontologies/bibframe/classification']){
+              // userValue only has @root, nothing else — mark as deleted
+              ptObj.deleted = true
+            }else{
+              let classArr = ptObj.userValue['http://id.loc.gov/ontologies/bibframe/classification']
+              for (let i = classArr.length - 1; i >= 0; i--){
+                if (!classArr[i]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+                  classArr.splice(i, 1)
+                }
+              }
+            }
+          }
+        }
+      }
+
+
+
+      this.dataChanged()
 
       return dataFieldGuid
 
@@ -6494,6 +6568,8 @@ export const useProfileStore = defineStore('profile', {
 
       if (pubResuts && pubResuts.status === 'published'){
         this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+      }else if (pubResuts && pubResuts.status === true){
+        this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
       }
 
       return {
@@ -6578,6 +6654,184 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
+    },
+
+    /**
+     * Insert a subject heading from the Yoshino recommendation pipeline into the active profile.
+     * Finds or creates an empty subject component in the Work RT and populates it.
+     *
+     * @param {string} label - The subject heading label
+     * @param {string} source - The vocabulary source name (e.g. "Library of Congress Subject Headings")
+     * @param {array} components - Parsed component data from the RDF [{label, uri, type, marcKey}, ...]
+     * @param {string|null} uri - Top-level subject URI (e.g. from rdf:about on the subject element)
+     * @param {string|null} marcKey - Top-level marcKey for the whole heading
+     */
+    yoshinoInsertSubject: async function(label, source, components, uri, marcKey) {
+      let activeProfile = this.activeProfile
+      let workRt = null
+      let emptySubjectPt = null
+      let lastSubjectPt = null
+
+      // Find the Work RT
+      for (let rt of activeProfile.rtOrder) {
+        if (rt.indexOf(':Work') > -1) {
+          workRt = rt
+          break
+        }
+      }
+      if (!workRt) return
+
+      // Find an empty subject component or the last subject component
+      for (let ptId of activeProfile.rt[workRt].ptOrder) {
+        let pt = activeProfile.rt[workRt].pt[ptId]
+        if (pt && pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/subject' && !pt.deleted) {
+          lastSubjectPt = pt
+          let uv = pt.userValue
+          if (!pt.hasData || !uv ||
+              !uv['http://id.loc.gov/ontologies/bibframe/subject'] ||
+              uv['http://id.loc.gov/ontologies/bibframe/subject'].length === 0 ||
+              !uv['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type']) {
+            emptySubjectPt = pt
+          }
+        }
+      }
+
+      // If no empty subject component, duplicate the last one to create a new empty one
+      let targetPt = emptySubjectPt
+      if (!targetPt && lastSubjectPt) {
+        let newGuid = await this.duplicateComponent(lastSubjectPt['@guid'], this.returnStructureByGUID(lastSubjectPt['@guid']))
+        if (newGuid) {
+          targetPt = this.returnStructureByGUID(newGuid)
+        }
+      }
+
+      if (!targetPt) return
+
+      // Build the userValue
+      let subjectValue = {
+        '@guid': translator.new(),
+        'http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme': [{
+          '@guid': translator.new(),
+          '@id': 'http://id.loc.gov/authorities/subjects'
+        }],
+        'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': [{
+          '@guid': translator.new(),
+          'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': label
+        }],
+        'http://www.w3.org/2000/01/rdf-schema#label': [{
+          '@guid': translator.new(),
+          'http://www.w3.org/2000/01/rdf-schema#label': label
+        }],
+      }
+
+      // Set top-level @id if provided (the URI of the whole subject heading)
+      if (uri) {
+        subjectValue['@id'] = uri
+      }
+
+      // Set top-level marcKey if provided
+      if (marcKey) {
+        subjectValue['http://id.loc.gov/ontologies/bflc/marcKey'] = [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bflc/marcKey': marcKey
+        }]
+      }
+
+      // Use rich component data if available for complex subjects
+      if (components && components.length > 1) {
+        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = components.map(c => {
+          let comp = {
+            '@guid': translator.new(),
+            '@type': c.type || 'http://www.loc.gov/mads/rdf/v1#Topic',
+            'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': [{
+              '@guid': translator.new(),
+              'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': c.label
+            }]
+          }
+          if (c.uri) {
+            comp['@id'] = c.uri
+          }
+          if (c.marcKey) {
+            comp['http://id.loc.gov/ontologies/bflc/marcKey'] = [{
+              '@guid': translator.new(),
+              'http://id.loc.gov/ontologies/bflc/marcKey': c.marcKey
+            }]
+          }
+          return comp
+        })
+      } else if (components && components.length === 1) {
+        // Solo subject with rich data - type from component
+        subjectValue['@type'] = components[0].type || 'http://www.loc.gov/mads/rdf/v1#Topic'
+      } else if (label.includes('--')) {
+        // Fallback: parse from label if no component data
+        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        let parts = label.split('--').map(s => s.trim())
+        subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = parts.map(part => ({
+          '@guid': translator.new(),
+          '@type': 'http://www.loc.gov/mads/rdf/v1#Topic',
+          'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': [{
+            '@guid': translator.new(),
+            'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': part
+          }]
+        }))
+      } else {
+        subjectValue['@type'] = 'http://www.loc.gov/mads/rdf/v1#Topic'
+      }
+
+      // Add source
+      if (source && (source.toLowerCase().includes('lcsh') || source.toLowerCase().includes('library of congress subject'))) {
+        subjectValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          '@id': 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh',
+          'http://www.w3.org/2000/01/rdf-schema#label': [{
+            '@guid': translator.new(),
+            'http://www.w3.org/2000/01/rdf-schema#label': 'Library of Congress subject headings'
+          }]
+        }]
+      } else if (source && source.toLowerCase().includes('children')) {
+        subjectValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          '@id': 'http://id.loc.gov/vocabulary/subjectSchemes/cyac',
+          'http://www.w3.org/2000/01/rdf-schema#label': [{
+            '@guid': translator.new(),
+            'http://www.w3.org/2000/01/rdf-schema#label': source
+          }]
+        }]
+      } else if (source && source.toLowerCase().includes('mesh')) {
+        subjectValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          '@id': 'http://id.loc.gov/vocabulary/subjectSchemes/mesh',
+          'http://www.w3.org/2000/01/rdf-schema#label': [{
+            '@guid': translator.new(),
+            'http://www.w3.org/2000/01/rdf-schema#label': source
+          }]
+        }]
+      }
+
+      // Set the userValue
+      targetPt.userValue = {
+        '@guid': targetPt.userValue?.['@guid'] || translator.new(),
+        '@root': 'http://id.loc.gov/ontologies/bibframe/subject',
+        'http://id.loc.gov/ontologies/bibframe/subject': [subjectValue]
+      }
+
+      console.log('--- Yoshino: Insert Subject ---')
+      console.log('Label:', label)
+      console.log('Source:', source)
+      console.log('Top-level URI:', uri)
+      console.log('Top-level marcKey:', marcKey)
+      console.log('Components:', JSON.parse(JSON.stringify(components || [])))
+      console.log('Built userValue:', JSON.parse(JSON.stringify(targetPt.userValue)))
+
+      targetPt.hasData = true
+      targetPt.userModified = true
+      targetPt.dataLoaded = false
+
+      this.dataChanged()
     },
 
     /** Add a component to the library

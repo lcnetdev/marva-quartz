@@ -828,6 +828,7 @@ export default {
       console.log("useInstanceProfile", useInstanceProfile)
       let useLoadUrl = ''
       let marva001 = null
+      let loadEventType = 'LOAD_FROM_LCCN'
       if (this.lccnLoadSelected) {
         useLoadUrl = this.lccnLoadSelected.bfdbPackageURL
         if (this.loadType == 'loadBf') {
@@ -840,8 +841,12 @@ export default {
         try {
           if (useConfigStore().returnUrls.env == 'production' || useConfigStore().returnUrls.dev){
             marva001 = await utilsNetwork.getMarva001() // get the Marva001
+            this.profileStore.logEvent('001_REQUESTED', { metadata: [marva001] })
+            loadEventType = 'CREATED_RECORD'
           } else {
             marva001 = 'stagingRecord' + Date.now().toString()
+            this.profileStore.logEvent('001_REQUESTED', { metadata: [marva001] })
+            loadEventType = 'CREATED_RECORD'
           }
         } catch(err){
           marva001 = '!!testValue!!'
@@ -1208,6 +1213,7 @@ export default {
             }
 
             // Add the eNumber to the instance identifier
+            /*
             if (Object.keys(pt).includes("id_loc_gov_ontologies_bibframe_identifiedBy__identifiers")) {
               pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers'].userValue = {
                 "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
@@ -1250,6 +1256,7 @@ export default {
                 ]
               }
             }
+            */
 
             this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
 
@@ -1378,7 +1385,7 @@ export default {
       }
 
       // log the event type based on whether this is a new record or a load
-      if (useProfile.neweId){
+      if (loadEventType == 'CREATED_RECORD') {
         this.profileStore.logEvent('CREATED_RECORD')
       } else {
         this.profileStore.logEvent('LOAD_FROM_LCCN')

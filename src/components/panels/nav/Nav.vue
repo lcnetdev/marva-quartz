@@ -104,7 +104,8 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
-    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showCipModal', 'showUserDirectoryModal']),
+    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal', 'showCipModal']),
+
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
 
@@ -129,6 +130,30 @@ export default {
       return (this.panelDisplay.linkedData) ? 'done' : ''
     },
 
+    yoshinoAllowedUsers() {
+      return ['jdoe','nalf','ncooey','cyea','sfol','kevinford','cgir','pkho','hhuh','kilau','smcc','mattmiller','jmoon','amors','mnaz','fosorio','mpol','eram','trod','yshi','tsod','atau','stellier','ntra','ctur','jowill','gago','cbarna']
+    },
+
+    yoshinoAllowed() {
+      let username = this.preferenceStore.ssoUser?.username
+      if (!username) return false
+      return this.yoshinoAllowedUsers.includes(username.toLowerCase())
+    },
+
+    yoshinoHasSummary() {
+      if (!this.activeProfile || !this.activeProfile.rtOrder) return false
+      for (let rt of this.activeProfile.rtOrder) {
+        if (rt.indexOf(':Work') === -1) continue
+        for (let ptId of this.activeProfile.rt[rt].ptOrder) {
+          let pt = this.activeProfile.rt[rt].pt[ptId]
+          if (pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/summary' &&
+              pt.userValue?.['http://id.loc.gov/ontologies/bibframe/summary']?.[0]?.['http://www.w3.org/2000/01/rdf-schema#label']?.[0]?.['http://www.w3.org/2000/01/rdf-schema#label']) {
+            return true
+          }
+        }
+      }
+      return false
+    },
 
     userName() {
       let displayName = this.preferenceStore.catInitals
@@ -242,6 +267,13 @@ export default {
             this.showUserDirectoryModal = true
           },
           icon: "👥"
+        },
+        {
+          text: 'FOLIO Sync Info',
+          click: () => {
+            this.showFolioSyncModal = true
+          },
+          icon: "sync"
         }
       )
 
@@ -357,6 +389,11 @@ export default {
                   this.showAutoDeweyModal = true
                 }, icon: "smart_toy"
               },
+              ...(this.yoshinoAllowed ? [{
+                text: "Yoshino Subjects", click: () => {
+                  this.showYoshinoSubjectsModal = true
+                }, icon: "auto_awesome"
+              }] : []),
 
               { is: 'separator' },
               {

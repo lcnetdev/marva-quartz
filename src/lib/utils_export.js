@@ -1296,6 +1296,7 @@ const utilsExport = {
 								// console.log(ptObj.propertyURI, 'Does not have @type, something is wrong here', userValue)
 								// console.log("suggest type is:",await this.suggestType(ptObj.propertyURI))
 								console.warn("Should not be here")
+								console.log("ptObj", ptObj)
 								// alert("Not everything entered was serialized into XML, please report this record and check the output.")
 							}
 
@@ -2500,20 +2501,31 @@ const utilsExport = {
 
 					// there might be repeated subfields, split the value and loop through tem
 					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+
 					for (let v of useValues){
+
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
 						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
 						fieldName4xx.appendChild(subfield)
 						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 
-
+						
 					}
 
 				}
 			}
 
 			rootEl.appendChild(fieldName4xx)
+
+			// fourXXSubfieldsValues looks like this: ['$7 (bcp47)ko-hang', '$a BLAH BLAH BLAH']
+			// reorder so the $7 is at the end if it exists
+			let sevenIndex = fourXXSubfieldsValues.findIndex(s => s.startsWith("$7"))
+			if (sevenIndex > -1){
+				let sevenValue = fourXXSubfieldsValues.splice(sevenIndex, 1)[0]
+				fourXXSubfieldsValues.push(sevenValue)
+			}
+
 			marcTextArray.push({txt: this.buildMarcTxtLine(fourXXParts.fieldTag, fourXXParts.indicators.charAt(0).replace(" ","#"), fourXXParts.indicators.charAt(1).replace(" ","#"), fourXXSubfieldsValues), field: fourXXParts.fieldTag, fieldInt: parseInt(fourXXParts.fieldTag)})
 
 		}

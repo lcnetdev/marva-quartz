@@ -1308,6 +1308,10 @@ export default {
 
         let data = this.profileStore.returnLccInfo(this.guid, this.structure)
         // console.log("HERE for LCC data", data,  this.guid, this.structure)
+
+        // if it is a MLC number we dont need to show the extra interface
+        if (data && data.classNumber && data.classNumber.startsWith("MLC")){ return false }
+
         if (data.contributors && data.contributors.length>0){
           data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
         }
