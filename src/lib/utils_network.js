@@ -3706,6 +3706,21 @@ const utilsNetwork = {
 
     },
 
+    async linkedDataBooksellerScrape(isbn, site, lccn){
+      let returnUrls = useConfigStore().returnUrls
+      let opts = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify({ isbn: isbn || '', site: site, lccn: lccn || '' })
+      }
+      let url = returnUrls.util + 'ld-panel-enrichment/scrape'
+      let r = await fetch(url, opts)
+      return { status: r.status, data: r.status === 503 ? null : await r.json() }
+    },
+
     async linkedDataBaseRelated(isbn){
       let returnUrls = useConfigStore().returnUrls
       let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn, { headers: getAuthHeaders() })
@@ -3985,7 +4000,7 @@ const utilsNetwork = {
 
         for (let lccnUri of Object.keys(data)){
 
-          let workUrls = data[lccnUri].results.map(work => work.uri + '.json');
+          let workUrls = data[lccnUri].results.map(work => work.uri.replace("http://","https://") + '.json');
 
             let workPromises = workUrls.map(url => fetch(url).then(response => response.json()));
 

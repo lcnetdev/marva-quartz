@@ -476,7 +476,7 @@ const utilsParse = {
       let isHub = false
       if (pkey.includes(':Work')){
         tle = "bf:Work"
-      }else if (pkey.includes(':Instance')){
+      }else if (pkey.endsWith(':Instance')){
         tle = "bf:Instance"
       }else if (pkey.includes(':Item')){
         tle = "bf:Item"
@@ -2194,6 +2194,7 @@ const utilsParse = {
     }
 
     profile = this.extractISBN(profile)
+    profile = this.extractLCCN(profile)
 
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
     // save for undo
@@ -2220,6 +2221,37 @@ const utilsParse = {
                     profile.linkedData.isbn = []
                   }
                   profile.linkedData.isbn.push(bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].trim())
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (profile.linkedData && profile.linkedData.isbn){
+      // make a copy of the orginal isbns from the record
+      profile.linkedData.originalIsbns = JSON.parse(JSON.stringify(profile.linkedData.isbn))
+    }
+    return profile
+  },
+
+  extractLCCN: function(profile){
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+        if (ptObj.propertyURI == 'http://id.loc.gov/ontologies/bibframe/identifiedBy'){
+          if (ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'] && ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]){
+            let bnode = ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]
+            if (bnode['@type'] && bnode['@type'] == 'http://id.loc.gov/ontologies/bibframe/Lccn'){
+              if (bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'] && bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]){
+                if (bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']){
+                  if (!profile.linkedData){
+                    profile.linkedData = {}
+                  }
+                  if (!profile.linkedData.lccn){
+                    profile.linkedData.lccn = []
+                  }
+                  profile.linkedData.lccn.push(bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].trim())
                 }
               }
             }
