@@ -386,7 +386,11 @@ export default {
                 text: "Subject Finder", click: () => {
                   this.showYoshinoSubjectsModal = true
                 }, icon: "radar"
-              }] : []),
+              }] : [{
+                text: "Req Subject Finder Access", click: () => {
+                  window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
+                }, icon: "contact_support"
+              }]),
 
               { is: 'separator' },
               {
