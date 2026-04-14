@@ -460,7 +460,7 @@
             let alts = []
             if (this.linkedData && this.linkedData.noteContent) {
                 for (let item of this.linkedData.noteContent) {
-                    alts.push({ label: 'OCLC (' + item.id + ')', value: item.value })
+                    alts.push({ label: item.type + ' (' + item.id + ')', value: item.value })
                 }
             }
             if (this.linkedData && this.linkedData.booksellerResults) {
@@ -479,7 +479,7 @@
             let alts = []
             if (this.linkedData && this.linkedData.noteTOC) {
                 for (let item of this.linkedData.noteTOC) {
-                    alts.push({ label: 'OCLC (' + item.id + ')', value: item.value })
+                    alts.push({ label: item.type + ' (' + item.id + ')', value: item.value })
                 }
             }
             if (this.linkedData && this.linkedData.booksellerResults) {
