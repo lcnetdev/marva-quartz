@@ -40,6 +40,9 @@ export const usePreferenceStore = defineStore('preference', {
     ssoUser: null,
     ssoSessionExpired: false,
 
+    // feature flags enabled for the current user
+    featureFlags: [],
+
     // show the login box
     showLoginModal: false,
     showLoginModalSSO: false,
@@ -1704,6 +1707,30 @@ export const usePreferenceStore = defineStore('preference', {
         window.localStorage.setItem('marva-redirectAfterSSO', currentPath)
       }
       window.location.href = utilUrl + 'auth/login'
+    },
+
+    /**
+    * Fetch feature flags enabled for the current user from the backend.
+    * @param {string} utilUrl - the util service base URL
+    */
+    fetchFeatureFlags: async function(utilUrl){
+      try {
+        let headers = {}
+        if (this.jwt){
+          headers['Authorization'] = 'Bearer ' + this.jwt
+        }
+        let response = await fetch(utilUrl + 'my-features', {
+          headers: headers
+        })
+        if (response.ok){
+          let data = await response.json()
+          this.featureFlags = data.features || []
+        } else {
+          console.warn('Failed to fetch feature flags:', response.status)
+        }
+      } catch (e) {
+        console.warn('Error fetching feature flags:', e)
+      }
     },
 
     /**

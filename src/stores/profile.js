@@ -7739,6 +7739,7 @@ export const useProfileStore = defineStore('profile', {
         thumbnail: [],
         lcsh: [],
         genre: [],
+        booksellerResults: [],
         contributors: utilsProfile.returnContributorUris(this.activeProfile),
         isbn: (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn) ? this.activeProfile.linkedData.isbn : [],
       }
