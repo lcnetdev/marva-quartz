@@ -1,0 +1,36 @@
+services:
+  marva-quartz:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - keycloak-middleware
+
+  keycloak-middleware:
+    image: node:23-alpine
+    working_dir: /app
+    extra_hosts:
+      - "keycloak:host-gateway"
+    ports:
+      - "9401:9401"
+    volumes:
+      - .:/app
+    environment:
+      PORT: "9401"
+      BASE_PATH: "/marva/util"
+      KEYCLOAK_EXTERNAL_URL: "${KEYCLOAK_EXTERNAL_URL:-http://localhost:8081/keycloak/}"
+      KEYCLOAK_INTERNAL_URL: "${KEYCLOAK_INTERNAL_URL:-http://keycloak:8081/keycloak/}"
+      KEYCLOAK_REALM: "${KEYCLOAK_REALM:-bluecore}"
+      KEYCLOAK_CLIENT_ID: "${KEYCLOAK_CLIENT_ID:-bluecore_api}"
+      KEYCLOAK_CLIENT_SECRET: "${KEYCLOAK_CLIENT_SECRET:-}"
+      KEYCLOAK_REDIRECT_URI: "${KEYCLOAK_REDIRECT_URI:-http://localhost:9401/marva/util/auth/callback}"
+      MARVA_REDIRECT_BASE: "${MARVA_REDIRECT_BASE:-http://localhost:8080/marva/}"
+      MARVA_LOGOUT_REDIRECT: "${MARVA_LOGOUT_REDIRECT:-http://localhost:8080/marva/}"
+      UPSTREAM_UTIL_BASE: "${UPSTREAM_UTIL_BASE:-}"
+      CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:8080}"
+      FEATURE_FLAGS: "${FEATURE_FLAGS:-}"
+      MIDDLEWARE_LOG_FILE: "${MIDDLEWARE_LOG_FILE:-/app/logs/keycloak-middleware.log}"
+    command: sh -lc "node middleware/keycloak-middleware.js"
