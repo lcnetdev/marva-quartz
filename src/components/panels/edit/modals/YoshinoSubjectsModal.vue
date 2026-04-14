@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div ref="yoshinoModalContainer" class="yoshino-modal-container">
-                    <h1 style="margin-left: 5px">Subject Suggest</h1>
+                    <h1 style="margin-left: 5px">Subject Finder</h1>
 
                     <div v-if="!results && !loading && !error" class="yoshino-input-section">
                         <div class="yoshino-field">
@@ -567,6 +567,7 @@
             this.results = null
             this.insertedSubjects = new Set()
 
+            this.profileStore.logEvent('SUBJECT_FINDER_START')
             try {
                 this.results = await yoshinoClassify(
                     this.title,
@@ -604,6 +605,7 @@
             const uri = this.results?.subjectUriMap[label] || null
             const marcKey = this.results?.subjectMarcKeyMap[label] || null
             this.profileStore.yoshinoInsertSubject(label, source, components, uri, marcKey)
+            this.profileStore.logEvent('SUBJECT_FINDER_INSERT', { metadata: [label] })
             this.insertedSubjects.add(label)
             // Force reactivity for the Set
             this.insertedSubjects = new Set(this.insertedSubjects)
