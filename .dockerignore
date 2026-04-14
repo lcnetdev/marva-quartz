@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.github
+.idea
+coverage
+playwright-report
+test-results
+tests-playwright/.auth
