@@ -449,7 +449,7 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
       action: 'judge_subjects',
       subjects: allSubjects,
       text: `${title}. ${summary}`,
-      top_n: Math.min(allSubjects.length, 10),
+      top_n: Math.min(allSubjects.length, topK),
     }),
   }).then(r => r.json())
 
