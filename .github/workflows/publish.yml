@@ -1,0 +1,32 @@
+name: Build and Release Docker Image
+
+# BUILD ON PUSH TO bluecore-main BRANCH
+on:
+  push:
+    branches: [bluecore-main]
+  release:
+    types: [published]
+  workflow_dispatch: {}
+
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and push :latest
+        env:
+          IMAGE: ghcr.io/blue-core-lod/marva
+        run: |
+          docker build \
+            --build-arg VITE_KEYCLOAK_AUTH_PATH="${{ secrets.MARVA_KEYCLOAK_PATH }}" \
+            --build-arg VITE_BLUECORE_API_PATH="${{ secrets.MARVA_BLUECORE_API_PATH }}" \
+            -t $IMAGE:latest .
+          docker push $IMAGE:latest

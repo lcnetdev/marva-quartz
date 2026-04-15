@@ -8,10 +8,10 @@ const PORT = Number(process.env.PORT || 9401)
 const BASE_PATH = normalizeBasePath(process.env.BASE_PATH || '/marva/util')
 
 const KEYCLOAK_AUTH_PATH = trimTrailingSlash(
-  process.env.KEYCLOAK_EXTERNAL_URL || process.env.KEYCLOAK_AUTH_PATH || ''
+  process.env.VITE_KEYCLOAK_AUTH_PATH || ''
 )
 const KEYCLOAK_INTERNAL_AUTH_PATH = trimTrailingSlash(
-  process.env.KEYCLOAK_INTERNAL_URL || process.env.KEYCLOAK_INTERNAL_AUTH_PATH || KEYCLOAK_AUTH_PATH
+  process.env.VITE_KEYCLOAK_INTERNAL_AUTH_PATH || KEYCLOAK_AUTH_PATH
 )
 const KEYCLOAK_REALM = (process.env.KEYCLOAK_REALM || 'bluecore').trim()
 const KEYCLOAK_ISSUER_PUBLIC = trimTrailingSlash(
@@ -41,7 +41,10 @@ const KEYCLOAK_INTERNAL_FORWARDED_PROTO = (
 const MARVA_REDIRECT_BASE = process.env.MARVA_REDIRECT_BASE || 'http://localhost:4444/marva/'
 const MARVA_LOGOUT_REDIRECT = process.env.MARVA_LOGOUT_REDIRECT || MARVA_REDIRECT_BASE
 
-const UPSTREAM_UTIL_BASE = process.env.UPSTREAM_UTIL_BASE || ''
+const UPSTREAM_UTIL_BASE = (
+  process.env.UPSTREAM_UTIL_BASE ||
+  defaultUpstreamUtilBase(process.env.VITE_BLUECORE_API_PATH || '')
+)
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*'
 const FEATURE_FLAGS = (process.env.FEATURE_FLAGS || '')
   .split(',')
@@ -479,6 +482,13 @@ function normalizeBasePath(input) {
 
 function trimTrailingSlash(input) {
   return input.endsWith('/') ? input.slice(0, -1) : input
+}
+
+function defaultUpstreamUtilBase(input) {
+  const trimmed = trimTrailingSlash((input || '').trim())
+  if (!trimmed) return ''
+  if (trimmed.endsWith('/marva/util')) return trimmed
+  return `${trimmed}/marva/util`
 }
 
 function getUrlHostPort(input) {

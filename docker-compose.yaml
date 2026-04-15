@@ -2,6 +2,9 @@ services:
   marva-quartz:
     build:
       context: .
+      args:
+        VITE_KEYCLOAK_AUTH_PATH: "http://localhost:8081/keycloak/"
+        VITE_BLUECORE_API_PATH: "http://localhost/api/"
     ports:
       - "8080:8080"
     environment:
@@ -21,8 +24,9 @@ services:
     environment:
       PORT: "9401"
       BASE_PATH: "/marva/util"
-      KEYCLOAK_EXTERNAL_URL: "${KEYCLOAK_EXTERNAL_URL:-http://localhost:8081/keycloak/}"
-      KEYCLOAK_INTERNAL_URL: "${KEYCLOAK_INTERNAL_URL:-http://keycloak:8081/keycloak/}"
+      VITE_KEYCLOAK_AUTH_PATH: "${VITE_KEYCLOAK_AUTH_PATH_MIDDLEWARE:-http://localhost:8081/keycloak/}"
+      VITE_KEYCLOAK_INTERNAL_AUTH_PATH : "${KEYCLOAK_INTERNAL_URL:-http://keycloak:8081/keycloak/}"
+      VITE_BLUECORE_API_PATH: "${VITE_BLUECORE_API_PATH_MIDDLEWARE:-}"
       KEYCLOAK_REALM: "${KEYCLOAK_REALM:-bluecore}"
       KEYCLOAK_CLIENT_ID: "${KEYCLOAK_CLIENT_ID:-bluecore_api}"
       KEYCLOAK_CLIENT_SECRET: "${KEYCLOAK_CLIENT_SECRET:-}"
