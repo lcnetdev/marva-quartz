@@ -3375,6 +3375,9 @@ const utilsNetwork = {
 
       return {status:true, postLocation: (content.postLocation) ? content.postLocation : null }
 
+    // #############  Bluecore Workflows Endpoint  #############################
+    } else if (content && content.workflow_id && content.uri) {
+      return { status:true, postLocation: (content.postLocation) ? content.postLocation : null, workflow: { id: content.workflow_id, uri: content.uri }}
     }else{
 
       // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
