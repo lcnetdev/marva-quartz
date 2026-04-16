@@ -6239,7 +6239,6 @@ export const useProfileStore = defineStore('profile', {
             pt = this.activeProfile.rt[rt].pt[pt]
             let userValue = pt.userValue
             if (pt.propertyURI == "http://id.loc.gov/ontologies/bflc/projectedProvisionDate"){
-              console.info("pt: ", pt)
               try {
                 let value = userValue["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"][0]["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"]
                 if (value){
@@ -6248,7 +6247,6 @@ export const useProfileStore = defineStore('profile', {
               } catch { }
             }
             if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/adminMetadata" && pt.adminMetadataType == 'primary'){
-              console.info("pt: ", pt)
               try{
                 let encodingLevel = userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
                 let code = encodingLevel["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"]
@@ -6261,7 +6259,6 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      console.info("isCip: ", isCip)
       return isCip
     },
 
