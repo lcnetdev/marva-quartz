@@ -4,68 +4,25 @@ const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
 
-const PORT = Number(process.env.PORT || 9401)
-const BASE_PATH = normalizeBasePath(process.env.BASE_PATH || '/marva/util')
+const env = process.env
+const PORT = Number(env.PORT)
+const BASE_PATH =  '/marva/util'
 
-const KEYCLOAK_AUTH_PATH = trimTrailingSlash(
-  process.env.VITE_KEYCLOAK_AUTH_PATH || ''
-)
-const KEYCLOAK_INTERNAL_AUTH_PATH = trimTrailingSlash(
-  process.env.VITE_KEYCLOAK_INTERNAL_AUTH_PATH || KEYCLOAK_AUTH_PATH
-)
-const KEYCLOAK_REALM = (process.env.KEYCLOAK_REALM || 'bluecore').trim()
-const KEYCLOAK_ISSUER_PUBLIC = trimTrailingSlash(
-  process.env.KEYCLOAK_ISSUER_PUBLIC ||
-  process.env.KEYCLOAK_ISSUER ||
-  (KEYCLOAK_AUTH_PATH ? `${KEYCLOAK_AUTH_PATH}/realms/${KEYCLOAK_REALM}` : '')
-)
-const KEYCLOAK_ISSUER_INTERNAL = trimTrailingSlash(
-  process.env.KEYCLOAK_ISSUER_INTERNAL ||
-  process.env.KEYCLOAK_ISSUER ||
-  (KEYCLOAK_INTERNAL_AUTH_PATH ? `${KEYCLOAK_INTERNAL_AUTH_PATH}/realms/${KEYCLOAK_REALM}` : '')
-)
-const KEYCLOAK_CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID || ''
-const KEYCLOAK_CLIENT_SECRET = process.env.KEYCLOAK_CLIENT_SECRET || ''
-const KEYCLOAK_REDIRECT_URI = process.env.KEYCLOAK_REDIRECT_URI || `http://localhost:${PORT}${BASE_PATH}/auth/callback`
-const KEYCLOAK_SCOPE = process.env.KEYCLOAK_SCOPE || 'openid profile email'
-const KEYCLOAK_INTERNAL_HOST_HEADER = (
-  process.env.KEYCLOAK_INTERNAL_HOST_HEADER ||
-  getUrlHostPort(KEYCLOAK_ISSUER_PUBLIC)
-).trim()
-const KEYCLOAK_INTERNAL_FORWARDED_PROTO = (
-  process.env.KEYCLOAK_INTERNAL_FORWARDED_PROTO ||
-  getUrlProtocol(KEYCLOAK_ISSUER_PUBLIC) ||
-  'http'
-).trim()
+const KEYCLOAK_ISSUER_EXTERNAL = `${env.VITE_KEYCLOAK_AUTH_PATH }/realms/bluecore`
+const KEYCLOAK_ISSUER_INTERNAL = `${env.KEYCLOAK_INTERNAL_AUTH_PATH}/realms/bluecore`
+const KEYCLOAK_REDIRECT_URI = `http://localhost:${PORT}${BASE_PATH}/auth/callback`
 
-const MARVA_REDIRECT_BASE = process.env.MARVA_REDIRECT_BASE || 'http://localhost:4444/marva/'
-const MARVA_LOGOUT_REDIRECT = process.env.MARVA_LOGOUT_REDIRECT || MARVA_REDIRECT_BASE
-
-const UPSTREAM_UTIL_BASE = (
-  process.env.UPSTREAM_UTIL_BASE ||
-  defaultUpstreamUtilBase(process.env.VITE_BLUECORE_API_PATH || '')
-)
-const CORS_ORIGIN = process.env.CORS_ORIGIN || '*'
-const FEATURE_FLAGS = (process.env.FEATURE_FLAGS || '')
-  .split(',')
-  .map((v) => v.trim())
-  .filter(Boolean)
-const MIDDLEWARE_LOG_FILE = process.env.MIDDLEWARE_LOG_FILE || ''
+const UPSTREAM_UTIL_BASE = `${env.MARVA_UTIL_PATH}/marva/util`
+const CORS_ORIGIN = env.CORS_ORIGIN || '*'
 
 const tokenStore = new Map()
 const subjectIndex = new Map()
 const pendingStates = new Map()
 
-const AUTHORIZATION_ENDPOINT = `${KEYCLOAK_ISSUER_PUBLIC}/protocol/openid-connect/auth`
-const TOKEN_ENDPOINT = `${KEYCLOAK_ISSUER_INTERNAL}/protocol/openid-connect/token`
-const LOGOUT_ENDPOINT = `${KEYCLOAK_ISSUER_PUBLIC}/protocol/openid-connect/logout`
-
-if (!KEYCLOAK_ISSUER_PUBLIC || !KEYCLOAK_ISSUER_INTERNAL || !KEYCLOAK_CLIENT_ID) {
-  logEvent('warn', 'incomplete-config', {
-    hasClientId: Boolean(KEYCLOAK_CLIENT_ID),
-    hasPublicIssuer: Boolean(KEYCLOAK_ISSUER_PUBLIC),
-    hasInternalIssuer: Boolean(KEYCLOAK_ISSUER_INTERNAL)
-  })
+const KEYCLOAK_ENDPOINTS = {
+  authorization: `${KEYCLOAK_ISSUER_EXTERNAL}/protocol/openid-connect/auth`,
+  token: `${KEYCLOAK_ISSUER_INTERNAL}/protocol/openid-connect/token`,
+  logout: `${KEYCLOAK_ISSUER_EXTERNAL}/protocol/openid-connect/logout`
 }
 
 const server = http.createServer(async (req, res) => {
@@ -87,27 +44,18 @@ const server = http.createServer(async (req, res) => {
     if (!pathname.startsWith(BASE_PATH)) {
       return writeJson(res, 404, { error: 'Not found' })
     }
-
     if (pathname === `${BASE_PATH}/auth/login`) {
       return handleLogin(req, res, url)
     }
-
     if (pathname === `${BASE_PATH}/auth/callback`) {
       return handleCallback(req, res, url)
     }
-
     if (pathname === `${BASE_PATH}/auth/refresh`) {
       return handleRefresh(req, res)
     }
-
     if (pathname === `${BASE_PATH}/auth/logout`) {
       return handleLogout(req, res)
     }
-
-    if (pathname === `${BASE_PATH}/my-features`) {
-      return writeJson(res, 200, { features: FEATURE_FLAGS })
-    }
-
     return proxyToUpstream(req, res, url)
   } catch (error) {
     logEvent('error', 'unhandled-request-error', { error: String(error?.message || error) })
@@ -115,11 +63,15 @@ const server = http.createServer(async (req, res) => {
   }
 })
 
+const KEYCLOAK_INTERNAL_HOST_HEADER = new URL(env.VITE_KEYCLOAK_AUTH_PATH).host
+const KEYCLOAK_INTERNAL_FORWARD_PROTO = new URL(env.VITE_KEYCLOAK_AUTH_PATH).protocol.replace(':', '')
+const MIDDLEWARE_LOG_FILE = "/app/logs/keycloak-middleware.log"
+
 server.listen(PORT, () => {
   logEvent('info', 'middleware-started', {
     port: PORT,
     basePath: BASE_PATH,
-    logFile: MIDDLEWARE_LOG_FILE || null,
+    logFile: MIDDLEWARE_LOG_FILE,
     tokenHostHeader: KEYCLOAK_INTERNAL_HOST_HEADER || null
   })
 })
@@ -127,20 +79,15 @@ server.listen(PORT, () => {
 setInterval(cleanupStores, 60_000).unref()
 
 async function handleLogin(_req, res, url) {
-  if (!KEYCLOAK_ISSUER_PUBLIC || !KEYCLOAK_CLIENT_ID) {
-    logEvent('error', 'login-config-missing')
-    return writeJson(res, 500, { error: 'Keycloak configuration missing' })
-  }
-
   const state = randomString(24)
-  const returnTo = sanitizeReturnTo(url.searchParams.get('returnTo') || MARVA_REDIRECT_BASE)
+  const returnTo = sanitizeReturnTo(url.searchParams.get('returnTo') || env.MARVA_REDIRECT_BASE)
   pendingStates.set(state, { returnTo, createdAt: Date.now() })
   logEvent('info', 'login-redirect', { returnTo })
 
-  const authUrl = new URL(AUTHORIZATION_ENDPOINT)
-  authUrl.searchParams.set('client_id', KEYCLOAK_CLIENT_ID)
+  const authUrl = new URL(KEYCLOAK_ENDPOINTS.authorization)
+  authUrl.searchParams.set('client_id', 'bluecore_api')
   authUrl.searchParams.set('response_type', 'code')
-  authUrl.searchParams.set('scope', KEYCLOAK_SCOPE)
+  authUrl.searchParams.set('scope', 'openid profile email')
   authUrl.searchParams.set('redirect_uri', KEYCLOAK_REDIRECT_URI)
   authUrl.searchParams.set('state', state)
 
@@ -157,7 +104,7 @@ async function handleCallback(_req, res, url) {
   const stateData = state ? pendingStates.get(state) : null
   if (state) pendingStates.delete(state)
 
-  const returnTo = sanitizeReturnTo(stateData?.returnTo || MARVA_REDIRECT_BASE)
+  const returnTo = sanitizeReturnTo(stateData?.returnTo || env.MARVA_REDIRECT_BASE)
 
   if (oauthError) {
     logEvent('warn', 'callback-oauth-error', { oauthError })
@@ -241,7 +188,7 @@ async function handleRefresh(req, res) {
   }
 
   if (!session?.refreshToken) {
-    logEvent('warn', 'refresh-session-not-found')
+    logEvent('warn', '❌  refresh-session-not-found')
     return writeJson(res, 401, { error: 'Refresh session not found; login required' })
   }
 
@@ -295,7 +242,7 @@ async function handleRefresh(req, res) {
     expiresAt
   })
   subjectIndex.set(subject, newAccessToken)
-  logEvent('info', 'refresh-success', { subject: subject || null })
+  logEvent('info', '✅  refresh-success', { subject: subject || null })
 
   return writeJson(res, 200, { token: newAccessToken })
 }
@@ -308,9 +255,9 @@ async function handleLogout(req, res) {
   if (session?.subject) subjectIndex.delete(session.subject)
   logEvent('info', 'logout-redirect', { hasSession: Boolean(session) })
 
-  const logoutUrl = new URL(LOGOUT_ENDPOINT)
-  logoutUrl.searchParams.set('client_id', KEYCLOAK_CLIENT_ID)
-  logoutUrl.searchParams.set('post_logout_redirect_uri', MARVA_LOGOUT_REDIRECT)
+  const logoutUrl = new URL(KEYCLOAK_ENDPOINTS.logout)
+  logoutUrl.searchParams.set('client_id', 'bluecore_api')
+  logoutUrl.searchParams.set('post_logout_redirect_uri', env.MARVA_REDIRECT_BASE)
   if (session?.idToken) {
     logoutUrl.searchParams.set('id_token_hint', session.idToken)
   }
@@ -321,21 +268,18 @@ async function handleLogout(req, res) {
 }
 
 async function proxyToUpstream(req, res, url) {
-  if (!UPSTREAM_UTIL_BASE) {
-    return writeJson(res, 404, { error: 'No upstream configured for this util route' })
+  const pathFromBase = url.pathname.slice(BASE_PATH.length)
+  if (!env.MARVA_UTIL_PATH) {
+    logEvent('warn', `⚠️  ${pathFromBase} ENDPOINT DISABLED`, {target: proxyToUpstream, warning: String("MARVA_UTIL_PATH no set. Add path to enable additional Marva features")})
+    return writeJson(res, 404, { warning: `⚠️  ${pathFromBase} ENDPOINT DISABLED. MARVA_UTIL_PATH no set. Add path to enable additional Marva features` })
   }
 
-  const upstreamBase = trimTrailingSlash(UPSTREAM_UTIL_BASE)
-  const pathFromBase = url.pathname.slice(BASE_PATH.length)
-  const proxyTarget = `${upstreamBase}${pathFromBase}${url.search}`
-
+  const proxyTarget = `${UPSTREAM_UTIL_BASE}${pathFromBase}${url.search}`
   const headers = { ...req.headers }
   delete headers.host
   delete headers['content-length']
 
-  const body = req.method === 'GET' || req.method === 'HEAD'
-    ? undefined
-    : await readRequestBody(req)
+  const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : await readRequestBody(req)
 
   let response
   try {
@@ -377,11 +321,9 @@ async function proxyToUpstream(req, res, url) {
 async function exchangeToken({ grantType, code, refreshToken }) {
   const body = new URLSearchParams()
   body.set('grant_type', grantType)
-  body.set('client_id', KEYCLOAK_CLIENT_ID)
+  body.set('client_id', 'bluecore_api')
   body.set('redirect_uri', KEYCLOAK_REDIRECT_URI)
-  if (KEYCLOAK_CLIENT_SECRET) {
-    body.set('client_secret', KEYCLOAK_CLIENT_SECRET)
-  }
+
   if (grantType === 'authorization_code') {
     body.set('code', code || '')
   } else if (grantType === 'refresh_token') {
@@ -394,10 +336,10 @@ async function exchangeToken({ grantType, code, refreshToken }) {
   if (KEYCLOAK_INTERNAL_HOST_HEADER) {
     headers.host = KEYCLOAK_INTERNAL_HOST_HEADER
     headers['x-forwarded-host'] = KEYCLOAK_INTERNAL_HOST_HEADER
-    headers['x-forwarded-proto'] = KEYCLOAK_INTERNAL_FORWARDED_PROTO
+    headers['x-forwarded-proto'] = KEYCLOAK_INTERNAL_FORWARD_PROTO
   }
 
-  return fetch(TOKEN_ENDPOINT, {
+  return fetch(KEYCLOAK_ENDPOINTS.token, {
     method: 'POST',
     headers,
     body: body.toString()
@@ -454,7 +396,7 @@ function sanitizeReturnTo(returnTo) {
     const parsed = new URL(returnTo)
     return parsed.toString()
   } catch {
-    return MARVA_REDIRECT_BASE
+    return env.MARVA_REDIRECT_BASE
   }
 }
 
@@ -475,45 +417,8 @@ function cleanupStores() {
   }
 }
 
-function normalizeBasePath(input) {
-  const path = input.startsWith('/') ? input : `/${input}`
-  return trimTrailingSlash(path)
-}
-
-function trimTrailingSlash(input) {
-  return input.endsWith('/') ? input.slice(0, -1) : input
-}
-
-function defaultUpstreamUtilBase(input) {
-  const trimmed = trimTrailingSlash((input || '').trim())
-  if (!trimmed) return ''
-  if (trimmed.endsWith('/marva/util')) return trimmed
-  return `${trimmed}/marva/util`
-}
-
-function getUrlHostPort(input) {
-  try {
-    return new URL(input).host
-  } catch {
-    return ''
-  }
-}
-
-function getUrlProtocol(input) {
-  try {
-    return new URL(input).protocol.replace(':', '')
-  } catch {
-    return ''
-  }
-}
-
 function logEvent(level, event, meta = {}) {
-  const payload = {
-    ts: new Date().toISOString(),
-    level,
-    event,
-    ...meta
-  }
+  const payload = { ts: new Date().toISOString(), level, event, ...meta}
   const line = `[keycloak-middleware] ${JSON.stringify(payload)}`
 
   if (level === 'error') {
