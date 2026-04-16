@@ -22,12 +22,13 @@
                     </pane>
                     <pane max-size="50">
                         <span class="heading">
-                            <h3>Existing BFDB Record</h3> <a href="">link to BFDB</a>
+                            <h3>Existing BFDB Record</h3> <a :href="existingRecordUrl.replace('8080', '8230')" target="_blank">link to BFDB</a>
                         </span>
                         <div class="marc-wrapper record-existing">
-                            <pre v-if="recordExisting.length > 0">
+                            <!-- <pre v-if="recordExisting.length > 0">
                                 {{ recordExisting }}
-                            </pre>
+                            </pre> -->
+                            <div v-if="recordExisting.length > 0" class="marc" v-html="recordExisting"></div>
                             <div v-else>
                                 No existing record in BFDB.
                             </div>
@@ -80,6 +81,7 @@ export default {
         recordCopyCat: String,
         recordExisting: String,
         preview: Boolean,
+        existingRecordUrl: String,
     },
     components: { Splitpanes, Pane, Nav, VueFinalModal },
 
@@ -147,8 +149,10 @@ export default {
     margin-left: 1%;
 
     font-family: monospace, monospace;
+    /* font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-marc-font-family')"); */
 }
 
+.record-existing,
 .record-copycat {
     background-color: #e3ffd8;
     width: inherit;
@@ -169,7 +173,9 @@ export default {
     padding: 10px;
 }
 
-
+/* :deep() div.marc.field:has(> ):hover {
+    background-color: teal;
+} */
 
 </style>
 
@@ -189,17 +195,6 @@ span.indicators{
 
 div.marc.field {
     text-indent: 4em hanging;
-}
-
-.tag-001,
-.tag-002,
-.tag-003,
-.tag-004,
-.tag-005,
-.tag-006,
-.tag-007,
-.tag-008 {
-    padding-right: 25px;
 }
 
 </style>

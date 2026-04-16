@@ -175,7 +175,7 @@
   </splitpanes>
 
   <!-- <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :guid="guid" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" /> -->
-  <RecordComparison ref="RecordComparisonModal" :preview="compPreview" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" @cancelCopyCat="callbackCancel" @createCopyCat="callbackCreate"/>
+  <RecordComparison ref="RecordComparisonModal" :existingRecordUrl="existingRecordUrl" :preview="compPreview" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" @cancelCopyCat="callbackCancel" @createCopyCat="callbackCreate"/>
 
 </template>
 
@@ -339,6 +339,7 @@ export default {
         this.existingMarc = this.htmlify(this.existingMarc)
       }
 
+      console.info("existing: ", this.existingMarc)
       this.displayCompModal = true
     },
     callbackCreate: function(){
@@ -684,23 +685,52 @@ export default {
           let value = null;                 // fixed fields?
           let indicators = null;
           let subfields = [];               // subfields
+          let subfieldsSplit = []
           console.info("line: ", line)
+          if (line == ""){ continue }
           if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
             value = line.slice(7)
           } else {
-            indicators = line.slice(3, 7)
-            subfields = line.slice(7)
+            console.info("line: ", line)
+            let tmpIndicators = line.slice(4, 6)
+
+            indicators = [" ", " "]
+            indicators[0] = tmpIndicators.slice(0, tmpIndicators.length / 2)
+            indicators[1] = tmpIndicators.slice(tmpIndicators.length / 2, tmpIndicators.length)
+            let subfieldGroups = line.slice(7).replaceAll(/\$([a-z0-9]{1})/g, "-#-#-$1").split("-#-#-")
+
+            for (let sub of subfieldGroups){
+              if (sub != ""){
+                let field = "$" + sub.at(0)
+                let value = sub.slice(1)
+
+                subfields.push([field, value])
+              }
+            }
           }
-          console.info("\ttag: '", tag, "'")
-          console.info("\tvalue: ", value)
-          console.info("\tindicators: ", indicators)
-          console.info("\tsubfields: ", subfields)
+
+          console.info("\ttag: ", tag)
+
+          if (value) {
+            tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+            value = " <span class='marc value'>" + value + '</span>';
+            formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
+          } else {
+            console.info("\t\tsubfields: ", subfields)
+            subfields = subfields.map((subfield) =>
+              "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
+            );
+            indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
+            tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+            formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
+
+            console.info("\t\t", formattedMarcRecord)
+          }
+
         }
       }
-
-      console.info("formattedMarcRecord: ", formattedMarcRecord)
-
-      return marcBlob
+      formattedMarcRecord.push('</div>');
+      return formattedMarcRecord.join('\r\n');
     },
 
     compareRecords: async function(profile){
