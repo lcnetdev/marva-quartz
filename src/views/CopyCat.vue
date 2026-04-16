@@ -66,19 +66,20 @@
           <br>
           <template v-if="searchType != 'lccn'">
             <label for="matchPoint">Match on: </label>
-            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn('other')" />
           </template>
 
-          <template v-if="existingLCCN || existingISBN">
+          <template v-if="existingLCCN || existingISBN || overrideAllow">
             <Badge v-if="existingLCCN"
               text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
-            <Badge v-if="existingISBN"
+            <Badge v-if="existingISBN || overrideAllow"
               text="A record with this identifier might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <h4>
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
                 existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
+              &nbsp;<button @click="showComp">Compare</button>
             </h4>
           </template>
           <template v-else>
@@ -88,7 +89,7 @@
 
           <br>
           <label for="lccn">LCCN: </label>
-          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
+          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn('lccn')"
             :disabled="selectedRecordUrl" />
           <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
             badgeType="primary" />
@@ -117,7 +118,7 @@
           <template></template>
           <div class="load-buttons">
             <button :class="['load-button', { 'disabled-button': disableCopyCatButtons() }]"
-              @click="loadCopyCat(s.instance)" v-for="s in startingPointsFiltered">
+              @click="compareRecords(s.instance)" v-for="s in startingPointsFiltered">
               {{ s.name }}
             </button>
           </div>
@@ -173,6 +174,9 @@
     </pane>
   </splitpanes>
 
+  <!-- <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :guid="guid" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" /> -->
+  <RecordComparison ref="RecordComparisonModal" :existingRecordUrl="existingRecordUrl" :preview="compPreview" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" @cancelCopyCat="callbackCancel" @createCopyCat="callbackCreate"/>
+
 </template>
 
 
@@ -198,6 +202,7 @@ import en from 'javascript-time-ago/locale/en'
 import CopyCatCard from './copyCatComponents/CopyCatCard.vue'
 import Pagination from './copyCatComponents/Pagination.vue'
 import Badge from './copyCatComponents/Badge.vue'
+import RecordComparison from './copyCatComponents/RecordComparison.vue'
 
 import { DataTable } from "@jobinsjp/vue3-datatable"
 import "@jobinsjp/vue3-datatable/dist/style.css"
@@ -208,7 +213,7 @@ const timeAgo = new TimeAgo('en-US')
 const decimalTranslator = short("0123456789");
 
 export default {
-  components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge },
+  components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge, RecordComparison },
   data() {
     return {
 
@@ -282,6 +287,13 @@ export default {
       overrideAllow: false,
       overrideBibid: "",
 
+      displayCompModal: false,
+      existingMarc: false,
+      selectedMarc: {},
+      continueWithLoad: false,
+      compPreview: false,
+      targetProfile: null,
+
     }
   },
   computed: {
@@ -317,10 +329,45 @@ export default {
   watch: {},
 
   methods: {
+    showComp: async function(){
+      this.compPreview = true
+      this.selectedMarc = this.selectedWcRecord.marcHTML
+
+      let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
+      if (existingMarcUrl && !this.existingMarc){
+        this.existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
+        this.existingMarc = this.htmlify(this.existingMarc)
+      }
+
+      console.info("existing: ", this.existingMarc)
+      this.displayCompModal = true
+    },
+    callbackCreate: function(){
+      console.info("callbackCreate")
+      this.continueWithLoad = true
+      this.displayCompModal = false
+
+
+      this.loadCopyCat(this.targetProfile)
+    },
+
+    callbackCancel: function(){
+      console.info("cancelCopyCat")
+      this.continueWithLoad = false
+      this.displayCompModal = false
+
+      return
+    },
+
+    hideCompModal: function(){
+      this.displayCompModal = false;
+    },
+
+
     changeSearchType: function (event) {
       this.searchType = event.target.value
 
-      this.checkLccn()
+      this.checkLccn(this.searchType)
     },
 
     printMarc: function () {
@@ -353,7 +400,7 @@ export default {
       // check if there's an LCCN in the record
       let existingLccn = this.loadLccnFromRecord(value)
       this.selectedRecordUrl = existingLccn
-      this.checkLccn()
+      this.checkLccn('lccn')
       console.info("load: ", existingLccn)
       console.info("this.selectedRecordUrl: ", this.selectedRecordUrl)
     },
@@ -391,14 +438,16 @@ export default {
      * - lccn matc
      */
 
-    checkLccn: async function () {
+    checkLccn: async function (type=lccn) {
+      this.existingMarc = false // reset this if the check triggers
+      this.searchType = type
       console.info("checkLCCN: ", this.searchType)
       // if (this.urlToLoad.length < 3){ return }
       if(this.overrideAllow && this.overrideBibid !=''){
         console.info("override: ", this.overrideBibid)
         console.info("checking override: ", this.overrideBibid)
         this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
-        this.searchType = 'bibid'
+        this.searchType = 'override'
       } else {
         this.existingLCCN = false
         this.existingISBN = false
@@ -407,9 +456,11 @@ export default {
       let recordData = null
 
       if (this.searchType == 'bibid'){
+        console.info("searching bibid")
         this.checkingLCCN = true
         let url = "https://preprod-8080.id.loc.gov/resources/instances/" + this.isbn + ".html"
         let resp = await utilsNetwork.searchBibId(this.isbn)
+        console.info("resp: ", resp)
         this.checkingLCCN = false
         if (resp.status == 200){
           this.existingISBN = true
@@ -509,10 +560,10 @@ export default {
     },
 
     checkRecordHasLccn: function (record) {
-      console.info("hasLCCN?: ", record)
+      // console.info("hasLCCN?: ", record)
       if (record) {
         let marc010 = this.getMarcFieldAsString(record, "010")
-        console.info("marc010: ", marc010)
+        // console.info("marc010: ", marc010)
         if (!marc010) { return false }
 
         if (marc010.includes('$a')) { return true }
@@ -619,27 +670,97 @@ export default {
       }
     },
 
+    htmlify: function(marcBlob){
+      console.info("marcBlob: ", marcBlob)
+
+      let formattedMarcRecord = ["<div class='marc record'>"];
+
+
+      for (let [idx, line] of marcBlob.split("\n").entries()){
+        if (idx == 0){
+          let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
+          formattedMarcRecord.push(leader);
+        } else {
+          let tag = String(line.slice(0,3))
+          let value = null;                 // fixed fields?
+          let indicators = null;
+          let subfields = [];               // subfields
+          let subfieldsSplit = []
+          console.info("line: ", line)
+          if (line == ""){ continue }
+          if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
+            value = line.slice(7)
+          } else {
+            console.info("line: ", line)
+            let tmpIndicators = line.slice(4, 6)
+
+            indicators = [" ", " "]
+            indicators[0] = tmpIndicators.slice(0, tmpIndicators.length / 2)
+            indicators[1] = tmpIndicators.slice(tmpIndicators.length / 2, tmpIndicators.length)
+            let subfieldGroups = line.slice(7).replaceAll(/\$([a-z0-9]{1})/g, "-#-#-$1").split("-#-#-")
+
+            for (let sub of subfieldGroups){
+              if (sub != ""){
+                let field = "$" + sub.at(0)
+                let value = sub.slice(1)
+
+                subfields.push([field, value])
+              }
+            }
+          }
+
+          console.info("\ttag: ", tag)
+
+          if (value) {
+            tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+            value = " <span class='marc value'>" + value + '</span>';
+            formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
+          } else {
+            console.info("\t\tsubfields: ", subfields)
+            subfields = subfields.map((subfield) =>
+              "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
+            );
+            indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
+            tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+            formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
+
+            console.info("\t\t", formattedMarcRecord)
+          }
+
+        }
+      }
+      formattedMarcRecord.push('</div>');
+      return formattedMarcRecord.join('\r\n');
+    },
+
+    compareRecords: async function(profile){
+      this.targetProfile = profile
+      this.continueWithLoad = false
+
+      // marc record: https://id.loc.gov/resources/instances/<bibid>.bf2m.txt
+      let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
+      console.info("existingMarcUrl: ", existingMarcUrl)
+      let existingMarc = false
+      if (existingMarcUrl){
+        console.info("getting")
+        existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
+        this.existingMarc = existingMarc
+        this.existingMarc = this.htmlify(this.existingMarc)
+      }
+      this.selectedMarc = this.selectedWcRecord.marcHTML
+      console.info("existingMarc: ", this.existingMarc)
+      console.info("selected: ", this.selectedWcRecord)
+
+      this.compPreview = false
+      this.displayCompModal = true
+    },
+
+
     loadCopyCat: async function (profile) { // load into BFDB/ID
-      let continueWithLoad = true
-      if (this.existingLCCN) {
-        continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
-      }
-      if (this.existingISBN) {
-        continueWithLoad = confirm("There is a record that matches this ISBN. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
-      }
-      if (!continueWithLoad) { return }
 
       let xml = this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
 
       xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
-      let continueWithLccn = true
-      // if (!this.copyCatLccn){
-      if (this.urlToLoad.length != 10) {
-        continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
-      }
-
-
-      if (!continueWithLccn) { return }
 
       let parser = new DOMParser()
       xml = parser.parseFromString(xml, "text/xml")
@@ -702,6 +823,8 @@ export default {
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
       console.info("strXmlBasic: ", strXmlBasic)
+
+      // return
 
       this.posting = true
       this.postResults = {}
@@ -766,7 +889,6 @@ export default {
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
       if (this.lccnLoadSelected) {
-
         this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
 
       }

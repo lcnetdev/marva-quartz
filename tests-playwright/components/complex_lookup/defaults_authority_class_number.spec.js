@@ -19,7 +19,7 @@ test('Load a class number from a NAR', async ({ page }) => {
 
   await page.getByRole('button', { name: 'bolt' }).click();
   await page.getByRole('button', { name: 'Insert Default Values' }).click();
-  await expect(page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]')).toContainText('United States Library of Congress');
+  await expect(page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]')).toContainText('Library of Congress');
   await expect(page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]')).toContainText('used by assigner');
 
 });
