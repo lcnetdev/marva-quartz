@@ -311,7 +311,7 @@ const utilsNetwork = {
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
     fetchSimpleLookup: async function(url, json, signal=null) {
-      url = url || config.profileUrl
+      url = resolveBluecoreCbdUrl(url || config.profileUrl)
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
       }
