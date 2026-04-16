@@ -26,18 +26,9 @@ services:
       - .:/app
     environment:
       PORT: "9401"
-      BASE_PATH: "/marva/util"
-      VITE_KEYCLOAK_AUTH_PATH: "${VITE_KEYCLOAK_AUTH_PATH_MIDDLEWARE:-http://localhost:8081/keycloak/}"
-      VITE_KEYCLOAK_INTERNAL_AUTH_PATH : "${KEYCLOAK_INTERNAL_URL:-http://keycloak:8081/keycloak/}"
-      VITE_BLUECORE_API_PATH: "${VITE_BLUECORE_API_PATH_MIDDLEWARE:-}"
-      KEYCLOAK_REALM: "${KEYCLOAK_REALM:-bluecore}"
-      KEYCLOAK_CLIENT_ID: "${KEYCLOAK_CLIENT_ID:-bluecore_api}"
-      KEYCLOAK_CLIENT_SECRET: "${KEYCLOAK_CLIENT_SECRET:-}"
-      KEYCLOAK_REDIRECT_URI: "${KEYCLOAK_REDIRECT_URI:-http://localhost:9401/marva/util/auth/callback}"
-      MARVA_REDIRECT_BASE: "${MARVA_REDIRECT_BASE:-http://localhost:4444/marva/}"
-      MARVA_LOGOUT_REDIRECT: "${MARVA_LOGOUT_REDIRECT:-http://localhost:4444/marva/}"
-      UPSTREAM_UTIL_BASE: "${UPSTREAM_UTIL_BASE:-}"
+      VITE_KEYCLOAK_AUTH_PATH: "http://localhost:8081/keycloak/"
+      KEYCLOAK_INTERNAL_AUTH_PATH: "http://keycloak:8081/keycloak/"
+      MARVA_UTIL_PATH: "" #TODO: will need to be configured with marva backend for additional Marva features
+      MARVA_REDIRECT_BASE: "http://localhost:4444/marva/"
       CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:4444}"
-      FEATURE_FLAGS: "${FEATURE_FLAGS:-}"
-      MIDDLEWARE_LOG_FILE: "${MIDDLEWARE_LOG_FILE:-/app/logs/keycloak-middleware.log}"
     command: sh -lc "node --watch middleware/keycloak-middleware.js"
