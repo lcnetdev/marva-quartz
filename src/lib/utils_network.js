@@ -1,5 +1,6 @@
 import {useConfigStore} from "../stores/config";
 import {usePreferenceStore} from "../stores/preference";
+import {resolveBluecoreCbdUrl} from "./utils_bluecore";
 
 import short from 'short-uuid'
 const translator = short();
