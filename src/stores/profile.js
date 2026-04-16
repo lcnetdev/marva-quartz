@@ -176,7 +176,7 @@ export const useProfileStore = defineStore('profile', {
     hiddenClassNumbers: false,
 
 
-    
+
 
     localMarva: false,
 
@@ -2295,8 +2295,8 @@ export const useProfileStore = defineStore('profile', {
             usePreferenceStore().setValue('--b-shelflist-mlc-division',mlcMatch[1].toUpperCase())
           } else {
             usePreferenceStore().setValue('--b-shelflist-mlc-division',"")
-          }            
-        }        
+          }
+        }
 
 
         // console.log("Before prune")
@@ -6220,6 +6220,51 @@ export const useProfileStore = defineStore('profile', {
       return false
     },
 
+    checkCip(){
+      /**
+       * CIP is signaled by
+       *
+       * Projected publication date (YYMM) is populated
+       * encoding level: prepublication
+       * 906 $e ecip <not checking this one>
+       *
+       * in the instance.
+       *
+       * If either of the checks is true, flagging it as a CIP
+       */
+      let isCip = false
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            let userValue = pt.userValue
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bflc/projectedProvisionDate"){
+              console.info("pt: ", pt)
+              try {
+                let value = userValue["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"][0]["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"]
+                if (value){
+                  isCip = true
+                }
+              } catch { }
+            }
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/adminMetadata" && pt.adminMetadataType == 'primary'){
+              console.info("pt: ", pt)
+              try{
+                let encodingLevel = userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
+                let code = encodingLevel["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"]
+                if (code == 8 || code == '8'){
+                  isCip = true
+                }
+              } catch { }
+            }
+          }
+        }
+      }
+
+      console.info("isCip: ", isCip)
+      return isCip
+    },
+
     /**
      * Retrieves the main title from the NACO stub work profile by traversing the resource template structure.
      * Looks for a property with URI "http://id.loc.gov/ontologies/bibframe/title" and extracts its main title value.
@@ -6229,6 +6274,8 @@ export const useProfileStore = defineStore('profile', {
      * @requires activeProfile - Profile must be loaded with valid RT structure
      */
     nacoStubReturnMainTitle(){
+      // Check if the record might be a CIP
+      let isCIP = this.checkCip()
 
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
@@ -6247,19 +6294,31 @@ export const useProfileStore = defineStore('profile', {
                   // look for the one that is set as latin first, if we can find it
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
-                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                      let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                      if (isCIP){
+                        title = "CIP " + title
+                      }
+                      return title
                     }
                   }
 
                   // otherwise look for the first one that doesn't have a language tag
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (!aTitle['@language']){
-                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                      let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                      if (isCIP){
+                        title = "CIP " + title
+                      }
+                      return title
                     }
                   }
 
                   // if we can't find one without a language tag, just return the first one
-                  return pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                  let title = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                  if (isCIP){
+                    title = "CIP " + title
+                  }
+                  return title
                 }
             }
           }
