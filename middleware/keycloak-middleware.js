@@ -4,6 +4,9 @@ const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
 
+// #############################################################################
+// ##  Runtime Configuration  ##
+// #############################
 const env = process.env
 const PORT = Number(env.PORT)
 const BASE_PATH =  '/marva/util'
@@ -15,6 +18,9 @@ const KEYCLOAK_REDIRECT_URI = `http://localhost:${PORT}${BASE_PATH}/auth/callbac
 const UPSTREAM_UTIL_BASE = `${env.MARVA_UTIL_PATH}/marva/util`
 const CORS_ORIGIN = env.CORS_ORIGIN || '*'
 
+// #############################################################################
+// ##  In-Memory Session State  ##
+// ###############################
 const tokenStore = new Map()
 const subjectIndex = new Map()
 const pendingStates = new Map()
@@ -25,6 +31,9 @@ const KEYCLOAK_ENDPOINTS = {
   logout: `${KEYCLOAK_ISSUER_EXTERNAL}/protocol/openid-connect/logout`
 }
 
+// #############################################################################
+// ##  HTTP Request Router  ##
+// ###########################
 const server = http.createServer(async (req, res) => {
   try {
     if (!req.url) {
@@ -67,6 +76,9 @@ const KEYCLOAK_INTERNAL_HOST_HEADER = new URL(env.VITE_KEYCLOAK_AUTH_PATH).host
 const KEYCLOAK_INTERNAL_FORWARD_PROTO = new URL(env.VITE_KEYCLOAK_AUTH_PATH).protocol.replace(':', '')
 const MIDDLEWARE_LOG_FILE = "/app/logs/keycloak-middleware.log"
 
+// #############################################################################
+// ##  Server Startup  ##
+// ######################
 server.listen(PORT, () => {
   logEvent('info', 'middleware-started', {
     port: PORT,
@@ -78,6 +90,9 @@ server.listen(PORT, () => {
 
 setInterval(cleanupStores, 60_000).unref()
 
+// #############################################################################
+// ##  Auth Login Handler  ##
+// ##########################
 async function handleLogin(_req, res, url) {
   const state = randomString(24)
   const returnTo = sanitizeReturnTo(url.searchParams.get('returnTo') || env.MARVA_REDIRECT_BASE)
@@ -96,6 +111,9 @@ async function handleLogin(_req, res, url) {
   res.end()
 }
 
+// #############################################################################
+// ##  Auth Callback Handler  ##
+// #############################
 async function handleCallback(_req, res, url) {
   const code = url.searchParams.get('code')
   const state = url.searchParams.get('state')
@@ -171,6 +189,9 @@ async function handleCallback(_req, res, url) {
   res.end()
 }
 
+// #############################################################################
+// ##  Auth Refresh Handler  ##
+// ############################
 async function handleRefresh(req, res) {
   const oldToken = getBearerToken(req)
   if (!oldToken) {
@@ -247,6 +268,9 @@ async function handleRefresh(req, res) {
   return writeJson(res, 200, { token: newAccessToken })
 }
 
+// #############################################################################
+// ##  Auth Logout Handler  ##
+// ###########################
 async function handleLogout(req, res) {
   const token = getBearerToken(req)
   const session = token ? tokenStore.get(token) : null
@@ -267,6 +291,9 @@ async function handleLogout(req, res) {
   res.end()
 }
 
+// #############################################################################
+// ##  Upstream Proxy Handler  ##
+// ##############################
 async function proxyToUpstream(req, res, url) {
   const pathFromBase = url.pathname.slice(BASE_PATH.length)
   if (!env.MARVA_UTIL_PATH) {
@@ -318,6 +345,9 @@ async function proxyToUpstream(req, res, url) {
   res.end(responseBuffer)
 }
 
+// #############################################################################
+// ##  Keycloak Token Exchange  ##
+// ###############################
 async function exchangeToken({ grantType, code, refreshToken }) {
   const body = new URLSearchParams()
   body.set('grant_type', grantType)
@@ -346,6 +376,9 @@ async function exchangeToken({ grantType, code, refreshToken }) {
   })
 }
 
+// #############################################################################
+// ##  Response Helpers  ##
+// ########################
 function writeJson(res, statusCode, payload) {
   writeCorsHeaders(res)
   const data = JSON.stringify(payload)
@@ -362,6 +395,9 @@ function writeCorsHeaders(res) {
   res.setHeader('access-control-allow-headers', 'Content-Type, Authorization, Accept')
 }
 
+// #############################################################################
+// ##  Request/Token Helpers  ##
+// #############################
 function getBearerToken(req) {
   const header = req.headers.authorization || ''
   if (!header.toLowerCase().startsWith('bearer ')) return null
@@ -387,6 +423,9 @@ function decodeJwtPayload(token) {
   }
 }
 
+// #############################################################################
+// ##  General Utilities  ##
+// #########################
 function randomString(size) {
   return crypto.randomBytes(size).toString('hex')
 }
