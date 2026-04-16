@@ -6271,9 +6271,6 @@ export const useProfileStore = defineStore('profile', {
      * @requires activeProfile - Profile must be loaded with valid RT structure
      */
     nacoStubReturnMainTitle(){
-      // Check if the record might be a CIP
-      let isCIP = this.checkCip()
-
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
           for (let pt of this.activeProfile.rt[rt].ptOrder){
@@ -6292,9 +6289,6 @@ export const useProfileStore = defineStore('profile', {
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
                       let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
-                      if (isCIP){
-                        title = "CIP " + title
-                      }
                       return title
                     }
                   }
@@ -6303,18 +6297,12 @@ export const useProfileStore = defineStore('profile', {
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (!aTitle['@language']){
                       let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
-                      if (isCIP){
-                        title = "CIP " + title
-                      }
                       return title
                     }
                   }
 
                   // if we can't find one without a language tag, just return the first one
                   let title = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
-                  if (isCIP){
-                    title = "CIP " + title
-                  }
                   return title
                 }
             }
