@@ -417,6 +417,9 @@ function cleanupStores() {
   }
 }
 
+// #############################################################################
+// ##  Middleware Logging  ##
+// ##########################
 function logEvent(level, event, meta = {}) {
   const payload = { ts: new Date().toISOString(), level, event, ...meta}
   const line = `[keycloak-middleware] ${JSON.stringify(payload)}`
@@ -433,8 +436,40 @@ function logEvent(level, event, meta = {}) {
   try {
     const dir = path.dirname(MIDDLEWARE_LOG_FILE)
     fs.mkdirSync(dir, { recursive: true })
+    pruneLogFile()
     fs.appendFileSync(MIDDLEWARE_LOG_FILE, line + '\n', 'utf8')
   } catch (e) {
     console.error('[keycloak-middleware] failed to write log file:', e?.message || e)
+  }
+}
+
+// #############################################################################
+// ##  Log Pruning  ##
+// ###################
+const LOG_RETENTION = 7 * 24 * 60 * 60 * 1000 // Keep only the last 7 days of log entries.
+const LOG_PRUNE_INTERVAL = 60 * 60 * 1000 // Run log pruning once per hour.
+let lastLogPruneAt = 0
+
+function pruneLogFile() {
+  const now = Date.now()
+  if ((now - lastLogPruneAt) < LOG_PRUNE_INTERVAL) return
+  lastLogPruneAt = now
+  if (!fs.existsSync(MIDDLEWARE_LOG_FILE)) return
+  const cutoff = now - LOG_RETENTION
+  const content = fs.readFileSync(MIDDLEWARE_LOG_FILE, 'utf8')
+  if (!content) return
+  const keptLines = content.split('\n').filter((line) => !line || getLogLineTimestampMs(line) >= cutoff)
+  fs.writeFileSync(MIDDLEWARE_LOG_FILE, keptLines.join('\n'), 'utf8')
+}
+
+function getLogLineTimestampMs(line) {
+  const jsonStart = line.indexOf('{')
+  if (jsonStart < 0) return Date.now()
+  try {
+    const payload = JSON.parse(line.slice(jsonStart))
+    const tsMs = Date.parse(payload.ts)
+    return Number.isFinite(tsMs) ? tsMs : Date.now()
+  } catch {
+    return Date.now()
   }
 }
