@@ -13,9 +13,9 @@ services:
       VITE_BLUECORE_API_PATH: "http://localhost:3000/"
     command: sh -lc "npm install && npm run dev-external -- --host"
     depends_on:
-      - keycloak-middleware
+      - marva-keycloak-middleware
 
-  keycloak-middleware:
+  marva-keycloak-middleware:
     image: node:23-alpine
     working_dir: /app
     extra_hosts:
@@ -31,4 +31,4 @@ services:
       MARVA_UTIL_PATH: "" #TODO: will need to be configured with marva backend for additional Marva features
       MARVA_REDIRECT_BASE: "http://localhost:4444/marva/"
       CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:4444}"
-    command: sh -lc "node --watch middleware/keycloak-middleware.js"
+    command: sh -lc "node --watch middleware/marva-keycloak-middleware.js"
