@@ -597,8 +597,8 @@
           this.oneXX = this.oneXX.replace(/  +/g, ' ')
           this.oneXX = this.oneXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
-          
-          
+
+
 
           if (this.oneXX.length<3){ return true}
 
@@ -690,6 +690,7 @@
 
             if (dollarKey.d){
 
+              dollarKey.d = dollarKey.d.replace(":", "")
               let lifeDates  = dollarKey.d.split('-')
 
               // if the first part is empty, or starts with a YYYY build the 046, otherwise don't
@@ -731,11 +732,10 @@
                   if (lifeDates[1].trim().length>0){
                     this.zero46.t = lifeDates[1]
                   }
-
                 }
                 if (lifeDates.length==1 && (fieldTag == '111' || fieldTag == 111)){
                   this.zero46 = {}
-                  this.zero46.q = lifeDates[0]
+                  this.zero46.s = lifeDates[0]
                 }
               }
             }
@@ -1508,10 +1508,16 @@
           this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
           this.field245 = this.profileStore.nacoStubReturn245()
 
-
+          // Check if the record might be a CIP
+          let isCip = this.profileStore.checkCip()
 
           if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source != 'subject')){
-            this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+            if (isCip){
+              this.mainTitleNote = "CIP title page (" + this.statementOfResponsibility  + ")"
+            }
+            else {
+              this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+            }
           }
 
           if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source == 'subject')){
@@ -1533,7 +1539,11 @@
             }
 
             if (startPos && endPos){
-              this.mainTitleNote = "title page (" + _245.slice(startPos, endPos).trim() + ")"
+              if (isCip){
+                this.mainTitleNote = "CIP title page (" + _245.slice(startPos, endPos).trim() + ")"
+              } else {
+                this.mainTitleNote = "title page (" + _245.slice(startPos, endPos).trim() + ")"
+              }
             }
           }
 
@@ -2095,7 +2105,7 @@
                       <div style="padding: 0.2em;">
                         Multi SOR found:
                         <template v-for="(sor, index) in statementOfResponsibilityOptions">
-                          <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'; update670()">{{ sor }}</button>
+                          <button style="font-size: 0.75em;" @click="mainTitleNote = profileStore.checkCip() ? 'CIP title page (' + sor.trim() + ')' : 'title page (' + sor.trim() + ')'; update670()">{{ sor }}</button>
                         </template>
                       </div>
 

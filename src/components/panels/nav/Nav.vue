@@ -129,14 +129,8 @@ export default {
       return (this.panelDisplay.linkedData) ? 'done' : ''
     },
 
-    yoshinoAllowedUsers() {
-      return ['jdoe','nalf','ncooey','cyea','sfol','kevinford','cgir','pkho','hhuh','kilau','smcc','mattmiller','jmoon','amors','mnaz','fosorio','mpol','eram','trod','yshi','tsod','atau','stellier','ntra','ctur','jowill','gago','cbarna']
-    },
-
     yoshinoAllowed() {
-      let username = this.preferenceStore.ssoUser?.username
-      if (!username) return false
-      return this.yoshinoAllowedUsers.includes(username.toLowerCase())
+      return this.preferenceStore.featureFlags.includes('subject-suggest')
     },
 
     yoshinoHasSummary() {
@@ -389,10 +383,14 @@ export default {
                 }, icon: "smart_toy"
               },
               ...(this.yoshinoAllowed ? [{
-                text: "Subject Suggest", click: () => {
+                text: "Subject Finder", click: () => {
                   this.showYoshinoSubjectsModal = true
                 }, icon: "radar"
-              }] : []),
+              }] : [{
+                text: "Req Subject Finder Access", click: () => {
+                  window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
+                }, icon: "contact_support"
+              }]),
 
               { is: 'separator' },
               {
