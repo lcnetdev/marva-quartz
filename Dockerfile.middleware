@@ -1,0 +1,9 @@
+FROM node:23-alpine
+
+WORKDIR /app
+
+COPY middleware/marva-keycloak-middleware.js /app/middleware/marva-keycloak-middleware.js
+
+EXPOSE 9401
+
+CMD ["node", "/app/middleware/marva-keycloak-middleware.js"]

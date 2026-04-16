@@ -21,12 +21,21 @@ jobs:
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Build and push :latest
+      - name: Build and push marva editor :latest
         env:
-          IMAGE: ghcr.io/blue-core-lod/marva
+          MARVA_IMAGE: ghcr.io/blue-core-lod/marva
         run: |
           docker build \
             --build-arg VITE_KEYCLOAK_AUTH_PATH="${{ secrets.MARVA_KEYCLOAK_PATH }}" \
             --build-arg VITE_BLUECORE_API_PATH="${{ secrets.MARVA_BLUECORE_API_PATH }}" \
-            -t $IMAGE:latest .
-          docker push $IMAGE:latest
+            -t $MARVA_IMAGE:latest .
+          docker push $MARVA_IMAGE:latest
+
+      - name: Build and push marva keycloak middleware :latest
+        env:
+          MARVA_KEYCLOAK_MIDDLEWARE_IMAGE: ghcr.io/blue-core-lod/marva-keycloak-middleware
+        run: |
+          docker build \
+            -f Dockerfile.middleware \
+            -t $MARVA_KEYCLOAK_MIDDLEWARE_IMAGE:latest .
+          docker push $MARVA_KEYCLOAK_MIDDLEWARE_IMAGE:latest

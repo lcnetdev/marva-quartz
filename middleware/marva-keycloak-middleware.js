@@ -74,7 +74,7 @@ const server = http.createServer(async (req, res) => {
 
 const KEYCLOAK_INTERNAL_HOST_HEADER = new URL(env.VITE_KEYCLOAK_AUTH_PATH).host
 const KEYCLOAK_INTERNAL_FORWARD_PROTO = new URL(env.VITE_KEYCLOAK_AUTH_PATH).protocol.replace(':', '')
-const MIDDLEWARE_LOG_FILE = "/app/logs/keycloak-middleware.log"
+const MIDDLEWARE_LOG_FILE = "/app/logs/marva-keycloak-middleware.log"
 
 // #############################################################################
 // ##  Server Startup  ##
@@ -461,7 +461,7 @@ function cleanupStores() {
 // ##########################
 function logEvent(level, event, meta = {}) {
   const payload = { ts: new Date().toISOString(), level, event, ...meta}
-  const line = `[keycloak-middleware] ${JSON.stringify(payload)}`
+  const line = `[marva-keycloak-middleware] ${JSON.stringify(payload)}`
 
   if (level === 'error') {
     console.error(line)
@@ -478,7 +478,7 @@ function logEvent(level, event, meta = {}) {
     pruneLogFile()
     fs.appendFileSync(MIDDLEWARE_LOG_FILE, line + '\n', 'utf8')
   } catch (e) {
-    console.error('[keycloak-middleware] failed to write log file:', e?.message || e)
+    console.error('[marva-keycloak-middleware] failed to write log file:', e?.message || e)
   }
 }
 
