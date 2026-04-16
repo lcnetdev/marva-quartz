@@ -1119,7 +1119,7 @@
                   <div v-else style="min-height: 27px;"></div>
                 </div>
 
-				  <div id="container" v-if="modalSelectOptions.length == 7">
+				  <div id="container" v-if="modalSelectOptions.length >= 6">
             <span v-if="activeComplexSearch && activeComplexSearch[0]">
 
             </span>
