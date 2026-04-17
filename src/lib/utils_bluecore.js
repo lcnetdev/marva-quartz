@@ -19,7 +19,7 @@ export function resolveBluecoreCbdUrl(input) {
   const suffix = suffixParts.length ? `?${suffixParts.join('?')}` : ''
 
   if (isBluecoreUuidInput(rawId)) {
-    return `${bluecoreApiBase}/api/cbd/${rawId}.rdf${suffix}`
+    return `${bluecoreApiBase}/cbd/${rawId}.rdf${suffix}`
   }
 
   const normalizedRawId = rawId.replace(/\/+$/, '')
@@ -33,7 +33,7 @@ export function resolveBluecoreCbdUrl(input) {
       const parsedUrl = new URL(normalizedRawId)
       return `${parsedUrl.origin}/api/cbd/${lastSegment}.rdf${suffix}`
     } catch {
-      return `${bluecoreApiBase}/api/cbd/${lastSegment}.rdf${suffix}`
+      return `${bluecoreApiBase}/cbd/${lastSegment}.rdf${suffix}`
     }
   }
 
