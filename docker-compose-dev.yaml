@@ -11,7 +11,7 @@ services:
       NODE_ENV: development
       VITE_KEYCLOAK_AUTH_PATH: "http://localhost:8081/keycloak/"
       VITE_BLUECORE_API_PATH: "http://localhost:3000/api/"
-      VITE_KEYCLOAK_MIDDLEWARE_BASE: "/marva/util/"
+      VITE_KEYCLOAK_MIDDLEWARE_BASE: "http://localhost:9401/marva/util/"
     command: sh -lc "npm install && npm run dev-external -- --host"
     depends_on:
       - marva-keycloak-middleware
