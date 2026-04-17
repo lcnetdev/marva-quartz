@@ -80,7 +80,7 @@ export const useConfigStore = defineStore('config', {
 
       externalDev:{
 
-        ldpjs : 'http://localhost:9401/marva/api-staging/',
+        ldpjs : "",  //'http://localhost:9401/marva/api-staging/',
         util  : utilBase,
         scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
         publish: `${apiBase}batches/upload/`, // Bluecore API Endpoint
