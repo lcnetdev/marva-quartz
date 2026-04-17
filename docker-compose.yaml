@@ -29,4 +29,4 @@ services:
       MARVA_REDIRECT_BASE: "http://localhost/marva/"
       TERRAFORM_KEYCLOAK_REDIRECT_URI: "http://localhost/marva/util/auth/callback"
       CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:8080}"
-    command: sh -lc "node middleware/keycloak-middleware.js"
+    command: sh -lc "node middleware/marva-keycloak-middleware.js"
