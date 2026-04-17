@@ -10,10 +10,11 @@ const path = require('path')
 const env = process.env
 const PORT = Number(env.PORT)
 const BASE_PATH =  '/marva/util'
+const MARVA_REDIRECT = ( env.MARVA_REDIRECT_BASE || "http://localhost/marva/" )
 
 const KEYCLOAK_ISSUER_EXTERNAL = `${env.VITE_KEYCLOAK_AUTH_PATH }/realms/bluecore`
 const KEYCLOAK_ISSUER_INTERNAL = `${env.KEYCLOAK_INTERNAL_AUTH_PATH}/realms/bluecore`
-const KEYCLOAK_REDIRECT_URI = `http://localhost:${PORT}${BASE_PATH}/auth/callback`
+const KEYCLOAK_REDIRECT_URI = ( env.TERRAFORM_KEYCLOAK_REDIRECT_URI || `http://localhost:${PORT}${BASE_PATH}/auth/callback`)
 
 const UPSTREAM_UTIL_BASE = `${env.MARVA_UTIL_PATH}/marva/util`
 const CORS_ORIGIN = env.CORS_ORIGIN || '*'
@@ -95,7 +96,7 @@ setInterval(cleanupStores, 60_000).unref()
 // ##########################
 async function handleLogin(_req, res, url) {
   const state = randomString(24)
-  const returnTo = sanitizeReturnTo(url.searchParams.get('returnTo') || env.MARVA_REDIRECT_BASE)
+  const returnTo = sanitizeReturnTo(url.searchParams.get('returnTo') || MARVA_REDIRECT )
   pendingStates.set(state, { returnTo, createdAt: Date.now() })
   logEvent('info', 'login-redirect', { returnTo })
 
@@ -122,7 +123,7 @@ async function handleCallback(_req, res, url) {
   const stateData = state ? pendingStates.get(state) : null
   if (state) pendingStates.delete(state)
 
-  const returnTo = sanitizeReturnTo(stateData?.returnTo || env.MARVA_REDIRECT_BASE)
+  const returnTo = sanitizeReturnTo(stateData?.returnTo || MARVA_REDIRECT )
 
   if (oauthError) {
     logEvent('warn', 'callback-oauth-error', { oauthError })
@@ -281,7 +282,7 @@ async function handleLogout(req, res) {
 
   const logoutUrl = new URL(KEYCLOAK_ENDPOINTS.logout)
   logoutUrl.searchParams.set('client_id', 'bluecore_api')
-  logoutUrl.searchParams.set('post_logout_redirect_uri', env.MARVA_REDIRECT_BASE)
+  logoutUrl.searchParams.set('post_logout_redirect_uri', MARVA_REDIRECT)
   if (session?.idToken) {
     logoutUrl.searchParams.set('id_token_hint', session.idToken)
   }
@@ -435,7 +436,7 @@ function sanitizeReturnTo(returnTo) {
     const parsed = new URL(returnTo)
     return parsed.toString()
   } catch {
-    return env.MARVA_REDIRECT_BASE
+    return MARVA_REDIRECT
   }
 }
 
