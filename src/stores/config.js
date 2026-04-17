@@ -891,11 +891,8 @@ export const useConfigStore = defineStore('config', {
       // testing for window here because of running unit tests in node
       if (typeof window !== 'undefined'){
         console.log("window: ", window.location.href) // Bluecore debugging (todo: remove later)
-        if (window && (!window.location.href.includes('localhost:5555') && !window.location.href.includes('localhost:4444') && window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1') )) {
-          return state.regionUrls.dev
-
         // ##################  Bluecore URLS Start  ############################
-        } else if (window && (window.location.href.includes('localhost/marva/') && window.location.href.startsWith('http://localhost'))) {
+        if (window && (window.location.href.includes('localhost/marva/') && window.location.href.startsWith('http://localhost'))) {
           console.log(">>>>>>>includes('localhost/marva/)<<<<<<<<<")
           return state.regionUrls.externalDev
         // =================================================================
@@ -905,8 +902,11 @@ export const useConfigStore = defineStore('config', {
         } else if (window && (window.location.href.includes('https://dev.bcld.info/marva/'))) {
           console.log(">>>>>>>window.location.href.includes('https://dev.bcld.info/marva/')<<<<<<<<<")
           return state.regionUrls.externalDev
-        // ##################  Bluecore URLS End  ##############################
+          // ##################  Bluecore URLS End  ##############################
 
+        } else if (window && (!window.location.href.includes('localhost:5555') && !window.location.href.includes('localhost:4444') && window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1') )) {
+            console.log(">>>>>>> return state.regionUrls.dev <<<<<<<<<")
+            return state.regionUrls.dev
         }else if (window && window.location.href.startsWith('https://preprod-3001')){
           return state.regionUrls.staging
         }else if (window && window.location.href.startsWith('https://editor.id')){
