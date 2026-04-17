@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import utilsNetwork from '@/lib/utils_network';
 import scriptShifterLangCodes from '@/lib/scriptShifterLangCodes.json';
 const apiBase = (import.meta.env.VITE_BLUECORE_API_PATH || 'http://localhost:3000') // Bluecore API Base Endpoint
-const utilBase = (import.meta.env.VITE_KEYCLOAK_MIDDLEWARE_BASE || 'http://localhost:9401/marva/util/')
+const utilBase = (import.meta.env.VITE_KEYCLOAK_MIDDLEWARE_BASE || '/marva/util/') //default: 'http://localhost:9401/marva/util/'
 
 export const useConfigStore = defineStore('config', {
   state: () => ({
