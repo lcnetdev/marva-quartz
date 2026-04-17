@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import utilsNetwork from '@/lib/utils_network';
 import scriptShifterLangCodes from '@/lib/scriptShifterLangCodes.json';
 const apiBase = (import.meta.env.VITE_BLUECORE_API_PATH || 'http://localhost:3000') // Bluecore API Base Endpoint
+const utilBase = (import.meta.env.VITE_KEYCLOAK_MIDDLEWARE_BASE || 'http://localhost:9401/marva/util/')
 
 export const useConfigStore = defineStore('config', {
   state: () => ({
@@ -80,7 +81,7 @@ export const useConfigStore = defineStore('config', {
       externalDev:{
 
         ldpjs : 'http://localhost:9401/marva/api-staging/',
-        util  : 'http://localhost:9401/marva/util/',
+        util  : utilBase,
         scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
         publish: `${apiBase}batches/upload/`, // Bluecore API Endpoint
         validate: 'http://localhost:9401/marva/util/validate/prod',
