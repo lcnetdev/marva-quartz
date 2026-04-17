@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        VITE_KEYCLOAK_AUTH_PATH: "http://localhost:8081/keycloak/"
+        VITE_KEYCLOAK_AUTH_PATH: "http://localhost/keycloak/"
         VITE_BLUECORE_API_PATH: "http://localhost/api/"
     ports:
       - "8080:8080"
@@ -23,7 +23,7 @@ services:
       - .:/app
     environment:
       PORT: "9401"
-      VITE_KEYCLOAK_AUTH_PATH: "http://localhost:8081/keycloak/"
+      VITE_KEYCLOAK_AUTH_PATH: "http://localhost/keycloak/"
       KEYCLOAK_INTERNAL_AUTH_PATH: "http://keycloak:8081/keycloak/"
       MARVA_UTIL_PATH: "" #TODO: will need to be configured with marva backend for additional Marva features
       MARVA_REDIRECT_BASE: "http://localhost/marva/"
