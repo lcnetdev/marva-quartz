@@ -10,9 +10,9 @@ services:
     environment:
       NODE_ENV: production
     depends_on:
-      - keycloak-middleware
+      - marva-keycloak-middleware
 
-  keycloak-middleware:
+  marva-keycloak-middleware:
     image: node:23-alpine
     working_dir: /app
     extra_hosts:
@@ -26,6 +26,7 @@ services:
       VITE_KEYCLOAK_AUTH_PATH: "http://localhost:8081/keycloak/"
       KEYCLOAK_INTERNAL_AUTH_PATH: "http://keycloak:8081/keycloak/"
       MARVA_UTIL_PATH: "" #TODO: will need to be configured with marva backend for additional Marva features
-      MARVA_REDIRECT_BASE: "http://localhost:8080/marva/"
+      MARVA_REDIRECT_BASE: "http://localhost/marva/"
+      TERRAFORM_KEYCLOAK_REDIRECT_URI: "http://localhost/marva/util/auth/callback"
       CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:8080}"
     command: sh -lc "node middleware/keycloak-middleware.js"
