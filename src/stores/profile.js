@@ -6271,6 +6271,44 @@ export const useProfileStore = defineStore('profile', {
      * @requires activeProfile - Profile must be loaded with valid RT structure
      */
     nacoStubReturnMainTitle(){
+      console.info("getMainTitle")
+      let subtitle = ''
+      for (let rt of this.activeProfile.rtOrder){
+        console.info("rt: ", rt)
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/title"){
+              console.info("pt: ", pt)
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                ){
+                  // look for the one that is set as latin first, if we can find it
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']){
+                    if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
+                      subtitle = aTitle['http://id.loc.gov/ontologies/bibframe/subtitle']
+                    }
+                  }
+
+                  // otherwise look for the first one that doesn't have a language tag
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']){
+                    if (!aTitle['@language']){
+                      subtitle = aTitle['http://id.loc.gov/ontologies/bibframe/subtitle']
+                    }
+                  }
+
+                  // if we can't find one without a language tag, just return the first one
+                  subtitle = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                }
+            }
+          }
+        }
+      }
+
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
           for (let pt of this.activeProfile.rt[rt].ptOrder){
@@ -6285,10 +6323,17 @@ export const useProfileStore = defineStore('profile', {
                 )
                 {
 
+                  console.info("subtitle ", subtitle)
                   // look for the one that is set as latin first, if we can find it
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
                       let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                      // remove the subtitle
+                      if (title.includes(subtitle)){
+                        title = title.replace(subtitle, "")
+                        title = title.split(" : ")[0]
+                      }
                       return title
                     }
                   }
@@ -6297,12 +6342,24 @@ export const useProfileStore = defineStore('profile', {
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (!aTitle['@language']){
                       let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                      // remove the subtitle
+                      if (title.includes(subtitle)){
+                        title = title.replace(subtitle, "")
+                        title = title.split(" : ")[0]
+                      }
                       return title
                     }
                   }
 
                   // if we can't find one without a language tag, just return the first one
                   let title = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                  // remove the subtitle
+                  if (title.includes(subtitle)){
+                    title = title.replace(subtitle, "")
+                    title = title.split(" : ")[0]
+                  }
                   return title
                 }
             }
