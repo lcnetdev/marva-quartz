@@ -22,11 +22,11 @@ services:
     volumes:
       - .:/app
     environment:
-      PORT: "9401"
-      VITE_KEYCLOAK_AUTH_PATH: "http://localhost/keycloak/"
-      KEYCLOAK_INTERNAL_AUTH_PATH: "http://keycloak:8081/keycloak/"
+      MARVA_MW_PORT: "9401"
+      KEYCLOAK_EXTERNAL_URL: "http://localhost/keycloak/"
+      KEYCLOAK_INTERNAL_URL: "http://keycloak:8081/keycloak/"
       MARVA_UTIL_PATH: "" #TODO: will need to be configured with marva backend for additional Marva features
       MARVA_REDIRECT_BASE: "http://localhost/marva/"
-      TERRAFORM_KEYCLOAK_REDIRECT_URI: "http://localhost/marva/util/auth/callback"
+      BLUECORE_STACK_KEYCLOAK_REDIRECT_URI: "http://localhost/marva/util/auth/callback"
       CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:8080}"
     command: sh -lc "node middleware/marva-keycloak-middleware.js"

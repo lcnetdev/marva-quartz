@@ -8,13 +8,13 @@ const path = require('path')
 // ##  Runtime Configuration  ##
 // #############################
 const env = process.env
-const PORT = Number(env.PORT)
+const PORT = Number(env.MARVA_MW_PORT)
 const BASE_PATH =  '/marva/util'
 const MARVA_REDIRECT = ( env.MARVA_REDIRECT_BASE || "http://localhost/marva/" )
 
-const KEYCLOAK_ISSUER_EXTERNAL = `${env.VITE_KEYCLOAK_AUTH_PATH }/realms/bluecore`
-const KEYCLOAK_ISSUER_INTERNAL = `${env.KEYCLOAK_INTERNAL_AUTH_PATH}/realms/bluecore`
-const KEYCLOAK_REDIRECT_URI = ( env.TERRAFORM_KEYCLOAK_REDIRECT_URI || `http://localhost:${PORT}${BASE_PATH}/auth/callback`)
+const KEYCLOAK_ISSUER_EXTERNAL = `${env.KEYCLOAK_EXTERNAL_URL }/realms/bluecore`
+const KEYCLOAK_ISSUER_INTERNAL = `${env.KEYCLOAK_INTERNAL_URL}/realms/bluecore`
+const KEYCLOAK_REDIRECT_URI = ( env.BLUECORE_STACK_KEYCLOAK_REDIRECT_URI || `http://localhost:${PORT}${BASE_PATH}/auth/callback`)
 
 const UPSTREAM_UTIL_BASE = `${env.MARVA_UTIL_PATH}/marva/util`
 const CORS_ORIGIN = env.CORS_ORIGIN || '*'
@@ -73,10 +73,9 @@ const server = http.createServer(async (req, res) => {
   }
 })
 
-const KEYCLOAK_INTERNAL_HOST_HEADER = new URL(env.VITE_KEYCLOAK_AUTH_PATH).host
-const KEYCLOAK_INTERNAL_FORWARD_PROTO = new URL(env.VITE_KEYCLOAK_AUTH_PATH).protocol.replace(':', '')
+const KEYCLOAK_HOST_HEADER = new URL(env.KEYCLOAK_EXTERNAL_URL).host
+const KEYCLOAK_FORWARD_PROTO = new URL(env.KEYCLOAK_EXTERNAL_URL).protocol.replace(':', '')
 const MIDDLEWARE_LOG_FILE = "/app/logs/marva-keycloak-middleware.log"
-
 // #############################################################################
 // ##  Server Startup  ##
 // ######################
@@ -85,7 +84,7 @@ server.listen(PORT, () => {
     port: PORT,
     basePath: BASE_PATH,
     logFile: MIDDLEWARE_LOG_FILE,
-    tokenHostHeader: KEYCLOAK_INTERNAL_HOST_HEADER || null
+    tokenHostHeader: KEYCLOAK_HOST_HEADER || null
   })
 })
 
@@ -364,10 +363,10 @@ async function exchangeToken({ grantType, code, refreshToken }) {
   const headers = {
     'content-type': 'application/x-www-form-urlencoded'
   }
-  if (KEYCLOAK_INTERNAL_HOST_HEADER) {
-    headers.host = KEYCLOAK_INTERNAL_HOST_HEADER
-    headers['x-forwarded-host'] = KEYCLOAK_INTERNAL_HOST_HEADER
-    headers['x-forwarded-proto'] = KEYCLOAK_INTERNAL_FORWARD_PROTO
+  if (KEYCLOAK_HOST_HEADER) {
+    headers.host = KEYCLOAK_HOST_HEADER
+    headers['x-forwarded-host'] = KEYCLOAK_HOST_HEADER
+    headers['x-forwarded-proto'] = KEYCLOAK_FORWARD_PROTO
   }
 
   return fetch(KEYCLOAK_ENDPOINTS.token, {
