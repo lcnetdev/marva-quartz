@@ -4290,13 +4290,10 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      console.info("checking instance")
       // look at the instance to get the subtitle
       for (let rtId in this.activeProfile.rt){
-        console.info("rtId: ", rtId)
         if (rtId.indexOf(":Instance") > -1){
           inst = this.activeProfile.rt[rtId]
-          console.info("inst: ", inst)
           if (inst){ break }
         }
       }
@@ -4307,11 +4304,9 @@ export const useProfileStore = defineStore('profile', {
 
         if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
           let titleUserValue = pt.userValue
-          console.info("titleUserValue: ", titleUserValue)
 
           if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
             titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
-            console.info("titleUserValue: ", titleUserValue)
             if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']){
               let sub = titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']
               subtitle = sub[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
@@ -6312,15 +6307,12 @@ export const useProfileStore = defineStore('profile', {
      * @requires activeProfile - Profile must be loaded with valid RT structure
      */
     nacoStubReturnMainTitle(){
-      console.info("getMainTitle")
       let subtitle = ''
       for (let rt of this.activeProfile.rtOrder){
-        console.info("rt: ", rt)
         if (rt.indexOf(":Instance")>-1){
           for (let pt of this.activeProfile.rt[rt].ptOrder){
             pt = this.activeProfile.rt[rt].pt[pt]
             if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/title"){
-              console.info("pt: ", pt)
               if (pt.userValue
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title']
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]
@@ -6364,7 +6356,6 @@ export const useProfileStore = defineStore('profile', {
                 )
                 {
 
-                  console.info("subtitle ", subtitle)
                   // look for the one that is set as latin first, if we can find it
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
