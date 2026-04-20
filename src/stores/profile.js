@@ -4134,11 +4134,13 @@ export const useProfileStore = defineStore('profile', {
       let cutterGuid = null
 
       let work = null
+      let inst = null
       let title = null
       let titleNonSort = null
       let firstSubject = null
       let secondSubject = null
       let contributors = []
+      let subtitle = null
 
       let titleNonLatin = null
 
@@ -4288,6 +4290,41 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      console.info("checking instance")
+      // look at the instance to get the subtitle
+      for (let rtId in this.activeProfile.rt){
+        console.info("rtId: ", rtId)
+        if (rtId.indexOf(":Instance") > -1){
+          inst = this.activeProfile.rt[rtId]
+          console.info("inst: ", inst)
+          if (inst){ break }
+        }
+      }
+
+      if (inst){
+        for (let ptId of inst.ptOrder){
+        let pt = JSON.parse(JSON.stringify(inst.pt[ptId]))
+
+        if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
+          let titleUserValue = pt.userValue
+          console.info("titleUserValue: ", titleUserValue)
+
+          if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
+            titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+            console.info("titleUserValue: ", titleUserValue)
+            if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']){
+              let sub = titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']
+              subtitle = sub[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+            }
+          }
+        }
+      }
+    }
+
+    if (subtitle){
+      title = title.replace(": " + subtitle).trim()
+    }
+
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 
@@ -4330,6 +4367,7 @@ export const useProfileStore = defineStore('profile', {
 
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:classNumber,
             cutterNumber:cutterNumber,
@@ -4346,6 +4384,7 @@ export const useProfileStore = defineStore('profile', {
           // console.log("RETRUN FA:LSE 2")
           return {
             title: null,
+            subtitle: null,
             titleNonLatin: null,
             classNumber:null,
             cutterNumber:null,
@@ -4372,6 +4411,7 @@ export const useProfileStore = defineStore('profile', {
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
@@ -4387,6 +4427,7 @@ export const useProfileStore = defineStore('profile', {
         } else if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/expressionOf')){
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
