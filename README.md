@@ -55,9 +55,9 @@ Images published to GHCR:
 - `ghcr.io/blue-core-lod/marva:latest`
 - `ghcr.io/blue-core-lod/marva-keycloak-middleware:latest`
 
-Required repository secrets:
-- `MARVA_KEYCLOAK_PATH`
-- `MARVA_BLUECORE_API_PATH`
+Required `GitHub Actions` repository secrets [HERE](https://github.com/blue-core-lod/marva_editor/settings/secrets/actions):
+- `MARVA_KEYCLOAK_PATH` (Assigns production value to `VITE_KEYCLOAK_AUTH_PATH`)
+- `MARVA_BLUECORE_API_PATH`(Assigns production value to `VITE_BLUECORE_API_PATH`)
 
 ### ⚙️ Purpose of `marva-keycloak-middleware`
 
