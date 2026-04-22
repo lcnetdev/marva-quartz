@@ -4134,11 +4134,13 @@ export const useProfileStore = defineStore('profile', {
       let cutterGuid = null
 
       let work = null
+      let inst = null
       let title = null
       let titleNonSort = null
       let firstSubject = null
       let secondSubject = null
       let contributors = []
+      let subtitle = null
 
       let titleNonLatin = null
 
@@ -4288,6 +4290,36 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      // look at the instance to get the subtitle
+      for (let rtId in this.activeProfile.rt){
+        if (rtId.indexOf(":Instance") > -1){
+          inst = this.activeProfile.rt[rtId]
+          if (inst){ break }
+        }
+      }
+
+      if (inst){
+        for (let ptId of inst.ptOrder){
+        let pt = JSON.parse(JSON.stringify(inst.pt[ptId]))
+
+        if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
+          let titleUserValue = pt.userValue
+
+          if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
+            titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+            if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']){
+              let sub = titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']
+              subtitle = sub[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+            }
+          }
+        }
+      }
+    }
+
+    if (subtitle){
+      title = title.replace(": " + subtitle).trim()
+    }
+
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 
@@ -4330,6 +4362,7 @@ export const useProfileStore = defineStore('profile', {
 
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:classNumber,
             cutterNumber:cutterNumber,
@@ -4346,6 +4379,7 @@ export const useProfileStore = defineStore('profile', {
           // console.log("RETRUN FA:LSE 2")
           return {
             title: null,
+            subtitle: null,
             titleNonLatin: null,
             classNumber:null,
             cutterNumber:null,
@@ -4372,6 +4406,7 @@ export const useProfileStore = defineStore('profile', {
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
@@ -4387,6 +4422,7 @@ export const useProfileStore = defineStore('profile', {
         } else if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/expressionOf')){
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
@@ -6271,6 +6307,41 @@ export const useProfileStore = defineStore('profile', {
      * @requires activeProfile - Profile must be loaded with valid RT structure
      */
     nacoStubReturnMainTitle(){
+      let subtitle = ''
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/title"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                ){
+                  // look for the one that is set as latin first, if we can find it
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']){
+                    if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
+                      subtitle = aTitle['http://id.loc.gov/ontologies/bibframe/subtitle']
+                    }
+                  }
+
+                  // otherwise look for the first one that doesn't have a language tag
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']){
+                    if (!aTitle['@language']){
+                      subtitle = aTitle['http://id.loc.gov/ontologies/bibframe/subtitle']
+                    }
+                  }
+
+                  // if we can't find one without a language tag, just return the first one
+                  subtitle = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                }
+            }
+          }
+        }
+      }
+
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
           for (let pt of this.activeProfile.rt[rt].ptOrder){
@@ -6289,6 +6360,12 @@ export const useProfileStore = defineStore('profile', {
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
                       let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                      // remove the subtitle
+                      if (title.includes(subtitle)){
+                        title = title.replace(subtitle, "")
+                        title = title.split(" : ")[0]
+                      }
                       return title
                     }
                   }
@@ -6297,12 +6374,24 @@ export const useProfileStore = defineStore('profile', {
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (!aTitle['@language']){
                       let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                      // remove the subtitle
+                      if (title.includes(subtitle)){
+                        title = title.replace(subtitle, "")
+                        title = title.split(" : ")[0]
+                      }
                       return title
                     }
                   }
 
                   // if we can't find one without a language tag, just return the first one
                   let title = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                  // remove the subtitle
+                  if (title.includes(subtitle)){
+                    title = title.replace(subtitle, "")
+                    title = title.split(" : ")[0]
+                  }
                   return title
                 }
             }
