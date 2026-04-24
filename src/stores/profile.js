@@ -4317,7 +4317,7 @@ export const useProfileStore = defineStore('profile', {
     }
 
     if (subtitle){
-      title = title.replace(": " + subtitle).trim()
+      title = title.replace(": " + subtitle, "").trim()
     }
 
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
