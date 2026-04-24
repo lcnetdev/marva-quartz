@@ -1,6 +1,6 @@
 import {useConfigStore} from "../stores/config";
 import {usePreferenceStore} from "../stores/preference";
-import {resolveBluecoreCbdUrl} from "./utils_bluecore";
+import {applyBluecoreLookupRequest, addBluecoreHeaders} from "./utils_bluecore";
 
 import short from 'short-uuid'
 const translator = short();
@@ -311,7 +311,8 @@ const utilsNetwork = {
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
     fetchSimpleLookup: async function(url, json, signal=null) {
-      url = resolveBluecoreCbdUrl(url || config.profileUrl)
+      const bluecoreRequest = applyBluecoreLookupRequest(url || config.profileUrl)
+      url = bluecoreRequest.url
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
       }
@@ -330,6 +331,7 @@ const utilsNetwork = {
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
       }
+      options = addBluecoreHeaders(options, bluecoreRequest.options)
       // Add auth headers for util-service requests, but not for id.loc.gov / preprod id.loc.gov (except preprod-3001)
       const isIdLocGov = /^https:\/\/(preprod(-(?!3001)\d+)?\.)?id\.loc\.gov/i.test(url)
       if (!isIdLocGov) {
@@ -347,7 +349,7 @@ const utilsNetwork = {
         if (response.status == 404){
           return false
         }
-        if (url.includes('.rdf') || url.includes('.xml') || url.includes('.html')){
+        if (bluecoreRequest.cbd || url.includes('.rdf') || url.includes('.xml') || url.includes('.html')){
           data =  await response.text()
         }else{
           data =  await response.json()
