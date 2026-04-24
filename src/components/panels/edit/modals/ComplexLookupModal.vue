@@ -190,7 +190,7 @@
        *
        * @param classNum - number to add
        */
-      addClassNumber: async function(classNum){
+      addClassNumber: async function(classNum, idx){
         // 2025454279
         let profile = this.activeProfile
 
@@ -246,7 +246,7 @@
         try {
           this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
           // Give user some feedback
-          let button = this.$refs.addClass[0]
+          let button = this.$refs.addClass[idx]
           button.innerText = "check"
         } catch(err) {
           console.error("Couldn't add the class number: ", err)
@@ -1291,10 +1291,10 @@
                           <template v-if="key=='lcclasses'">
                             <span  class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                             <ul class="">
-                              <li class="" v-if="key=='lcclasses'" v-for="v in activeContext.extra['lcclasses']">
+                              <li class="" v-if="key=='lcclasses'" v-for="(v, idx) in activeContext.extra['lcclasses']">
                                   <template v-if="v.assigner">({{ v.assigner }}) </template>
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
-                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code)" ref="addClass">add</button>
+                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code, idx)" ref="addClass">add</button>
                                 <template v-if="v.label">
                                   <span v-if="v.label.split('--').length == 1">
                                     --{{ v.label.split("--").at(-1) }}
@@ -1311,13 +1311,13 @@
                             <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                                 this.labelMap[key] : key }}:</span>
                             <ul class="">
-                                <li class="" v-if="key == 'lcclasss'" v-for="v in activeContext.extra[key]">
+                                <li class="" v-if="key == 'lcclasss'" v-for="(v, idx) in activeContext.extra[key]">
                                     <template v-if="typeof v == 'string'">
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v"
                                             target="_blank">{{ v }}</a>
                                         <button class="material-icons see-search add-class"
                                             ref="addClass"
-                                            @click="addClassNumber(v)">add</button>
+                                            @click="addClassNumber(v, idx)">add</button>
                                     </template>
                                     <template v-else>
                                         {{ v }}
