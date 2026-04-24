@@ -15,3 +15,5 @@ coverage/
 /playwright/.cache/
 /tests-playwright/.auth/
 *.env
+public/profiles.json
+public/rtLookup.json

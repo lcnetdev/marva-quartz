@@ -206,11 +206,6 @@
 
           },
 
-
-
-
-
-
         setVariantLang(){
 
 
@@ -319,11 +314,6 @@
 
 
         },
-
-
-
-
-
 
         onSelectElement (event) {
           const tagName = event.target.tagName
@@ -482,8 +472,6 @@
 
 
         },
-
-
 
         // diacritic intergration
 
@@ -764,10 +752,6 @@
         return preview
         // {{ hubCreator.label }}. {{ hubTitle }}. {{ langsLookup.filter(ll => ll.uri == hubLang)[0].label.replace(/ \(.*\)/, "") }}.
       },
-
-
-
-
     },
 
 

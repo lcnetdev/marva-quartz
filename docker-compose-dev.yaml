@@ -1,0 +1,35 @@
+services:
+  marva-quartz:
+    image: node:23
+    working_dir: /app
+    ports:
+      - "4444:4444"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+      VITE_KEYCLOAK_AUTH_PATH: "http://localhost:8081/keycloak/"
+      VITE_BLUECORE_API_PATH: "http://localhost:3000/api/"
+      VITE_KEYCLOAK_MIDDLEWARE_BASE: "http://localhost:9401/marva/util/"
+    command: sh -lc "npm install && npm run dev-external -- --host"
+    depends_on:
+      - marva-keycloak-middleware
+
+  marva-keycloak-middleware:
+    image: node:23-alpine
+    working_dir: /app
+    extra_hosts:
+      - "keycloak:host-gateway"
+    ports:
+      - "9401:9401"
+    volumes:
+      - .:/app
+    environment:
+      MARVA_MW_PORT: "9401"
+      KEYCLOAK_EXTERNAL_URL: "http://localhost:8081/keycloak"
+      KEYCLOAK_INTERNAL_URL: "http://keycloak:8081/keycloak"
+      MARVA_REDIRECT_BASE: "http://localhost:4444/marva/"
+      CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:4444}"
+      MARVA_UTIL_PATH: "" #TODO: will need to be configured with marva backend for additional Marva features
+    command: sh -lc "node --watch middleware/marva-keycloak-middleware.js"
