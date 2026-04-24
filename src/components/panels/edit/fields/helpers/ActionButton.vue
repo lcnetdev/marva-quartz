@@ -367,6 +367,7 @@
       buildHubStub(){
         // console.log(this.guid)
         let info = this.profileStore.returnLccInfo(this.guid)
+        console.log("info",info)
         this.profileStore.activeHubStubData = info
         this.profileStore.activeHubStubComponent = {
           type: this.type,
