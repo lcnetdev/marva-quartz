@@ -191,6 +191,10 @@
        * @param classNum - number to add
        */
       addClassNumber: async function(classNum, idx){
+        // remove any paranthetical
+        if (classNum.match(/\(.*\)/)){
+          classNum = classNum.replace(/\(.*\)/, "")
+        }
         // 2025454279
         let profile = this.activeProfile
 
