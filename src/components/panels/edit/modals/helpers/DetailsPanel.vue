@@ -154,14 +154,14 @@
                             <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                                 this.labelMap[key] : key }}:</span>
                             <ul class="">
-                                <li class="" v-if="key == 'lcclasses'" v-for="v in contextData['lcclasses']">
+                                <li class="" v-if="key == 'lcclasses'" v-for="(v, idx) in contextData['lcclasses']">
                                     <template v-if="typeof v != 'string'">
                                         ({{ v.assigner }})
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v.code"
                                             target="_blank">{{ v.code }}</a>
                                         <button class="material-icons see-search"
                                             ref="addClass"
-                                            @click="addClassNumber(v.code)">add</button>
+                                            @click="addClassNumber(v.code, idx)">add</button>
                                     </template>
                                     <template v-else>
                                         {{ v }}
@@ -363,8 +363,8 @@ export default {
         newSearch: function (term) {
             this.$emit('newSearch', term)
         },
-        addClassNumber: function (code) {
-            let button = this.$refs.addClass[0]
+        addClassNumber: function (code, idx) {
+            let button = this.$refs.addClass[idx]
             button.innerText = "check"
 
             this.$emit('addClassNumber', code)
