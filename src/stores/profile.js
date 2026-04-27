@@ -632,6 +632,31 @@ export const useProfileStore = defineStore('profile', {
           } catch (err) {
             console.error('Error fetching dancer workspace list:', err)
           }
+        }else{
+          try {
+            let wsResponse = await fetch(config.returnUrls.dancerWorkspaceList)
+            let wsData = await wsResponse.json()
+            console.log("wsData",wsData)
+            let defaultWs
+            // if we are stage try to find stage
+            if (config.returnUrls.env === 'staging') {
+              defaultWs = wsData.data.find(ws => ws.name === 'marva-stage')
+            } 
+            if (config.returnUrls.env === 'production') {
+              defaultWs = wsData.data.find(ws => ws.name === 'marva-prod')
+            } 
+
+            if (defaultWs) {
+                let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
+                profilesURL = dancerBaseUrl + defaultWs.id + '/profile'
+                startingURL = dancerBaseUrl + defaultWs.id + '/starting-points'
+            }
+          } catch (err) {
+            console.error('Error fetching dancer workspace list:', err)
+          }
+
+
+
         }
       }
 

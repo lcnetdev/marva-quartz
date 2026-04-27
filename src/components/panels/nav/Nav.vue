@@ -882,23 +882,35 @@ export default {
         }
 
         // Add Legacy Profiles option at the bottom
-        if (!config.returnUrls.isBibframeDotOrg) {
-          dancerMenuItems.push({
-            text: 'Legacy Profiles',
-            icon: !currentWorkspace ? 'check' : '',
-            click: () => {
-              window.localStorage.removeItem('marva-dancerWorkspace')
-              window.location.reload()
-            }
-          })
-        }
+        // We dont add the legacy profiles anymore after a period of transition
+        // if (!config.returnUrls.isBibframeDotOrg) {
+        //   dancerMenuItems.push({
+        //     text: 'Legacy Profiles',
+        //     icon: !currentWorkspace ? 'check' : '',
+        //     click: () => {
+        //       window.localStorage.removeItem('marva-dancerWorkspace')
+        //       window.location.reload()
+        //     }
+        //   })
+        // }
 
         // Find the current workspace name
-        let currentWorkspaceName = 'Legacy'
+        let currentWorkspaceName = ''
+        // if we are in staging try to find the staging workspace name and set it
+        if (config.returnUrls.env === 'staging') {
+          currentWorkspaceName = 'marva-stage'
+        } 
+        if (config.returnUrls.isBibframeDotOrg){
+          currentWorkspaceName = 'marva-prod'
+        }
+
+        // if it stored in the local storage find it by name
         const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
         if (selectedWorkspace) {
           currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
         }
+
+
 
         menu.push({
           text: 'DCTap: ' + currentWorkspaceName,
