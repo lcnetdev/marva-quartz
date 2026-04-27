@@ -651,6 +651,14 @@ export const useProfileStore = defineStore('profile', {
                 profilesURL = dancerBaseUrl + defaultWs.id + '/profile'
                 startingURL = dancerBaseUrl + defaultWs.id + '/starting-points'
             }
+
+            if (config.returnUrls.externalDev) {
+                profilesURL = config.returnUrls.profiles
+                startingURL = config.returnUrls.starting
+
+            }
+
+
           } catch (err) {
             console.error('Error fetching dancer workspace list:', err)
           }
