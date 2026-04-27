@@ -4316,7 +4316,7 @@ export const useProfileStore = defineStore('profile', {
       }
     }
 
-    if (subtitle){
+    if (subtitle && title){
       title = title.replace(": " + subtitle, "").trim()
     }
 
