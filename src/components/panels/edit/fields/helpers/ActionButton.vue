@@ -898,7 +898,6 @@
        * @param variant = Create a varianet title
        */
       sendToOtherProfile: async function(target=null, variant=false){
-        console.info("sendTo: ", target, variant)
         const Rts = Object.keys(this.profileStore.activeProfile.rt)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
         this.currentRt = thisRt
