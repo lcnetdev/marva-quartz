@@ -7830,9 +7830,13 @@ export const useProfileStore = defineStore('profile', {
                       {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
                     ]
 
-                    console.log("Found LCC data:",this.activeShelfListData)
-                    console.log(JSON.stringify(pt,null,2))
+                    // console.log("Found LCC data:",this.activeShelfListData)
+                    // console.log(JSON.stringify(pt,null,2))
                     foundLCC = true
+
+                    // this is what we want,break here to prevent hitting the second lcc if the recrd has two
+                    break
+
                   }else{
                     // not LCC
                     // continue
@@ -7870,7 +7874,7 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
+      console.log("Final activeShelfListData:",this.activeShelfListData)
 
     },
 
