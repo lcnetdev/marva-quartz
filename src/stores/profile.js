@@ -5963,10 +5963,6 @@ export const useProfileStore = defineStore('profile', {
      * @param {String} incomingTargetRt - RT it's going to
      */
     parseActiveInsert: async function(newComponent, sourceRt=null, incomingTargetRt=null){
-      console.info("parseActiveInsert")
-      console.info("\t newComponent: ", newComponent)
-      console.info("\t sourceRt: ", sourceRt)
-      console.info("\t incomingTargetRt: ", incomingTargetRt)
       this.changeGuid(newComponent)
       let profile = this.activeProfile
 

@@ -958,6 +958,7 @@
         //This works when there is only 1 of each
         let oldRt = thisRt
         let newRt
+        let sTitle = false // subtitle taken from work main title after ` : `
 
         if (Rts.length == 2){
           newRt = Rts.filter((rt) => rt != thisRt)
@@ -985,7 +986,8 @@
           this.displayInstanceSelectionModal = true
           return
         }
-        if (!Array.isArray(newRt)){
+
+        if (!Array.isArray(newRt)){ // when does this happen?
 
           activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
           activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
@@ -997,10 +999,11 @@
           if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
             let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
             if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
-              delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
               // add subTitle to mainTitle
               let mTitle = title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
               title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle + " : " + subTitle
+
+              delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
             }
           }
 
@@ -1022,6 +1025,19 @@
 
           //do the main change
           if (!subTitleCheck){
+            let userValue = activeStructure.userValue
+            if (sTitle){
+              // Add the Work subtitle to the instance's "Other title information"
+              activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"] = [
+                {
+                  "@guid": short.generate(),
+                  "http://id.loc.gov/ontologies/bibframe/subtitle": sTitle
+                }
+              ]
+              // Remove subtitle from mainTitle for instance titles
+              let mTitle = activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+              activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle.replace(" : " + sTitle, "")
+            }
             this.profileStore.parseActiveInsert(activeStructure, thisRt)
           }
         } else {
@@ -1036,10 +1052,18 @@
             if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
               let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
               if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
-                delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
                 // add subTitle to mainTitle
                 let mTitle = title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
                 title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle + " : " + subTitle
+
+                delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+              }
+            } else { // check if the work title has a subtitle
+              let mTitle = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+              if (mTitle.includes(" : ")){
+                let titleParts = mTitle.split(" : ")
+                mTitle = titleParts[0]
+                sTitle = titleParts[1]
               }
             }
 
@@ -1098,6 +1122,20 @@
 
             //do the main change
             if (!subTitleCheck){
+              let userValue = activeStructure.userValue
+              if (sTitle){
+                // Add the Work subtitle to the instance's "Other title information"
+                activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"] = [
+                  {
+                    "@guid": short.generate(),
+                    "http://id.loc.gov/ontologies/bibframe/subtitle": sTitle
+                  }
+                ]
+                // Remove subtitle from mainTitle for instance titles
+                let mTitle = activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+                activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle.replace(" : " + sTitle, "")
+              }
+
               this.profileStore.parseActiveInsert(activeStructure, thisRt)
             }
           }
