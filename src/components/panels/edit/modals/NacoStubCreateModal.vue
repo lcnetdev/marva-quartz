@@ -748,6 +748,15 @@
               this.zero46 = {}
             }
 
+            if (Object.keys(this.zero46).length > 0){
+              this.rebuild046()
+            }else{
+              
+              // not really nessary 
+
+
+            }
+
             if (dollarKey.a){
               // Check for compound last names: hyphenated ("Jacobsen-Smith, Alejandro") or spaced ("Jacobsen Smith, Alejandro")
               let isHyphenated = /[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)
@@ -1316,6 +1325,20 @@
             this.checkFourXX()
           }
 
+          this.rebuild046()
+
+
+
+
+          window.setTimeout(()=>{
+            event.target.value = 'home'
+          },500)
+
+        },
+
+
+        rebuild046(){
+
           // rebuild 046 if $d is present
           if (this.oneXX.includes("$d")){
             let tmp046 = this.build046()
@@ -1350,12 +1373,6 @@
             }
           }
 
-
-
-
-          window.setTimeout(()=>{
-            event.target.value = 'home'
-          },500)
 
         },
 
