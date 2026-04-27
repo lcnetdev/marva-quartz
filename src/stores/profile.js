@@ -6070,7 +6070,7 @@ export const useProfileStore = defineStore('profile', {
               if (!key.startsWith("@")){
                   let result = false
                   try{
-                    if (userValue[key].length == 0){ return }
+                    if (userValue[key].length == 0){ return true }
                     // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
                     //  has an populate electronicLocator
                     if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
