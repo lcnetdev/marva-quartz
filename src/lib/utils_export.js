@@ -1051,8 +1051,6 @@ const utilsExport = {
 
 
 											}else{
-												console.info("userValue: ", userValue)
-												console.info("value1: ", value1)
 												console.error('key2', key2, value1[key2], 'not a literal, should not happen')
 												xmlLog.push(`Key 2 (${key2}) error, not a literal ${value1[key2]}`)
 
