@@ -842,10 +842,10 @@
         // let lccn = this.profileStore.returnLccInfo(this.guid)
         // this.profileStore.insertMLCNumber(this.guid, lccn)
 
-        
+
 
         let newGuid = await this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
-        
+
         let dataGuid = await this.profileStore.insertMLCNumber(newGuid)
         this.sendFocusHome()
 
@@ -898,6 +898,7 @@
        * @param variant = Create a varianet title
        */
       sendToOtherProfile: async function(target=null, variant=false){
+        console.info("sendTo: ", target, variant)
         const Rts = Object.keys(this.profileStore.activeProfile.rt)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
         this.currentRt = thisRt
@@ -991,12 +992,15 @@
 
           this.profileStore.changeGuid(activeStructure)
 
-          //Moving Instance -> Work, cut out bf:subtitle
+          //Moving Instance -> Work, cut out bf:subtitle, but add it to the title
           let userValue = activeStructure.userValue
           if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
             let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
             if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
               delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+              // add subTitle to mainTitle
+              let mTitle = title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+              title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle + " : " + subTitle
             }
           }
 
@@ -1033,6 +1037,9 @@
               let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
               if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
                 delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+                // add subTitle to mainTitle
+                let mTitle = title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+                title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle + " : " + subTitle
               }
             }
 
