@@ -5429,6 +5429,7 @@ export const useProfileStore = defineStore('profile', {
     prepareForNewRecord:  function(){
 
       this.activeProfile = {}
+      this.linkedData = {}
 
     },
 
@@ -6996,6 +6997,83 @@ export const useProfileStore = defineStore('profile', {
       console.log('Top-level marcKey:', marcKey)
       console.log('Components:', JSON.parse(JSON.stringify(components || [])))
       console.log('Built userValue:', JSON.parse(JSON.stringify(targetPt.userValue)))
+
+      targetPt.hasData = true
+      targetPt.userModified = true
+      targetPt.dataLoaded = false
+
+      this.dataChanged()
+    },
+
+    yoshinoInsertClassification: async function(classification) {
+      let activeProfile = this.activeProfile
+      let workRt = null
+      let emptyPt = null
+      let lastPt = null
+
+      for (let rt of activeProfile.rtOrder) {
+        if (rt.indexOf(':Work') > -1) {
+          workRt = rt
+          break
+        }
+      }
+      if (!workRt) return
+
+      for (let ptId of activeProfile.rt[workRt].ptOrder) {
+        let pt = activeProfile.rt[workRt].pt[ptId]
+        if (pt && pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/classification' && !pt.deleted) {
+          lastPt = pt
+          let uv = pt.userValue
+          if (!pt.hasData || !uv ||
+              !uv['http://id.loc.gov/ontologies/bibframe/classification'] ||
+              uv['http://id.loc.gov/ontologies/bibframe/classification'].length === 0 ||
+              !uv['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type']) {
+            emptyPt = pt
+          }
+        }
+      }
+
+      let targetPt = emptyPt
+      if (!targetPt && lastPt) {
+        let newGuid = await this.duplicateComponent(lastPt['@guid'], this.returnStructureByGUID(lastPt['@guid']))
+        if (newGuid) {
+          targetPt = this.returnStructureByGUID(newGuid)
+        }
+      }
+      if (!targetPt) return
+
+      let classValue = {
+        '@guid': translator.new(),
+        '@type': classification.type,
+        'http://id.loc.gov/ontologies/bibframe/classificationPortion': [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bibframe/classificationPortion': classification.portion
+        }]
+      }
+
+      if (classification.sourceCode) {
+        classValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          'http://id.loc.gov/ontologies/bibframe/code': [{
+            '@guid': translator.new(),
+            'http://id.loc.gov/ontologies/bibframe/code': classification.sourceCode
+          }]
+        }]
+      }
+
+      if (classification.edition) {
+        classValue['http://id.loc.gov/ontologies/bibframe/edition'] = [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bibframe/edition': classification.edition
+        }]
+      }
+
+      targetPt.userValue = {
+        '@guid': targetPt.userValue?.['@guid'] || translator.new(),
+        '@root': 'http://id.loc.gov/ontologies/bibframe/classification',
+        'http://id.loc.gov/ontologies/bibframe/classification': [classValue]
+      }
 
       targetPt.hasData = true
       targetPt.userModified = true

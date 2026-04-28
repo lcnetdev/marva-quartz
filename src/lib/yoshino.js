@@ -212,14 +212,42 @@ function yoshinoParseRdf(xmlText) {
     subjects.push(subjectData)
   }
 
-  // Extract LCC classifications
+  // Extract classifications (LCC, DDC, NLM, NAL, Other)
+  const classTypes = ['ClassificationLcc', 'ClassificationDdc', 'ClassificationNlm', 'ClassificationNal', 'ClassificationOther', 'Classification']
   for (const classEl of Array.from(work.getElementsByTagNameNS(NS.bf, 'classification'))) {
-    const lccEls = Array.from(classEl.getElementsByTagNameNS(NS.bf, 'ClassificationLcc'))
-    if (!lccEls.length) continue
-    const portionEl = lccEls[0].getElementsByTagNameNS(NS.bf, 'classificationPortion')
+    let inner = null
+    let typeLocal = null
+    for (const t of classTypes) {
+      const els = Array.from(classEl.getElementsByTagNameNS(NS.bf, t))
+      if (els.length) {
+        inner = els[0]
+        typeLocal = t
+        break
+      }
+    }
+    if (!inner) continue
+    const portionEl = inner.getElementsByTagNameNS(NS.bf, 'classificationPortion')
     if (!portionEl.length || !portionEl[0].textContent) continue
     const portion = portionEl[0].textContent.trim()
-    classifications.push({ portion, xml: new XMLSerializer().serializeToString(classEl) })
+
+    let sourceCode = null
+    const sourceEls = Array.from(inner.getElementsByTagNameNS(NS.bf, 'Source'))
+    if (sourceEls.length) {
+      const codeEl = sourceEls[0].getElementsByTagNameNS(NS.bf, 'code')[0]
+      if (codeEl?.textContent) sourceCode = codeEl.textContent.trim()
+    }
+
+    let edition = null
+    const editionEl = inner.getElementsByTagNameNS(NS.bf, 'edition')[0]
+    if (editionEl?.textContent) edition = editionEl.textContent.trim()
+
+    classifications.push({
+      portion,
+      type: 'http://id.loc.gov/ontologies/bibframe/' + typeLocal,
+      sourceCode,
+      edition,
+      xml: new XMLSerializer().serializeToString(classEl),
+    })
   }
 
   return { subjects, classifications }
@@ -452,6 +480,10 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
   const subjectUriMap = {}
   const subjectMarcKeyMap = {}
   const subjectUncontrolledMap = {}
+  const classifications = []
+  const classificationSeen = new Set()
+  const classificationSourceMap = {}
+  const classificationCounts = {}
 
   for (const { id, xml } of rdfResults) {
     if (!xml) continue
@@ -468,6 +500,14 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
         if (s.uncontrolled) subjectUncontrolledMap[s.label] = true
         subjectSourceMap[s.label] = id
       }
+    }
+    for (const c of parsed.classifications) {
+      const key = c.type + '|' + c.portion + '|' + (c.sourceCode || '') + '|' + (c.edition || '')
+      classificationCounts[key] = (classificationCounts[key] || 0) + 1
+      if (classificationSeen.has(key)) continue
+      classificationSeen.add(key)
+      classifications.push({ ...c, key })
+      classificationSourceMap[key] = id
     }
   }
 
@@ -503,6 +543,9 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
     subjectUriMap,
     subjectMarcKeyMap,
     subjectUncontrolledMap,
+    classifications,
+    classificationSourceMap,
+    classificationCounts,
   }
 }
 

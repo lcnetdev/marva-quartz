@@ -15,7 +15,7 @@
             @dragging="dragResize"
             :sticks="['br']"
             :stickSize="22"
-            style="background-color: whitesmoke"
+            style="background-color: whitesmoke; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);"
             >
 
             <div class="yoshino-modal" ref="yoshinoContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
@@ -91,7 +91,11 @@
                     </div>
 
                     <div v-if="results && !loading" class="yoshino-results">
-                        <div class="yoshino-results-columns">
+                        <div class="yoshino-tabs">
+                            <button :class="{'yoshino-tab': true, 'yoshino-tab-active': resultsTab === 'subjects'}" @click="resultsTab = 'subjects'">Subjects</button>
+                            <button :class="{'yoshino-tab': true, 'yoshino-tab-active': resultsTab === 'classifications'}" @click="resultsTab = 'classifications'">Classifications<span v-if="results.classifications && results.classifications.length" class="yoshino-tab-count">{{ results.classifications.length }}</span></button>
+                        </div>
+                        <div v-if="resultsTab === 'subjects'" class="yoshino-results-columns">
                             <div class="yoshino-recommended">
                                 <h2>Recommended Subjects</h2>
                                 <div v-if="results.recommended.length === 0" class="yoshino-empty">No recommended subjects found.</div>
@@ -141,6 +145,32 @@
                                     </li>
                                 </ul>
                             </div>
+                        </div>
+
+                        <div v-if="resultsTab === 'classifications'" class="yoshino-classifications">
+                            <div v-if="!sortedClassifications.length" class="yoshino-empty">No classifications found.</div>
+                            <ul v-else>
+                                <li v-for="(c, idx) in sortedClassifications" :key="'cls-'+idx"
+                                    :class="{'yoshino-inserted': insertedClassifications.has(c.key)}">
+                                    <div class="yoshino-subject-row">
+                                        <div class="yoshino-subject-info">
+                                            <span class="yoshino-classification-type">{{ classificationLabel(c.type) }}<span v-if="c.edition"> ({{ c.edition }})</span></span>
+                                            <span class="yoshino-subject-label">{{ c.portion }}</span>
+                                            <a v-if="results.classificationSourceMap && results.classificationSourceMap[c.key]"
+                                               :href="'https://preprod.id.loc.gov/resources/works/' + results.classificationSourceMap[c.key]"
+                                               target="_blank"
+                                               class="yoshino-lccn-link">source</a>
+                                            <span v-if="results.classificationCounts && results.classificationCounts[c.key] > 1"
+                                                  class="yoshino-usage-badge"
+                                                  :title="'Used on ' + results.classificationCounts[c.key] + ' of the retrieved similar records'">{{ results.classificationCounts[c.key] }}×</span>
+                                        </div>
+                                        <button v-if="!insertedClassifications.has(c.key)"
+                                                @click="insertClassification(c)"
+                                                class="yoshino-insert-btn">Insert</button>
+                                        <span v-else class="yoshino-inserted-label">Inserted</span>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
 
                         <div class="yoshino-actions">
@@ -381,6 +411,63 @@
         padding: 1px 5px;
     }
 
+    .yoshino-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .yoshino-tab {
+        background: #eee;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        padding: 4px 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+    .yoshino-tab-active {
+        background: white;
+        font-weight: bold;
+    }
+
+    .yoshino-tab-count {
+        margin-left: 6px;
+        font-size: 0.75rem;
+        color: #666;
+        background: #ddd;
+        border-radius: 8px;
+        padding: 0 6px;
+    }
+
+    .yoshino-classifications {
+        flex: 1;
+        overflow-y: auto;
+        background: white;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        padding: 8px;
+    }
+
+    .yoshino-classifications ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .yoshino-classification-type {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: bold;
+        background: #1976d2;
+        color: white;
+        border-radius: 3px;
+        padding: 1px 6px;
+        margin-right: 6px;
+    }
+
     .yoshino-insert-btn {
         background-color: #1976d2;
         color: white;
@@ -474,6 +561,8 @@
             statusMessage: '',
             subjectUsageCounts: {},
             enrichmentRunId: 0,
+            resultsTab: 'subjects',
+            insertedClassifications: new Set(),
         }
     },
 
@@ -544,6 +633,24 @@
             if (!this.results || !this.results.otherSubjects) return []
             return [...this.results.otherSubjects].sort((a, b) => a.localeCompare(b))
         },
+
+        sortedClassifications() {
+            if (!this.results || !this.results.classifications) return []
+            const order = {
+                'http://id.loc.gov/ontologies/bibframe/ClassificationLcc': 1,
+                'http://id.loc.gov/ontologies/bibframe/ClassificationDdc': 2,
+                'http://id.loc.gov/ontologies/bibframe/ClassificationNlm': 3,
+                'http://id.loc.gov/ontologies/bibframe/ClassificationNal': 4,
+                'http://id.loc.gov/ontologies/bibframe/ClassificationOther': 5,
+                'http://id.loc.gov/ontologies/bibframe/Classification': 6,
+            }
+            return [...this.results.classifications].sort((a, b) => {
+                const oa = order[a.type] || 99
+                const ob = order[b.type] || 99
+                if (oa !== ob) return oa - ob
+                return a.portion.localeCompare(b.portion)
+            })
+        },
     },
 
     methods: {
@@ -570,8 +677,10 @@
             this.topK = 10
             this.results = null
             this.insertedSubjects = new Set()
+            this.insertedClassifications = new Set()
             this.subjectUsageCounts = {}
             this.enrichmentRunId++
+            this.resultsTab = 'subjects'
             this.statusMessage = ''
             this.extractProfileData()
         },
@@ -595,8 +704,10 @@
             this.noSubjectsFound = false
             this.results = null
             this.insertedSubjects = new Set()
+            this.insertedClassifications = new Set()
             this.subjectUsageCounts = {}
             this.enrichmentRunId++
+            this.resultsTab = 'subjects'
 
             this.profileStore.logEvent('SUBJECT_FINDER_START')
             try {
@@ -690,6 +801,24 @@
             this.insertedSubjects = new Set(this.insertedSubjects)
         },
 
+        classificationLabel(type) {
+            switch (type) {
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc': return 'LCC'
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationDdc': return 'DDC'
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationNlm': return 'NLM'
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationNal': return 'NAL'
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationOther': return 'Other'
+                default: return 'Class'
+            }
+        },
+
+        insertClassification: function(c) {
+            this.profileStore.yoshinoInsertClassification(c)
+            this.profileStore.logEvent('SUBJECT_FINDER_INSERT_CLASSIFICATION', { metadata: [c.portion] })
+            this.insertedClassifications.add(c.key)
+            this.insertedClassifications = new Set(this.insertedClassifications)
+        },
+
         onSelectElement(event) {
             const tagName = event.target.tagName
             if (tagName === 'INPUT' || tagName === 'TD' || tagName === 'BUTTON' || tagName === 'TEXTAREA' || tagName === 'SELECT' || tagName === 'A') {
@@ -699,6 +828,16 @@
     },
 
     mounted: function() {
+        this.results = null
+        this.insertedSubjects = new Set()
+        this.insertedClassifications = new Set()
+        this.subjectUsageCounts = {}
+        this.enrichmentRunId++
+        this.topK = 10
+        this.error = null
+        this.noSubjectsFound = false
+        this.statusMessage = ''
+        this.resultsTab = 'subjects'
         this.extractProfileData()
     },
   };
