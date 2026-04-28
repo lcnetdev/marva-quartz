@@ -146,10 +146,10 @@
           this.failedSellers[site] = true
         }
 
-        window.setInterval(() => {
-            console.log("profileStore.linkedData", this.profileStore.linkedData)  
+        // window.setInterval(() => {
+        //     console.log("profileStore.linkedData", this.profileStore.linkedData)  
 
-          }, 1000)
+        //   }, 1000)
       },
 
       addBooksellerItem(site, sectionKey, value){
