@@ -8098,6 +8098,7 @@ export const useProfileStore = defineStore('profile', {
       console.log("linkedData",linkedData)
       this.linkedData = linkedData
       this.linkedData.done = true
+      this.linkedData.eId = this.activeProfile && this.activeProfile.eId
 
     },
 

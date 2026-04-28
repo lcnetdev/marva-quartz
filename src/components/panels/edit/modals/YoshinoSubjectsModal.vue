@@ -33,17 +33,17 @@
                             <label>Title:</label>
                             <span class="yoshino-value">{{ title || '(not found)' }}</span>
                         </div>
-                        <div class="yoshino-field">
+                        <div class="yoshino-field" :class="{'yoshino-disabled': useUserDescription}">
                             <label>Summary:</label>
                             <div v-if="summaryAlternatives.length > 0" class="yoshino-radio-group">
                                 <label class="yoshino-radio-option">
-                                    <input type="radio" name="summary-source" value="record" v-model="summarySource" @change="summary = recordSummary">
+                                    <input type="radio" name="summary-source" value="record" v-model="summarySource" @change="summary = recordSummary" :disabled="useUserDescription">
                                     <span class="yoshino-radio-source">Record</span>
                                     <span class="yoshino-radio-text">{{ recordSummary ? (recordSummary.length > 200 ? recordSummary.substring(0, 200) + '...' : recordSummary) : '(not found)' }}</span>
                                     <span v-if="recordSummary" class="yoshino-word-count">({{ recordSummary.split(/\s+/).length }} words)</span>
                                 </label>
                                 <label v-for="(alt, idx) in summaryAlternatives" :key="'sum-alt-'+idx" class="yoshino-radio-option">
-                                    <input type="radio" name="summary-source" :value="'alt-sum-'+idx" v-model="summarySource" @change="summary = alt.value">
+                                    <input type="radio" name="summary-source" :value="'alt-sum-'+idx" v-model="summarySource" @change="summary = alt.value" :disabled="useUserDescription">
                                     <span class="yoshino-radio-source">{{ alt.label }}</span>
                                     <span class="yoshino-radio-text">{{ alt.value.length > 200 ? alt.value.substring(0, 200) + '...' : alt.value }}</span>
                                     <span class="yoshino-word-count">({{ alt.value.split(/\s+/).length }} words)</span>
@@ -55,23 +55,30 @@
                             <label>Creator:</label>
                             <span class="yoshino-value">{{ creator || '(not found)' }}</span>
                         </div>
-                        <div class="yoshino-field">
+                        <div class="yoshino-field" :class="{'yoshino-disabled': useUserDescription}">
                             <label>Contents:</label>
                             <div v-if="contentsAlternatives.length > 0" class="yoshino-radio-group">
                                 <label class="yoshino-radio-option">
-                                    <input type="radio" name="contents-source" value="record" v-model="contentsSource" @change="contents = recordContents">
+                                    <input type="radio" name="contents-source" value="record" v-model="contentsSource" @change="contents = recordContents" :disabled="useUserDescription">
                                     <span class="yoshino-radio-source">Record</span>
                                     <span class="yoshino-radio-text">{{ recordContents ? (recordContents.length > 200 ? recordContents.substring(0, 200) + '...' : recordContents) : '(not found)' }}</span>
                                     <span v-if="recordContents" class="yoshino-word-count">({{ recordContents.split(/\s+/).length }} words)</span>
                                 </label>
                                 <label v-for="(alt, idx) in contentsAlternatives" :key="'toc-alt-'+idx" class="yoshino-radio-option">
-                                    <input type="radio" name="contents-source" :value="'alt-toc-'+idx" v-model="contentsSource" @change="contents = alt.value">
+                                    <input type="radio" name="contents-source" :value="'alt-toc-'+idx" v-model="contentsSource" @change="contents = alt.value" :disabled="useUserDescription">
                                     <span class="yoshino-radio-source">{{ alt.label }}</span>
                                     <span class="yoshino-radio-text">{{ alt.value.length > 200 ? alt.value.substring(0, 200) + '...' : alt.value }}</span>
                                     <span class="yoshino-word-count">({{ alt.value.split(/\s+/).length }} words)</span>
                                 </label>
                             </div>
                             <span v-else class="yoshino-value">{{ contents ? (contents.length > 200 ? contents.substring(0, 200) + '...' : contents) : '(not found)' }}</span>
+                        </div>
+                        <div class="yoshino-field">
+                            <label>Or describe:</label>
+                            <textarea v-model="userDescription"
+                                      class="yoshino-user-description"
+                                      rows="3"
+                                      placeholder="Optional. Type a description of the work to use instead of Summary/Contents."></textarea>
                         </div>
                         <div style="margin-top: 12px">
                             <button @click="runClassify()" :disabled="!title">Get Subject Recommendations</button>
@@ -457,6 +464,23 @@
         margin: 0;
     }
 
+    .yoshino-disabled {
+        opacity: 0.45;
+        pointer-events: none;
+    }
+
+    .yoshino-user-description {
+        width: 100%;
+        max-width: 700px;
+        font-size: 0.85rem;
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
     .yoshino-classification-type {
         display: inline-block;
         font-size: 0.7rem;
@@ -563,6 +587,7 @@
             enrichmentRunId: 0,
             resultsTab: 'subjects',
             insertedClassifications: new Set(),
+            userDescription: '',
         }
     },
 
@@ -634,6 +659,10 @@
             return [...this.results.otherSubjects].sort((a, b) => a.localeCompare(b))
         },
 
+        useUserDescription() {
+            return !!(this.userDescription && this.userDescription.trim())
+        },
+
         sortedClassifications() {
             if (!this.results || !this.results.classifications) return []
             const order = {
@@ -682,6 +711,7 @@
             this.enrichmentRunId++
             this.resultsTab = 'subjects'
             this.statusMessage = ''
+            this.userDescription = ''
             this.extractProfileData()
         },
 
@@ -711,13 +741,15 @@
 
             this.profileStore.logEvent('SUBJECT_FINDER_START')
             try {
+                const usingUserDesc = this.useUserDescription
                 this.results = await yoshinoClassify(
                     this.title,
-                    this.summary || '',
+                    usingUserDesc ? '' : (this.summary || ''),
                     this.creator || '',
                     (msg) => { this.statusMessage = msg },
                     this.topK,
-                    this.contents || ''
+                    usingUserDesc ? '' : (this.contents || ''),
+                    usingUserDesc ? this.userDescription.trim() : ''
                 )
                 console.log("Classification results:", this.results)
                 this.enrichRecommendedUsage(this.results, this.enrichmentRunId)
@@ -838,6 +870,14 @@
         this.noSubjectsFound = false
         this.statusMessage = ''
         this.resultsTab = 'subjects'
+        this.userDescription = ''
+        const ldStaleForActiveProfile = this.linkedData &&
+            this.linkedData.eId !== undefined &&
+            this.activeProfile &&
+            this.linkedData.eId !== this.activeProfile.eId
+        if (ldStaleForActiveProfile) {
+            this.profileStore.linkedData = {}
+        }
         this.extractProfileData()
     },
   };

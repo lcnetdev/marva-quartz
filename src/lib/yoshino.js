@@ -406,7 +406,7 @@ function yoshinoExtractContents(activeProfile) {
  * @param {function} onStatus - Callback for status updates: onStatus(message)
  * @returns {object} { recommended, allSubjects, subjectSources, subjectSourceMap, enrichResult }
  */
-async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}, topK = 10, content = '') {
+async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}, topK = 10, content = '', userDescription = '') {
   // Step 1: Vector search
   onStatus('Searching for similar records...')
 
@@ -423,6 +423,7 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
       ids_only: true,
     }
     if (workingContent) classifyBody.content = workingContent
+    if (userDescription) classifyBody.user_description = userDescription
 
     classifyRes = await fetch(LAMBDA_URL, {
       method: 'POST',
