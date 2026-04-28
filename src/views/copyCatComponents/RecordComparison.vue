@@ -122,12 +122,12 @@ export default {
 
 <style scoped>
 .comp-container-outer {
-    height: 90dvh;
+    height: 80dvh;
 }
 
 .marc {
     /* float: right; */
-    width: 90%;
+    width: 97%;
     height: 100%;
     overflow-y: scroll;
 }
@@ -143,7 +143,8 @@ export default {
     overflow-y: hidden;
     overflow: scroll;
     position: fixed;
-    height: fit-content;
+    /* height: fit-content; */
+    height: 75dvh;
 
     margin-top: 5px;
     margin-left: 1%;
