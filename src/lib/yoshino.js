@@ -381,21 +381,52 @@ function yoshinoExtractContents(activeProfile) {
 async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}, topK = 10, content = '') {
   // Step 1: Vector search
   onStatus('Searching for similar records...')
-  let classifyBody = {
-    action: 'classify',
-    title,
-    summary,
-    creator,
-    top_k: topK,
-    ids_only: true,
-  }
-  if (content) classifyBody.content = content
 
-  const classifyRes = await fetch(LAMBDA_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(classifyBody),
-  }).then(r => r.json())
+  let workingSummary = summary
+  let workingContent = content
+  let classifyRes
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let classifyBody = {
+      action: 'classify',
+      title,
+      summary: workingSummary,
+      creator,
+      top_k: topK,
+      ids_only: true,
+    }
+    if (workingContent) classifyBody.content = workingContent
+
+    classifyRes = await fetch(LAMBDA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(classifyBody),
+    }).then(r => r.json())
+
+    if (classifyRes && classifyRes.search_results) break
+
+    const errMsg = classifyRes && (classifyRes.error || classifyRes.message || '')
+    const tokenMatch = typeof errMsg === 'string' && errMsg.match(/Max input tokens:\s*(\d+).*?request input token count:\s*(\d+)/i)
+    if (tokenMatch) {
+      const maxTokens = parseInt(tokenMatch[1], 10)
+      const requestTokens = parseInt(tokenMatch[2], 10)
+      // ~10% safety margin under the cap
+      const ratio = (maxTokens * 0.9) / requestTokens
+      onStatus('Input too long, truncating and retrying...')
+      const truncate = (s) => {
+        if (!s) return s
+        const targetLen = Math.max(200, Math.floor(s.length * ratio))
+        return s.length > targetLen ? s.substring(0, targetLen) : s
+      }
+      workingSummary = truncate(workingSummary)
+      workingContent = truncate(workingContent)
+      continue
+    }
+    throw new Error(errMsg || 'Vector search failed.')
+  }
+
+  if (!classifyRes || !classifyRes.search_results) {
+    throw new Error((classifyRes && (classifyRes.error || classifyRes.message)) || 'Vector search failed.')
+  }
 
   const ids = classifyRes.search_results
     .map(r => r.metadata?.['001'] || r.lc_001)
