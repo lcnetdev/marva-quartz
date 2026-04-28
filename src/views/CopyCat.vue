@@ -339,23 +339,17 @@ export default {
         this.existingMarc = this.htmlify(this.existingMarc)
       }
 
-      console.info("existing: ", this.existingMarc)
       this.displayCompModal = true
     },
     callbackCreate: function(){
-      console.info("callbackCreate")
       this.continueWithLoad = true
       this.displayCompModal = false
-
-
       this.loadCopyCat(this.targetProfile)
     },
 
     callbackCancel: function(){
-      console.info("cancelCopyCat")
       this.continueWithLoad = false
       this.displayCompModal = false
-
       return
     },
 
@@ -671,11 +665,7 @@ export default {
     },
 
     htmlify: function(marcBlob){
-      console.info("marcBlob: ", marcBlob)
-
       let formattedMarcRecord = ["<div class='marc record'>"];
-
-
       for (let [idx, line] of marcBlob.split("\n").entries()){
         if (idx == 0){
           let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
@@ -686,12 +676,10 @@ export default {
           let indicators = null;
           let subfields = [];               // subfields
           let subfieldsSplit = []
-          console.info("line: ", line)
           if (line == ""){ continue }
           if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
             value = line.slice(7)
           } else {
-            console.info("line: ", line)
             let tmpIndicators = line.slice(4, 6)
 
             indicators = [" ", " "]
@@ -709,22 +697,17 @@ export default {
             }
           }
 
-          console.info("\ttag: ", tag)
-
           if (value) {
             tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
             value = " <span class='marc value'>" + value + '</span>';
             formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
           } else {
-            console.info("\t\tsubfields: ", subfields)
             subfields = subfields.map((subfield) =>
               "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
             );
             indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
             tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
             formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
-
-            console.info("\t\t", formattedMarcRecord)
           }
 
         }
@@ -739,17 +722,13 @@ export default {
 
       // marc record: https://id.loc.gov/resources/instances/<bibid>.bf2m.txt
       let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
-      console.info("existingMarcUrl: ", existingMarcUrl)
       let existingMarc = false
       if (existingMarcUrl){
-        console.info("getting")
         existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
         this.existingMarc = existingMarc
         this.existingMarc = this.htmlify(this.existingMarc)
       }
       this.selectedMarc = this.selectedWcRecord.marcHTML
-      console.info("existingMarc: ", this.existingMarc)
-      console.info("selected: ", this.selectedWcRecord)
 
       this.compPreview = false
       this.displayCompModal = true
