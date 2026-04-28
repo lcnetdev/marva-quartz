@@ -106,6 +106,7 @@
                                                    :href="'https://preprod.id.loc.gov/resources/works/' + results.subjectSourceMap[subj]"
                                                    target="_blank"
                                                    class="yoshino-lccn-link">source</a>
+                                                <span v-if="subjectUsageCounts[subj] !== undefined" class="yoshino-usage-badge">{{ subjectUsageCounts[subj] }} usage</span>
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
@@ -130,6 +131,7 @@
                                                    :href="'https://preprod.id.loc.gov/resources/works/' + results.subjectSourceMap[subj]"
                                                    target="_blank"
                                                    class="yoshino-lccn-link">source</a>
+                                                <span v-if="subjectUsageCounts[subj] !== undefined" class="yoshino-usage-badge">{{ subjectUsageCounts[subj] }} usage</span>
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
@@ -370,6 +372,15 @@
         color: #1976d2;
     }
 
+    .yoshino-usage-badge {
+        font-size: 0.75rem;
+        margin-left: 6px;
+        color: #555;
+        background: #e8eef5;
+        border-radius: 3px;
+        padding: 1px 5px;
+    }
+
     .yoshino-insert-btn {
         background-color: #1976d2;
         color: white;
@@ -461,6 +472,8 @@
             noSubjectsFound: false,
             topK: 10,
             statusMessage: '',
+            subjectUsageCounts: {},
+            enrichmentRunId: 0,
         }
     },
 
@@ -546,6 +559,7 @@
             this.loading = false
             this.error = null
             this.statusMessage = ''
+            this.enrichmentRunId++
             this.showYoshinoSubjectsModal = false
         },
 
@@ -556,6 +570,8 @@
             this.topK = 10
             this.results = null
             this.insertedSubjects = new Set()
+            this.subjectUsageCounts = {}
+            this.enrichmentRunId++
             this.statusMessage = ''
             this.extractProfileData()
         },
@@ -579,6 +595,8 @@
             this.noSubjectsFound = false
             this.results = null
             this.insertedSubjects = new Set()
+            this.subjectUsageCounts = {}
+            this.enrichmentRunId++
 
             this.profileStore.logEvent('SUBJECT_FINDER_START')
             try {
@@ -590,6 +608,8 @@
                     this.topK,
                     this.contents || ''
                 )
+                console.log("Classification results:", this.results)
+                this.enrichRecommendedUsage(this.results, this.enrichmentRunId)
             } catch (e) {
                 this.error = e.message || 'An error occurred during classification.'
                 if (this.error.toLowerCase().includes('no subjects found')) {
@@ -597,6 +617,52 @@
                 }
             } finally {
                 this.loading = false
+            }
+        },
+
+        enrichRecommendedUsage: async function(results, runId) {
+            if (!results) return
+            const seen = new Set()
+            const subjects = []
+            for (const subj of [...(results.recommended || []), ...(results.otherSubjects || [])]) {
+                if (seen.has(subj)) continue
+                seen.add(subj)
+                subjects.push(subj)
+            }
+            const batchSize = 2
+            for (let i = 0; i < subjects.length; i += batchSize) {
+                if (runId !== this.enrichmentRunId) return
+                const batch = subjects.slice(i, i + batchSize)
+                await Promise.all(batch.map(subj => this.fetchSubjectUsage(subj, results, runId)))
+            }
+        },
+
+        fetchSubjectUsage: async function(subj, results, runId) {
+            try {
+                const uri = results.subjectUriMap && results.subjectUriMap[subj]
+                let url
+                if (uri) {
+                    const id = uri.substring(uri.lastIndexOf('/') + 1)
+                    url = `https://preprod-8080.id.loc.gov/authorities/subjects/suggest2?q=${encodeURIComponent(id)}&usage=2`
+                } else {
+                    url = `https://preprod-8080.id.loc.gov/entities/subjects/suggest2/?q=${encodeURIComponent(subj)}&searchtype=left&count=250&usage=true`
+                }
+                const resp = await fetch(url)
+                if (!resp.ok) return
+                const data = await resp.json()
+                if (runId !== this.enrichmentRunId) return
+                const hit = data && data.hits && data.hits[0]
+                if (!hit) return
+                if (uri) {
+                    if (hit.uri !== uri) return
+                } else {
+                    if (hit.aLabel !== subj) return
+                }
+                const count = hit['subject-of']
+                if (typeof count !== 'number') return
+                this.subjectUsageCounts = { ...this.subjectUsageCounts, [subj]: count }
+            } catch (e) {
+                // silent — enrichment is best-effort
             }
         },
 

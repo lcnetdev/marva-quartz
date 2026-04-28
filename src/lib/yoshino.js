@@ -425,6 +425,7 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
   for (const { id, xml } of rdfResults) {
     if (!xml) continue
     const parsed = yoshinoParseRdf(xml)
+    console.log("parsed",parsed)
     for (const s of parsed.subjects) {
       if (!subjectSources[s.label]) {
         allSubjects.push(s.label)
