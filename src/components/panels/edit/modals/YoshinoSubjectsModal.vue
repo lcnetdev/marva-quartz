@@ -24,6 +24,7 @@
                         <button @click="closeModal()" class="close-button">Close</button>
                     </div>
                 </div>
+                <button @click="preferenceStore.togglePanel('linkedData')" class="yoshino-toggle-ld-button">Toggle LD Panel</button>
                 <div ref="yoshinoModalContainer" class="yoshino-modal-container">
                     <h1 style="margin-left: 5px">Subject Finder</h1>
 
@@ -174,6 +175,17 @@
         position: absolute;
         right: 5px;
         top: 5px;
+        background-color: white;
+        border-radius: 5px;
+        border: solid 1px black;
+        cursor: pointer;
+        z-index: 100;
+    }
+
+    .yoshino-toggle-ld-button {
+        position: absolute;
+        left: 5px;
+        bottom: 5px;
         background-color: white;
         border-radius: 5px;
         border: solid 1px black;
@@ -424,6 +436,7 @@
     import VueDragResize from 'vue3-drag-resize'
     import { mapStores, mapState, mapWritableState } from 'pinia'
     import { useProfileStore } from '@/stores/profile'
+    import { usePreferenceStore } from '@/stores/preference'
     import { yoshinoClassify, yoshinoExtractTitle, yoshinoExtractSummary, yoshinoExtractCreator, yoshinoExtractContents } from '@/lib/yoshino'
 
     export default {
@@ -452,7 +465,7 @@
     },
 
     computed: {
-        ...mapStores(useProfileStore),
+        ...mapStores(useProfileStore, usePreferenceStore),
         ...mapState(useProfileStore, ['activeProfile', 'linkedData']),
         ...mapWritableState(useProfileStore, ['showYoshinoSubjectsModal', 'yoshinoResults', 'yoshinoInsertedSubjects']),
 
