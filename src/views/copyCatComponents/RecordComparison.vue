@@ -16,8 +16,9 @@
                     <pane max-size="50">
                         <h3>CopyCat Record</h3>
                         <div class="marc-wrapper record-copycat">
-                            <div class="marc" v-html="recordCopyCat"></div>
+                            <div class="marc" v-html="recordCopyCat" @mouseover="highlightTags" @mouseout="highlightTags"></div>
                             <!-- {{ recordCopyCat }} -->
+                            <!-- .native.capture -->
                         </div>
                     </pane>
                     <pane max-size="50">
@@ -28,7 +29,7 @@
                             <!-- <pre v-if="recordExisting.length > 0">
                                 {{ recordExisting }}
                             </pre> -->
-                            <div v-if="recordExisting.length > 0" class="marc" v-html="recordExisting"></div>
+                            <div v-if="recordExisting.length > 0" class="marc" v-html="recordExisting" @mouseover="highlightTags" @mouseout="highlightTags"></div>
                             <div v-else>
                                 No existing record in BFDB.
                             </div>
@@ -98,6 +99,30 @@ export default {
     watch: { },
 
     methods: {
+        highlightTags: function(e){
+            let name = e.target.className
+            if (!name.includes("tag") && !name.includes("leader")){
+                name =  e.target.parentNode.childNodes[0].className
+                if (name && !name.includes("tag")){
+                    name =  e.target.parentNode.parentNode.childNodes[0].className
+                }
+            }
+            if (name){
+                const els = document.getElementsByClassName(name)
+                // for (let el of els){
+                for (let i=els.length-1; i>=0; i--){
+                    let target = els[i]
+                    if (!name.includes('leader')){
+                        target = target.parentNode
+                    }
+                    if (e.type == 'mouseover'){
+                        target.classList.add("highlight-field")
+                    } else {
+                        target.classList.remove("highlight-field")
+                    }
+                }
+            }
+        },
         createCopyCat: function(){
             console.info("creating")
             this.$emit('createCopyCat')
@@ -173,11 +198,6 @@ export default {
 .footer {
     padding: 10px;
 }
-
-/* :deep() div.marc.field:has(> ):hover {
-    background-color: teal;
-} */
-
 </style>
 
 <style>
@@ -196,6 +216,11 @@ span.indicators{
 
 div.marc.field {
     text-indent: 4em hanging;
+}
+
+
+.highlight-field {
+    background-color: rgb(209, 209, 209);
 }
 
 </style>
