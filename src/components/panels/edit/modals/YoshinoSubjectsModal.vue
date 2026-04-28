@@ -15,7 +15,7 @@
             @dragging="dragResize"
             :sticks="['br']"
             :stickSize="22"
-            style="background-color: whitesmoke"
+            style="background-color: whitesmoke; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);"
             >
 
             <div class="yoshino-modal" ref="yoshinoContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
@@ -24,6 +24,7 @@
                         <button @click="closeModal()" class="close-button">Close</button>
                     </div>
                 </div>
+                <button @click="preferenceStore.togglePanel('linkedData')" class="yoshino-toggle-ld-button">Toggle LD Panel</button>
                 <div ref="yoshinoModalContainer" class="yoshino-modal-container">
                     <h1 style="margin-left: 5px">Subject Finder</h1>
 
@@ -32,17 +33,17 @@
                             <label>Title:</label>
                             <span class="yoshino-value">{{ title || '(not found)' }}</span>
                         </div>
-                        <div class="yoshino-field">
+                        <div class="yoshino-field" :class="{'yoshino-disabled': useUserDescription}">
                             <label>Summary:</label>
                             <div v-if="summaryAlternatives.length > 0" class="yoshino-radio-group">
                                 <label class="yoshino-radio-option">
-                                    <input type="radio" name="summary-source" value="record" v-model="summarySource" @change="summary = recordSummary">
+                                    <input type="radio" name="summary-source" value="record" v-model="summarySource" @change="summary = recordSummary" :disabled="useUserDescription">
                                     <span class="yoshino-radio-source">Record</span>
                                     <span class="yoshino-radio-text">{{ recordSummary ? (recordSummary.length > 200 ? recordSummary.substring(0, 200) + '...' : recordSummary) : '(not found)' }}</span>
                                     <span v-if="recordSummary" class="yoshino-word-count">({{ recordSummary.split(/\s+/).length }} words)</span>
                                 </label>
                                 <label v-for="(alt, idx) in summaryAlternatives" :key="'sum-alt-'+idx" class="yoshino-radio-option">
-                                    <input type="radio" name="summary-source" :value="'alt-sum-'+idx" v-model="summarySource" @change="summary = alt.value">
+                                    <input type="radio" name="summary-source" :value="'alt-sum-'+idx" v-model="summarySource" @change="summary = alt.value" :disabled="useUserDescription">
                                     <span class="yoshino-radio-source">{{ alt.label }}</span>
                                     <span class="yoshino-radio-text">{{ alt.value.length > 200 ? alt.value.substring(0, 200) + '...' : alt.value }}</span>
                                     <span class="yoshino-word-count">({{ alt.value.split(/\s+/).length }} words)</span>
@@ -54,23 +55,30 @@
                             <label>Creator:</label>
                             <span class="yoshino-value">{{ creator || '(not found)' }}</span>
                         </div>
-                        <div class="yoshino-field">
+                        <div class="yoshino-field" :class="{'yoshino-disabled': useUserDescription}">
                             <label>Contents:</label>
                             <div v-if="contentsAlternatives.length > 0" class="yoshino-radio-group">
                                 <label class="yoshino-radio-option">
-                                    <input type="radio" name="contents-source" value="record" v-model="contentsSource" @change="contents = recordContents">
+                                    <input type="radio" name="contents-source" value="record" v-model="contentsSource" @change="contents = recordContents" :disabled="useUserDescription">
                                     <span class="yoshino-radio-source">Record</span>
                                     <span class="yoshino-radio-text">{{ recordContents ? (recordContents.length > 200 ? recordContents.substring(0, 200) + '...' : recordContents) : '(not found)' }}</span>
                                     <span v-if="recordContents" class="yoshino-word-count">({{ recordContents.split(/\s+/).length }} words)</span>
                                 </label>
                                 <label v-for="(alt, idx) in contentsAlternatives" :key="'toc-alt-'+idx" class="yoshino-radio-option">
-                                    <input type="radio" name="contents-source" :value="'alt-toc-'+idx" v-model="contentsSource" @change="contents = alt.value">
+                                    <input type="radio" name="contents-source" :value="'alt-toc-'+idx" v-model="contentsSource" @change="contents = alt.value" :disabled="useUserDescription">
                                     <span class="yoshino-radio-source">{{ alt.label }}</span>
                                     <span class="yoshino-radio-text">{{ alt.value.length > 200 ? alt.value.substring(0, 200) + '...' : alt.value }}</span>
                                     <span class="yoshino-word-count">({{ alt.value.split(/\s+/).length }} words)</span>
                                 </label>
                             </div>
                             <span v-else class="yoshino-value">{{ contents ? (contents.length > 200 ? contents.substring(0, 200) + '...' : contents) : '(not found)' }}</span>
+                        </div>
+                        <div class="yoshino-field">
+                            <label>Or describe:</label>
+                            <textarea v-model="userDescription"
+                                      class="yoshino-user-description"
+                                      rows="3"
+                                      placeholder="Optional. Type a description of the work to use instead of Summary/Contents."></textarea>
                         </div>
                         <div style="margin-top: 12px">
                             <button @click="runClassify()" :disabled="!title">Get Subject Recommendations</button>
@@ -90,7 +98,11 @@
                     </div>
 
                     <div v-if="results && !loading" class="yoshino-results">
-                        <div class="yoshino-results-columns">
+                        <div class="yoshino-tabs">
+                            <button :class="{'yoshino-tab': true, 'yoshino-tab-active': resultsTab === 'subjects'}" @click="resultsTab = 'subjects'">Subjects</button>
+                            <button :class="{'yoshino-tab': true, 'yoshino-tab-active': resultsTab === 'classifications'}" @click="resultsTab = 'classifications'">Classifications<span v-if="results.classifications && results.classifications.length" class="yoshino-tab-count">{{ results.classifications.length }}</span></button>
+                        </div>
+                        <div v-if="resultsTab === 'subjects'" class="yoshino-results-columns">
                             <div class="yoshino-recommended">
                                 <h2>Recommended Subjects</h2>
                                 <div v-if="results.recommended.length === 0" class="yoshino-empty">No recommended subjects found.</div>
@@ -105,6 +117,7 @@
                                                    :href="'https://preprod.id.loc.gov/resources/works/' + results.subjectSourceMap[subj]"
                                                    target="_blank"
                                                    class="yoshino-lccn-link">source</a>
+                                                <span v-if="subjectUsageCounts[subj] !== undefined" class="yoshino-usage-badge">{{ subjectUsageCounts[subj] }} usage</span>
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
@@ -129,6 +142,7 @@
                                                    :href="'https://preprod.id.loc.gov/resources/works/' + results.subjectSourceMap[subj]"
                                                    target="_blank"
                                                    class="yoshino-lccn-link">source</a>
+                                                <span v-if="subjectUsageCounts[subj] !== undefined" class="yoshino-usage-badge">{{ subjectUsageCounts[subj] }} usage</span>
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
@@ -138,6 +152,32 @@
                                     </li>
                                 </ul>
                             </div>
+                        </div>
+
+                        <div v-if="resultsTab === 'classifications'" class="yoshino-classifications">
+                            <div v-if="!sortedClassifications.length" class="yoshino-empty">No classifications found.</div>
+                            <ul v-else>
+                                <li v-for="(c, idx) in sortedClassifications" :key="'cls-'+idx"
+                                    :class="{'yoshino-inserted': insertedClassifications.has(c.key)}">
+                                    <div class="yoshino-subject-row">
+                                        <div class="yoshino-subject-info">
+                                            <span class="yoshino-classification-type">{{ classificationLabel(c.type) }}<span v-if="c.edition"> ({{ c.edition }})</span></span>
+                                            <span class="yoshino-subject-label">{{ c.portion }}</span>
+                                            <a v-if="results.classificationSourceMap && results.classificationSourceMap[c.key]"
+                                               :href="'https://preprod.id.loc.gov/resources/works/' + results.classificationSourceMap[c.key]"
+                                               target="_blank"
+                                               class="yoshino-lccn-link">source</a>
+                                            <span v-if="results.classificationCounts && results.classificationCounts[c.key] > 1"
+                                                  class="yoshino-usage-badge"
+                                                  :title="'Used on ' + results.classificationCounts[c.key] + ' of the retrieved similar records'">{{ results.classificationCounts[c.key] }}×</span>
+                                        </div>
+                                        <button v-if="!insertedClassifications.has(c.key)"
+                                                @click="insertClassification(c)"
+                                                class="yoshino-insert-btn">Insert</button>
+                                        <span v-else class="yoshino-inserted-label">Inserted</span>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
 
                         <div class="yoshino-actions">
@@ -174,6 +214,17 @@
         position: absolute;
         right: 5px;
         top: 5px;
+        background-color: white;
+        border-radius: 5px;
+        border: solid 1px black;
+        cursor: pointer;
+        z-index: 100;
+    }
+
+    .yoshino-toggle-ld-button {
+        position: absolute;
+        left: 5px;
+        bottom: 5px;
         background-color: white;
         border-radius: 5px;
         border: solid 1px black;
@@ -358,6 +409,89 @@
         color: #1976d2;
     }
 
+    .yoshino-usage-badge {
+        font-size: 0.75rem;
+        margin-left: 6px;
+        color: #555;
+        background: #e8eef5;
+        border-radius: 3px;
+        padding: 1px 5px;
+    }
+
+    .yoshino-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .yoshino-tab {
+        background: #eee;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        padding: 4px 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+    .yoshino-tab-active {
+        background: white;
+        font-weight: bold;
+    }
+
+    .yoshino-tab-count {
+        margin-left: 6px;
+        font-size: 0.75rem;
+        color: #666;
+        background: #ddd;
+        border-radius: 8px;
+        padding: 0 6px;
+    }
+
+    .yoshino-classifications {
+        flex: 1;
+        overflow-y: auto;
+        background: white;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        padding: 8px;
+    }
+
+    .yoshino-classifications ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .yoshino-disabled {
+        opacity: 0.45;
+        pointer-events: none;
+    }
+
+    .yoshino-user-description {
+        width: 100%;
+        max-width: 700px;
+        font-size: 0.85rem;
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+    .yoshino-classification-type {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: bold;
+        background: #1976d2;
+        color: white;
+        border-radius: 3px;
+        padding: 1px 6px;
+        margin-right: 6px;
+    }
+
     .yoshino-insert-btn {
         background-color: #1976d2;
         color: white;
@@ -424,6 +558,7 @@
     import VueDragResize from 'vue3-drag-resize'
     import { mapStores, mapState, mapWritableState } from 'pinia'
     import { useProfileStore } from '@/stores/profile'
+    import { usePreferenceStore } from '@/stores/preference'
     import { yoshinoClassify, yoshinoExtractTitle, yoshinoExtractSummary, yoshinoExtractCreator, yoshinoExtractContents } from '@/lib/yoshino'
 
     export default {
@@ -448,11 +583,16 @@
             noSubjectsFound: false,
             topK: 10,
             statusMessage: '',
+            subjectUsageCounts: {},
+            enrichmentRunId: 0,
+            resultsTab: 'subjects',
+            insertedClassifications: new Set(),
+            userDescription: '',
         }
     },
 
     computed: {
-        ...mapStores(useProfileStore),
+        ...mapStores(useProfileStore, usePreferenceStore),
         ...mapState(useProfileStore, ['activeProfile', 'linkedData']),
         ...mapWritableState(useProfileStore, ['showYoshinoSubjectsModal', 'yoshinoResults', 'yoshinoInsertedSubjects']),
 
@@ -518,6 +658,28 @@
             if (!this.results || !this.results.otherSubjects) return []
             return [...this.results.otherSubjects].sort((a, b) => a.localeCompare(b))
         },
+
+        useUserDescription() {
+            return !!(this.userDescription && this.userDescription.trim())
+        },
+
+        sortedClassifications() {
+            if (!this.results || !this.results.classifications) return []
+            const order = {
+                'http://id.loc.gov/ontologies/bibframe/ClassificationLcc': 1,
+                'http://id.loc.gov/ontologies/bibframe/ClassificationDdc': 2,
+                'http://id.loc.gov/ontologies/bibframe/ClassificationNlm': 3,
+                'http://id.loc.gov/ontologies/bibframe/ClassificationNal': 4,
+                'http://id.loc.gov/ontologies/bibframe/ClassificationOther': 5,
+                'http://id.loc.gov/ontologies/bibframe/Classification': 6,
+            }
+            return [...this.results.classifications].sort((a, b) => {
+                const oa = order[a.type] || 99
+                const ob = order[b.type] || 99
+                if (oa !== ob) return oa - ob
+                return a.portion.localeCompare(b.portion)
+            })
+        },
     },
 
     methods: {
@@ -533,6 +695,7 @@
             this.loading = false
             this.error = null
             this.statusMessage = ''
+            this.enrichmentRunId++
             this.showYoshinoSubjectsModal = false
         },
 
@@ -543,7 +706,12 @@
             this.topK = 10
             this.results = null
             this.insertedSubjects = new Set()
+            this.insertedClassifications = new Set()
+            this.subjectUsageCounts = {}
+            this.enrichmentRunId++
+            this.resultsTab = 'subjects'
             this.statusMessage = ''
+            this.userDescription = ''
             this.extractProfileData()
         },
 
@@ -566,17 +734,25 @@
             this.noSubjectsFound = false
             this.results = null
             this.insertedSubjects = new Set()
+            this.insertedClassifications = new Set()
+            this.subjectUsageCounts = {}
+            this.enrichmentRunId++
+            this.resultsTab = 'subjects'
 
             this.profileStore.logEvent('SUBJECT_FINDER_START')
             try {
+                const usingUserDesc = this.useUserDescription
                 this.results = await yoshinoClassify(
                     this.title,
-                    this.summary || '',
+                    usingUserDesc ? '' : (this.summary || ''),
                     this.creator || '',
                     (msg) => { this.statusMessage = msg },
                     this.topK,
-                    this.contents || ''
+                    usingUserDesc ? '' : (this.contents || ''),
+                    usingUserDesc ? this.userDescription.trim() : ''
                 )
+                console.log("Classification results:", this.results)
+                this.enrichRecommendedUsage(this.results, this.enrichmentRunId)
             } catch (e) {
                 this.error = e.message || 'An error occurred during classification.'
                 if (this.error.toLowerCase().includes('no subjects found')) {
@@ -584,6 +760,52 @@
                 }
             } finally {
                 this.loading = false
+            }
+        },
+
+        enrichRecommendedUsage: async function(results, runId) {
+            if (!results) return
+            const seen = new Set()
+            const subjects = []
+            for (const subj of [...(results.recommended || []), ...(results.otherSubjects || [])]) {
+                if (seen.has(subj)) continue
+                seen.add(subj)
+                subjects.push(subj)
+            }
+            const batchSize = 2
+            for (let i = 0; i < subjects.length; i += batchSize) {
+                if (runId !== this.enrichmentRunId) return
+                const batch = subjects.slice(i, i + batchSize)
+                await Promise.all(batch.map(subj => this.fetchSubjectUsage(subj, results, runId)))
+            }
+        },
+
+        fetchSubjectUsage: async function(subj, results, runId) {
+            try {
+                const uri = results.subjectUriMap && results.subjectUriMap[subj]
+                let url
+                if (uri) {
+                    const id = uri.substring(uri.lastIndexOf('/') + 1)
+                    url = `https://preprod-8080.id.loc.gov/authorities/subjects/suggest2?q=${encodeURIComponent(id)}&usage=2`
+                } else {
+                    url = `https://preprod-8080.id.loc.gov/entities/subjects/suggest2/?q=${encodeURIComponent(subj)}&searchtype=left&count=250&usage=true`
+                }
+                const resp = await fetch(url)
+                if (!resp.ok) return
+                const data = await resp.json()
+                if (runId !== this.enrichmentRunId) return
+                const hit = data && data.hits && data.hits[0]
+                if (!hit) return
+                if (uri) {
+                    if (hit.uri !== uri) return
+                } else {
+                    if (hit.aLabel !== subj) return
+                }
+                const count = hit['subject-of']
+                if (typeof count !== 'number') return
+                this.subjectUsageCounts = { ...this.subjectUsageCounts, [subj]: count }
+            } catch (e) {
+                // silent — enrichment is best-effort
             }
         },
 
@@ -611,6 +833,24 @@
             this.insertedSubjects = new Set(this.insertedSubjects)
         },
 
+        classificationLabel(type) {
+            switch (type) {
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc': return 'LCC'
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationDdc': return 'DDC'
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationNlm': return 'NLM'
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationNal': return 'NAL'
+                case 'http://id.loc.gov/ontologies/bibframe/ClassificationOther': return 'Other'
+                default: return 'Class'
+            }
+        },
+
+        insertClassification: function(c) {
+            this.profileStore.yoshinoInsertClassification(c)
+            this.profileStore.logEvent('SUBJECT_FINDER_INSERT_CLASSIFICATION', { metadata: [c.portion] })
+            this.insertedClassifications.add(c.key)
+            this.insertedClassifications = new Set(this.insertedClassifications)
+        },
+
         onSelectElement(event) {
             const tagName = event.target.tagName
             if (tagName === 'INPUT' || tagName === 'TD' || tagName === 'BUTTON' || tagName === 'TEXTAREA' || tagName === 'SELECT' || tagName === 'A') {
@@ -620,6 +860,24 @@
     },
 
     mounted: function() {
+        this.results = null
+        this.insertedSubjects = new Set()
+        this.insertedClassifications = new Set()
+        this.subjectUsageCounts = {}
+        this.enrichmentRunId++
+        this.topK = 10
+        this.error = null
+        this.noSubjectsFound = false
+        this.statusMessage = ''
+        this.resultsTab = 'subjects'
+        this.userDescription = ''
+        const ldStaleForActiveProfile = this.linkedData &&
+            this.linkedData.eId !== undefined &&
+            this.activeProfile &&
+            this.linkedData.eId !== this.activeProfile.eId
+        if (ldStaleForActiveProfile) {
+            this.profileStore.linkedData = {}
+        }
         this.extractProfileData()
     },
   };

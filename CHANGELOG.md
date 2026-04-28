@@ -1,6 +1,20 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.6.2] - 2025-04-28
+### Update
+- Copycat has a MARC comparison view. The comparison is shown after selecting a profile to load with and provides a chance for the cataloger to backout. Comparison can also be envoked from a "Compare" button if an existing record is found.
+
+## [1.6.1] - 2025-04-27
+### Update
+- 046 generation in NAR creation should be more smoothly updating on change
+- When multiple LCCs are set for a work and use the Tool nav bar to open shelflisting it will only use the first LCC component
+- Remove the legacy DCTap option, it tries to sniff out the stage marva profile if no pref is set in localstorage
+### Added
+- Added a Quick Select for the Literal "Set Language" modal that populates based on previous usage.
+
+
+
 ## [1.6.x] - 2025-03-20
 ### Added
 - Introduced MLC Number Generator (https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/mlc-numbers.md)
