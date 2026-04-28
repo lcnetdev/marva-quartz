@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.6.2] - 2025-04-28
+### Update
+- Copycat has a MARC comparison view. The comparison is shown after selecting a profile to load with and provides a chance for the cataloger to backout. Comparison can also be envoked from a "Compare" button if an existing record is found.
+
 ## [1.6.1] - 2025-04-27
 ### Update
 - 046 generation in NAR creation should be more smoothly updating on change
