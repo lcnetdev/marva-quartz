@@ -323,29 +323,32 @@ function yoshinoExtractSummary(activeProfile) {
  * Extract Primary Creator label from activeProfile.
  */
 function yoshinoExtractCreator(activeProfile) {
+  let fallbackLabel = null
   for (let rt of activeProfile.rtOrder) {
     if (rt.indexOf(':Work') === -1) continue
     for (let ptId of activeProfile.rt[rt].ptOrder) {
       let pt = activeProfile.rt[rt].pt[ptId]
-      if (pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/contribution') {
-        if (pt.userValue &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['@type'] === 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution' &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
-        ) {
-          let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
-          if (agent['http://www.w3.org/2000/01/rdf-schema#label'] &&
-              agent['http://www.w3.org/2000/01/rdf-schema#label'][0] &&
-              agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']) {
-            return agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-          }
+      if (pt.propertyURI !== 'http://id.loc.gov/ontologies/bibframe/contribution') continue
+      let contributions = pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution']
+      if (!contributions) continue
+      for (let contribution of contributions) {
+        let agent = contribution['http://id.loc.gov/ontologies/bibframe/agent'] &&
+                    contribution['http://id.loc.gov/ontologies/bibframe/agent'][0]
+        if (!agent) continue
+        let labelEntry = agent['http://www.w3.org/2000/01/rdf-schema#label'] &&
+                         agent['http://www.w3.org/2000/01/rdf-schema#label'][0]
+        let label = labelEntry && labelEntry['http://www.w3.org/2000/01/rdf-schema#label']
+        if (!label) continue
+        if (contribution['@type'] === 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution') {
+          return label
+        }
+        if (fallbackLabel === null) {
+          fallbackLabel = label
         }
       }
     }
   }
-  return null
+  return fallbackLabel
 }
 
 /**
