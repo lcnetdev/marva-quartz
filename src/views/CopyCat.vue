@@ -109,6 +109,8 @@
           <br>
           <h3>Load with profile:</h3>
           <Badge v-if="!this.selectedWcRecord" text="(select a record to continue)" badgeType="secondary" :noHover="true" />
+          <Badge v-if="this.creatingComp" text="Generating Comparison" badgeType="info" :noHover="true" />
+
           <template v-if="(!existingLCCN && !existingISBN && !overrideAllow) && selectedWcRecord">
             <Badge text="No record to overlay. You will create a new record." badgeType="warning" :noHover="true" />
           </template>
@@ -293,6 +295,7 @@ export default {
       continueWithLoad: false,
       compPreview: false,
       targetProfile: null,
+      creatingComp: false,
 
     }
   },
@@ -717,6 +720,7 @@ export default {
     },
 
     compareRecords: async function(profile){
+      this.creatingComp = true
       this.targetProfile = profile
       this.continueWithLoad = false
 
@@ -732,6 +736,7 @@ export default {
 
       this.compPreview = false
       this.displayCompModal = true
+      this.creatingComp = false
     },
 
 
