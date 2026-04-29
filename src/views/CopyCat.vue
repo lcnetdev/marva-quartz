@@ -443,7 +443,6 @@ export default {
     checkLccn: async function (type=lccn) {
       this.existingMarc = false // reset this if the check triggers
       this.searchType = type
-      console.info("checkLCCN: ", this.searchType)
       // if (this.urlToLoad.length < 3){ return }
       if(this.overrideAllow && this.overrideBibid !=''){
         console.info("override: ", this.overrideBibid)
@@ -469,68 +468,7 @@ export default {
           this.existingRecordUrl = url
           recordData = await resp.text()
         }
-      } else if (this.searchType == 'lccn') {
-        this.checkingLCCN = true
-        console.info("urlToLoad: ", this.urlToLoad)
-        let resp = await utilsNetwork.searchLccn(this.urlToLoad)
-        this.checkingLCCN = false
-        try {
-          this.existingLCCN = resp.status != 404
-
-          //9789975865623
-          //2024387549
-          console.info("     >>>>> ", typeof resp)
-          console.info("     status ", resp.status)
-          console.info("     headers ", resp.headers)
-          console.info("     headers ", Object.keys(resp.headers))
-          console.info("     x-uri ", resp.headers.get('x-uri'))
-          console.info("     x-preflabel ", resp.headers.get('x-preflabel'))
-          console.info("headers: ", ...resp.headers)
-
-          if (this.existingLCCN) {
-            this.existingRecordUrl = resp.url
-            this.existingISBN = false
-          } else {
-            this.existingRecordUrl = ""
-          }
-        } catch {
-          this.existingLCCN = null
-          this.existingRecordUrl = ""
-        }
       }
-
-      else if (this.searchType == 'oclc') {
-        console.info("search oclc num")
-        this.checkingLCCN = true
-        let oclcNum = this.isbn
-        console.info("oclcNum: ", oclcNum)
-        let resp = await utilsNetwork.searchLccn(oclcNum, 'oclc')
-        this.checkingLCCN = false
-        try {
-          this.existingLCCN = resp.status != 404
-
-          //9789975865623
-          //2024387549
-          console.info("     >>>>> ", typeof resp)
-          console.info("     status ", resp.status)
-          console.info("     headers ", resp.headers)
-          console.info("     headers ", Object.keys(resp.headers))
-          console.info("     x-uri ", resp.headers.get('x-uri'))
-          console.info("     x-preflabel ", resp.headers.get('x-preflabel'))
-          console.info("headers: ", ...resp.headers)
-
-          if (this.existingLCCN) {
-            this.existingRecordUrl = resp.url
-            this.existingISBN = false
-          } else {
-            this.existingRecordUrl = ""
-          }
-        } catch {
-          this.existingLCCN = null
-          this.existingRecordUrl = ""
-        }
-      }
-
       // check the ISBN
       // else if (!this.existingLCCN && this.wcIndex == "sn"){
       else if (this.searchType == 'other') {
@@ -548,6 +486,41 @@ export default {
           }
         } catch {
           this.existingISBN = false
+          this.existingRecordUrl = ""
+        }
+      } else {
+        this.checkingLCCN = true
+        let oclcNum = this.isbn
+        let resp
+        if (this.searchType == 'lccn'){
+          resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        } else {
+          resp = await utilsNetwork.searchLccn(oclcNum, this.searchType)
+        }
+        // let resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        // let resp = await utilsNetwork.searchLccn(oclcNum, 'oclc')
+        this.checkingLCCN = false
+        try {
+          this.existingLCCN = resp.status != 404
+
+          //9789975865623
+          //2024387549
+          console.info("     >>>>> ", typeof resp)
+          console.info("     status ", resp.status)
+          console.info("     headers ", resp.headers)
+          console.info("     headers ", Object.keys(resp.headers))
+          console.info("     x-uri ", resp.headers.get('x-uri'))
+          console.info("     x-preflabel ", resp.headers.get('x-preflabel'))
+          console.info("headers: ", ...resp.headers)
+
+          if (this.existingLCCN) {
+            this.existingRecordUrl = resp.url
+            this.existingISBN = false
+          } else {
+            this.existingRecordUrl = ""
+          }
+        } catch {
+          this.existingLCCN = null
           this.existingRecordUrl = ""
         }
       }
