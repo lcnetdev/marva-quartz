@@ -1179,7 +1179,7 @@ export default {
                     "http://id.loc.gov/ontologies/bflc/catalogerId": [
                       {
                         "@guid": "fgHPJYcNZNBkeELEUv1M3E",
-                        "http://id.loc.gov/ontologies/bflc/catalogerId": this.preferenceStore.catInitals
+                        "http://id.loc.gov/ontologies/bflc/catalogerId": this.preferenceStore.catCode
                       }
                     ],
                     "http://id.loc.gov/ontologies/bflc/encodingLevel": [
