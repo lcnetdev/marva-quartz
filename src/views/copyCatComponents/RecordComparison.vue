@@ -202,7 +202,6 @@ export default {
 
 <style>
 
-
 span.indicators{
     white-space: pre;
 }

@@ -749,7 +749,11 @@
             }
 
             if (Object.keys(this.zero46).length > 0){
-              this.rebuild046()
+                  
+              window.setTimeout(()=>{
+                this.rebuild046()
+              },10)
+
             }else{
               
               // not really nessary 
@@ -1252,6 +1256,7 @@
         },
 
         build046(){
+          console.log("build046", this.zero46)
           let f046 = {
             fieldTag: '046',
             indicators: '##',
@@ -1325,8 +1330,10 @@
             this.checkFourXX()
           }
 
-          this.rebuild046()
-
+          
+          window.setTimeout(()=>{
+            this.rebuild046()
+          },10)
 
 
 
@@ -1338,7 +1345,7 @@
 
 
         rebuild046(){
-
+          
           // rebuild 046 if $d is present
           if (this.oneXX.includes("$d")){
             let tmp046 = this.build046()

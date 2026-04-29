@@ -57,6 +57,9 @@
                 <input type="radio" name="match" id="bib-match"class="bib" value="bibid" @click="changeSearchType($event)">
                 <label for="bib-match" class="bib">Bib ID</label>
 
+                <input type="radio" name="match" id="oclc-match" class="oclc" value="oclc" @click="changeSearchType($event)">
+                <label for="oclc-match" class="oclc">OCLC Num</label>
+
                 <input type="radio" name="match" id="other-match" class="other" value="other" @click="changeSearchType($event)">
                 <label for="other-match" class="other">Other ID</label>
               </form>
@@ -66,7 +69,7 @@
           <br>
           <template v-if="searchType != 'lccn'">
             <label for="matchPoint">Match on: </label>
-            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn('other')" />
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn(searchType)" />
           </template>
 
           <template v-if="existingLCCN || existingISBN || overrideAllow">
@@ -364,6 +367,8 @@ export default {
     changeSearchType: function (event) {
       this.searchType = event.target.value
 
+      console.info("searchType: ", this.searchType)
+
       this.checkLccn(this.searchType)
     },
 
@@ -438,7 +443,6 @@ export default {
     checkLccn: async function (type=lccn) {
       this.existingMarc = false // reset this if the check triggers
       this.searchType = type
-      console.info("checkLCCN: ", this.searchType)
       // if (this.urlToLoad.length < 3){ return }
       if(this.overrideAllow && this.overrideBibid !=''){
         console.info("override: ", this.overrideBibid)
@@ -464,9 +468,37 @@ export default {
           this.existingRecordUrl = url
           recordData = await resp.text()
         }
-      } else if (this.searchType == 'lccn') {
+      }
+      // check the ISBN
+      // else if (!this.existingLCCN && this.wcIndex == "sn"){
+      else if (this.searchType == 'other') {
         this.checkingLCCN = true
-        let resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        let potentialISBN = this.isbn
+        let resp = await utilsNetwork.searchLccn(potentialISBN, true)
+        this.checkingLCCN = false
+        try {
+          this.existingISBN = resp.status != 404
+          if (this.existingISBN) {
+            this.existingRecordUrl = resp.url
+            this.existingLCCN = false
+          } else {
+            this.existingRecordUrl = ""
+          }
+        } catch {
+          this.existingISBN = false
+          this.existingRecordUrl = ""
+        }
+      } else {
+        this.checkingLCCN = true
+        let oclcNum = this.isbn
+        let resp
+        if (this.searchType == 'lccn'){
+          resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        } else {
+          resp = await utilsNetwork.searchLccn(oclcNum, this.searchType)
+        }
+        // let resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        // let resp = await utilsNetwork.searchLccn(oclcNum, 'oclc')
         this.checkingLCCN = false
         try {
           this.existingLCCN = resp.status != 404
@@ -489,27 +521,6 @@ export default {
           }
         } catch {
           this.existingLCCN = null
-          this.existingRecordUrl = ""
-        }
-      }
-
-      // check the ISBN
-      // else if (!this.existingLCCN && this.wcIndex == "sn"){
-      else if (this.searchType == 'other') {
-        this.checkingLCCN = true
-        let potentialISBN = this.isbn
-        let resp = await utilsNetwork.searchLccn(potentialISBN)
-        this.checkingLCCN = false
-        try {
-          this.existingISBN = resp.status != 404
-          if (this.existingISBN) {
-            this.existingRecordUrl = resp.url
-            this.existingLCCN = false
-          } else {
-            this.existingRecordUrl = ""
-          }
-        } catch {
-          this.existingISBN = false
           this.existingRecordUrl = ""
         }
       }
@@ -1290,6 +1301,7 @@ p {
 
 label[class="lccn"],
 label[class="bib"],
+label[class="oclc"],
 label[class="other"]{
   font-weight: bold;
   color: grey;
@@ -1301,6 +1313,9 @@ label[class="lccn"]:focus,
 label[class="bib"]:hover,
 input[class="bib"]:checked + label,
 label[class="bib"]:focus,
+label[class="oclc"]:hover,
+input[class="oclc"]:checked + label,
+label[class="oclc"]:focus,
 label[class="other"]:hover,
 input[class="other"]:checked + label,
 label[class="other"]:focus {
