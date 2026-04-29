@@ -1286,9 +1286,15 @@ const utilsParse = {
                                 // we will flag this as having a deep hiearcy to review later if we should let them be able to edit it
                                 populateData.deepHierarchy = true
                                 // console.log("Setting deepHierarchy to true for", populateData.propertyURI, populateData)
-                                console.info("Setting deepHierarchy to true for", populateData.propertyURI, populateData)
+                                // console.info("Setting deepHierarchy to true for", populateData.propertyURI, populateData)
                                 if (populateData.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
-                                  populateData.deepHierarchy = false
+                                  console.info("populateData: ", JSON.parse(JSON.stringify(populateData)))
+                                  // if there's a uri, @id, set to false
+                                  let userValue = populateData.userValue
+                                  let data = userValue["http://id.loc.gov/ontologies/bibframe/expressionOf"][0]
+                                  if (Object.keys(data).includes("@id")){
+                                    populateData.deepHierarchy = false
+                                  }
                                 }
 
 
