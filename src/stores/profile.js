@@ -633,6 +633,39 @@ export const useProfileStore = defineStore('profile', {
           } catch (err) {
             console.error('Error fetching dancer workspace list:', err)
           }
+        }else{
+          try {
+            let wsResponse = await fetch(config.returnUrls.dancerWorkspaceList)
+            let wsData = await wsResponse.json()
+            console.log("wsData",wsData)
+            let defaultWs
+            // if we are stage try to find stage
+            if (config.returnUrls.env === 'staging') {
+              defaultWs = wsData.data.find(ws => ws.name === 'marva-stage')
+            } 
+            if (config.returnUrls.env === 'production') {
+              defaultWs = wsData.data.find(ws => ws.name === 'marva-prod')
+            } 
+
+            if (defaultWs) {
+                let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
+                profilesURL = dancerBaseUrl + defaultWs.id + '/profile'
+                startingURL = dancerBaseUrl + defaultWs.id + '/starting-points'
+            }
+
+            if (config.returnUrls.externalDev) {
+                profilesURL = config.returnUrls.profiles
+                startingURL = config.returnUrls.starting
+
+            }
+
+
+          } catch (err) {
+            console.error('Error fetching dancer workspace list:', err)
+          }
+
+
+
         }
       }
 
@@ -4130,11 +4163,13 @@ export const useProfileStore = defineStore('profile', {
       let cutterGuid = null
 
       let work = null
+      let inst = null
       let title = null
       let titleNonSort = null
       let firstSubject = null
       let secondSubject = null
       let contributors = []
+      let subtitle = null
 
       let titleNonLatin = null
 
@@ -4284,6 +4319,36 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      // look at the instance to get the subtitle
+      for (let rtId in this.activeProfile.rt){
+        if (rtId.indexOf(":Instance") > -1){
+          inst = this.activeProfile.rt[rtId]
+          if (inst){ break }
+        }
+      }
+
+      if (inst){
+        for (let ptId of inst.ptOrder){
+        let pt = JSON.parse(JSON.stringify(inst.pt[ptId]))
+
+        if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
+          let titleUserValue = pt.userValue
+
+          if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
+            titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+            if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']){
+              let sub = titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']
+              subtitle = sub[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+            }
+          }
+        }
+      }
+    }
+
+    if (subtitle && title){
+      title = title.replace(": " + subtitle, "").trim()
+    }
+
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 
@@ -4326,6 +4391,7 @@ export const useProfileStore = defineStore('profile', {
 
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:classNumber,
             cutterNumber:cutterNumber,
@@ -4342,6 +4408,7 @@ export const useProfileStore = defineStore('profile', {
           // console.log("RETRUN FA:LSE 2")
           return {
             title: null,
+            subtitle: null,
             titleNonLatin: null,
             classNumber:null,
             cutterNumber:null,
@@ -4368,6 +4435,7 @@ export const useProfileStore = defineStore('profile', {
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
@@ -4383,6 +4451,7 @@ export const useProfileStore = defineStore('profile', {
         } else if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/expressionOf')){
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
@@ -5356,6 +5425,7 @@ export const useProfileStore = defineStore('profile', {
     prepareForNewRecord:  function(){
 
       this.activeProfile = {}
+      this.linkedData = {}
 
     },
 
@@ -6030,7 +6100,7 @@ export const useProfileStore = defineStore('profile', {
               if (!key.startsWith("@")){
                   let result = false
                   try{
-                    if (userValue[key].length == 0){ return }
+                    if (userValue[key].length == 0){ return true }
                     // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
                     //  has an populate electronicLocator
                     if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
@@ -6216,6 +6286,48 @@ export const useProfileStore = defineStore('profile', {
       return false
     },
 
+    checkCip(){
+      /**
+       * CIP is signaled by
+       *
+       * Projected publication date (YYMM) is populated
+       * encoding level: prepublication
+       * 906 $e ecip <not checking this one>
+       *
+       * in the instance.
+       *
+       * If either of the checks is true, flagging it as a CIP
+       */
+      let isCip = false
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            let userValue = pt.userValue
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bflc/projectedProvisionDate"){
+              try {
+                let value = userValue["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"][0]["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"]
+                if (value){
+                  isCip = true
+                }
+              } catch { }
+            }
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/adminMetadata" && pt.adminMetadataType == 'primary'){
+              try{
+                let encodingLevel = userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
+                let code = encodingLevel["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"]
+                if (code == 8 || code == '8'){
+                  isCip = true
+                }
+              } catch { }
+            }
+          }
+        }
+      }
+
+      return isCip
+    },
+
     /**
      * Retrieves the main title from the NACO stub work profile by traversing the resource template structure.
      * Looks for a property with URI "http://id.loc.gov/ontologies/bibframe/title" and extracts its main title value.
@@ -6225,6 +6337,40 @@ export const useProfileStore = defineStore('profile', {
      * @requires activeProfile - Profile must be loaded with valid RT structure
      */
     nacoStubReturnMainTitle(){
+      let subtitle = ''
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/title"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                ){
+                  // look for the one that is set as latin first, if we can find it
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']){
+                    if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
+                      subtitle = aTitle['http://id.loc.gov/ontologies/bibframe/subtitle']
+                    }
+                  }
+
+                  // otherwise look for the first one that doesn't have a language tag
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']){
+                    if (!aTitle['@language']){
+                      subtitle = aTitle['http://id.loc.gov/ontologies/bibframe/subtitle']
+                    }
+                  }
+
+                  // if we can't find one without a language tag, just return the first one
+                  subtitle = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                }
+            }
+          }
+        }
+      }
 
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
@@ -6243,19 +6389,40 @@ export const useProfileStore = defineStore('profile', {
                   // look for the one that is set as latin first, if we can find it
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
-                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                      let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                      // remove the subtitle
+                      if (title.includes(subtitle)){
+                        title = title.replace(subtitle, "")
+                        title = title.split(" : ")[0]
+                      }
+                      return title
                     }
                   }
 
                   // otherwise look for the first one that doesn't have a language tag
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (!aTitle['@language']){
-                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                      let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                      // remove the subtitle
+                      if (title.includes(subtitle)){
+                        title = title.replace(subtitle, "")
+                        title = title.split(" : ")[0]
+                      }
+                      return title
                     }
                   }
 
                   // if we can't find one without a language tag, just return the first one
-                  return pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                  let title = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                  // remove the subtitle
+                  if (title.includes(subtitle)){
+                    title = title.replace(subtitle, "")
+                    title = title.split(" : ")[0]
+                  }
+                  return title
                 }
             }
           }
@@ -6826,6 +6993,83 @@ export const useProfileStore = defineStore('profile', {
       console.log('Top-level marcKey:', marcKey)
       console.log('Components:', JSON.parse(JSON.stringify(components || [])))
       console.log('Built userValue:', JSON.parse(JSON.stringify(targetPt.userValue)))
+
+      targetPt.hasData = true
+      targetPt.userModified = true
+      targetPt.dataLoaded = false
+
+      this.dataChanged()
+    },
+
+    yoshinoInsertClassification: async function(classification) {
+      let activeProfile = this.activeProfile
+      let workRt = null
+      let emptyPt = null
+      let lastPt = null
+
+      for (let rt of activeProfile.rtOrder) {
+        if (rt.indexOf(':Work') > -1) {
+          workRt = rt
+          break
+        }
+      }
+      if (!workRt) return
+
+      for (let ptId of activeProfile.rt[workRt].ptOrder) {
+        let pt = activeProfile.rt[workRt].pt[ptId]
+        if (pt && pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/classification' && !pt.deleted) {
+          lastPt = pt
+          let uv = pt.userValue
+          if (!pt.hasData || !uv ||
+              !uv['http://id.loc.gov/ontologies/bibframe/classification'] ||
+              uv['http://id.loc.gov/ontologies/bibframe/classification'].length === 0 ||
+              !uv['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type']) {
+            emptyPt = pt
+          }
+        }
+      }
+
+      let targetPt = emptyPt
+      if (!targetPt && lastPt) {
+        let newGuid = await this.duplicateComponent(lastPt['@guid'], this.returnStructureByGUID(lastPt['@guid']))
+        if (newGuid) {
+          targetPt = this.returnStructureByGUID(newGuid)
+        }
+      }
+      if (!targetPt) return
+
+      let classValue = {
+        '@guid': translator.new(),
+        '@type': classification.type,
+        'http://id.loc.gov/ontologies/bibframe/classificationPortion': [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bibframe/classificationPortion': classification.portion
+        }]
+      }
+
+      if (classification.sourceCode) {
+        classValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          'http://id.loc.gov/ontologies/bibframe/code': [{
+            '@guid': translator.new(),
+            'http://id.loc.gov/ontologies/bibframe/code': classification.sourceCode
+          }]
+        }]
+      }
+
+      if (classification.edition) {
+        classValue['http://id.loc.gov/ontologies/bibframe/edition'] = [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bibframe/edition': classification.edition
+        }]
+      }
+
+      targetPt.userValue = {
+        '@guid': targetPt.userValue?.['@guid'] || translator.new(),
+        '@root': 'http://id.loc.gov/ontologies/bibframe/classification',
+        'http://id.loc.gov/ontologies/bibframe/classification': [classValue]
+      }
 
       targetPt.hasData = true
       targetPt.userModified = true
@@ -7660,9 +7904,13 @@ export const useProfileStore = defineStore('profile', {
                       {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
                     ]
 
-                    console.log("Found LCC data:",this.activeShelfListData)
-                    console.log(JSON.stringify(pt,null,2))
+                    // console.log("Found LCC data:",this.activeShelfListData)
+                    // console.log(JSON.stringify(pt,null,2))
                     foundLCC = true
+
+                    // this is what we want,break here to prevent hitting the second lcc if the recrd has two
+                    break
+
                   }else{
                     // not LCC
                     // continue
@@ -7700,7 +7948,7 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
+      console.log("Final activeShelfListData:",this.activeShelfListData)
 
     },
 
@@ -7735,6 +7983,7 @@ export const useProfileStore = defineStore('profile', {
         thumbnail: [],
         lcsh: [],
         genre: [],
+        booksellerResults: [],
         contributors: utilsProfile.returnContributorUris(this.activeProfile),
         isbn: (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn) ? this.activeProfile.linkedData.isbn : [],
       }
@@ -7845,6 +8094,7 @@ export const useProfileStore = defineStore('profile', {
       console.log("linkedData",linkedData)
       this.linkedData = linkedData
       this.linkedData.done = true
+      this.linkedData.eId = this.activeProfile && this.activeProfile.eId
 
     },
 

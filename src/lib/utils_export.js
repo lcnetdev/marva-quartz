@@ -1053,7 +1053,6 @@ const utilsExport = {
 
 
 											}else{
-
 												console.error('key2', key2, value1[key2], 'not a literal, should not happen')
 												xmlLog.push(`Key 2 (${key2}) error, not a literal ${value1[key2]}`)
 
@@ -2510,7 +2509,7 @@ const utilsExport = {
 						fieldName4xx.appendChild(subfield)
 						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 
-						
+
 					}
 
 				}

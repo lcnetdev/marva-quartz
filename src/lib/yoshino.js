@@ -212,14 +212,42 @@ function yoshinoParseRdf(xmlText) {
     subjects.push(subjectData)
   }
 
-  // Extract LCC classifications
+  // Extract classifications (LCC, DDC, NLM, NAL, Other)
+  const classTypes = ['ClassificationLcc', 'ClassificationDdc', 'ClassificationNlm', 'ClassificationNal', 'ClassificationOther', 'Classification']
   for (const classEl of Array.from(work.getElementsByTagNameNS(NS.bf, 'classification'))) {
-    const lccEls = Array.from(classEl.getElementsByTagNameNS(NS.bf, 'ClassificationLcc'))
-    if (!lccEls.length) continue
-    const portionEl = lccEls[0].getElementsByTagNameNS(NS.bf, 'classificationPortion')
+    let inner = null
+    let typeLocal = null
+    for (const t of classTypes) {
+      const els = Array.from(classEl.getElementsByTagNameNS(NS.bf, t))
+      if (els.length) {
+        inner = els[0]
+        typeLocal = t
+        break
+      }
+    }
+    if (!inner) continue
+    const portionEl = inner.getElementsByTagNameNS(NS.bf, 'classificationPortion')
     if (!portionEl.length || !portionEl[0].textContent) continue
     const portion = portionEl[0].textContent.trim()
-    classifications.push({ portion, xml: new XMLSerializer().serializeToString(classEl) })
+
+    let sourceCode = null
+    const sourceEls = Array.from(inner.getElementsByTagNameNS(NS.bf, 'Source'))
+    if (sourceEls.length) {
+      const codeEl = sourceEls[0].getElementsByTagNameNS(NS.bf, 'code')[0]
+      if (codeEl?.textContent) sourceCode = codeEl.textContent.trim()
+    }
+
+    let edition = null
+    const editionEl = inner.getElementsByTagNameNS(NS.bf, 'edition')[0]
+    if (editionEl?.textContent) edition = editionEl.textContent.trim()
+
+    classifications.push({
+      portion,
+      type: 'http://id.loc.gov/ontologies/bibframe/' + typeLocal,
+      sourceCode,
+      edition,
+      xml: new XMLSerializer().serializeToString(classEl),
+    })
   }
 
   return { subjects, classifications }
@@ -323,29 +351,32 @@ function yoshinoExtractSummary(activeProfile) {
  * Extract Primary Creator label from activeProfile.
  */
 function yoshinoExtractCreator(activeProfile) {
+  let fallbackLabel = null
   for (let rt of activeProfile.rtOrder) {
     if (rt.indexOf(':Work') === -1) continue
     for (let ptId of activeProfile.rt[rt].ptOrder) {
       let pt = activeProfile.rt[rt].pt[ptId]
-      if (pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/contribution') {
-        if (pt.userValue &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['@type'] === 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution' &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
-        ) {
-          let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
-          if (agent['http://www.w3.org/2000/01/rdf-schema#label'] &&
-              agent['http://www.w3.org/2000/01/rdf-schema#label'][0] &&
-              agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']) {
-            return agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-          }
+      if (pt.propertyURI !== 'http://id.loc.gov/ontologies/bibframe/contribution') continue
+      let contributions = pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution']
+      if (!contributions) continue
+      for (let contribution of contributions) {
+        let agent = contribution['http://id.loc.gov/ontologies/bibframe/agent'] &&
+                    contribution['http://id.loc.gov/ontologies/bibframe/agent'][0]
+        if (!agent) continue
+        let labelEntry = agent['http://www.w3.org/2000/01/rdf-schema#label'] &&
+                         agent['http://www.w3.org/2000/01/rdf-schema#label'][0]
+        let label = labelEntry && labelEntry['http://www.w3.org/2000/01/rdf-schema#label']
+        if (!label) continue
+        if (contribution['@type'] === 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution') {
+          return label
+        }
+        if (fallbackLabel === null) {
+          fallbackLabel = label
         }
       }
     }
   }
-  return null
+  return fallbackLabel
 }
 
 /**
@@ -375,24 +406,56 @@ function yoshinoExtractContents(activeProfile) {
  * @param {function} onStatus - Callback for status updates: onStatus(message)
  * @returns {object} { recommended, allSubjects, subjectSources, subjectSourceMap, enrichResult }
  */
-async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}, topK = 10, content = '') {
+async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}, topK = 10, content = '', userDescription = '') {
   // Step 1: Vector search
   onStatus('Searching for similar records...')
-  let classifyBody = {
-    action: 'classify',
-    title,
-    summary,
-    creator,
-    top_k: topK,
-    ids_only: true,
-  }
-  if (content) classifyBody.content = content
 
-  const classifyRes = await fetch(LAMBDA_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(classifyBody),
-  }).then(r => r.json())
+  let workingSummary = summary
+  let workingContent = content
+  let classifyRes
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let classifyBody = {
+      action: 'classify',
+      title,
+      summary: workingSummary,
+      creator,
+      top_k: topK,
+      ids_only: true,
+    }
+    if (workingContent) classifyBody.content = workingContent
+    if (userDescription) classifyBody.user_description = userDescription
+
+    classifyRes = await fetch(LAMBDA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(classifyBody),
+    }).then(r => r.json())
+
+    if (classifyRes && classifyRes.search_results) break
+
+    const errMsg = classifyRes && (classifyRes.error || classifyRes.message || '')
+    const tokenMatch = typeof errMsg === 'string' && errMsg.match(/Max input tokens:\s*(\d+).*?request input token count:\s*(\d+)/i)
+    if (tokenMatch) {
+      const maxTokens = parseInt(tokenMatch[1], 10)
+      const requestTokens = parseInt(tokenMatch[2], 10)
+      // ~10% safety margin under the cap
+      const ratio = (maxTokens * 0.9) / requestTokens
+      onStatus('Input too long, truncating and retrying...')
+      const truncate = (s) => {
+        if (!s) return s
+        const targetLen = Math.max(200, Math.floor(s.length * ratio))
+        return s.length > targetLen ? s.substring(0, targetLen) : s
+      }
+      workingSummary = truncate(workingSummary)
+      workingContent = truncate(workingContent)
+      continue
+    }
+    throw new Error(errMsg || 'Vector search failed.')
+  }
+
+  if (!classifyRes || !classifyRes.search_results) {
+    throw new Error((classifyRes && (classifyRes.error || classifyRes.message)) || 'Vector search failed.')
+  }
 
   const ids = classifyRes.search_results
     .map(r => r.metadata?.['001'] || r.lc_001)
@@ -418,10 +481,15 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
   const subjectUriMap = {}
   const subjectMarcKeyMap = {}
   const subjectUncontrolledMap = {}
+  const classifications = []
+  const classificationSeen = new Set()
+  const classificationSourceMap = {}
+  const classificationCounts = {}
 
   for (const { id, xml } of rdfResults) {
     if (!xml) continue
     const parsed = yoshinoParseRdf(xml)
+    console.log("parsed",parsed)
     for (const s of parsed.subjects) {
       if (!subjectSources[s.label]) {
         allSubjects.push(s.label)
@@ -433,6 +501,14 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
         if (s.uncontrolled) subjectUncontrolledMap[s.label] = true
         subjectSourceMap[s.label] = id
       }
+    }
+    for (const c of parsed.classifications) {
+      const key = c.type + '|' + c.portion + '|' + (c.sourceCode || '') + '|' + (c.edition || '')
+      classificationCounts[key] = (classificationCounts[key] || 0) + 1
+      if (classificationSeen.has(key)) continue
+      classificationSeen.add(key)
+      classifications.push({ ...c, key })
+      classificationSourceMap[key] = id
     }
   }
 
@@ -449,7 +525,7 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
       action: 'judge_subjects',
       subjects: allSubjects,
       text: `${title}. ${summary}`,
-      top_n: Math.min(allSubjects.length, 10),
+      top_n: Math.min(allSubjects.length, topK),
     }),
   }).then(r => r.json())
 
@@ -468,6 +544,9 @@ async function yoshinoClassify(title, summary, creator = '', onStatus = () => {}
     subjectUriMap,
     subjectMarcKeyMap,
     subjectUncontrolledMap,
+    classifications,
+    classificationSourceMap,
+    classificationCounts,
   }
 }
 

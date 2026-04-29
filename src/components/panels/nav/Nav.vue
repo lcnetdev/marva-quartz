@@ -130,14 +130,8 @@ export default {
       return (this.panelDisplay.linkedData) ? 'done' : ''
     },
 
-    yoshinoAllowedUsers() {
-      return ['jdoe','nalf','ncooey','cyea','sfol','kevinford','cgir','pkho','hhuh','kilau','smcc','mattmiller','jmoon','amors','mnaz','fosorio','mpol','eram','trod','yshi','tsod','atau','stellier','ntra','ctur','jowill','gago','cbarna']
-    },
-
     yoshinoAllowed() {
-      let username = this.preferenceStore.ssoUser?.username
-      if (!username) return false
-      return this.yoshinoAllowedUsers.includes(username.toLowerCase())
+      return this.preferenceStore.featureFlags.includes('subject-suggest')
     },
 
     yoshinoHasSummary() {
@@ -390,10 +384,14 @@ export default {
                 }, icon: "smart_toy"
               },
               ...(this.yoshinoAllowed ? [{
-                text: "Yoshino Subjects", click: () => {
+                text: "Subject Finder", click: () => {
                   this.showYoshinoSubjectsModal = true
-                }, icon: "auto_awesome"
-              }] : []),
+                }, icon: "radar"
+              }] : [{
+                text: "Req Subject Finder Access", click: () => {
+                  window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
+                }, icon: "contact_support"
+              }]),
 
               { is: 'separator' },
               {
@@ -904,23 +902,35 @@ export default {
         }
 
         // Add Legacy Profiles option at the bottom
-        if (!config.returnUrls.isBibframeDotOrg) {
-          dancerMenuItems.push({
-            text: 'Legacy Profiles',
-            icon: !currentWorkspace ? 'check' : '',
-            click: () => {
-              window.localStorage.removeItem('marva-dancerWorkspace')
-              window.location.reload()
-            }
-          })
-        }
+        // We dont add the legacy profiles anymore after a period of transition
+        // if (!config.returnUrls.isBibframeDotOrg) {
+        //   dancerMenuItems.push({
+        //     text: 'Legacy Profiles',
+        //     icon: !currentWorkspace ? 'check' : '',
+        //     click: () => {
+        //       window.localStorage.removeItem('marva-dancerWorkspace')
+        //       window.location.reload()
+        //     }
+        //   })
+        // }
 
         // Find the current workspace name
-        let currentWorkspaceName = 'Legacy'
+        let currentWorkspaceName = ''
+        // if we are in staging try to find the staging workspace name and set it
+        if (config.returnUrls.env === 'staging') {
+          currentWorkspaceName = 'marva-stage'
+        } 
+        if (config.returnUrls.isBibframeDotOrg){
+          currentWorkspaceName = 'marva-prod'
+        }
+
+        // if it stored in the local storage find it by name
         const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
         if (selectedWorkspace) {
           currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
         }
+
+
 
         menu.push({
           text: 'DCTap: ' + currentWorkspaceName,
