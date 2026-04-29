@@ -1727,6 +1727,16 @@ const utilsParse = {
                 }
               }
 
+              // if it's expression of with a URI
+              if (populateData.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
+                // if there's a uri, @id, set to false
+                let userValue = populateData.userValue
+                let data = userValue["http://id.loc.gov/ontologies/bibframe/expressionOf"][0]
+                if (Object.keys(data).includes("@id")){
+                  delete populateData.deepHierarchy
+                }
+              }
+
               // trying to turn it off for transcribed series
               if (populateData.id.indexOf('transcribed_series') >-1){
                 populateData.deepHierarchy = false
