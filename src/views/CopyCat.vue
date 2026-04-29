@@ -69,7 +69,7 @@
           <br>
           <template v-if="searchType != 'lccn'">
             <label for="matchPoint">Match on: </label>
-            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn('other')" />
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn(searchType)" />
           </template>
 
           <template v-if="existingLCCN || existingISBN || overrideAllow">
@@ -366,6 +366,8 @@ export default {
 
     changeSearchType: function (event) {
       this.searchType = event.target.value
+
+      console.info("searchType: ", this.searchType)
 
       this.checkLccn(this.searchType)
     },
