@@ -57,6 +57,9 @@
                 <input type="radio" name="match" id="bib-match"class="bib" value="bibid" @click="changeSearchType($event)">
                 <label for="bib-match" class="bib">Bib ID</label>
 
+                <input type="radio" name="match" id="oclc-match" class="oclc" value="oclc" @click="changeSearchType($event)">
+                <label for="oclc-match" class="oclc">OCLC Num</label>
+
                 <input type="radio" name="match" id="other-match" class="other" value="other" @click="changeSearchType($event)">
                 <label for="other-match" class="other">Other ID</label>
               </form>
@@ -466,7 +469,40 @@ export default {
         }
       } else if (this.searchType == 'lccn') {
         this.checkingLCCN = true
+        console.info("urlToLoad: ", this.urlToLoad)
         let resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        this.checkingLCCN = false
+        try {
+          this.existingLCCN = resp.status != 404
+
+          //9789975865623
+          //2024387549
+          console.info("     >>>>> ", typeof resp)
+          console.info("     status ", resp.status)
+          console.info("     headers ", resp.headers)
+          console.info("     headers ", Object.keys(resp.headers))
+          console.info("     x-uri ", resp.headers.get('x-uri'))
+          console.info("     x-preflabel ", resp.headers.get('x-preflabel'))
+          console.info("headers: ", ...resp.headers)
+
+          if (this.existingLCCN) {
+            this.existingRecordUrl = resp.url
+            this.existingISBN = false
+          } else {
+            this.existingRecordUrl = ""
+          }
+        } catch {
+          this.existingLCCN = null
+          this.existingRecordUrl = ""
+        }
+      }
+
+      else if (this.searchType == 'oclc') {
+        console.info("search oclc num")
+        this.checkingLCCN = true
+        let oclcNum = this.isbn
+        console.info("oclcNum: ", oclcNum)
+        let resp = await utilsNetwork.searchLccn(oclcNum, 'oclc')
         this.checkingLCCN = false
         try {
           this.existingLCCN = resp.status != 404
@@ -498,7 +534,7 @@ export default {
       else if (this.searchType == 'other') {
         this.checkingLCCN = true
         let potentialISBN = this.isbn
-        let resp = await utilsNetwork.searchLccn(potentialISBN)
+        let resp = await utilsNetwork.searchLccn(potentialISBN, true)
         this.checkingLCCN = false
         try {
           this.existingISBN = resp.status != 404
@@ -1290,6 +1326,7 @@ p {
 
 label[class="lccn"],
 label[class="bib"],
+label[class="oclc"],
 label[class="other"]{
   font-weight: bold;
   color: grey;
@@ -1301,6 +1338,9 @@ label[class="lccn"]:focus,
 label[class="bib"]:hover,
 input[class="bib"]:checked + label,
 label[class="bib"]:focus,
+label[class="oclc"]:hover,
+input[class="oclc"]:checked + label,
+label[class="oclc"]:focus,
 label[class="other"]:hover,
 input[class="other"]:checked + label,
 label[class="other"]:focus {
