@@ -662,7 +662,8 @@ test('Add a Geo with subdiv (complex) and check it has the correct XML', async (
     await page.getByText('Spain--History', { exact: true }).click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:Topicxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"rdf:about="http://id.loc.gov/authorities/subjects/sh85126069"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Spain‑‑History</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Spain‑‑History</rdfs:label><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">151 0$aSpain$xHistory</bflc:marcKey><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:Topic></bf:subject>');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Spain‑‑History</rdfs:label>');
+    await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">151 0$aSpain$xHistory</bflc:marcKey>');
 });
 
 test('Add a Geo with subdiv (simple) and check it has the correct XML', async ({ page }) => {
@@ -684,7 +685,9 @@ test('Add a Geo with subdiv (simple) and check it has the correct XML', async ({
     await page.getByText('Travel', { exact: true }).first().click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Spain--Travel</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Spain--Travel</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:Geographicrdf:about="http://id.loc.gov/authorities/names/n79006971"><madsrdf:authoritativeLabel>Spain</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">151 $aSpain</bflc:marcKey></madsrdf:Geographic><madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh99005039"><madsrdf:authoritativeLabel>Travel</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180 $xTravel</bflc:marcKey></madsrdf:Topic></madsrdf:componentList><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Spain--Travel</rdfs:label>');
+    await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">151 $aSpain</bflc:marcKey>');
+    await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180 $xTravel</bflc:marcKey>');
 });
 
 
@@ -707,7 +710,9 @@ test('Add a name with subdiv (simple) and check it has the correct XML', async (
     await page.getByText('Interviews', { exact: true }).nth(0).click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910--Interviews</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, Mark, 1835-1910--Interviews</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:PersonalNamerdf:about="http://id.loc.gov/authorities/names/n79021164"><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aTwain, Mark,$d1835-1910</bflc:marcKey></madsrdf:PersonalName><madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh2010013210"><madsrdf:authoritativeLabel>Interviews</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180 $xInterviews</bflc:marcKey></madsrdf:Topic></madsrdf:componentList><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, Mark, 1835-1910--Interviews</rdfs:label>');
+    await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aTwain, Mark,$d1835-1910</bflc:marcKey>');
+    await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180 $xInterviews</bflc:marcKey>');
 });
 
 // jurisdiction
@@ -727,7 +732,8 @@ test('Add a Jurisdiction and check it has the correct XML', async ({ page }) => 
     await page.getByText('Kenya. Horticultural Crops Development Authority [LCNAF]').click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<bf:subject><bf:Jursidictionrdf:about="http://id.loc.gov/authorities/names/n94900835"><madsrdf:isMemberOfMADSSchemexmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"rdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabelxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">Kenya. Horticultural Crops Development Authority</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Kenya. Horticultural Crops Development Authority</rdfs:label><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">11010$aKenya.$bHorticultural Crops Development Authority</bflc:marcKey><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></bf:Jursidiction></bf:subject>');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Kenya. Horticultural Crops Development Authority</rdfs:label>');
+    await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">11010$aKenya.$bHorticultural Crops Development Authority</bflc:marcKey>');
 });
 
 
