@@ -1091,11 +1091,11 @@ export default {
                       {
                         "@guid": short.generate(),
                         "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
-                        "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+                        "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
                         "http://id.loc.gov/ontologies/bibframe/code": [
                           {
                             "@guid": short.generate(),
-                            "http://id.loc.gov/ontologies/bibframe/code": "DLC",
+                            "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC",
                             "@datatype": "http://id.loc.gov/datatypes/orgs/code"
                           }
                         ]
