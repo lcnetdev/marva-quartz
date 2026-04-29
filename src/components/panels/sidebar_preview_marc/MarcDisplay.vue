@@ -28,11 +28,20 @@ export default {
     methods: {
         // to help with identifying which position a byte is in in the leader & 008
         positionCounter: function(){
+            if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-opac-marc-html')){ return }
+
             let leader = document.getElementsByClassName('leader')[0]
             let zerozero8 = document.querySelector('.tag-008 + .value')
 
-            let valueLeader = leader.innerHTML
-            let value008 = zerozero8.innerHTML
+            let valueLeader
+            let value008
+
+            try {
+                valueLeader = leader.innerHTML
+                value008 = zerozero8.innerHTML
+            } catch {
+                return
+            }
 
             zerozero8.innerHTML = ''
             for (let [i, char] of value008.split("").entries()){

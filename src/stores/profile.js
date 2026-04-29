@@ -642,10 +642,10 @@ export const useProfileStore = defineStore('profile', {
             // if we are stage try to find stage
             if (config.returnUrls.env === 'staging') {
               defaultWs = wsData.data.find(ws => ws.name === 'marva-stage')
-            } 
+            }
             if (config.returnUrls.env === 'production') {
               defaultWs = wsData.data.find(ws => ws.name === 'marva-prod')
-            } 
+            }
 
             if (defaultWs) {
                 let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
@@ -8514,6 +8514,12 @@ export const useProfileStore = defineStore('profile', {
       return results
     },
 
+    /**
+     * Derive a new instance.
+     *
+     * @instOnly {String}: whether to create a new instance, or derive a new record. If it's only a new instance, value is for the profile form `lc:RT:bf2:Monograph:Instance`
+     * @electronic {Bool}: If the new instance should be for an electronic resource.
+     */
     deriveNew: async function(instOnly, electronic=false){
       let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
       let instanceCount = 0
@@ -8837,8 +8843,14 @@ export const useProfileStore = defineStore('profile', {
 
         // derive as electronic record
         if (electronic){
+          /** What all needs to happen??
+           *
+           * [X]Set mediaType = computer
+           * []carrier??
+           * []??
+           *
+           */
           let mediaType = instance.pt['id_loc_gov_ontologies_bibframe_media__media_type']
-
           this.setValueSimple(mediaType["@guid"], null, [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/media"}], 'http://id.loc.gov/vocabulary/mediaTypes/c', 'computer (c)')
         }
 
