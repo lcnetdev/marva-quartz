@@ -1287,7 +1287,7 @@ export default {
                   "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
                     {
                       "@guid": short.generate(),
-                      "@type": "http://id.loc.gov/ontologies/bibframe/Lccn"
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Isbn"
                     }
                   ]
                 },
