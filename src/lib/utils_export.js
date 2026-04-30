@@ -423,7 +423,7 @@ const utilsExport = {
 			***End Source***
 			`
 
-			utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
+			// utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
 
 
 

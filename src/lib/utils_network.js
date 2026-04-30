@@ -3594,27 +3594,27 @@ const utilsNetwork = {
 
     },
 
-    sendErrorReportLog: function(log,filename,profileAsJson){
-
-      let url = useConfigStore().returnUrls.util + 'errorlog/'
-
-
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          ...getAuthHeaders()
-        },
-        body: JSON.stringify({
-          log: log,
-          filename:filename,
-          profile: profileAsJson
-        })
-      });
-
-
-    },
+    // sendErrorReportLog: function(log,filename,profileAsJson){
+    //
+    //   let url = useConfigStore().returnUrls.util + 'errorlog/'
+    //
+    //
+    //   fetch(url, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Accept': 'application/json',
+    //       'Content-Type': 'application/json',
+    //       ...getAuthHeaders()
+    //     },
+    //     body: JSON.stringify({
+    //       log: log,
+    //       filename:filename,
+    //       profile: profileAsJson
+    //     })
+    //   });
+    //
+    //
+    // },
 
 
 
