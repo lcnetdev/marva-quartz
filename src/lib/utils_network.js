@@ -3426,7 +3426,6 @@ const utilsNetwork = {
       content.push(await rawResponse.json())
       // content = await rawResponse.json()
     } else {
-      console.info("\tmulti")
       for (let record of xml){
         console.info("\t\trecord: ", record)
         const rawResponse = await fetch(url, {

@@ -23,6 +23,7 @@ export default {
       sourceDoc: {},
       marcRecordIdx: 0,
       version: "",
+      activeVersion: false,
     }
   },
   computed: {
@@ -61,7 +62,7 @@ export default {
       window.setTimeout(() => {
 
         this.refreshMarc()
-        this.version = this.previewData.default
+        this.activeVersion = this.previewData.default
 
       }, 1000)
     })
@@ -69,7 +70,13 @@ export default {
     this.sourceDoc = window.document
   },
 
-  updated() { }
+  mounted(){},
+
+  updated() {
+    if (!this.activeVersion) {
+      this.activeVersion = this.previewData.default
+    }
+  }
 }
 
 
@@ -87,24 +94,26 @@ export default {
       <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> why this doesn't work? -->
     </WindowPortal>
 
-    <!-- !!{{  previewData['versions'] }} -->
     <!--
       TODO:
-        * Get it working with multiple versions of the conversion?
-        * 7293506 -- MARC preview not working, secondary instance
+        * [] Get it working with multiple versions of the conversion?
+        * [X] 7293506 -- MARC preview not working, secondary instance
     -->
-    <template v-for="key in Object.keys(previewData['versions'])">
-      <div class="conversion-heading">Conversion {{ key }}:</div>
-      <div class="toggle-btn-grp cssonly" v-if="previewData['versions'][key].record.length > 1">
-        <div v-for="(r, idx) of previewData['versions'][key].record">
-          <input type="radio" :value="idx" class="record-radio" v-model="selected" name="recordSelect" />
-          <label onclick="" class="toggle-btn">Record {{ idx + 1 }}</label>
-        </div>
-      </div>
-
-      <MarcDisplay :previewData="previewData['versions'][previewData.default].record[selected]" />
-
+    <template v-for="key in Object.keys(previewData['versions']).reverse()">
+      <button @click="activeVersion = key">{{ key }}</button>
     </template>
+
+    <div class="conversion-heading">Conversion {{ activeVersion }}:</div>
+
+    <div class="toggle-btn-grp cssonly" v-if="previewData['versions'][activeVersion].record.length > 1">
+      <div v-for="(r, idx) of previewData['versions'][activeVersion].record">
+        <input type="radio" :value="idx" class="record-radio" v-model="selected" name="recordSelect" />
+        <label onclick="" class="toggle-btn">Record {{ idx + 1 }}</label>
+      </div>
+    </div>
+
+    <MarcDisplay :previewData="previewData['versions'][previewData.default].record[selected]" />
+
 
   </div>
 </template>

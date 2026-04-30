@@ -3477,7 +3477,10 @@ export const useProfileStore = defineStore('profile', {
       // clean it up a bit for the component
       let versions = Object.keys(data).map((v)=>{ return v}).sort().reverse()
 
+      console.info("versions: ", versions)
+
       let defaultVer = versions[0]
+      console.info("defaultVer: ", defaultVer)
 
       return({
         default: defaultVer,
