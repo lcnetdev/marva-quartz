@@ -6842,7 +6842,7 @@ export const useProfileStore = defineStore('profile', {
       let workRt = null
       let emptySubjectPt = null
       let lastSubjectPt = null
-
+      console.log("label, source, components, uri, marcKey", label, source, components, uri, marcKey)
       // Find the Work RT
       for (let rt of activeProfile.rtOrder) {
         if (rt.indexOf(':Work') > -1) {

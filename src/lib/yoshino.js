@@ -145,10 +145,12 @@ function yoshinoParseRdf(xmlText) {
         let compLabel = child.getElementsByTagNameNS(NS.madsrdf, 'authoritativeLabel')[0]?.textContent?.trim()
           || child.getElementsByTagNameNS(NS.rdfs, 'label')[0]?.textContent?.trim()
           || null
-        // Determine type from element local name (Topic, Geographic, Temporal, GenreForm, etc.)
+        // Determine type from element local name (Topic, Geographic, Temporal, GenreForm, Hub, etc.)
         const compType = child.namespaceURI === NS.madsrdf
           ? 'http://www.loc.gov/mads/rdf/v1#' + child.localName
-          : child.localName
+          : child.namespaceURI === NS.bf
+            ? 'http://id.loc.gov/ontologies/bibframe/' + child.localName
+            : child.localName
         const marcKeyEl = child.getElementsByTagNameNS(NS.bflc, 'marcKey')[0]
         const compMarcKey = marcKeyEl?.textContent?.trim() || null
 
