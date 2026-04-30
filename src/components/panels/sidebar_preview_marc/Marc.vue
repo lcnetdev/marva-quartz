@@ -94,11 +94,6 @@ export default {
       <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> why this doesn't work? -->
     </WindowPortal>
 
-    <!--
-      TODO:
-        * [] Get it working with multiple versions of the conversion?
-        * [X] 7293506 -- MARC preview not working, secondary instance
-    -->
     <template v-for="key in Object.keys(previewData['versions']).reverse()">
       <button @click="activeVersion = key">{{ key }}</button>
     </template>
