@@ -87,7 +87,7 @@ export default {
       <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> why this doesn't work? -->
     </WindowPortal>
 
-    !!{{  previewData['versions'] }}
+    <!-- !!{{  previewData['versions'] }} -->
     <!--
       TODO:
         * Get it working with multiple versions of the conversion?

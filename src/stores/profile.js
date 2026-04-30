@@ -3442,7 +3442,9 @@ export const useProfileStore = defineStore('profile', {
     * @return {string} - the MARC string of output
     */
     marcPreview: async function(){
+      console.info("Profile -- marcPreview")
       let xml = await utilsExport.buildXML(this.activeProfile)
+      console.info("\tXML: ", xml)
 
       let preview = null
       if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
@@ -8565,13 +8567,14 @@ export const useProfileStore = defineStore('profile', {
         // update the enumber
         recordCopy.eId = 'e' + Date.now().toString()
       } else {
+
         instances = recordCopy.rt[instOnly]
         let instId = instances.URI.split("/").at(-1)
         if (/-[0-9]{4}/.test(instId)){
           let suffix = Number(instId.slice(-4))
           newIdent = instId + (suffix+1)
         } else {
-          newIdent = utilsProfile.suggestURI(this.activeProfile,'bf:Instance', work.URI).split("/").at(-1)
+          newIdent = instId + '-' + String(instanceCount+1).padStart(4, '0');
         }
       }
 
@@ -8801,7 +8804,9 @@ export const useProfileStore = defineStore('profile', {
 
         return newId
       } else { //insert the updated instance into the record
+        console.info("instanceCount: ", instanceCount)
         newRtId = instOnly +'_'+instanceCount
+        console.info("newRtId: ", newRtId)
 
         // update the new admin metadata to have this ID, is this OK?
 

@@ -3401,6 +3401,7 @@ const utilsNetwork = {
   * @return {string} - the MARC in XML response
   */
   marcPreview: async function(xml, html=false, multi=false){
+    console.info("Network -- marcPreview")
     if (!xml){
       return ""
     }
@@ -3425,7 +3426,9 @@ const utilsNetwork = {
       content.push(await rawResponse.json())
       // content = await rawResponse.json()
     } else {
+      console.info("\tmulti")
       for (let record of xml){
+        console.info("\t\trecord: ", record)
         const rawResponse = await fetch(url, {
           method: 'POST',
           headers: {
@@ -3434,7 +3437,10 @@ const utilsNetwork = {
           },
           body: JSON.stringify({rdfxml:record})
         });
-        content.push(await rawResponse.json())
+        let resp = await rawResponse.json()
+        console.info("\t\t\tresp: ", resp)
+        content.push(resp)
+
       }
     }
 

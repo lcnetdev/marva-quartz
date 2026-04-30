@@ -681,6 +681,10 @@ const utilsProfile = {
 
 
   suggestURI: function(profile,type,URI){
+    console.info("\n---------------------------------------\nsuggestURI: ")
+    console.info("\t profile:", profile)
+    console.info("\t type:", type)
+    console.info("\t URI:", URI)
     // for items find the instance URI and then count up the items and add it as a suffix to the instance URI pattern
     if (type === 'bf:Item'){
         for (let rtId in profile.rt){
@@ -718,11 +722,15 @@ const utilsProfile = {
                 }
             }
         }
+
+        console.info("\t\tinstanceCount: ", instanceCount)
         // if there are no instances yet use the instanceURIbasedOnWork
         if (instanceCount==0){
+          console.info("\t\t\treturning: ", instanceURIbasedOnWork)
             return instanceURIbasedOnWork
         }else{
             // there are already instances, so use the work id but append a suffix to it
+            console.info("\t\t\treturning: ", instanceURIbasedOnWork + '-' + String(instanceCount).padStart(4, '0'))
             return instanceURIbasedOnWork + '-' + String(instanceCount).padStart(4, '0');
         }
     }

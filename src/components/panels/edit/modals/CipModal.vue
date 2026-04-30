@@ -96,9 +96,7 @@ export default {
                 for (let pt in this.profile.rt[rt].pt){
                     if (this.profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() === 'Notes about the Instance'.toLowerCase()){
                         let instanceNoteComponent = this.profile.rt[rt].pt[pt]
-                        console.info("instanceNoteComponent: ", instanceNoteComponent)
                         let instNoteCompUserValue = instanceNoteComponent.userValue
-                        console.info("instNoteCompUserValue: ", instNoteCompUserValue)
                         if (instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]){
                             let data = instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]
                             let label = data["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
