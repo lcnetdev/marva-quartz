@@ -6842,7 +6842,7 @@ export const useProfileStore = defineStore('profile', {
       let workRt = null
       let emptySubjectPt = null
       let lastSubjectPt = null
-
+      console.log("label, source, components, uri, marcKey", label, source, components, uri, marcKey)
       // Find the Work RT
       for (let rt of activeProfile.rtOrder) {
         if (rt.indexOf(':Work') > -1) {
@@ -7991,15 +7991,15 @@ export const useProfileStore = defineStore('profile', {
         contributors: utilsProfile.returnContributorUris(this.activeProfile),
         isbn: (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn) ? this.activeProfile.linkedData.isbn : [],
       }
-      console.log(":linkedDatalinkedData",linkedData)
+      // console.log(":linkedDatalinkedData",linkedData)
 
       for (let isbn of linkedData.isbn){
 
         let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
-        console.log("baseData",baseData)
+        // console.log("baseData",baseData)
 
         let oclcMarcData = utilsNetwork.linkedDataExtractOclcMarc(baseData.results)
-        console.log("oclcMarcData",oclcMarcData)
+        // console.log("oclcMarcData",oclcMarcData)
         linkedData.subtitle = linkedData.subtitle.concat(oclcMarcData.filter((v) => (v.dataType == 'subtitle')));
         linkedData.noteContent = linkedData.noteContent.concat(oclcMarcData.filter((v) => (v.dataType == 'description')));
         linkedData.noteTOC = linkedData.noteTOC.concat(oclcMarcData.filter((v) => (v.dataType == 'toc')));
@@ -8022,7 +8022,7 @@ export const useProfileStore = defineStore('profile', {
         if (baseData.results.isbns && baseData.results.isbns.length > 0){
           let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
           googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
-          console.log("googleBookData",googleBookData)
+          // console.log("googleBookData",googleBookData)
 
           googleBookData.filter((v) => (v.dataType == 'toc'))
 
@@ -8090,12 +8090,12 @@ export const useProfileStore = defineStore('profile', {
         // console.log("lcshContributors",lcshContributors)
         // kick this off but don't wait for it to finish
         utilsNetwork.linkedDataLCSHContributorsExtract(lcshContributors).then((colabResults)=>{
-          console.log("colabResults",colabResults)
+          // console.log("colabResults",colabResults)
         })
         // if (lcshContributors && lcshContributors.length > 0){
       }
 
-      console.log("linkedData",linkedData)
+      // console.log("linkedData",linkedData)
       this.linkedData = linkedData
       this.linkedData.done = true
       this.linkedData.eId = this.activeProfile && this.activeProfile.eId

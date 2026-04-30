@@ -283,7 +283,15 @@ const utilsExport = {
   */
 	hasUserValue: function(userValue){
 		for (let key in userValue){
-			if (key == '@id' || key.includes('http://') || key.includes('https://')){
+			if (key == '@id'){
+				return true
+			}
+			if (key.includes('http://') || key.includes('https://')){
+				let v = userValue[key]
+				// an empty array means this is a placeholder pt with no real data — keep looking
+				if (Array.isArray(v) && v.length === 0){
+					continue
+				}
 				return true
 			}
 		}
@@ -423,7 +431,7 @@ const utilsExport = {
 			***End Source***
 			`
 
-			utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
+			// utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
 
 
 

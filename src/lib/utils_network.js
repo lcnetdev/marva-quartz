@@ -3594,27 +3594,27 @@ const utilsNetwork = {
 
     },
 
-    sendErrorReportLog: function(log,filename,profileAsJson){
-
-      let url = useConfigStore().returnUrls.util + 'errorlog/'
-
-
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          ...getAuthHeaders()
-        },
-        body: JSON.stringify({
-          log: log,
-          filename:filename,
-          profile: profileAsJson
-        })
-      });
-
-
-    },
+    // sendErrorReportLog: function(log,filename,profileAsJson){
+    //
+    //   let url = useConfigStore().returnUrls.util + 'errorlog/'
+    //
+    //
+    //   fetch(url, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Accept': 'application/json',
+    //       'Content-Type': 'application/json',
+    //       ...getAuthHeaders()
+    //     },
+    //     body: JSON.stringify({
+    //       log: log,
+    //       filename:filename,
+    //       profile: profileAsJson
+    //     })
+    //   });
+    //
+    //
+    // },
 
 
 
@@ -4006,9 +4006,11 @@ const utilsNetwork = {
     async linkedDataLCSHContributorsExtract(data){
       // TODO: Implement extraction logic
       if (data){
-        console.log("linkedDataLCSHContributorsExtract data:",data)
+        // console.log("linkedDataLCSHContributorsExtract data:",data)
 
         for (let lccnUri of Object.keys(data)){
+
+          if (!data[lccnUri] || !data[lccnUri].results) continue
 
           let workUrls = data[lccnUri].results.map(work => work.uri.replace("http://","https://") + '.json');
 
@@ -4016,11 +4018,11 @@ const utilsNetwork = {
 
             try {
               let workResults = await Promise.all(workPromises);
-              console.log("workResults", workResults);
+              // console.log("workResults", workResults);
               // Now process each workResult
               for (let workData of workResults) {
                 // Process workData
-                console.log("Processing workData:", workData);
+                // console.log("Processing workData:", workData);
 
                 let lookup = {}
                 let lcshList = []
@@ -4111,7 +4113,7 @@ const utilsNetwork = {
 
                               if (g['@type'] && g['@type'].indexOf('http://www.loc.gov/mads/rdf/v1#ComplexSubject') > -1) {
 
-                                  console.log("Complex Subject:", g);
+                                  // console.log("Complex Subject:", g);
 
 
 
@@ -4120,7 +4122,7 @@ const utilsNetwork = {
                                       let components = g['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@list'];
                                       for (let component of components) {
                                           // now find this in the graph...
-                                          console.log("component:", component);
+                                          // console.log("component:", component);
                                           let userValueComponent = {
                                               "@guid": short.generate(),
                                               "@type": null,
@@ -4136,7 +4138,7 @@ const utilsNetwork = {
                                           }
                                           for (let g2 of workData) {
                                               if (g2['@id'] === component['@id']) {
-                                                  console.log("component g2:", g2);
+                                                  // console.log("component g2:", g2);
                                                   if (g2['@id']) {
                                                       userValueComponent['@id'] = g2['@id']
                                                   }
@@ -4154,7 +4156,7 @@ const utilsNetwork = {
                                                   }
                                               }
                                           }
-                                          console.log("userValueComponent:", userValueComponent);
+                                          // console.log("userValueComponent:", userValueComponent);
                                           userData['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#componentList'].push(userValueComponent);
                                       }
                                   }
@@ -4176,8 +4178,8 @@ const utilsNetwork = {
 
                 }
 
-                console.log("lcshList:", lcshList);
-                console.log("lookup:", lookup);
+                // console.log("lcshList:", lcshList);
+                // console.log("lookup:", lookup);
 
 
 
