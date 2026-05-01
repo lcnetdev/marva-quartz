@@ -47,8 +47,7 @@ async function yoshinoFetchRdf(instanceId, base, retried = false) {
   try {
     const resp = await fetch(url, {
       headers: {
-        'Accept': 'application/rdf+xml',
-        'User-Agent': 'LC Yoshino',
+        'Accept': 'application/rdf+xml'
       },
     })
     if (resp.status === 503 && !retried) {
