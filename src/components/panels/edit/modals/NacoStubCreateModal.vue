@@ -748,15 +748,15 @@
               this.zero46 = {}
             }
 
-            if (Object.keys(this.zero46).length > 0){
-                  
+            if (this.zero46 && Object.keys(this.zero46).length > 0){
+
               window.setTimeout(()=>{
                 this.rebuild046()
               },10)
 
             }else{
-              
-              // not really nessary 
+
+              // not really nessary
 
 
             }
@@ -1330,7 +1330,7 @@
             this.checkFourXX()
           }
 
-          
+
           window.setTimeout(()=>{
             this.rebuild046()
           },10)
@@ -1345,7 +1345,7 @@
 
 
         rebuild046(){
-          
+
           // rebuild 046 if $d is present
           if (this.oneXX.includes("$d")){
             let tmp046 = this.build046()
@@ -1861,6 +1861,7 @@
                   </div>
                 </div>
               </div>
+              ??{{ hyphenated4xx }}!!{{ buildHyphenated4xx }}??
               <div v-if="hyphenated4xx && !preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" style="margin-bottom: 0.75em;">
                 <input type="checkbox" id="buildHyphenated4xx" name="buildHyphenated4xx" v-model="buildHyphenated4xx" style="margin-right: 1em;"/>
                 <label for="buildHyphenated4xx" style="vertical-align: super;">Add Hyphenated 4XX: <span style="background-color: whitesmoke; font-family: 'Courier New', Courier, monospace;">{{ hyphenated4xx.preview }}</span></label>
