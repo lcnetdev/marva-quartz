@@ -748,15 +748,15 @@
               this.zero46 = {}
             }
 
-            if (Object.keys(this.zero46).length > 0){
-                  
+            if (this.zero46 && Object.keys(this.zero46).length > 0){
+
               window.setTimeout(()=>{
                 this.rebuild046()
               },10)
 
             }else{
-              
-              // not really nessary 
+
+              // not really nessary
 
 
             }
@@ -1330,7 +1330,7 @@
             this.checkFourXX()
           }
 
-          
+
           window.setTimeout(()=>{
             this.rebuild046()
           },10)
@@ -1345,7 +1345,7 @@
 
 
         rebuild046(){
-          
+
           // rebuild 046 if $d is present
           if (this.oneXX.includes("$d")){
             let tmp046 = this.build046()

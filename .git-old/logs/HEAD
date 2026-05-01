@@ -1,0 +1,819 @@
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 fo <fosorio@loc.gov> 1768413061 +0000	checkout: moving from main to admin-field-adjustment
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 a681c3d460cde025348228fd698c093a07ef7cee fo <fosorio@loc.gov> 1768413229 +0000	commit: Only add catId to "Primary" admin field
+a681c3d460cde025348228fd698c093a07ef7cee 193ec9bb8db08026329c5d2392a8eb390b517fe7 fo <fosorio@loc.gov> 1768418579 +0000	commit: Add support for in ID searching from load screen
+193ec9bb8db08026329c5d2392a8eb390b517fe7 10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 fo <fosorio@loc.gov> 1768418595 +0000	checkout: moving from admin-field-adjustment to main
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 fo <fosorio@loc.gov> 1768418636 +0000	checkout: moving from main to complex-alpha-sort
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 fo <fosorio@loc.gov> 1768419508 +0000	reset: moving to HEAD
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 fo <fosorio@loc.gov> 1768419512 +0000	checkout: moving from complex-alpha-sort to main
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 193ec9bb8db08026329c5d2392a8eb390b517fe7 fo <fosorio@loc.gov> 1768419521 +0000	checkout: moving from main to admin-field-adjustment
+193ec9bb8db08026329c5d2392a8eb390b517fe7 e7e419b5b9c9e19c5707c82547410c65180e2973 fo <fosorio@loc.gov> 1768419610 +0000	commit: Inject adgent into primary admin Metadata
+e7e419b5b9c9e19c5707c82547410c65180e2973 22349fa7ccd9585655ece4af1c866a3ef62f616e fo <fosorio@loc.gov> 1768422838 +0000	commit: Add agent in buildXmlProcess()
+22349fa7ccd9585655ece4af1c866a3ef62f616e 0f06cde838b37ff45032cd983f42e212d94b1cdd fo <fosorio@loc.gov> 1768423292 +0000	commit: Add catID to primary admin
+0f06cde838b37ff45032cd983f42e212d94b1cdd 8c7dda6cf85b04f0df405ff7877ccd12ddd6d273 fo <fosorio@loc.gov> 1768423896 +0000	commit: Cleanup
+8c7dda6cf85b04f0df405ff7877ccd12ddd6d273 8c7dda6cf85b04f0df405ff7877ccd12ddd6d273 fo <fosorio@loc.gov> 1768424280 +0000	reset: moving to HEAD
+8c7dda6cf85b04f0df405ff7877ccd12ddd6d273 6ed8345f710e95b13971cb858a43b8ac5e16d2cb fo <fosorio@loc.gov> 1768424451 +0000	commit: Remove unused var
+6ed8345f710e95b13971cb858a43b8ac5e16d2cb 10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 fo <fosorio@loc.gov> 1768424490 +0000	checkout: moving from admin-field-adjustment to main
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 6ed8345f710e95b13971cb858a43b8ac5e16d2cb fo <fosorio@loc.gov> 1768425339 +0000	checkout: moving from main to admin-field-adjustment
+6ed8345f710e95b13971cb858a43b8ac5e16d2cb 6ed8345f710e95b13971cb858a43b8ac5e16d2cb fo <fosorio@loc.gov> 1768482913 +0000	reset: moving to HEAD
+6ed8345f710e95b13971cb858a43b8ac5e16d2cb 10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 fo <fosorio@loc.gov> 1768482918 +0000	checkout: moving from admin-field-adjustment to main
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 fo <fosorio@loc.gov> 1768482951 +0000	pull origin main: Fast-forward
+dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 fo <fosorio@loc.gov> 1768488158 +0000	reset: moving to HEAD
+dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 fo <fosorio@loc.gov> 1768491529 +0000	reset: moving to HEAD
+dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 fo <fosorio@loc.gov> 1768491542 +0000	reset: moving to HEAD
+dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 fo <fosorio@loc.gov> 1768496087 +0000	checkout: moving from main to fix-complexsubject-error
+dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 3aedbb601068ad595cceebfee1e9d42c98a4c7a3 fo <fosorio@loc.gov> 1768496091 +0000	commit: Don't dtreat complex subject like notes
+3aedbb601068ad595cceebfee1e9d42c98a4c7a3 e3f5d90c15ce8a1d0ca22fc031dafbf3796ddca4 fo <fosorio@loc.gov> 1768496254 +0000	commit: cleanup
+e3f5d90c15ce8a1d0ca22fc031dafbf3796ddca4 e44a782655d6bcfd7fcbf10b67a16a86c7001d2c fo <fosorio@loc.gov> 1768496287 +0000	commit: revert some code
+e44a782655d6bcfd7fcbf10b67a16a86c7001d2c acde525029da779b7cf667186cb2098ebafe99fa fo <fosorio@loc.gov> 1768496352 +0000	commit: clean up
+acde525029da779b7cf667186cb2098ebafe99fa dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 fo <fosorio@loc.gov> 1768496624 +0000	checkout: moving from fix-complexsubject-error to main
+dc24bdb3de8cc0b038bd8f94d0637d2f435dd181 13ea963ebf605f6ff55351c04699afd4ccdb0f3d fo <fosorio@loc.gov> 1768497084 +0000	pull origin main: Fast-forward
+13ea963ebf605f6ff55351c04699afd4ccdb0f3d 13ea963ebf605f6ff55351c04699afd4ccdb0f3d fo <fosorio@loc.gov> 1768508131 +0000	checkout: moving from main to direct-copycat-url-and-search
+13ea963ebf605f6ff55351c04699afd4ccdb0f3d 44110e1dfaef07f7eaac8b677bfe7d97d2c2828f fo <fosorio@loc.gov> 1768508135 +0000	commit: Allow direct link to copycat
+44110e1dfaef07f7eaac8b677bfe7d97d2c2828f 2dcc2c9610664de44ca629cf59a13a60cc4493eb fo <fosorio@loc.gov> 1768508403 +0000	commit: Lower threshold length of search
+2dcc2c9610664de44ca629cf59a13a60cc4493eb 13ea963ebf605f6ff55351c04699afd4ccdb0f3d fo <fosorio@loc.gov> 1768508468 +0000	checkout: moving from direct-copycat-url-and-search to main
+13ea963ebf605f6ff55351c04699afd4ccdb0f3d 13ea963ebf605f6ff55351c04699afd4ccdb0f3d fo <fosorio@loc.gov> 1768508485 +0000	checkout: moving from main to subject-indirgeo-breakin-after-paste
+13ea963ebf605f6ff55351c04699afd4ccdb0f3d f78b8f116be87034bb06856d529d5a06ca71baa5 fo <fosorio@loc.gov> 1768566591 +0000	commit: Expand type check when add complex headings
+f78b8f116be87034bb06856d529d5a06ca71baa5 13ea963ebf605f6ff55351c04699afd4ccdb0f3d fo <fosorio@loc.gov> 1768568227 +0000	checkout: moving from subject-indirgeo-breakin-after-paste to main
+13ea963ebf605f6ff55351c04699afd4ccdb0f3d 6c7600a33fb769a5415b75409f8aa5c5d294c135 fo <fosorio@loc.gov> 1768568253 +0000	pull origin main: Fast-forward
+6c7600a33fb769a5415b75409f8aa5c5d294c135 2dcc2c9610664de44ca629cf59a13a60cc4493eb fo <fosorio@loc.gov> 1768568278 +0000	checkout: moving from main to direct-copycat-url-and-search
+2dcc2c9610664de44ca629cf59a13a60cc4493eb 9b93accc227861536a6e0597701c1c01f815c288 fo <fosorio@loc.gov> 1768568929 +0000	commit: Use `location.hash` to check for copycat
+9b93accc227861536a6e0597701c1c01f815c288 eed444b7e430145c969d2b6761cd8610a6b21600 fo <fosorio@loc.gov> 1768569041 +0000	commit: Cleanup
+eed444b7e430145c969d2b6761cd8610a6b21600 eed444b7e430145c969d2b6761cd8610a6b21600 fo <fosorio@loc.gov> 1768570600 +0000	reset: moving to HEAD
+eed444b7e430145c969d2b6761cd8610a6b21600 6c7600a33fb769a5415b75409f8aa5c5d294c135 fo <fosorio@loc.gov> 1768571611 +0000	checkout: moving from direct-copycat-url-and-search to main
+6c7600a33fb769a5415b75409f8aa5c5d294c135 ab42887c3c9e9702ac714653761618ba2ef1065b fo <fosorio@loc.gov> 1768572219 +0000	pull origin main: Fast-forward
+ab42887c3c9e9702ac714653761618ba2ef1065b ab42887c3c9e9702ac714653761618ba2ef1065b fo <fosorio@loc.gov> 1768581505 +0000	reset: moving to HEAD
+ab42887c3c9e9702ac714653761618ba2ef1065b ab42887c3c9e9702ac714653761618ba2ef1065b fo <fosorio@loc.gov> 1768591346 +0000	checkout: moving from main to history-use-instance
+ab42887c3c9e9702ac714653761618ba2ef1065b 633c2e9ac5a34f591a0c29f543d15e015d7e0fba fo <fosorio@loc.gov> 1768591489 +0000	commit: Use primary intance to pull data from
+633c2e9ac5a34f591a0c29f543d15e015d7e0fba ab42887c3c9e9702ac714653761618ba2ef1065b fo <fosorio@loc.gov> 1768592270 +0000	checkout: moving from history-use-instance to main
+ab42887c3c9e9702ac714653761618ba2ef1065b 2aec615e87228656598a5eb4038969c66ef4ec2a fo <fosorio@loc.gov> 1768592279 +0000	pull origin main: Fast-forward
+2aec615e87228656598a5eb4038969c66ef4ec2a 10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 fo <fosorio@loc.gov> 1768917578 +0000	checkout: moving from main to complex-alpha-sort
+10e04acbe213ad9549e4ef3d8fdeac5cd39d8a25 2aec615e87228656598a5eb4038969c66ef4ec2a fo <fosorio@loc.gov> 1768917596 +0000	checkout: moving from complex-alpha-sort to main
+2aec615e87228656598a5eb4038969c66ef4ec2a 2aec615e87228656598a5eb4038969c66ef4ec2a fo <fosorio@loc.gov> 1768918632 +0000	reset: moving to HEAD
+2aec615e87228656598a5eb4038969c66ef4ec2a 2aec615e87228656598a5eb4038969c66ef4ec2a fo <fosorio@loc.gov> 1768920251 +0000	reset: moving to HEAD
+2aec615e87228656598a5eb4038969c66ef4ec2a 2aec615e87228656598a5eb4038969c66ef4ec2a fo <fosorio@loc.gov> 1768920744 +0000	checkout: moving from main to classweb-name-search
+2aec615e87228656598a5eb4038969c66ef4ec2a 9e4b5076c005864f42fdf4dd71809826f331e6cc fo <fosorio@loc.gov> 1768923049 +0000	commit: Add support for name searching in class web.
+9e4b5076c005864f42fdf4dd71809826f331e6cc cdad385f88218fb0d08f3a8593178ee3899a574b fo <fosorio@loc.gov> 1768929701 +0000	commit: Only show name search ig there is a value
+cdad385f88218fb0d08f3a8593178ee3899a574b 0ec9f8d03e371cda5880953c9132384d1aaabfb3 fo <fosorio@loc.gov> 1768929817 +0000	commit: Changelog, version++
+0ec9f8d03e371cda5880953c9132384d1aaabfb3 2046f3f5113d7f178739af78c535b9f2c8d8c5ec fo <fosorio@loc.gov> 1768930634 +0000	commit: Reinstance classweb search on `test.classweb.org` in staging
+2046f3f5113d7f178739af78c535b9f2c8d8c5ec 3d7c91495ae29bfd5f29c8e89bb34b0a76eb9669 fo <fosorio@loc.gov> 1768931703 +0000	commit: Always use `w/names` search
+3d7c91495ae29bfd5f29c8e89bb34b0a76eb9669 3d7c91495ae29bfd5f29c8e89bb34b0a76eb9669 fo <fosorio@loc.gov> 1768931813 +0000	reset: moving to HEAD
+3d7c91495ae29bfd5f29c8e89bb34b0a76eb9669 2aec615e87228656598a5eb4038969c66ef4ec2a fo <fosorio@loc.gov> 1768932387 +0000	checkout: moving from classweb-name-search to main
+2aec615e87228656598a5eb4038969c66ef4ec2a 5a1cacb55d7861534bd5619201bbd4a0b45d7be2 fo <fosorio@loc.gov> 1768932396 +0000	pull origin main: Fast-forward
+5a1cacb55d7861534bd5619201bbd4a0b45d7be2 5a1cacb55d7861534bd5619201bbd4a0b45d7be2 fo <fosorio@loc.gov> 1768935686 +0000	checkout: moving from main to subject-classweb-authLabel
+5a1cacb55d7861534bd5619201bbd4a0b45d7be2 de1cc1951acec73bcbe08b2c018abf3b9b22712c fo <fosorio@loc.gov> 1768935692 +0000	commit: Check for auth label when looking for classweb search
+de1cc1951acec73bcbe08b2c018abf3b9b22712c 5a1cacb55d7861534bd5619201bbd4a0b45d7be2 fo <fosorio@loc.gov> 1768935734 +0000	checkout: moving from subject-classweb-authLabel to main
+5a1cacb55d7861534bd5619201bbd4a0b45d7be2 1c543e11077e9595d7139ea3ae970f0e87bd2ed4 fo <fosorio@loc.gov> 1768935737 +0000	pull origin main: Fast-forward
+1c543e11077e9595d7139ea3ae970f0e87bd2ed4 de1cc1951acec73bcbe08b2c018abf3b9b22712c fo <fosorio@loc.gov> 1768935761 +0000	checkout: moving from main to subject-classweb-authLabel
+de1cc1951acec73bcbe08b2c018abf3b9b22712c 1c543e11077e9595d7139ea3ae970f0e87bd2ed4 fo <fosorio@loc.gov> 1768935902 +0000	checkout: moving from subject-classweb-authLabel to main
+1c543e11077e9595d7139ea3ae970f0e87bd2ed4 de1cc1951acec73bcbe08b2c018abf3b9b22712c fo <fosorio@loc.gov> 1768936682 +0000	checkout: moving from main to subject-classweb-authLabel
+de1cc1951acec73bcbe08b2c018abf3b9b22712c 1c543e11077e9595d7139ea3ae970f0e87bd2ed4 fo <fosorio@loc.gov> 1768937256 +0000	checkout: moving from subject-classweb-authLabel to main
+1c543e11077e9595d7139ea3ae970f0e87bd2ed4 c88037cbea9b8314800ccacaaf7622e27ced6713 fo <fosorio@loc.gov> 1768937878 +0000	pull origin main: Fast-forward
+c88037cbea9b8314800ccacaaf7622e27ced6713 c88037cbea9b8314800ccacaaf7622e27ced6713 fo <fosorio@loc.gov> 1768943477 +0000	checkout: moving from main to fix-literal-gf-655
+c88037cbea9b8314800ccacaaf7622e27ced6713 f2b6adb289f9d69e1165d8904cdca1883f680d2c fo <fosorio@loc.gov> 1768943552 +0000	commit: Fix missing GF when no thes.
+f2b6adb289f9d69e1165d8904cdca1883f680d2c c88037cbea9b8314800ccacaaf7622e27ced6713 fo <fosorio@loc.gov> 1768944124 +0000	checkout: moving from fix-literal-gf-655 to main
+c88037cbea9b8314800ccacaaf7622e27ced6713 8d82c9459964f19dcf003219a0f87716e8e0411d fo <fosorio@loc.gov> 1768944251 +0000	pull origin main: Fast-forward
+8d82c9459964f19dcf003219a0f87716e8e0411d 40ef846cd0714246bf024d13e96e145e0547ad75 fo <fosorio@loc.gov> 1769002597 +0000	pull origin main: Fast-forward
+40ef846cd0714246bf024d13e96e145e0547ad75 40ef846cd0714246bf024d13e96e145e0547ad75 fo <fosorio@loc.gov> 1769008303 +0000	checkout: moving from main to subject-keyword-search
+40ef846cd0714246bf024d13e96e145e0547ad75 d51f4ab0efd957e90fdb44d8275fe702866397ea fo <fosorio@loc.gov> 1769008404 +0000	commit: Add suprot for keyword search on subject with terminal `?`
+d51f4ab0efd957e90fdb44d8275fe702866397ea 5cbdde32e33db03a451967ed0250fcfbc73cdef8 fo <fosorio@loc.gov> 1769009217 +0000	commit: Changelog
+5cbdde32e33db03a451967ed0250fcfbc73cdef8 40ef846cd0714246bf024d13e96e145e0547ad75 fo <fosorio@loc.gov> 1769010307 +0000	checkout: moving from subject-keyword-search to main
+40ef846cd0714246bf024d13e96e145e0547ad75 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769010676 +0000	pull origin main: Fast-forward
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769027602 +0000	reset: moving to HEAD
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769028447 +0000	checkout: moving from main to simplify-URLs
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 1ab25371d304d440acdd335df66d657e8692129a fo <fosorio@loc.gov> 1769097742 +0000	commit: Cleanup URLs
+1ab25371d304d440acdd335df66d657e8692129a c1d842aee2023f03e2e52d9dd67b16908112b062 fo <fosorio@loc.gov> 1769170608 +0000	commit: Fix URLs for some failing tests
+c1d842aee2023f03e2e52d9dd67b16908112b062 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769170621 +0000	checkout: moving from simplify-URLs to main
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769170733 +0000	checkout: moving from main to copycat-001
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 91bf536bf5417e4deba0f33402facbd881ecf01f fo <fosorio@loc.gov> 1769175147 +0000	commit: inject marva 001 into MARC
+91bf536bf5417e4deba0f33402facbd881ecf01f 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769175159 +0000	checkout: moving from copycat-001 to main
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769175533 +0000	checkout: moving from main to shelflist-title-encode
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 9fc3cc073614c1aa6a85b4982d7aab682bf2139f fo <fosorio@loc.gov> 1769175537 +0000	commit: Encode title in shelflist request
+9fc3cc073614c1aa6a85b4982d7aab682bf2139f 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769175962 +0000	checkout: moving from shelflist-title-encode to main
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 91bf536bf5417e4deba0f33402facbd881ecf01f fo <fosorio@loc.gov> 1769175972 +0000	checkout: moving from main to copycat-001
+91bf536bf5417e4deba0f33402facbd881ecf01f e174393a9fd35ee102be9d9813958fed9f466deb fo <fosorio@loc.gov> 1769176128 +0000	commit: Placeholder on Marva001 failure; Changelog
+e174393a9fd35ee102be9d9813958fed9f466deb 7f9d2708e81a0206bf548897e68ea3084ae5dd8c fo <fosorio@loc.gov> 1769184357 +0000	checkout: moving from copycat-001 to main
+7f9d2708e81a0206bf548897e68ea3084ae5dd8c 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769184361 +0000	pull origin main: Fast-forward
+26361c8404f8b5814cf50051987582ef2ff7b8f8 c1d842aee2023f03e2e52d9dd67b16908112b062 fo <fosorio@loc.gov> 1769184373 +0000	checkout: moving from main to simplify-URLs
+c1d842aee2023f03e2e52d9dd67b16908112b062 17b9cd375f94628980c2b5b8bf5135e7b362b329 fo <fosorio@loc.gov> 1769193974 +0000	commit: Update more URL replacements
+17b9cd375f94628980c2b5b8bf5135e7b362b329 09f174f65f34d79cf6ef6c48758bb73a5512c9e1 fo <fosorio@loc.gov> 1769434744 +0000	commit: Adjust for wikidata search
+09f174f65f34d79cf6ef6c48758bb73a5512c9e1 c170726dd971cbad6578041fb1a187639aed700b fo <fosorio@loc.gov> 1769441784 +0000	commit: fix broken link
+c170726dd971cbad6578041fb1a187639aed700b 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769441794 +0000	checkout: moving from simplify-URLs to main
+26361c8404f8b5814cf50051987582ef2ff7b8f8 e174393a9fd35ee102be9d9813958fed9f466deb fo <fosorio@loc.gov> 1769441817 +0000	checkout: moving from main to copycat-001
+e174393a9fd35ee102be9d9813958fed9f466deb 5d45e13bf5d9e1d3623654f9375ef30145bb3b5f fo <fosorio@loc.gov> 1769448814 +0000	commit: Add bibid overlay override for copycat
+5d45e13bf5d9e1d3623654f9375ef30145bb3b5f 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769448830 +0000	checkout: moving from copycat-001 to main
+26361c8404f8b5814cf50051987582ef2ff7b8f8 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769448849 +0000	checkout: moving from main to hub-make-primary
+26361c8404f8b5814cf50051987582ef2ff7b8f8 ab69abdb1422c3d68c5b12b30a25a784078df365 fo <fosorio@loc.gov> 1769449658 +0000	commit: Add `Make Primary Heading` available for all subject types
+ab69abdb1422c3d68c5b12b30a25a784078df365 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769449678 +0000	checkout: moving from hub-make-primary to main
+26361c8404f8b5814cf50051987582ef2ff7b8f8 5d45e13bf5d9e1d3623654f9375ef30145bb3b5f fo <fosorio@loc.gov> 1769449694 +0000	checkout: moving from main to copycat-001
+5d45e13bf5d9e1d3623654f9375ef30145bb3b5f b4a0fae0aa756b400d8c6c60e524fe289d0da418 fo <fosorio@loc.gov> 1769452076 +0000	commit: Finish BibId match override
+b4a0fae0aa756b400d8c6c60e524fe289d0da418 568372a0ccfd314b0262a09294ab71b8aa289af0 fo <fosorio@loc.gov> 1769452477 +0000	commit: remote return
+568372a0ccfd314b0262a09294ab71b8aa289af0 5e57298f42e296a3275df7ffee9e6602a41996f9 fo <fosorio@loc.gov> 1769517503 +0000	commit: Treat Marva001 as overlay
+5e57298f42e296a3275df7ffee9e6602a41996f9 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769517516 +0000	checkout: moving from copycat-001 to main
+26361c8404f8b5814cf50051987582ef2ff7b8f8 ab69abdb1422c3d68c5b12b30a25a784078df365 fo <fosorio@loc.gov> 1769517529 +0000	checkout: moving from main to hub-make-primary
+ab69abdb1422c3d68c5b12b30a25a784078df365 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769517568 +0000	checkout: moving from hub-make-primary to main
+26361c8404f8b5814cf50051987582ef2ff7b8f8 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769517578 +0000	checkout: moving from main to nar-15X
+26361c8404f8b5814cf50051987582ef2ff7b8f8 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769518661 +0000	reset: moving to HEAD
+26361c8404f8b5814cf50051987582ef2ff7b8f8 26361c8404f8b5814cf50051987582ef2ff7b8f8 fo <fosorio@loc.gov> 1769518663 +0000	checkout: moving from nar-15X to main
+26361c8404f8b5814cf50051987582ef2ff7b8f8 297a7555fdf8c5a2d69903804261cfdf4d455037 fo <fosorio@loc.gov> 1769518667 +0000	pull origin main: Fast-forward
+297a7555fdf8c5a2d69903804261cfdf4d455037 5e57298f42e296a3275df7ffee9e6602a41996f9 fo <fosorio@loc.gov> 1769518684 +0000	checkout: moving from main to copycat-001
+5e57298f42e296a3275df7ffee9e6602a41996f9 bdc6a2ea7570d5236f72e720e7bfa9b968963fff fo <fosorio@loc.gov> 1769544117 +0000	commit: Simplify Marva001, no $a if no LCCN
+bdc6a2ea7570d5236f72e720e7bfa9b968963fff f859be841963533f96afa9d591399a256e27a0fb fo <fosorio@loc.gov> 1769544959 +0000	commit: cleanup
+297a7555fdf8c5a2d69903804261cfdf4d455037 297a7555fdf8c5a2d69903804261cfdf4d455037 fo <fosorio@loc.gov> 1769604081 +0000	checkout: moving from marc-subject-entry-subfields to main
+297a7555fdf8c5a2d69903804261cfdf4d455037 297a7555fdf8c5a2d69903804261cfdf4d455037 fo <fosorio@loc.gov> 1769604092 +0000	reset: moving to HEAD
+297a7555fdf8c5a2d69903804261cfdf4d455037 297a7555fdf8c5a2d69903804261cfdf4d455037 fo <fosorio@loc.gov> 1769604137 +0000	checkout: moving from main to subject-marc-entry
+297a7555fdf8c5a2d69903804261cfdf4d455037 7f7da614ecca1628e5de37860a23e8bce161f4e3 fo <fosorio@loc.gov> 1769604424 +0000	commit: replace subfield `t` in MARC entry
+7f7da614ecca1628e5de37860a23e8bce161f4e3 297a7555fdf8c5a2d69903804261cfdf4d455037 fo <fosorio@loc.gov> 1769605754 +0000	checkout: moving from subject-marc-entry to main
+297a7555fdf8c5a2d69903804261cfdf4d455037 ed71952c448541302fd1e402018d5ddf238cbd04 fo <fosorio@loc.gov> 1769605759 +0000	pull origin main: Fast-forward
+ed71952c448541302fd1e402018d5ddf238cbd04 ed71952c448541302fd1e402018d5ddf238cbd04 fo <fosorio@loc.gov> 1769609211 +0000	checkout: moving from main to nar-validation
+ed71952c448541302fd1e402018d5ddf238cbd04 ed71952c448541302fd1e402018d5ddf238cbd04 fo <fosorio@loc.gov> 1769615035 +0000	reset: moving to HEAD
+ed71952c448541302fd1e402018d5ddf238cbd04 c170726dd971cbad6578041fb1a187639aed700b fo <fosorio@loc.gov> 1769615041 +0000	checkout: moving from nar-validation to simplify-URLs
+c170726dd971cbad6578041fb1a187639aed700b b74b224e662a65efff69664ae43c0fa1b629eb2c fo <fosorio@loc.gov> 1769617237 +0000	commit: Make `searchInstanceByLCCN()` more generic
+b74b224e662a65efff69664ae43c0fa1b629eb2c 94e8f72796aef98d48bdceb0a10a38591b3a5514 fo <fosorio@loc.gov> 1769710999 +0000	commit: Adjust some more URLs
+94e8f72796aef98d48bdceb0a10a38591b3a5514 0f5fd6c06743b95ecfb194799a131c27f49a3e56 fo <fosorio@loc.gov> 1769711516 +0000	commit: Adjust `fetchSimpleLookup()`
+0f5fd6c06743b95ecfb194799a131c27f49a3e56 ed71952c448541302fd1e402018d5ddf238cbd04 fo <fosorio@loc.gov> 1769711544 +0000	checkout: moving from simplify-URLs to main
+ed71952c448541302fd1e402018d5ddf238cbd04 ed71952c448541302fd1e402018d5ddf238cbd04 fo <fosorio@loc.gov> 1769711560 +0000	checkout: moving from main to marva-staging-cc-8299
+ed71952c448541302fd1e402018d5ddf238cbd04 5798d34e9e7c78f5aeed84a11755bd33f5e8071f fo <fosorio@loc.gov> 1769712050 +0000	commit: Marva CC load URL reflect environment
+5798d34e9e7c78f5aeed84a11755bd33f5e8071f ed71952c448541302fd1e402018d5ddf238cbd04 fo <fosorio@loc.gov> 1769712674 +0000	checkout: moving from marva-staging-cc-8299 to main
+ed71952c448541302fd1e402018d5ddf238cbd04 68f967149f9c4f148a966528450f1ec9495c64e5 fo <fosorio@loc.gov> 1769712687 +0000	pull origin main: Fast-forward
+68f967149f9c4f148a966528450f1ec9495c64e5 68f967149f9c4f148a966528450f1ec9495c64e5 fo <fosorio@loc.gov> 1769716674 +0000	checkout: moving from main to fix-indirect-geo-split
+68f967149f9c4f148a966528450f1ec9495c64e5 c987c650800a3decb548deac1901c418b0cc067f fo <fosorio@loc.gov> 1770044128 +0000	pull origin main: Fast-forward
+c987c650800a3decb548deac1901c418b0cc067f c987c650800a3decb548deac1901c418b0cc067f fo <fosorio@loc.gov> 1770045455 +0000	reset: moving to HEAD
+c987c650800a3decb548deac1901c418b0cc067f c987c650800a3decb548deac1901c418b0cc067f fo <fosorio@loc.gov> 1770049885 +0000	checkout: moving from main to finish-cip-button
+c987c650800a3decb548deac1901c418b0cc067f 6d93f591e7ff03332ab53f2927c32be6863615b4 fo <fosorio@loc.gov> 1770127720 +0000	commit: Add `Finish CIP` option to Tools
+6d93f591e7ff03332ab53f2927c32be6863615b4 0ad1b516a4216faeec7cf131a88f0c59e4f4c7a4 fo <fosorio@loc.gov> 1770128407 +0000	commit: Fix copyright duplication on manual edit
+0ad1b516a4216faeec7cf131a88f0c59e4f4c7a4 fbce78c837347c44204b1148e3b1361031b20397 fo <fosorio@loc.gov> 1770130007 +0000	commit: Add year to call number when there is none
+fbce78c837347c44204b1148e3b1361031b20397 ad94d144320beef3d00d3104d0fccb44a7881763 fo <fosorio@loc.gov> 1770130878 +0000	commit: Fix multiple uses of CIP function creating multiple cc dates
+ad94d144320beef3d00d3104d0fccb44a7881763 c987c650800a3decb548deac1901c418b0cc067f fo <fosorio@loc.gov> 1770131692 +0000	checkout: moving from finish-cip-button to main
+c987c650800a3decb548deac1901c418b0cc067f c987c650800a3decb548deac1901c418b0cc067f fo <fosorio@loc.gov> 1770131705 +0000	checkout: moving from main to subject-entities
+c987c650800a3decb548deac1901c418b0cc067f f4f02dd962f01aace001a92b0d5660bc9dad7a96 fo <fosorio@loc.gov> 1770141433 +0000	commit: Add entities search.
+f4f02dd962f01aace001a92b0d5660bc9dad7a96 9be4c660c3881f8a723b3a09076351a4b4fa71f9 fo <fosorio@loc.gov> 1770144026 +0000	commit: Cleanup. XML was right
+9be4c660c3881f8a723b3a09076351a4b4fa71f9 0287f475be4cdd27055264a7d9517712cee99ec2 fo <fosorio@loc.gov> 1770144532 +0000	commit: version++, changelong update
+0287f475be4cdd27055264a7d9517712cee99ec2 a931143f52e5b584cf9e0b5c06521d10c6defd3e fo <fosorio@loc.gov> 1770146939 +0000	commit: Limit to staging environment
+a931143f52e5b584cf9e0b5c06521d10c6defd3e 3edaff285a47f2646e8744fc71628825849ebd92 fo <fosorio@loc.gov> 1770147868 +0000	commit: Update how dashes are handled
+3edaff285a47f2646e8744fc71628825849ebd92 c987c650800a3decb548deac1901c418b0cc067f fo <fosorio@loc.gov> 1770148396 +0000	checkout: moving from subject-entities to main
+c987c650800a3decb548deac1901c418b0cc067f a4a336d8d11491a0458c74f5ff0f24c420307944 fo <fosorio@loc.gov> 1770148425 +0000	pull origin main: Fast-forward
+a4a336d8d11491a0458c74f5ff0f24c420307944 ad94d144320beef3d00d3104d0fccb44a7881763 fo <fosorio@loc.gov> 1770148928 +0000	checkout: moving from main to finish-cip-button
+ad94d144320beef3d00d3104d0fccb44a7881763 82b3aa0347d1b2c3529d5685199f69f314227dec fo <fosorio@loc.gov> 1770153761 +0000	commit: Fix `cancel` still tryingt to make changes
+82b3aa0347d1b2c3529d5685199f69f314227dec a4a336d8d11491a0458c74f5ff0f24c420307944 fo <fosorio@loc.gov> 1770212131 +0000	checkout: moving from finish-cip-button to main
+a4a336d8d11491a0458c74f5ff0f24c420307944 a4a336d8d11491a0458c74f5ff0f24c420307944 fo <fosorio@loc.gov> 1770212145 +0000	checkout: moving from main to subject-search-flag-bad
+a4a336d8d11491a0458c74f5ff0f24c420307944 920a19c485ea07607127348a37deec824f0c52b5 fo <fosorio@loc.gov> 1770213119 +0000	commit: Flag subject that have "not valid for use as a subject"
+920a19c485ea07607127348a37deec824f0c52b5 daa4af29b24de981fc5706ceda352baf6765f45d fo <fosorio@loc.gov> 1770213350 +0000	commit: Fix usage note sometimes not appearing
+daa4af29b24de981fc5706ceda352baf6765f45d de60c5f340317f02abaa93b62531c2b8f2a0cf8a fo <fosorio@loc.gov> 1770218050 +0000	commit: Add a test
+de60c5f340317f02abaa93b62531c2b8f2a0cf8a a4a336d8d11491a0458c74f5ff0f24c420307944 fo <fosorio@loc.gov> 1770218669 +0000	checkout: moving from subject-search-flag-bad to main
+a4a336d8d11491a0458c74f5ff0f24c420307944 a4a336d8d11491a0458c74f5ff0f24c420307944 fo <fosorio@loc.gov> 1770222488 +0000	checkout: moving from main to hide-non-lcsh-subjects
+a4a336d8d11491a0458c74f5ff0f24c420307944 f9dfe6042cd7b6a73682f4353c74d1bbb1345cdf fo <fosorio@loc.gov> 1770223101 +0000	commit: Improve which headings are hidden
+f9dfe6042cd7b6a73682f4353c74d1bbb1345cdf 15482faa3eedf2627c06af337a500f9b4053777d fo <fosorio@loc.gov> 1770223327 +0000	commit: typo in preferences
+15482faa3eedf2627c06af337a500f9b4053777d a4a336d8d11491a0458c74f5ff0f24c420307944 fo <fosorio@loc.gov> 1770224580 +0000	checkout: moving from hide-non-lcsh-subjects to main
+a4a336d8d11491a0458c74f5ff0f24c420307944 2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 fo <fosorio@loc.gov> 1770224585 +0000	pull origin main: Fast-forward
+2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 15482faa3eedf2627c06af337a500f9b4053777d fo <fosorio@loc.gov> 1770224591 +0000	checkout: moving from main to hide-non-lcsh-subjects
+15482faa3eedf2627c06af337a500f9b4053777d 2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 fo <fosorio@loc.gov> 1770225711 +0000	checkout: moving from hide-non-lcsh-subjects to main
+2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 82b3aa0347d1b2c3529d5685199f69f314227dec fo <fosorio@loc.gov> 1770225749 +0000	checkout: moving from main to finish-cip-button
+82b3aa0347d1b2c3529d5685199f69f314227dec 482ab16a883e395bb3209a65bc2ec28e181165c4 fo <fosorio@loc.gov> 1770235670 +0000	commit: Move "Finish CIP" into its own modal
+482ab16a883e395bb3209a65bc2ec28e181165c4 f7da89c369f6b2d90e613b6fed2066feda314b52 fo <fosorio@loc.gov> 1770236055 +0000	commit: clean up
+f7da89c369f6b2d90e613b6fed2066feda314b52 9d85cb651c8d79d3c75620bb88b90dccb4774ac3 fo <fosorio@loc.gov> 1770239323 +0000	commit: Handle `yes` update dates, but no pub year given
+9d85cb651c8d79d3c75620bb88b90dccb4774ac3 5608c191245f4f767ecbc59dc852612e2fd93c43 fo <fosorio@loc.gov> 1770239639 +0000	commit: Add confirmation when updates but no date
+5608c191245f4f767ecbc59dc852612e2fd93c43 5608c191245f4f767ecbc59dc852612e2fd93c43 fo <fosorio@loc.gov> 1770297554 +0000	reset: moving to HEAD
+5608c191245f4f767ecbc59dc852612e2fd93c43 2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 fo <fosorio@loc.gov> 1770297560 +0000	checkout: moving from finish-cip-button to main
+2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 15482faa3eedf2627c06af337a500f9b4053777d fo <fosorio@loc.gov> 1770297952 +0000	checkout: moving from main to hide-non-lcsh-subjects
+15482faa3eedf2627c06af337a500f9b4053777d 071e104cf73f5aef136003dd9cba8c987f444044 fo <fosorio@loc.gov> 1770304570 +0000	commit: Add ability to hide non-LC class numbers
+071e104cf73f5aef136003dd9cba8c987f444044 2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 fo <fosorio@loc.gov> 1770305028 +0000	checkout: moving from hide-non-lcsh-subjects to main
+2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 fo <fosorio@loc.gov> 1770305038 +0000	checkout: moving from main to lcdgt-source
+2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 63638aa889f2d7237c8c09a3d16d748d15050071 fo <fosorio@loc.gov> 1770306958 +0000	commit: Build out bf:source when entering audience term
+63638aa889f2d7237c8c09a3d16d748d15050071 18029d49ff992dd7c74d9c587f04d6c9a06535e0 fo <fosorio@loc.gov> 1770308532 +0000	commit: Change maudience label
+18029d49ff992dd7c74d9c587f04d6c9a06535e0 1619980b78c0aa58f988e253c7dfc729b2b21df7 fo <fosorio@loc.gov> 1770308637 +0000	commit: cleanup
+1619980b78c0aa58f988e253c7dfc729b2b21df7 2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 fo <fosorio@loc.gov> 1770309232 +0000	checkout: moving from lcdgt-source to main
+2d5c0c266d1b09bddbd84acfed93cf4f04c85dd1 c2a86688c995f41270d3f5791d208168e3b10455 fo <fosorio@loc.gov> 1770309237 +0000	pull origin main: Fast-forward
+c2a86688c995f41270d3f5791d208168e3b10455 87295f36dd93b516df8a5c3a91937de1d331ac8b fo <fosorio@loc.gov> 1770309341 +0000	pull origin main: Fast-forward
+87295f36dd93b516df8a5c3a91937de1d331ac8b 5608c191245f4f767ecbc59dc852612e2fd93c43 fo <fosorio@loc.gov> 1770314631 +0000	checkout: moving from main to finish-cip-button
+5608c191245f4f767ecbc59dc852612e2fd93c43 87295f36dd93b516df8a5c3a91937de1d331ac8b fo <fosorio@loc.gov> 1770384778 +0000	checkout: moving from finish-cip-button to main
+87295f36dd93b516df8a5c3a91937de1d331ac8b 124bb7e7519af6154fd9fc74d115da3a8d1e8a57 fo <fosorio@loc.gov> 1770384781 +0000	pull origin main: Fast-forward
+124bb7e7519af6154fd9fc74d115da3a8d1e8a57 5608c191245f4f767ecbc59dc852612e2fd93c43 fo <fosorio@loc.gov> 1770384815 +0000	checkout: moving from main to finish-cip-button
+5608c191245f4f767ecbc59dc852612e2fd93c43 983d3a8b87557aacea5e977638159fd604a194c1 fo <fosorio@loc.gov> 1770391726 +0000	commit: Limit to staging/dev
+983d3a8b87557aacea5e977638159fd604a194c1 4da88dc9147954c7fcb590ebc84090b0fbaebba4 fo <fosorio@loc.gov> 1770397060 +0000	commit: Adjust adding brackets to 264 $c
+4da88dc9147954c7fcb590ebc84090b0fbaebba4 124bb7e7519af6154fd9fc74d115da3a8d1e8a57 fo <fosorio@loc.gov> 1770403403 +0000	checkout: moving from finish-cip-button to main
+124bb7e7519af6154fd9fc74d115da3a8d1e8a57 124bb7e7519af6154fd9fc74d115da3a8d1e8a57 fo <fosorio@loc.gov> 1770403960 +0000	checkout: moving from main to search-folio-flag
+124bb7e7519af6154fd9fc74d115da3a8d1e8a57 62222822f75f1ec7f1e67a6d6793aabc5166a36f fo <fosorio@loc.gov> 1770403973 +0000	commit: Fix [FOLIO] flag appearing for records that start in Marva
+62222822f75f1ec7f1e67a6d6793aabc5166a36f 124bb7e7519af6154fd9fc74d115da3a8d1e8a57 fo <fosorio@loc.gov> 1770405474 +0000	checkout: moving from search-folio-flag to main
+124bb7e7519af6154fd9fc74d115da3a8d1e8a57 ee3006f6bd31200fae36d82d4d831deef7d63dae fo <fosorio@loc.gov> 1770405479 +0000	pull origin main: Fast-forward
+ee3006f6bd31200fae36d82d4d831deef7d63dae 62222822f75f1ec7f1e67a6d6793aabc5166a36f fo <fosorio@loc.gov> 1770405706 +0000	checkout: moving from main to search-folio-flag
+62222822f75f1ec7f1e67a6d6793aabc5166a36f ee3006f6bd31200fae36d82d4d831deef7d63dae fo <fosorio@loc.gov> 1770405725 +0000	checkout: moving from search-folio-flag to main
+ee3006f6bd31200fae36d82d4d831deef7d63dae 4da88dc9147954c7fcb590ebc84090b0fbaebba4 fo <fosorio@loc.gov> 1770405738 +0000	checkout: moving from main to finish-cip-button
+4da88dc9147954c7fcb590ebc84090b0fbaebba4 ee3006f6bd31200fae36d82d4d831deef7d63dae fo <fosorio@loc.gov> 1770406424 +0000	checkout: moving from finish-cip-button to main
+ee3006f6bd31200fae36d82d4d831deef7d63dae ee3006f6bd31200fae36d82d4d831deef7d63dae fo <fosorio@loc.gov> 1770730557 +0000	reset: moving to HEAD
+ee3006f6bd31200fae36d82d4d831deef7d63dae 30635a5852eacbe883e3499bfe1a4059590d6d40 fo <fosorio@loc.gov> 1770730563 +0000	pull origin main: Fast-forward
+30635a5852eacbe883e3499bfe1a4059590d6d40 30635a5852eacbe883e3499bfe1a4059590d6d40 fo <fosorio@loc.gov> 1770732547 +0000	checkout: moving from main to priority-pref
+30635a5852eacbe883e3499bfe1a4059590d6d40 e75a00630341d5f537ee9fb67f590ffa5c8a1f92 fo <fosorio@loc.gov> 1770733943 +0000	commit: Add preference for copycat priority
+e75a00630341d5f537ee9fb67f590ffa5c8a1f92 30635a5852eacbe883e3499bfe1a4059590d6d40 fo <fosorio@loc.gov> 1770736907 +0000	checkout: moving from priority-pref to main
+30635a5852eacbe883e3499bfe1a4059590d6d40 7ab82676876e1f61cf55cbc283ed1d6e6bf75efb fo <fosorio@loc.gov> 1770736911 +0000	pull origin main: Fast-forward
+7ab82676876e1f61cf55cbc283ed1d6e6bf75efb 7ab82676876e1f61cf55cbc283ed1d6e6bf75efb fo <fosorio@loc.gov> 1770747947 +0000	checkout: moving from main to entities-swap-dashes
+7ab82676876e1f61cf55cbc283ed1d6e6bf75efb d32954ce4acfb921fbfe2f8dee2c6305912d7845 fo <fosorio@loc.gov> 1770756108 +0000	commit: Improve subject behavior when switching search types
+d32954ce4acfb921fbfe2f8dee2c6305912d7845 bc2df17f1a289debcd37aabc73632e02b99ff6d8 fo <fosorio@loc.gov> 1770757110 +0000	commit: Better switching search modes
+bc2df17f1a289debcd37aabc73632e02b99ff6d8 6fd7b40628083ae7ff92effa0394541b781794b1 fo <fosorio@loc.gov> 1770815494 +0000	commit: Set entity flag for subject entities
+6fd7b40628083ae7ff92effa0394541b781794b1 7ab82676876e1f61cf55cbc283ed1d6e6bf75efb fo <fosorio@loc.gov> 1770815514 +0000	checkout: moving from entities-swap-dashes to main
+7ab82676876e1f61cf55cbc283ed1d6e6bf75efb 4da88dc9147954c7fcb590ebc84090b0fbaebba4 fo <fosorio@loc.gov> 1770815520 +0000	checkout: moving from main to finish-cip-button
+4da88dc9147954c7fcb590ebc84090b0fbaebba4 a087ac191fbc995697c2297461740d1affc2c695 fo <fosorio@loc.gov> 1770815526 +0000	merge main: Merge made by the 'ort' strategy.
+a087ac191fbc995697c2297461740d1affc2c695 763fc6cbf00bce781ccd6b35e8072e3f5c5c1c14 fo <fosorio@loc.gov> 1770815832 +0000	pull origin finish-cip-button: Merge made by the 'ort' strategy.
+763fc6cbf00bce781ccd6b35e8072e3f5c5c1c14 457d97aa584c41e1f7f4aae3d6cfc69b2f846809 fo <fosorio@loc.gov> 1770816216 +0000	commit: Only show when on edit screen
+457d97aa584c41e1f7f4aae3d6cfc69b2f846809 7ab82676876e1f61cf55cbc283ed1d6e6bf75efb fo <fosorio@loc.gov> 1770816501 +0000	checkout: moving from finish-cip-button to main
+7ab82676876e1f61cf55cbc283ed1d6e6bf75efb 6fd7b40628083ae7ff92effa0394541b781794b1 fo <fosorio@loc.gov> 1770816510 +0000	checkout: moving from main to entities-swap-dashes
+6fd7b40628083ae7ff92effa0394541b781794b1 e918a9852d372846e520712c206be276f206871a fo <fosorio@loc.gov> 1770817518 +0000	commit: Fix doubling up sometimes when selecting a subject entity
+e918a9852d372846e520712c206be276f206871a 4fc75db97f1fd692ba25d6c2ee86316eaf49c1d2 fo <fosorio@loc.gov> 1770817733 +0000	commit: cleanup
+4fc75db97f1fd692ba25d6c2ee86316eaf49c1d2 c1a633505f39fa909b08213ec91216799f6523d9 fo <fosorio@loc.gov> 1770817813 +0000	commit: remove finished TODO
+c1a633505f39fa909b08213ec91216799f6523d9 60e2b7b7ef10b6c7e7c294851eedc580fe82adec fo <fosorio@loc.gov> 1770819505 +0000	commit: Fix selecting entity not working & auth icon not displaying
+60e2b7b7ef10b6c7e7c294851eedc580fe82adec 829f34e8d592662632e482086a40ae1301fa780d fo <fosorio@loc.gov> 1770821179 +0000	commit: cleanup
+829f34e8d592662632e482086a40ae1301fa780d e9cda71aa809c80f6c8325f1532a231667a1be2c fo <fosorio@loc.gov> 1770821417 +0000	commit: remove TODO
+e9cda71aa809c80f6c8325f1532a231667a1be2c 8673154817b36b0af171d2a6f8514c24d98431af fo <fosorio@loc.gov> 1770822624 +0000	commit: Fix issue with indirct geo
+8673154817b36b0af171d2a6f8514c24d98431af 5c2104ad848857c979ae6835a1fc7e2aed34df04 fo <fosorio@loc.gov> 1770824858 +0000	commit: Fix failing test
+5c2104ad848857c979ae6835a1fc7e2aed34df04 c19db3dc97f35fea3f1fc90ff4c444a2004c4fd1 fo <fosorio@loc.gov> 1770826194 +0000	commit: cleanup
+c19db3dc97f35fea3f1fc90ff4c444a2004c4fd1 7ab82676876e1f61cf55cbc283ed1d6e6bf75efb fo <fosorio@loc.gov> 1770826210 +0000	checkout: moving from entities-swap-dashes to main
+7ab82676876e1f61cf55cbc283ed1d6e6bf75efb 7ab82676876e1f61cf55cbc283ed1d6e6bf75efb fo <fosorio@loc.gov> 1770826229 +0000	checkout: moving from main to lcsh-audience
+7ab82676876e1f61cf55cbc283ed1d6e6bf75efb a1809f7c153cdcdcdbc041250641ce21216d5d70 fo <fosorio@loc.gov> 1770826550 +0000	commit: Re-enable lsch in audience lookup; build the source
+a1809f7c153cdcdcdbc041250641ce21216d5d70 6a754f15c8c65c782ed4105da8950f4185a19794 fo <fosorio@loc.gov> 1770826595 +0000	commit: Cleanup
+6a754f15c8c65c782ed4105da8950f4185a19794 9b8e522c97046363749493aa9f4b555db8223ca1 fo <fosorio@loc.gov> 1770828606 +0000	commit: Changelog update, version++
+9b8e522c97046363749493aa9f4b555db8223ca1 7ab82676876e1f61cf55cbc283ed1d6e6bf75efb fo <fosorio@loc.gov> 1770829660 +0000	checkout: moving from lcsh-audience to main
+7ab82676876e1f61cf55cbc283ed1d6e6bf75efb 30805a1ec31ee1eff4d206923321124f01266ee9 fo <fosorio@loc.gov> 1770829672 +0000	pull origin main: Fast-forward
+30805a1ec31ee1eff4d206923321124f01266ee9 c19db3dc97f35fea3f1fc90ff4c444a2004c4fd1 fo <fosorio@loc.gov> 1770830703 +0000	checkout: moving from main to entities-swap-dashes
+c19db3dc97f35fea3f1fc90ff4c444a2004c4fd1 30805a1ec31ee1eff4d206923321124f01266ee9 fo <fosorio@loc.gov> 1770831821 +0000	checkout: moving from entities-swap-dashes to main
+30805a1ec31ee1eff4d206923321124f01266ee9 30805a1ec31ee1eff4d206923321124f01266ee9 fo <fosorio@loc.gov> 1770831881 +0000	checkout: moving from main to update-load-page-url
+30805a1ec31ee1eff4d206923321124f01266ee9 c2f915c673587e8c4f0da5851e199ff01924015c fo <fosorio@loc.gov> 1770832042 +0000	commit: Fix nav bar load page links
+c2f915c673587e8c4f0da5851e199ff01924015c e4447ac9ad93fb3c05b4dcd6f27a54c2ca85ea8a fo <fosorio@loc.gov> 1770832183 +0000	commit: Cleanup
+e4447ac9ad93fb3c05b4dcd6f27a54c2ca85ea8a 2d3d0a7331c077ef05d4295556a0934aa0d5aebb fo <fosorio@loc.gov> 1770832219 +0000	commit: changelog update
+2d3d0a7331c077ef05d4295556a0934aa0d5aebb 30805a1ec31ee1eff4d206923321124f01266ee9 fo <fosorio@loc.gov> 1770833188 +0000	checkout: moving from update-load-page-url to main
+30805a1ec31ee1eff4d206923321124f01266ee9 2a0396b524771250fbd4227ae1a3435e5ded5884 fo <fosorio@loc.gov> 1770833199 +0000	pull origin main: Fast-forward
+2a0396b524771250fbd4227ae1a3435e5ded5884 9fc3cc073614c1aa6a85b4982d7aab682bf2139f fo <fosorio@loc.gov> 1770833627 +0000	checkout: moving from main to shelflist-title-encode
+9fc3cc073614c1aa6a85b4982d7aab682bf2139f 2a0396b524771250fbd4227ae1a3435e5ded5884 fo <fosorio@loc.gov> 1770833684 +0000	checkout: moving from shelflist-title-encode to main
+2a0396b524771250fbd4227ae1a3435e5ded5884 e8d240ca281091a6c5b935fbdfda1a7e41247bfa fo <fosorio@loc.gov> 1770833754 +0000	checkout: moving from main to classifications-as-labels
+e8d240ca281091a6c5b935fbdfda1a7e41247bfa 2a0396b524771250fbd4227ae1a3435e5ded5884 fo <fosorio@loc.gov> 1770833969 +0000	checkout: moving from classifications-as-labels to main
+2a0396b524771250fbd4227ae1a3435e5ded5884 0f5fd6c06743b95ecfb194799a131c27f49a3e56 fo <fosorio@loc.gov> 1770835942 +0000	checkout: moving from main to simplify-URLs
+0f5fd6c06743b95ecfb194799a131c27f49a3e56 639218a804702b8b782a961ca2ddf5bacc1d9788 fo <fosorio@loc.gov> 1770836512 +0000	commit (merge): Merge branch 'main' into simplify-URLs
+639218a804702b8b782a961ca2ddf5bacc1d9788 e10cad967a9aa4d1eb96011c23624cd3be9a0539 fo <fosorio@loc.gov> 1770839114 +0000	commit: Add missing lookups
+e10cad967a9aa4d1eb96011c23624cd3be9a0539 2a0396b524771250fbd4227ae1a3435e5ded5884 fo <fosorio@loc.gov> 1770839125 +0000	checkout: moving from simplify-URLs to main
+2a0396b524771250fbd4227ae1a3435e5ded5884 2a0396b524771250fbd4227ae1a3435e5ded5884 fo <fosorio@loc.gov> 1770839204 +0000	reset: moving to HEAD
+2a0396b524771250fbd4227ae1a3435e5ded5884 e10cad967a9aa4d1eb96011c23624cd3be9a0539 fo <fosorio@loc.gov> 1770839209 +0000	checkout: moving from main to simplify-URLs
+e10cad967a9aa4d1eb96011c23624cd3be9a0539 fa68e54938f8760896dbbadb21ea77ab7b94b7fc fo <fosorio@loc.gov> 1770839957 +0000	commit: Reapply: Don't include GF subdivisions in search
+fa68e54938f8760896dbbadb21ea77ab7b94b7fc 72dd211791a1af232aa7e37d3e8cd5803af4a12b fo <fosorio@loc.gov> 1770841676 +0000	commit: Add test to build a record from scratch
+72dd211791a1af232aa7e37d3e8cd5803af4a12b 2a0396b524771250fbd4227ae1a3435e5ded5884 fo <fosorio@loc.gov> 1770841689 +0000	checkout: moving from simplify-URLs to main
+2a0396b524771250fbd4227ae1a3435e5ded5884 9c97a8bd32ddcb72c54003ff1680fe3354a3f2d5 fo <fosorio@loc.gov> 1770901067 +0000	pull origin main: Fast-forward
+9c97a8bd32ddcb72c54003ff1680fe3354a3f2d5 9c97a8bd32ddcb72c54003ff1680fe3354a3f2d5 fo <fosorio@loc.gov> 1770901543 +0000	reset: moving to HEAD
+9c97a8bd32ddcb72c54003ff1680fe3354a3f2d5 72dd211791a1af232aa7e37d3e8cd5803af4a12b fo <fosorio@loc.gov> 1770901546 +0000	checkout: moving from main to simplify-URLs
+72dd211791a1af232aa7e37d3e8cd5803af4a12b 952c81835a91c19cea656b6a7a0f423300b7e038 fo <fosorio@loc.gov> 1770924975 +0000	commit: work on test
+952c81835a91c19cea656b6a7a0f423300b7e038 9c97a8bd32ddcb72c54003ff1680fe3354a3f2d5 fo <fosorio@loc.gov> 1770924983 +0000	checkout: moving from simplify-URLs to main
+9c97a8bd32ddcb72c54003ff1680fe3354a3f2d5 1a73d3bbbf8e40bceb0cd69746c7f794e298e8d1 fo <fosorio@loc.gov> 1770925175 +0000	pull origin main: Fast-forward
+1a73d3bbbf8e40bceb0cd69746c7f794e298e8d1 22f2668cc1097c9cce0cc2662eb53ff5bd90938c fo <fosorio@loc.gov> 1770927551 +0000	commit: Update dev profile to Dancer
+22f2668cc1097c9cce0cc2662eb53ff5bd90938c 22f2668cc1097c9cce0cc2662eb53ff5bd90938c fo <fosorio@loc.gov> 1770927574 +0000	checkout: moving from main to subj-paste-dollar-q
+22f2668cc1097c9cce0cc2662eb53ff5bd90938c a1ee707de92f51f93493c6f6869c4fb7459614ff fo <fosorio@loc.gov> 1770927934 +0000	commit: Fix `$q` not working with MARC subject string pasting
+a1ee707de92f51f93493c6f6869c4fb7459614ff 22f2668cc1097c9cce0cc2662eb53ff5bd90938c fo <fosorio@loc.gov> 1770984893 +0000	checkout: moving from subj-paste-dollar-q to main
+22f2668cc1097c9cce0cc2662eb53ff5bd90938c ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1770984913 +0000	pull origin main: Fast-forward
+ecb26c4a58325ba3411557aa962ea26004b222be ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1770985464 +0000	checkout: moving from main to hide-class-update
+ecb26c4a58325ba3411557aa962ea26004b222be ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1770987138 +0000	reset: moving to HEAD
+ecb26c4a58325ba3411557aa962ea26004b222be d2378c1c41f6d24c1ba7493037c01fd52b53e14e fo <fosorio@loc.gov> 1770987168 +0000	commit: Don't show class if assigner is missing.
+d2378c1c41f6d24c1ba7493037c01fd52b53e14e 48f5c58b6a15c8346d3136cf777b9ab03faf6e5c fo <fosorio@loc.gov> 1770987935 +0000	commit: Use type for class show/hide, add CYAC for subject show/hide
+48f5c58b6a15c8346d3136cf777b9ab03faf6e5c 64e375d947303edfc55b80a971c405c9cdda9ef8 fo <fosorio@loc.gov> 1770989304 +0000	commit: changelog update
+64e375d947303edfc55b80a971c405c9cdda9ef8 ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1770989785 +0000	checkout: moving from hide-class-update to main
+ecb26c4a58325ba3411557aa962ea26004b222be ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1770998591 +0000	checkout: moving from main to update-library-match
+ecb26c4a58325ba3411557aa962ea26004b222be a15fea7a01914352f199d11f56f0bc85714a9fa6 fo <fosorio@loc.gov> 1770998596 +0000	commit: Make library matching more permissive
+a15fea7a01914352f199d11f56f0bc85714a9fa6 69ce0f1be4bdc5f37d79598e09d2c914430a5654 fo <fosorio@loc.gov> 1770998873 +0000	commit: Cleanup
+69ce0f1be4bdc5f37d79598e09d2c914430a5654 d64ee82091f37f77cfdcb04dcc659f035bd7e910 fo <fosorio@loc.gov> 1770999638 +0000	commit: typo
+d64ee82091f37f77cfdcb04dcc659f035bd7e910 7bc426aed50a5eade95be03119464595f4656e33 fo <fosorio@loc.gov> 1771000249 +0000	commit: Extend cleanup for hash creation
+7bc426aed50a5eade95be03119464595f4656e33 ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1771000329 +0000	checkout: moving from update-library-match to main
+ecb26c4a58325ba3411557aa962ea26004b222be 7bc426aed50a5eade95be03119464595f4656e33 fo <fosorio@loc.gov> 1771000504 +0000	checkout: moving from main to update-library-match
+7bc426aed50a5eade95be03119464595f4656e33 7bc426aed50a5eade95be03119464595f4656e33 fo <fosorio@loc.gov> 1771000972 +0000	reset: moving to HEAD
+7bc426aed50a5eade95be03119464595f4656e33 ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1771000974 +0000	checkout: moving from update-library-match to main
+ecb26c4a58325ba3411557aa962ea26004b222be 7bc426aed50a5eade95be03119464595f4656e33 fo <fosorio@loc.gov> 1771001049 +0000	checkout: moving from main to update-library-match
+7bc426aed50a5eade95be03119464595f4656e33 ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1771001193 +0000	checkout: moving from update-library-match to main
+ecb26c4a58325ba3411557aa962ea26004b222be 7bc426aed50a5eade95be03119464595f4656e33 fo <fosorio@loc.gov> 1771001227 +0000	checkout: moving from main to update-library-match
+7bc426aed50a5eade95be03119464595f4656e33 7bc426aed50a5eade95be03119464595f4656e33 fo <fosorio@loc.gov> 1771002480 +0000	reset: moving to HEAD
+7bc426aed50a5eade95be03119464595f4656e33 c6d8dcd6eab76d95ebcc3a0425ac314d1775089f fo <fosorio@loc.gov> 1771002536 +0000	commit: Fix test
+c6d8dcd6eab76d95ebcc3a0425ac314d1775089f ecb26c4a58325ba3411557aa962ea26004b222be fo <fosorio@loc.gov> 1771004101 +0000	checkout: moving from update-library-match to main
+ecb26c4a58325ba3411557aa962ea26004b222be 37f4c219a8940109840fdf839e0eccf2045ccd95 fo <fosorio@loc.gov> 1771004108 +0000	pull origin main: Fast-forward
+37f4c219a8940109840fdf839e0eccf2045ccd95 37f4c219a8940109840fdf839e0eccf2045ccd95 fo <fosorio@loc.gov> 1771007115 +0000	checkout: moving from main to fix-world-cat-search
+37f4c219a8940109840fdf839e0eccf2045ccd95 2df607bcf6fb075d4a87c12adf131c57e4b634d7 fo <fosorio@loc.gov> 1771007136 +0000	commit: Adjustments for API weirdness
+2df607bcf6fb075d4a87c12adf131c57e4b634d7 37f4c219a8940109840fdf839e0eccf2045ccd95 fo <fosorio@loc.gov> 1771008231 +0000	checkout: moving from fix-world-cat-search to main
+37f4c219a8940109840fdf839e0eccf2045ccd95 83f86e33ae2608bb166f83416e0ecdda19782e81 fo <fosorio@loc.gov> 1771008235 +0000	pull origin main: Fast-forward
+83f86e33ae2608bb166f83416e0ecdda19782e81 9da350f5a52e81f54733821b1817b7558eaf1131 fo <fosorio@loc.gov> 1771008614 +0000	pull origin main: Fast-forward
+9da350f5a52e81f54733821b1817b7558eaf1131 9da350f5a52e81f54733821b1817b7558eaf1131 fo <fosorio@loc.gov> 1771334611 +0000	checkout: moving from main to subject-delimiter-dagger
+9da350f5a52e81f54733821b1817b7558eaf1131 e3260cfdf88823dd84f035c8b44036647a198449 fo <fosorio@loc.gov> 1771334743 +0000	commit: Expand subject subfield delimiters
+e3260cfdf88823dd84f035c8b44036647a198449 0538978cc45bc11e7446cf23c22f7f8f7ef5cb5a fo <fosorio@loc.gov> 1771334950 +0000	commit: Clean up
+0538978cc45bc11e7446cf23c22f7f8f7ef5cb5a 9da350f5a52e81f54733821b1817b7558eaf1131 fo <fosorio@loc.gov> 1771336129 +0000	checkout: moving from subject-delimiter-dagger to main
+9da350f5a52e81f54733821b1817b7558eaf1131 9da350f5a52e81f54733821b1817b7558eaf1131 fo <fosorio@loc.gov> 1771336214 +0000	reset: moving to HEAD
+9da350f5a52e81f54733821b1817b7558eaf1131 caa142a5bfa4def223e232369661276c1325b25b fo <fosorio@loc.gov> 1771336790 +0000	pull origin main: Fast-forward
+caa142a5bfa4def223e232369661276c1325b25b 952c81835a91c19cea656b6a7a0f423300b7e038 fo <fosorio@loc.gov> 1771339745 +0000	checkout: moving from main to simplify-URLs
+952c81835a91c19cea656b6a7a0f423300b7e038 ac605cd7f890e5787d13658f1e65f7bbf277153c fo <fosorio@loc.gov> 1771339861 +0000	commit (merge): Merge branch 'main' of github.com:lcnetdev/marva-quartz into simplify-URLs
+ac605cd7f890e5787d13658f1e65f7bbf277153c 1f0a0845948999202d7c06b267896998aac4c308 fo <fosorio@loc.gov> 1771433897 +0000	commit: Start adding tests
+1f0a0845948999202d7c06b267896998aac4c308 70a3cc1574431a7f439d8b8912fcd62df655ed50 fo <fosorio@loc.gov> 1771437012 +0000	commit: Make tests more reliable
+70a3cc1574431a7f439d8b8912fcd62df655ed50 7446dadd35b69370ae747bcee89961322d880b97 fo <fosorio@loc.gov> 1771442994 +0000	commit: Add subjectSearch config option
+7446dadd35b69370ae747bcee89961322d880b97 caa142a5bfa4def223e232369661276c1325b25b fo <fosorio@loc.gov> 1771443022 +0000	checkout: moving from simplify-URLs to main
+caa142a5bfa4def223e232369661276c1325b25b caa142a5bfa4def223e232369661276c1325b25b fo <fosorio@loc.gov> 1771443033 +0000	checkout: moving from main to copy-cat-paging
+caa142a5bfa4def223e232369661276c1325b25b 3db30c024cc71d2b9e0138cef6ebc0fd85b16982 fo <fosorio@loc.gov> 1771445014 +0000	commit: Adjust offset for OCLC API
+3db30c024cc71d2b9e0138cef6ebc0fd85b16982 dda4107dd43a6f3a6b870d7ac9fdc319c43bc555 fo <fosorio@loc.gov> 1771445158 +0000	commit: Remove unused line
+dda4107dd43a6f3a6b870d7ac9fdc319c43bc555 caa142a5bfa4def223e232369661276c1325b25b fo <fosorio@loc.gov> 1771445354 +0000	checkout: moving from copy-cat-paging to main
+caa142a5bfa4def223e232369661276c1325b25b 1174163ef5545a954cb6346dfa5031be3b4500b8 fo <fosorio@loc.gov> 1771445783 +0000	pull origin main: Fast-forward
+1174163ef5545a954cb6346dfa5031be3b4500b8 7446dadd35b69370ae747bcee89961322d880b97 fo <fosorio@loc.gov> 1771446021 +0000	checkout: moving from main to simplify-URLs
+7446dadd35b69370ae747bcee89961322d880b97 bb8680d2e5d6e7eaa64ed0cf7f3a2fcc651b2636 fo <fosorio@loc.gov> 1771447574 +0000	commit: update `fetchExactLookkup()`
+bb8680d2e5d6e7eaa64ed0cf7f3a2fcc651b2636 b346dbc10411af5fe916f5814d7483b2e8b27b22 fo <fosorio@loc.gov> 1771449094 +0000	commit: debugging
+b346dbc10411af5fe916f5814d7483b2e8b27b22 1174163ef5545a954cb6346dfa5031be3b4500b8 fo <fosorio@loc.gov> 1771449100 +0000	checkout: moving from simplify-URLs to main
+1174163ef5545a954cb6346dfa5031be3b4500b8 457d97aa584c41e1f7f4aae3d6cfc69b2f846809 fo <fosorio@loc.gov> 1771449109 +0000	checkout: moving from main to finish-cip-button
+457d97aa584c41e1f7f4aae3d6cfc69b2f846809 b6b7a0030799da2ddbbfd824a357529dbd4c29ab fo <fosorio@loc.gov> 1771450737 +0000	commit: Expand CIP functions
+b6b7a0030799da2ddbbfd824a357529dbd4c29ab 1174163ef5545a954cb6346dfa5031be3b4500b8 fo <fosorio@loc.gov> 1771504773 +0000	checkout: moving from finish-cip-button to main
+1174163ef5545a954cb6346dfa5031be3b4500b8 1174163ef5545a954cb6346dfa5031be3b4500b8 fo <fosorio@loc.gov> 1771504782 +0000	checkout: moving from main to staging-banner
+1174163ef5545a954cb6346dfa5031be3b4500b8 306ed97238220fe4038abfb3d8bb7b113eefad77 fo <fosorio@loc.gov> 1771505748 +0000	commit: Make it more clear when in Staging
+306ed97238220fe4038abfb3d8bb7b113eefad77 99e439464bc32b272e1b3b35fe69c676724aed6c fo <fosorio@loc.gov> 1771505921 +0000	commit: Add confirmation to post
+99e439464bc32b272e1b3b35fe69c676724aed6c 1174163ef5545a954cb6346dfa5031be3b4500b8 fo <fosorio@loc.gov> 1771506701 +0000	checkout: moving from staging-banner to main
+1174163ef5545a954cb6346dfa5031be3b4500b8 1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 fo <fosorio@loc.gov> 1771506708 +0000	pull origin main: Fast-forward
+1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 b6b7a0030799da2ddbbfd824a357529dbd4c29ab fo <fosorio@loc.gov> 1771506713 +0000	checkout: moving from main to finish-cip-button
+b6b7a0030799da2ddbbfd824a357529dbd4c29ab 1dc34b779942271f427c7865282493eca96bdbb0 fo <fosorio@loc.gov> 1771506716 +0000	merge main: Merge made by the 'ort' strategy.
+1dc34b779942271f427c7865282493eca96bdbb0 430e916d87d802c77f2e09189ca212b6e9196518 fo <fosorio@loc.gov> 1771508592 +0000	commit: Update Instance Note
+430e916d87d802c77f2e09189ca212b6e9196518 1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 fo <fosorio@loc.gov> 1771508619 +0000	checkout: moving from finish-cip-button to main
+1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 fo <fosorio@loc.gov> 1771509755 +0000	reset: moving to HEAD
+1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 fo <fosorio@loc.gov> 1771511391 +0000	checkout: moving from main to component-library-item-fixes
+1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 a101446d6f411d9b4e9829151ef591dc241804ef fo <fosorio@loc.gov> 1771511405 +0000	commit: Fixes for Item components
+a101446d6f411d9b4e9829151ef591dc241804ef 1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 fo <fosorio@loc.gov> 1771512603 +0000	checkout: moving from component-library-item-fixes to main
+1f8f7a7e489ac207627d6d18d522c1ea8b4dad00 03a24a8e6f28232ec0a7bfd2a55e6aeec609f904 fo <fosorio@loc.gov> 1771512611 +0000	pull origin main: Fast-forward
+03a24a8e6f28232ec0a7bfd2a55e6aeec609f904 03a24a8e6f28232ec0a7bfd2a55e6aeec609f904 fo <fosorio@loc.gov> 1771517734 +0000	reset: moving to HEAD
+03a24a8e6f28232ec0a7bfd2a55e6aeec609f904 03a24a8e6f28232ec0a7bfd2a55e6aeec609f904 fo <fosorio@loc.gov> 1771531713 +0000	checkout: moving from main to library-work-components
+03a24a8e6f28232ec0a7bfd2a55e6aeec609f904 6f2ddcc777fcd8df2c698c0da83fb4c3db1454a5 fo <fosorio@loc.gov> 1771533174 +0000	commit: More fixes for component library
+6f2ddcc777fcd8df2c698c0da83fb4c3db1454a5 03a24a8e6f28232ec0a7bfd2a55e6aeec609f904 fo <fosorio@loc.gov> 1771533888 +0000	checkout: moving from library-work-components to main
+03a24a8e6f28232ec0a7bfd2a55e6aeec609f904 972d75d17371dcfc45bf00139c571bb67ebe76ca fo <fosorio@loc.gov> 1771533893 +0000	pull origin main: Fast-forward
+972d75d17371dcfc45bf00139c571bb67ebe76ca 972d75d17371dcfc45bf00139c571bb67ebe76ca fo <fosorio@loc.gov> 1771598942 +0000	checkout: moving from main to nar-placeholder-670b
+972d75d17371dcfc45bf00139c571bb67ebe76ca 7d534504a725bd7b77cc3313931b4dfebbfa7d3b fo <fosorio@loc.gov> 1771598946 +0000	commit: Use `$b ()` when no SOR in advanced mode
+7d534504a725bd7b77cc3313931b4dfebbfa7d3b a5ff398db80c13643eea32cbb769e271c3dc26f4 fo <fosorio@loc.gov> 1771600125 +0000	commit: Add check for `$b ()`, don't allow posting
+a5ff398db80c13643eea32cbb769e271c3dc26f4 0267636cab50f198e998cd32dfef73f8b1cdc3f5 fo <fosorio@loc.gov> 1771602023 +0000	commit: Adjust for regular mode
+0267636cab50f198e998cd32dfef73f8b1cdc3f5 58a3a9218fea36cba3264ae8b0d65bec26603413 fo <fosorio@loc.gov> 1771602617 +0000	commit: Cleanup
+58a3a9218fea36cba3264ae8b0d65bec26603413 2079c61b478cee1a3e8e706dac3463be0a4f916d fo <fosorio@loc.gov> 1771602750 +0000	commit: changelog update
+2079c61b478cee1a3e8e706dac3463be0a4f916d 972d75d17371dcfc45bf00139c571bb67ebe76ca fo <fosorio@loc.gov> 1771604371 +0000	checkout: moving from nar-placeholder-670b to main
+972d75d17371dcfc45bf00139c571bb67ebe76ca 59a6e11bf2d7a27b065d9337cc0136b0d6d7165f fo <fosorio@loc.gov> 1771604381 +0000	pull origin main: Fast-forward
+59a6e11bf2d7a27b065d9337cc0136b0d6d7165f 59a6e11bf2d7a27b065d9337cc0136b0d6d7165f fo <fosorio@loc.gov> 1771605268 +0000	checkout: moving from main to ested-termd-dates-search-results
+59a6e11bf2d7a27b065d9337cc0136b0d6d7165f 386fab8c21aa8d5f5a3bfa3dd528bbabc3696e2e fo <fosorio@loc.gov> 1771605306 +0000	commit: Display establged/terminated dates to search details
+386fab8c21aa8d5f5a3bfa3dd528bbabc3696e2e 9ec19820153cb77ae05d6949c38e8588955f38cb fo <fosorio@loc.gov> 1771605818 +0000	commit: Add established/terminated to name search
+9ec19820153cb77ae05d6949c38e8588955f38cb e8936eb0c648222b3376977c592f97083bac48e1 fo <fosorio@loc.gov> 1771605850 +0000	commit: Cleanup
+e8936eb0c648222b3376977c592f97083bac48e1 59a6e11bf2d7a27b065d9337cc0136b0d6d7165f fo <fosorio@loc.gov> 1771607036 +0000	checkout: moving from ested-termd-dates-search-results to main
+59a6e11bf2d7a27b065d9337cc0136b0d6d7165f 8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 fo <fosorio@loc.gov> 1771608827 +0000	pull origin main: Fast-forward
+8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 fo <fosorio@loc.gov> 1771608834 +0000	checkout: moving from main to expand-046
+8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 655bb4a5b8233acc9955c79c782a413669ef0c2f fo <fosorio@loc.gov> 1771858294 +0000	commit: Expand 046 for corp and conf NARs
+655bb4a5b8233acc9955c79c782a413669ef0c2f 270ec0abfb7d0274530066f6da083bf197152854 fo <fosorio@loc.gov> 1771861440 +0000	commit: Fix 151 keeping info from previous selection
+270ec0abfb7d0274530066f6da083bf197152854 69b551c02770ac9477c5681b54ac3ac53fd04088 fo <fosorio@loc.gov> 1771869321 +0000	commit: version++, changelog update
+69b551c02770ac9477c5681b54ac3ac53fd04088 6a04a591d84940c400f6c052413c00e7932eefe8 fo <fosorio@loc.gov> 1771869619 +0000	commit: changelog update
+6a04a591d84940c400f6c052413c00e7932eefe8 2d9efff9e4c84cb64cf8211790cf1edb7edb0bad fo <fosorio@loc.gov> 1771872318 +0000	commit: clean up
+2d9efff9e4c84cb64cf8211790cf1edb7edb0bad 8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 fo <fosorio@loc.gov> 1771872480 +0000	checkout: moving from expand-046 to main
+8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 fo <fosorio@loc.gov> 1771876176 +0000	checkout: moving from main to nar-text-macros
+8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 9376c6060a9d73128fb9bd5f4d0ac649bcb9c329 fo <fosorio@loc.gov> 1771876182 +0000	commit: Fix strange behavior with text macros
+9376c6060a9d73128fb9bd5f4d0ac649bcb9c329 71320fb29511ecd89a5e8f9ec0c53c4669b69051 fo <fosorio@loc.gov> 1771876544 +0000	commit: Apply fix to `checkFourXX()` too
+71320fb29511ecd89a5e8f9ec0c53c4669b69051 305da5b666ff557e443099fddca6a04b6f30bd09 fo <fosorio@loc.gov> 1771877084 +0000	commit: cleanup
+305da5b666ff557e443099fddca6a04b6f30bd09 8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 fo <fosorio@loc.gov> 1771938719 +0000	checkout: moving from nar-text-macros to main
+8701ba404b7c68168f56cbc49501b5b3c7ca2bf8 397e4f9d6c687f28353b05e0a784a4dea0107185 fo <fosorio@loc.gov> 1771938780 +0000	pull origin main: Fast-forward
+397e4f9d6c687f28353b05e0a784a4dea0107185 397e4f9d6c687f28353b05e0a784a4dea0107185 fo <fosorio@loc.gov> 1771940240 +0000	checkout: moving from main to admin-date-type
+397e4f9d6c687f28353b05e0a784a4dea0107185 b0e2e034fe7d1247b22be0e7e9d9a52fdcdd046e fo <fosorio@loc.gov> 1771940247 +0000	commit: Add datatype to bf:date in adminMetadata
+b0e2e034fe7d1247b22be0e7e9d9a52fdcdd046e 397e4f9d6c687f28353b05e0a784a4dea0107185 fo <fosorio@loc.gov> 1771941051 +0000	checkout: moving from admin-date-type to main
+397e4f9d6c687f28353b05e0a784a4dea0107185 20cff6ab8422f44b83faccf0e113c8e253b5eba9 fo <fosorio@loc.gov> 1771941057 +0000	pull origin main: Fast-forward
+20cff6ab8422f44b83faccf0e113c8e253b5eba9 b346dbc10411af5fe916f5814d7483b2e8b27b22 fo <fosorio@loc.gov> 1771944337 +0000	checkout: moving from main to simplify-URLs
+b346dbc10411af5fe916f5814d7483b2e8b27b22 bd32018c051dcad1cddf7d38636ea2d0cd5afb7e fo <fosorio@loc.gov> 1771944485 +0000	commit (merge): Merge branch 'main' into simplify-URLs
+bd32018c051dcad1cddf7d38636ea2d0cd5afb7e 20cff6ab8422f44b83faccf0e113c8e253b5eba9 fo <fosorio@loc.gov> 1771945539 +0000	checkout: moving from simplify-URLs to main
+20cff6ab8422f44b83faccf0e113c8e253b5eba9 bd32018c051dcad1cddf7d38636ea2d0cd5afb7e fo <fosorio@loc.gov> 1771945667 +0000	checkout: moving from main to simplify-URLs
+bd32018c051dcad1cddf7d38636ea2d0cd5afb7e 0ecf02f2d42349301bdadc946044834689ed22f9 fo <fosorio@loc.gov> 1771963339 +0000	commit: More tests
+0ecf02f2d42349301bdadc946044834689ed22f9 20cff6ab8422f44b83faccf0e113c8e253b5eba9 fo <fosorio@loc.gov> 1771963345 +0000	checkout: moving from simplify-URLs to main
+20cff6ab8422f44b83faccf0e113c8e253b5eba9 a8d6a63f9a83ba21a1def006616bca60b464411c fo <fosorio@loc.gov> 1771964297 +0000	pull origin main: Fast-forward
+a8d6a63f9a83ba21a1def006616bca60b464411c 0ecf02f2d42349301bdadc946044834689ed22f9 fo <fosorio@loc.gov> 1771964492 +0000	checkout: moving from main to simplify-URLs
+0ecf02f2d42349301bdadc946044834689ed22f9 16c42d11cf00b29e20205138f24e42bbcc6d53ca fo <fosorio@loc.gov> 1772024777 +0000	commit: finish work tests
+16c42d11cf00b29e20205138f24e42bbcc6d53ca a8d6a63f9a83ba21a1def006616bca60b464411c fo <fosorio@loc.gov> 1772024784 +0000	checkout: moving from simplify-URLs to main
+a8d6a63f9a83ba21a1def006616bca60b464411c a8d6a63f9a83ba21a1def006616bca60b464411c fo <fosorio@loc.gov> 1772024797 +0000	checkout: moving from main to subject-nar-hyphen
+a8d6a63f9a83ba21a1def006616bca60b464411c dd2aa1b6d71a49081a6eead883741e47609d215d fo <fosorio@loc.gov> 1772026157 +0000	commit: Replace hyphens when creating NAR from subject
+dd2aa1b6d71a49081a6eead883741e47609d215d 07f87497ca3439ef9974b9a5726eeb89c3c60bf3 fo <fosorio@loc.gov> 1772026357 +0000	commit: changelog update
+07f87497ca3439ef9974b9a5726eeb89c3c60bf3 a8d6a63f9a83ba21a1def006616bca60b464411c fo <fosorio@loc.gov> 1772027103 +0000	checkout: moving from subject-nar-hyphen to main
+a8d6a63f9a83ba21a1def006616bca60b464411c 9c3362d5f3c374d22e609610162a77a8ae98f693 fo <fosorio@loc.gov> 1772027118 +0000	pull origin main: Fast-forward
+9c3362d5f3c374d22e609610162a77a8ae98f693 16c42d11cf00b29e20205138f24e42bbcc6d53ca fo <fosorio@loc.gov> 1772028349 +0000	checkout: moving from main to simplify-URLs
+16c42d11cf00b29e20205138f24e42bbcc6d53ca 9c3362d5f3c374d22e609610162a77a8ae98f693 fo <fosorio@loc.gov> 1772029543 +0000	checkout: moving from simplify-URLs to main
+9c3362d5f3c374d22e609610162a77a8ae98f693 9c3362d5f3c374d22e609610162a77a8ae98f693 fo <fosorio@loc.gov> 1772030807 +0000	reset: moving to HEAD
+9c3362d5f3c374d22e609610162a77a8ae98f693 16c42d11cf00b29e20205138f24e42bbcc6d53ca fo <fosorio@loc.gov> 1772030811 +0000	checkout: moving from main to simplify-URLs
+16c42d11cf00b29e20205138f24e42bbcc6d53ca f6663a594303b5f1342d8a9d09c94f138993f19b fo <fosorio@loc.gov> 1772034681 +0000	commit: Fix dissertation instutition not working
+f6663a594303b5f1342d8a9d09c94f138993f19b 439bfd42da1562cad125b8bde73a1debe076d4aa fo <fosorio@loc.gov> 1772036057 +0000	commit: Start instance tests
+439bfd42da1562cad125b8bde73a1debe076d4aa 9c3362d5f3c374d22e609610162a77a8ae98f693 fo <fosorio@loc.gov> 1772036068 +0000	checkout: moving from simplify-URLs to main
+9c3362d5f3c374d22e609610162a77a8ae98f693 439bfd42da1562cad125b8bde73a1debe076d4aa fo <fosorio@loc.gov> 1772036256 +0000	checkout: moving from main to simplify-URLs
+439bfd42da1562cad125b8bde73a1debe076d4aa 439bfd42da1562cad125b8bde73a1debe076d4aa fo <fosorio@loc.gov> 1772036421 +0000	reset: moving to HEAD
+439bfd42da1562cad125b8bde73a1debe076d4aa 9c3362d5f3c374d22e609610162a77a8ae98f693 fo <fosorio@loc.gov> 1772036424 +0000	checkout: moving from simplify-URLs to main
+9c3362d5f3c374d22e609610162a77a8ae98f693 439bfd42da1562cad125b8bde73a1debe076d4aa fo <fosorio@loc.gov> 1772037077 +0000	checkout: moving from main to simplify-URLs
+439bfd42da1562cad125b8bde73a1debe076d4aa a1d61ac7bbc2a7a57fe5c3c326f985077ec8caa5 fo <fosorio@loc.gov> 1772041907 +0000	commit: Update tests
+a1d61ac7bbc2a7a57fe5c3c326f985077ec8caa5 9c3362d5f3c374d22e609610162a77a8ae98f693 fo <fosorio@loc.gov> 1772041919 +0000	checkout: moving from simplify-URLs to main
+9c3362d5f3c374d22e609610162a77a8ae98f693 9c3362d5f3c374d22e609610162a77a8ae98f693 fo <fosorio@loc.gov> 1772041930 +0000	checkout: moving from main to copy-cat-match-bibid
+9c3362d5f3c374d22e609610162a77a8ae98f693 cabfe9767cfd38f4402b25ace7851ddae6fd648b fo <fosorio@loc.gov> 1772043352 +0000	commit: Check for bibids in copycat
+cabfe9767cfd38f4402b25ace7851ddae6fd648b 231001305a69c1bbb89ffa0a9117387230c188b2 fo <fosorio@loc.gov> 1772045914 +0000	commit: Avoid some duplication
+231001305a69c1bbb89ffa0a9117387230c188b2 bc96e5d5f9295fd004a560ecce98bda98a369773 fo <fosorio@loc.gov> 1772053049 +0000	commit: Add bibid matching for copycat
+bc96e5d5f9295fd004a560ecce98bda98a369773 9d60eac2781b227257140565736d34177e992a22 fo <fosorio@loc.gov> 1772053652 +0000	commit: Fix not being able to continue after bibid search
+9d60eac2781b227257140565736d34177e992a22 b0386810d0e8a03c03b7f04883d5b3c96780b72e fo <fosorio@loc.gov> 1772114403 +0000	commit: Fix override not triggering
+b0386810d0e8a03c03b7f04883d5b3c96780b72e 965b81dfff10dffec5185489f8a3bc50672b0d85 fo <fosorio@loc.gov> 1772114767 +0000	commit: Fix override not triggering when there's a match
+965b81dfff10dffec5185489f8a3bc50672b0d85 4549537f6790ed53b6b120befa4e6c40a8ab7946 fo <fosorio@loc.gov> 1772117883 +0000	commit: Add badge with information about not overlaying
+4549537f6790ed53b6b120befa4e6c40a8ab7946 cbc4328dff4b1fa1f0a36e23003979e4c163099e fo <fosorio@loc.gov> 1772122784 +0000	commit: Remove return statement
+cbc4328dff4b1fa1f0a36e23003979e4c163099e 8bc918aa15583d589835c1cd40653cce03d7e8c2 fo <fosorio@loc.gov> 1772122886 +0000	commit: Changelog update
+8bc918aa15583d589835c1cd40653cce03d7e8c2 9c3362d5f3c374d22e609610162a77a8ae98f693 fo <fosorio@loc.gov> 1772136162 +0000	checkout: moving from copy-cat-match-bibid to main
+9c3362d5f3c374d22e609610162a77a8ae98f693 0451cf5f2bc965268530c3027fc6e8beff3e4ac8 fo <fosorio@loc.gov> 1772136166 +0000	pull origin main: Fast-forward
+0451cf5f2bc965268530c3027fc6e8beff3e4ac8 0451cf5f2bc965268530c3027fc6e8beff3e4ac8 fo <fosorio@loc.gov> 1772194603 +0000	reset: moving to HEAD
+0451cf5f2bc965268530c3027fc6e8beff3e4ac8 75dc1421d0f82c22d223e5d24c75c55875219258 fo <fosorio@loc.gov> 1772194608 +0000	pull origin main: Fast-forward
+75dc1421d0f82c22d223e5d24c75c55875219258 a1d61ac7bbc2a7a57fe5c3c326f985077ec8caa5 fo <fosorio@loc.gov> 1772204245 +0000	checkout: moving from main to simplify-URLs
+a1d61ac7bbc2a7a57fe5c3c326f985077ec8caa5 75dc1421d0f82c22d223e5d24c75c55875219258 fo <fosorio@loc.gov> 1772211080 +0000	checkout: moving from simplify-URLs to main
+75dc1421d0f82c22d223e5d24c75c55875219258 75dc1421d0f82c22d223e5d24c75c55875219258 fo <fosorio@loc.gov> 1772215317 +0000	checkout: moving from main to fix-expand-new-record
+75dc1421d0f82c22d223e5d24c75c55875219258 20d56c0e255900db9abc7e4d7c095b11d6353649 fo <fosorio@loc.gov> 1772215360 +0000	commit: Update adminMetadata for new, empty records
+20d56c0e255900db9abc7e4d7c095b11d6353649 75dc1421d0f82c22d223e5d24c75c55875219258 fo <fosorio@loc.gov> 1772217286 +0000	checkout: moving from fix-expand-new-record to main
+75dc1421d0f82c22d223e5d24c75c55875219258 8e056ed06b04d6cf51091c15543aba5d507a4d28 fo <fosorio@loc.gov> 1772217291 +0000	pull origin main: Fast-forward
+8e056ed06b04d6cf51091c15543aba5d507a4d28 8e056ed06b04d6cf51091c15543aba5d507a4d28 fo <fosorio@loc.gov> 1772221579 +0000	checkout: moving from main to empty-record-stuff
+8e056ed06b04d6cf51091c15543aba5d507a4d28 ecfdb1e16943295c3bd92773462707a28fbee3c8 fo <fosorio@loc.gov> 1772221582 +0000	commit: Add catID, encoding lvl5
+ecfdb1e16943295c3bd92773462707a28fbee3c8 806d39cf640c59a76fdfd8345ff0671264915047 fo <fosorio@loc.gov> 1772223238 +0000	commit: Add default for new records
+806d39cf640c59a76fdfd8345ff0671264915047 fdf8e2d2549f587b47587ae0652e978618ab1600 fo <fosorio@loc.gov> 1772459713 +0000	commit: :add status new
+fdf8e2d2549f587b47587ae0652e978618ab1600 17da069e88d88134d77a110df8da152c1a098111 fo <fosorio@loc.gov> 1772460830 +0000	commit: Update datatype
+17da069e88d88134d77a110df8da152c1a098111 d1c473c33e715436dcf88aa7d5d3addddc4f5634 fo <fosorio@loc.gov> 1772461914 +0000	commit: Add date
+d1c473c33e715436dcf88aa7d5d3addddc4f5634 7cb22cfd02d74b3fc8a0d36cdccf4ec49cd09ea3 fo <fosorio@loc.gov> 1772469129 +0000	commit: Update "new" records when loaded from backend
+7cb22cfd02d74b3fc8a0d36cdccf4ec49cd09ea3 8e056ed06b04d6cf51091c15543aba5d507a4d28 fo <fosorio@loc.gov> 1772471034 +0000	checkout: moving from empty-record-stuff to main
+8e056ed06b04d6cf51091c15543aba5d507a4d28 7cb22cfd02d74b3fc8a0d36cdccf4ec49cd09ea3 fo <fosorio@loc.gov> 1772474524 +0000	checkout: moving from main to empty-record-stuff
+7cb22cfd02d74b3fc8a0d36cdccf4ec49cd09ea3 29d1295f7991a5c45549384ee57601b54f10b56f fo <fosorio@loc.gov> 1772476317 +0000	commit: Fix bug when loading something without a status in admin metadata
+29d1295f7991a5c45549384ee57601b54f10b56f 8e056ed06b04d6cf51091c15543aba5d507a4d28 fo <fosorio@loc.gov> 1772477101 +0000	checkout: moving from empty-record-stuff to main
+8e056ed06b04d6cf51091c15543aba5d507a4d28 8e056ed06b04d6cf51091c15543aba5d507a4d28 fo <fosorio@loc.gov> 1772477117 +0000	checkout: moving from main to derive-new-record
+8e056ed06b04d6cf51091c15543aba5d507a4d28 8e056ed06b04d6cf51091c15543aba5d507a4d28 fo <fosorio@loc.gov> 1772544160 +0000	checkout: moving from derive-new-record to main
+8e056ed06b04d6cf51091c15543aba5d507a4d28 2461eee1cab1feb01dbd33180fbe85e9c54f9b49 fo <fosorio@loc.gov> 1772544167 +0000	pull origin main: Fast-forward
+2461eee1cab1feb01dbd33180fbe85e9c54f9b49 2461eee1cab1feb01dbd33180fbe85e9c54f9b49 fo <fosorio@loc.gov> 1772545147 +0000	checkout: moving from main to fix-complex-search
+2461eee1cab1feb01dbd33180fbe85e9c54f9b49 2461eee1cab1feb01dbd33180fbe85e9c54f9b49 fo <fosorio@loc.gov> 1772545243 +0000	reset: moving to HEAD
+2461eee1cab1feb01dbd33180fbe85e9c54f9b49 ed8943499a8a06265d244d55159111fae410f243 fo <fosorio@loc.gov> 1772545275 +0000	commit: Fix search not working in chrome. Always show page count controlls
+ed8943499a8a06265d244d55159111fae410f243 9813ae065f3f802304e02da396ee6f945ddc30f2 fo <fosorio@loc.gov> 1772546484 +0000	commit: Update tests
+9813ae065f3f802304e02da396ee6f945ddc30f2 2461eee1cab1feb01dbd33180fbe85e9c54f9b49 fo <fosorio@loc.gov> 1772547258 +0000	checkout: moving from fix-complex-search to main
+2461eee1cab1feb01dbd33180fbe85e9c54f9b49 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772547261 +0000	pull origin main: Fast-forward
+68d02d704cbeef1bafb9314111043423056bd684 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772551807 +0000	reset: moving to HEAD
+68d02d704cbeef1bafb9314111043423056bd684 8e056ed06b04d6cf51091c15543aba5d507a4d28 fo <fosorio@loc.gov> 1772551818 +0000	checkout: moving from main to derive-new-record
+8e056ed06b04d6cf51091c15543aba5d507a4d28 5ec608c305d17d0ff618963d005067714ce7a1d1 fo <fosorio@loc.gov> 1772551859 +0000	commit: Update changelog
+5ec608c305d17d0ff618963d005067714ce7a1d1 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772558339 +0000	checkout: moving from derive-new-record to main
+68d02d704cbeef1bafb9314111043423056bd684 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772558357 +0000	checkout: moving from main to subject-geo-subd
+68d02d704cbeef1bafb9314111043423056bd684 344fca2a051c37863af5645bf3a0af39a2f81930 fo <fosorio@loc.gov> 1772561335 +0000	commit: Move geo sub. lookup into 1 option
+344fca2a051c37863af5645bf3a0af39a2f81930 5f6cc370305bcb2b2eab5593e53048808192da6a fo <fosorio@loc.gov> 1772567125 +0000	commit: Hide names as subdivisions & complex geo subdivisions
+5f6cc370305bcb2b2eab5593e53048808192da6a ecdd64fc128203687b90c294fb8c912a01bea43c fo <fosorio@loc.gov> 1772567619 +0000	commit: Cleanup console
+ecdd64fc128203687b90c294fb8c912a01bea43c f1c6f5dad9a562473c03e65d9eb4a190c4e95efb fo <fosorio@loc.gov> 1772567885 +0000	commit: changelog update
+f1c6f5dad9a562473c03e65d9eb4a190c4e95efb b07619e550cb8cd7738d623b7a5231c9e03601e4 fo <fosorio@loc.gov> 1772568558 +0000	commit: Don't show names as subdivisions
+b07619e550cb8cd7738d623b7a5231c9e03601e4 2b70ae64358cedfb98218a439ce1add99df4d235 fo <fosorio@loc.gov> 1772568591 +0000	commit: Don't show names as subdivisions
+2b70ae64358cedfb98218a439ce1add99df4d235 47376be91b2d8fe3cc9b4245e5a7ea50fae344a7 fo <fosorio@loc.gov> 1772570296 +0000	commit: Fix shortcut clashing with layout shortcuts
+47376be91b2d8fe3cc9b4245e5a7ea50fae344a7 61e4fa06dffa5f63e7ebef4d42ce24bf36757e78 fo <fosorio@loc.gov> 1772571795 +0000	commit: Adjust tests for new functionality
+61e4fa06dffa5f63e7ebef4d42ce24bf36757e78 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772631782 +0000	checkout: moving from subject-geo-subd to main
+68d02d704cbeef1bafb9314111043423056bd684 5ec608c305d17d0ff618963d005067714ce7a1d1 fo <fosorio@loc.gov> 1772631801 +0000	checkout: moving from main to derive-new-record
+5ec608c305d17d0ff618963d005067714ce7a1d1 62474f3d1fda3e5d151530601e7a5b3706b88933 fo <fosorio@loc.gov> 1772638395 +0000	commit: Derive a new record from existing record
+62474f3d1fda3e5d151530601e7a5b3706b88933 dff1cc534349824cd4e36e711180366bdaea95a2 fo <fosorio@loc.gov> 1772645310 +0000	commit: Transform the derived record:
+dff1cc534349824cd4e36e711180366bdaea95a2 cbe8ffbfb719a1f74c7aab093126fb0651355cd2 fo <fosorio@loc.gov> 1772649039 +0000	commit: Derive instance only
+cbe8ffbfb719a1f74c7aab093126fb0651355cd2 141b22e5450cd4871a5cc42c31d0aa8e3fd3672c fo <fosorio@loc.gov> 1772649325 +0000	commit: Adjust button position
+141b22e5450cd4871a5cc42c31d0aa8e3fd3672c 3a349bfe2ebe444d6d2d9afc4f3f0c7084fde5cd fo <fosorio@loc.gov> 1772718065 +0000	commit: Marc preview worksi wht multiple instance
+3a349bfe2ebe444d6d2d9afc4f3f0c7084fde5cd 6cf676fed84a4dbf8df02cbaa1690cb37f814df8 fo <fosorio@loc.gov> 1772719140 +0000	commit: Marc popout mostly working
+6cf676fed84a4dbf8df02cbaa1690cb37f814df8 8139493d9a9559d2cd4de40c90981e15637a3866 fo <fosorio@loc.gov> 1772722333 +0000	commit: Some styling
+8139493d9a9559d2cd4de40c90981e15637a3866 420de00fba3c1a7e38dbc194a835391acb348a0c fo <fosorio@loc.gov> 1772725536 +0000	commit: Handle items for multi-Instance records
+420de00fba3c1a7e38dbc194a835391acb348a0c baf897162cc19d0de3c66b712bd4c8be299dcead fo <fosorio@loc.gov> 1772726900 +0000	commit: Fix keeping partial non-latin strings
+baf897162cc19d0de3c66b712bd4c8be299dcead 6eb55dd4fbfeb5de3c563c4efe1576f90448a493 fo <fosorio@loc.gov> 1772741095 +0000	commit: Don't build paired literals for null language
+6eb55dd4fbfeb5de3c563c4efe1576f90448a493 08852d94d957c9f626ad09ead551c4a683fc4306 fo <fosorio@loc.gov> 1772799609 +0000	commit: debugging non latin pair lines
+08852d94d957c9f626ad09ead551c4a683fc4306 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772799624 +0000	checkout: moving from derive-new-record to main
+68d02d704cbeef1bafb9314111043423056bd684 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772801985 +0000	checkout: moving from main to subject-grouping
+68d02d704cbeef1bafb9314111043423056bd684 54d1ca62c92440eb740b098e67fd97bdae94654f fo <fosorio@loc.gov> 1772801989 +0000	commit: Sorting wasn't putting 'lcsh' first
+54d1ca62c92440eb740b098e67fd97bdae94654f bdfdec752c045ee3b4ed9ee7c930defb89c45900 fo <fosorio@loc.gov> 1772802150 +0000	commit: cleanup
+bdfdec752c045ee3b4ed9ee7c930defb89c45900 bdfdec752c045ee3b4ed9ee7c930defb89c45900 fo <fosorio@loc.gov> 1772802196 +0000	reset: moving to HEAD
+bdfdec752c045ee3b4ed9ee7c930defb89c45900 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772805773 +0000	checkout: moving from subject-grouping to main
+68d02d704cbeef1bafb9314111043423056bd684 08852d94d957c9f626ad09ead551c4a683fc4306 fo <fosorio@loc.gov> 1772810778 +0000	checkout: moving from main to derive-new-record
+08852d94d957c9f626ad09ead551c4a683fc4306 41c93429edabd30f6c86cb24103f43109be94bd5 fo <fosorio@loc.gov> 1772824528 +0000	commit: Refresh guids in new instance
+41c93429edabd30f6c86cb24103f43109be94bd5 68d02d704cbeef1bafb9314111043423056bd684 fo <fosorio@loc.gov> 1772827580 +0000	checkout: moving from derive-new-record to main
+68d02d704cbeef1bafb9314111043423056bd684 d856583b929fdcaa8f02bb6afb5f171f2ea84dd7 fo <fosorio@loc.gov> 1772827589 +0000	pull origin main: Fast-forward
+d856583b929fdcaa8f02bb6afb5f171f2ea84dd7 d856583b929fdcaa8f02bb6afb5f171f2ea84dd7 fo <fosorio@loc.gov> 1772832476 +0000	checkout: moving from main to lcsh-appearing-after-non
+d856583b929fdcaa8f02bb6afb5f171f2ea84dd7 a2250a7f4a9459a6fa53d15ac762538834079950 fo <fosorio@loc.gov> 1772833017 +0000	commit: fix sometimes missing non-lcsh headings
+a2250a7f4a9459a6fa53d15ac762538834079950 e70190d281498c5b4d0e0a14aee489c90bb1db3e fo <fosorio@loc.gov> 1772833115 +0000	commit: Treat anything with 'id.loc.gov' in source as lcsh
+e70190d281498c5b4d0e0a14aee489c90bb1db3e b7a6903797af90fbd1a23b45e248f1ee737b7ce8 fo <fosorio@loc.gov> 1772837066 +0000	commit: Fix subject order
+b7a6903797af90fbd1a23b45e248f1ee737b7ce8 95c5a3be53f95c3b4aa583dcd3a33eaaed177d8b fo <fosorio@loc.gov> 1772837323 +0000	commit: clean up
+95c5a3be53f95c3b4aa583dcd3a33eaaed177d8b 4e49a4d7488cc0b33bd49ff7e8e73d98225cf606 fo <fosorio@loc.gov> 1773056810 +0000	commit: Make lcsh match less permissive
+4e49a4d7488cc0b33bd49ff7e8e73d98225cf606 d856583b929fdcaa8f02bb6afb5f171f2ea84dd7 fo <fosorio@loc.gov> 1773060375 +0000	checkout: moving from lcsh-appearing-after-non to main
+d856583b929fdcaa8f02bb6afb5f171f2ea84dd7 aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 fo <fosorio@loc.gov> 1773060380 +0000	pull origin main: Fast-forward
+aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 430e916d87d802c77f2e09189ca212b6e9196518 fo <fosorio@loc.gov> 1773060669 +0000	checkout: moving from main to finish-cip-button
+430e916d87d802c77f2e09189ca212b6e9196518 3d957f9c008a075c3e9ab8f00859acb316c564ac fo <fosorio@loc.gov> 1773060820 +0000	commit: fix initial height
+3d957f9c008a075c3e9ab8f00859acb316c564ac aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 fo <fosorio@loc.gov> 1773061205 +0000	checkout: moving from finish-cip-button to main
+aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 61e4fa06dffa5f63e7ebef4d42ce24bf36757e78 fo <fosorio@loc.gov> 1773061591 +0000	checkout: moving from main to subject-geo-subd
+aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 fo <fosorio@loc.gov> 1773063606 +0000	checkout: moving from main to add-hotkey-remove-layout
+aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 3a4e8f3212d5499763944a93a5b7d7e61a193acc fo <fosorio@loc.gov> 1773063615 +0000	commit: Add `hotkey` to remove a layout: ctrl+backspace
+3a4e8f3212d5499763944a93a5b7d7e61a193acc 710e5085d6ff1b0f58f87ddaf2b52ef3fbf9e23f fo <fosorio@loc.gov> 1773063691 +0000	commit: version++, update changelog
+710e5085d6ff1b0f58f87ddaf2b52ef3fbf9e23f aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 fo <fosorio@loc.gov> 1773064422 +0000	checkout: moving from add-hotkey-remove-layout to main
+aa5c8a84b8dde960d734b1eba1005fc1a22dd4a9 817c719978c6729b958f85c677bd06b60ad10a9f fo <fosorio@loc.gov> 1773064427 +0000	pull origin main: Fast-forward
+817c719978c6729b958f85c677bd06b60ad10a9f 61e4fa06dffa5f63e7ebef4d42ce24bf36757e78 fo <fosorio@loc.gov> 1773065425 +0000	checkout: moving from main to subject-geo-subd
+61e4fa06dffa5f63e7ebef4d42ce24bf36757e78 6fa11ca50a14c74e02c03eca8978982644927867 fo <fosorio@loc.gov> 1773066037 +0000	commit: reenable geo subd. results in lchs/naf
+6fa11ca50a14c74e02c03eca8978982644927867 b460f682c171d7ecb3415e8f5672e4ae5a7db1cb fo <fosorio@loc.gov> 1773074632 +0000	commit: Remove test for geo subject
+b460f682c171d7ecb3415e8f5672e4ae5a7db1cb 852c97c3ce6ea67e01ddc679e0bdaaab7359494d fo <fosorio@loc.gov> 1773075262 +0000	commit (merge): Merge branch 'main' into subject-geo-subd
+852c97c3ce6ea67e01ddc679e0bdaaab7359494d 53a725d7336d8f23b2123efa0b863051d58ca040 fo <fosorio@loc.gov> 1773078271 +0000	commit: Better split between simple/xomplex results
+53a725d7336d8f23b2123efa0b863051d58ca040 08a6ff7864d7a424bac7c14d0cddc7dcd2193508 fo <fosorio@loc.gov> 1773079409 +0000	commit: clean up
+08a6ff7864d7a424bac7c14d0cddc7dcd2193508 890e7dc1e97e0385fc0581433fa65a7d9bf4bfec fo <fosorio@loc.gov> 1773083608 +0000	commit: limit hierarchical search
+890e7dc1e97e0385fc0581433fa65a7d9bf4bfec 606e4c0e1a79fbb958a8407129cc7002ba895407 fo <fosorio@loc.gov> 1773145399 +0000	commit: comment out tests for unsupported workflow
+606e4c0e1a79fbb958a8407129cc7002ba895407 817c719978c6729b958f85c677bd06b60ad10a9f fo <fosorio@loc.gov> 1773148641 +0000	checkout: moving from subject-geo-subd to main
+817c719978c6729b958f85c677bd06b60ad10a9f 57dbbb2368483f7b059d4f98720eb2c4cbb65b7b fo <fosorio@loc.gov> 1773148668 +0000	pull origin main: Fast-forward
+57dbbb2368483f7b059d4f98720eb2c4cbb65b7b 41c93429edabd30f6c86cb24103f43109be94bd5 fo <fosorio@loc.gov> 1773148772 +0000	checkout: moving from main to derive-new-record
+41c93429edabd30f6c86cb24103f43109be94bd5 68e54407497ed372f6454e12f7c952aa106fe0ba fo <fosorio@loc.gov> 1773149012 +0000	commit (merge): Merge branch 'main' into derive-new-record
+68e54407497ed372f6454e12f7c952aa106fe0ba e0d37c6c7fc23d384ad9b9fce62bf035fe27a41e fo <fosorio@loc.gov> 1773153054 +0000	commit: Add hover to leader and 008
+e0d37c6c7fc23d384ad9b9fce62bf035fe27a41e 57dbbb2368483f7b059d4f98720eb2c4cbb65b7b fo <fosorio@loc.gov> 1773161465 +0000	checkout: moving from derive-new-record to main
+57dbbb2368483f7b059d4f98720eb2c4cbb65b7b ea25ae3ada565c54378237e4edaaab90537d0fe3 fo <fosorio@loc.gov> 1773161530 +0000	commit: Update marva manual URL
+ea25ae3ada565c54378237e4edaaab90537d0fe3 e0d37c6c7fc23d384ad9b9fce62bf035fe27a41e fo <fosorio@loc.gov> 1773161576 +0000	checkout: moving from main to derive-new-record
+e0d37c6c7fc23d384ad9b9fce62bf035fe27a41e 5a0d6455e52a0136edc4bbb59751785d2abadb39 fo <fosorio@loc.gov> 1773162040 +0000	commit: Cleanup
+5a0d6455e52a0136edc4bbb59751785d2abadb39 1e12485795b86dfb027b8d38ce44cdab0fda223b fo <fosorio@loc.gov> 1773163263 +0000	commit: Lead/008 hover work with multiple instances
+1e12485795b86dfb027b8d38ce44cdab0fda223b f1e9e58bd7daac101e81ffec690b6b3881ced105 fo <fosorio@loc.gov> 1773166168 +0000	commit: Fix leader background on hover
+f1e9e58bd7daac101e81ffec690b6b3881ced105 af97a4f96b92b249ada99c2a241638587cc74bdc fo <fosorio@loc.gov> 1773173482 +0000	commit: Avoid some errors
+af97a4f96b92b249ada99c2a241638587cc74bdc 54901b51f495c670425853faa6d5796a376c3178 fo <fosorio@loc.gov> 1773174190 +0000	commit: start ability to add instance as electronic resource
+54901b51f495c670425853faa6d5796a376c3178 ea25ae3ada565c54378237e4edaaab90537d0fe3 fo <fosorio@loc.gov> 1773231052 +0000	checkout: moving from derive-new-record to main
+ea25ae3ada565c54378237e4edaaab90537d0fe3 e2746eadfda57bc9b68b5328b1fe43b9b70e9af8 fo <fosorio@loc.gov> 1773231056 +0000	pull origin main: Fast-forward
+e2746eadfda57bc9b68b5328b1fe43b9b70e9af8 e2746eadfda57bc9b68b5328b1fe43b9b70e9af8 fo <fosorio@loc.gov> 1773238568 +0000	checkout: moving from main to fix-geo-name-sub
+e2746eadfda57bc9b68b5328b1fe43b9b70e9af8 14e4ab4d94fa900f60855c363e7ffca2fc25c161 fo <fosorio@loc.gov> 1773238572 +0000	commit: Show geo sub names
+14e4ab4d94fa900f60855c363e7ffca2fc25c161 e2746eadfda57bc9b68b5328b1fe43b9b70e9af8 fo <fosorio@loc.gov> 1773239004 +0000	checkout: moving from fix-geo-name-sub to main
+e2746eadfda57bc9b68b5328b1fe43b9b70e9af8 40dfe530c194fe7b91781eeba66c16520865cd75 fo <fosorio@loc.gov> 1773239008 +0000	pull origin main: Fast-forward
+40dfe530c194fe7b91781eeba66c16520865cd75 40dfe530c194fe7b91781eeba66c16520865cd75 fo <fosorio@loc.gov> 1773248051 +0000	reset: moving to HEAD
+40dfe530c194fe7b91781eeba66c16520865cd75 d52852908ed9bb41cf242ec377d733e4bf7ebfdb fo <fosorio@loc.gov> 1773248056 +0000	pull origin main: Fast-forward
+d52852908ed9bb41cf242ec377d733e4bf7ebfdb 54901b51f495c670425853faa6d5796a376c3178 fo <fosorio@loc.gov> 1773248506 +0000	checkout: moving from main to derive-new-record
+54901b51f495c670425853faa6d5796a376c3178 c8f34f8c8a32d7d7fc7acf1c615e3b5904af4d5f fo <fosorio@loc.gov> 1773248584 +0000	commit (merge): Merge branch 'main' into derive-new-record
+c8f34f8c8a32d7d7fc7acf1c615e3b5904af4d5f a7937ed1731724656507b5c22e1c00486236d390 fo <fosorio@loc.gov> 1773258521 +0000	commit: Derivatives work when there are multiple instances
+a7937ed1731724656507b5c22e1c00486236d390 2b2fb10930359601f6971eab58932e824d9528c2 fo <fosorio@loc.gov> 1773258945 +0000	commit: Remove `mounted()` duplicating `updated()`
+2b2fb10930359601f6971eab58932e824d9528c2 bd0751b1f9ef0c224679d41eaac7afbc97e10724 fo <fosorio@loc.gov> 1773259915 +0000	commit: Update tests
+bd0751b1f9ef0c224679d41eaac7afbc97e10724 d52852908ed9bb41cf242ec377d733e4bf7ebfdb fo <fosorio@loc.gov> 1773259920 +0000	checkout: moving from derive-new-record to main
+d52852908ed9bb41cf242ec377d733e4bf7ebfdb d52852908ed9bb41cf242ec377d733e4bf7ebfdb fo <fosorio@loc.gov> 1773259926 +0000	checkout: moving from main to test-update
+d52852908ed9bb41cf242ec377d733e4bf7ebfdb 8f757d09012bba8a73c66cb56880721dc26d17cc fo <fosorio@loc.gov> 1773260018 +0000	commit: Update for failing tests
+8f757d09012bba8a73c66cb56880721dc26d17cc bd0751b1f9ef0c224679d41eaac7afbc97e10724 fo <fosorio@loc.gov> 1773260325 +0000	checkout: moving from test-update to derive-new-record
+bd0751b1f9ef0c224679d41eaac7afbc97e10724 cf7e432048be7baec75e4ec6171faca1a031886e fo <fosorio@loc.gov> 1773260665 +0000	commit: cleanup
+cf7e432048be7baec75e4ec6171faca1a031886e d52852908ed9bb41cf242ec377d733e4bf7ebfdb fo <fosorio@loc.gov> 1773260670 +0000	checkout: moving from derive-new-record to main
+d52852908ed9bb41cf242ec377d733e4bf7ebfdb b61e86a8032b2ce12578fceaa7fa8ec85f5fb58e fo <fosorio@loc.gov> 1773260679 +0000	pull origin main: Fast-forward
+b61e86a8032b2ce12578fceaa7fa8ec85f5fb58e cf7e432048be7baec75e4ec6171faca1a031886e fo <fosorio@loc.gov> 1773260696 +0000	checkout: moving from main to derive-new-record
+cf7e432048be7baec75e4ec6171faca1a031886e bebb0ee152c04a5da45f1a9bcb5080e9d7df453c fo <fosorio@loc.gov> 1773260700 +0000	merge main: Merge made by the 'ort' strategy.
+bebb0ee152c04a5da45f1a9bcb5080e9d7df453c e77b12d144c5dbdf592ffdeddb043b6d1c54f5cb fo <fosorio@loc.gov> 1773327776 +0000	commit: fix not deriving instances
+e77b12d144c5dbdf592ffdeddb043b6d1c54f5cb 16486bf4002686a80e338f16af7fe3cf044fe819 fo <fosorio@loc.gov> 1773334888 +0000	commit (merge): Merge branch 'finish-cip-button' into derive-new-record
+16486bf4002686a80e338f16af7fe3cf044fe819 a37e264199b52b8363350289358460fab1d310a0 fo <fosorio@loc.gov> 1773335058 +0000	commit: Merge conflict
+a37e264199b52b8363350289358460fab1d310a0 b61e86a8032b2ce12578fceaa7fa8ec85f5fb58e fo <fosorio@loc.gov> 1773403928 +0000	checkout: moving from derive-new-record to main
+b61e86a8032b2ce12578fceaa7fa8ec85f5fb58e b61e86a8032b2ce12578fceaa7fa8ec85f5fb58e fo <fosorio@loc.gov> 1773403939 +0000	checkout: moving from main to subject-naf-type
+b61e86a8032b2ce12578fceaa7fa8ec85f5fb58e 237b24ed9db0d4a770d1518ab7947e5a02a240c8 fo <fosorio@loc.gov> 1773409833 +0000	commit: Add ability to limit name search similar to contributor search
+237b24ed9db0d4a770d1518ab7947e5a02a240c8 11612e0ac20a0a57ecaf7c9ada9353ab6cca9952 fo <fosorio@loc.gov> 1773409928 +0000	commit: changelog update
+11612e0ac20a0a57ecaf7c9ada9353ab6cca9952 c730ae672792b59742fc2f2d50f744443a0f6dae fo <fosorio@loc.gov> 1773410891 +0000	commit: Don't show buttons for geo, hub, or entity searches
+c730ae672792b59742fc2f2d50f744443a0f6dae c730ae672792b59742fc2f2d50f744443a0f6dae fo <fosorio@loc.gov> 1773412597 +0000	reset: moving to HEAD
+c730ae672792b59742fc2f2d50f744443a0f6dae b61e86a8032b2ce12578fceaa7fa8ec85f5fb58e fo <fosorio@loc.gov> 1773414405 +0000	checkout: moving from subject-naf-type to main
+b61e86a8032b2ce12578fceaa7fa8ec85f5fb58e 8860a4f67f1a7f79513cee40fb58f42eb4ec01f8 fo <fosorio@loc.gov> 1773414418 +0000	pull origin main: Fast-forward
+8860a4f67f1a7f79513cee40fb58f42eb4ec01f8 8860a4f67f1a7f79513cee40fb58f42eb4ec01f8 fo <fosorio@loc.gov> 1773414449 +0000	checkout: moving from main to delete-and-classweb-search
+8860a4f67f1a7f79513cee40fb58f42eb4ec01f8 c68d9584c0c663e47c1b93f813c8503531598db5 fo <fosorio@loc.gov> 1773414540 +0000	commit: Adjust name that gets sent with delete command
+c68d9584c0c663e47c1b93f813c8503531598db5 d0399bdb5fb82d8415ece2e62684da7a78465cf9 fo <fosorio@loc.gov> 1773414659 +0000	commit: Add missing `target="_blank"` to first classweb search
+d0399bdb5fb82d8415ece2e62684da7a78465cf9 8860a4f67f1a7f79513cee40fb58f42eb4ec01f8 fo <fosorio@loc.gov> 1773419525 +0000	checkout: moving from delete-and-classweb-search to main
+8860a4f67f1a7f79513cee40fb58f42eb4ec01f8 d5c9a416cedf0a039236efacf23683b0dd92740c fo <fosorio@loc.gov> 1773419531 +0000	pull origin main: Fast-forward
+d5c9a416cedf0a039236efacf23683b0dd92740c d5c9a416cedf0a039236efacf23683b0dd92740c fo <fosorio@loc.gov> 1773420194 +0000	checkout: moving from main to undo
+d5c9a416cedf0a039236efacf23683b0dd92740c 8d03081526f99ea7bd6b139fd009f9af79360cb0 fo <fosorio@loc.gov> 1773425410 +0000	commit: Add basics for undo/redo
+8d03081526f99ea7bd6b139fd009f9af79360cb0 2d1e7c6c9f5ef6d36c08efa39dd7b9d00ce89bad fo <fosorio@loc.gov> 1773426399 +0000	commit: Fix XML not updating
+2d1e7c6c9f5ef6d36c08efa39dd7b9d00ce89bad 041bfc9de5cbc9598fd8ec2a8689ba7c187ffaeb fo <fosorio@loc.gov> 1773429511 +0000	commit: some styling but not live
+041bfc9de5cbc9598fd8ec2a8689ba7c187ffaeb d5c9a416cedf0a039236efacf23683b0dd92740c fo <fosorio@loc.gov> 1773429673 +0000	checkout: moving from undo to main
+d5c9a416cedf0a039236efacf23683b0dd92740c c2a07cfd6b0511beac2e2298e229ced9ac094fde fo <fosorio@loc.gov> 1773429679 +0000	pull origin main: Fast-forward
+c2a07cfd6b0511beac2e2298e229ced9ac094fde c2a07cfd6b0511beac2e2298e229ced9ac094fde fo <fosorio@loc.gov> 1773660898 +0000	checkout: moving from main to cyac-subject-fix
+c2a07cfd6b0511beac2e2298e229ced9ac094fde b16bc933457316cf0af5630b47a08d3adf1e3479 fo <fosorio@loc.gov> 1773660913 +0000	commit: Fix CYAC including subdivision
+b16bc933457316cf0af5630b47a08d3adf1e3479 b5a54a3d542467a8e9c042d9571b699b5b5719da fo <fosorio@loc.gov> 1773662236 +0000	commit: Adjust library comparison
+b5a54a3d542467a8e9c042d9571b699b5b5719da a0570fd7ff710484ffb3e11cb74eb704c487bc48 fo <fosorio@loc.gov> 1773663347 +0000	commit: Make URI comparison more generic
+a0570fd7ff710484ffb3e11cb74eb704c487bc48 c2a07cfd6b0511beac2e2298e229ced9ac094fde fo <fosorio@loc.gov> 1773664049 +0000	checkout: moving from cyac-subject-fix to main
+c2a07cfd6b0511beac2e2298e229ced9ac094fde eb2dcfb63d7f0b96ad4ec529a64c6d6b5409eddb fo <fosorio@loc.gov> 1773664053 +0000	pull origin main: Fast-forward
+eb2dcfb63d7f0b96ad4ec529a64c6d6b5409eddb 041bfc9de5cbc9598fd8ec2a8689ba7c187ffaeb fo <fosorio@loc.gov> 1773664897 +0000	checkout: moving from main to undo
+041bfc9de5cbc9598fd8ec2a8689ba7c187ffaeb 1801c1d1315c15df95b804e5e30ec3bd109713e8 fo <fosorio@loc.gov> 1773668268 +0000	commit: Move to menu
+1801c1d1315c15df95b804e5e30ec3bd109713e8 eb2dcfb63d7f0b96ad4ec529a64c6d6b5409eddb fo <fosorio@loc.gov> 1773673724 +0000	checkout: moving from undo to main
+eb2dcfb63d7f0b96ad4ec529a64c6d6b5409eddb eb2dcfb63d7f0b96ad4ec529a64c6d6b5409eddb fo <fosorio@loc.gov> 1773675414 +0000	checkout: moving from main to simple-lookups-base-check
+eb2dcfb63d7f0b96ad4ec529a64c6d6b5409eddb 53cd89861c6a5f237007fb9e01a31d8e01169ce0 fo <fosorio@loc.gov> 1773675557 +0000	commit: Update URI check for simple lookups
+53cd89861c6a5f237007fb9e01a31d8e01169ce0 eb2dcfb63d7f0b96ad4ec529a64c6d6b5409eddb fo <fosorio@loc.gov> 1773676331 +0000	checkout: moving from simple-lookups-base-check to main
+eb2dcfb63d7f0b96ad4ec529a64c6d6b5409eddb 3158b3373f488c3e4205aa3836b4b2a618869882 fo <fosorio@loc.gov> 1773676347 +0000	pull origin main: Fast-forward
+3158b3373f488c3e4205aa3836b4b2a618869882 1fe351719023ca1c89293dbc60e6f3ebd24d70f4 fo <fosorio@loc.gov> 1773679362 +0000	commit: Use ID lengths
+1fe351719023ca1c89293dbc60e6f3ebd24d70f4 1801c1d1315c15df95b804e5e30ec3bd109713e8 fo <fosorio@loc.gov> 1773679612 +0000	checkout: moving from main to undo
+1801c1d1315c15df95b804e5e30ec3bd109713e8 23484cfc312ef88cc8d452d5a43685bf533f77a2 fo <fosorio@loc.gov> 1773682891 +0000	commit: Account for save state when using un/redo
+23484cfc312ef88cc8d452d5a43685bf533f77a2 701564494de4d801b8b48b6362de91019d6918d5 fo <fosorio@loc.gov> 1773688853 +0000	commit: Bump un/redo limit. version++, changelog
+701564494de4d801b8b48b6362de91019d6918d5 29e58060746436a79e809e17df26b8a7a7f95c15 fo <fosorio@loc.gov> 1773753555 +0000	commit: Add shortcuts for copy/paste
+29e58060746436a79e809e17df26b8a7a7f95c15 13ac4f666b6f3779d14efc907c6d12f61e11f1a5 fo <fosorio@loc.gov> 1773753967 +0000	commit: update changelog
+13ac4f666b6f3779d14efc907c6d12f61e11f1a5 6e1905515e4d402859b46e41c0371fd7a0d9a860 fo <fosorio@loc.gov> 1773754005 +0000	commit: clean up
+6e1905515e4d402859b46e41c0371fd7a0d9a860 c9decdfb634be01c055011a24e69ceb04ab429aa fo <fosorio@loc.gov> 1773754695 +0000	commit: changelog update
+c9decdfb634be01c055011a24e69ceb04ab429aa 1fe351719023ca1c89293dbc60e6f3ebd24d70f4 fo <fosorio@loc.gov> 1773755455 +0000	checkout: moving from undo to main
+1fe351719023ca1c89293dbc60e6f3ebd24d70f4 517f53d216b9f2aefdf9f1324247979e90664309 fo <fosorio@loc.gov> 1773755467 +0000	pull origin main: Fast-forward
+517f53d216b9f2aefdf9f1324247979e90664309 517f53d216b9f2aefdf9f1324247979e90664309 fo <fosorio@loc.gov> 1773756635 +0000	reset: moving to HEAD
+517f53d216b9f2aefdf9f1324247979e90664309 517f53d216b9f2aefdf9f1324247979e90664309 fo <fosorio@loc.gov> 1773770612 +0000	checkout: moving from main to nar-qual-date
+517f53d216b9f2aefdf9f1324247979e90664309 414d7a9ba9ef0d695aa29851aef828843f5cc1d0 fo <fosorio@loc.gov> 1773773255 +0000	commit: Don't build 046 if there is a qaulifier in the date
+414d7a9ba9ef0d695aa29851aef828843f5cc1d0 52523e9347d7ff12e92ed33c7afb453133d95ad4 fo <fosorio@loc.gov> 1773774337 +0000	commit: changelog update
+52523e9347d7ff12e92ed33c7afb453133d95ad4 52523e9347d7ff12e92ed33c7afb453133d95ad4 fo <fosorio@loc.gov> 1773776115 +0000	reset: moving to HEAD
+52523e9347d7ff12e92ed33c7afb453133d95ad4 517f53d216b9f2aefdf9f1324247979e90664309 fo <fosorio@loc.gov> 1773778029 +0000	checkout: moving from nar-qual-date to main
+517f53d216b9f2aefdf9f1324247979e90664309 fbf4a8f5f916302ceac64a018d03eb31920ee8ed fo <fosorio@loc.gov> 1773778035 +0000	pull origin main: Fast-forward
+fbf4a8f5f916302ceac64a018d03eb31920ee8ed ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773836639 +0000	pull origin main: Fast-forward
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773838313 +0000	reset: moving to HEAD
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 a1d61ac7bbc2a7a57fe5c3c326f985077ec8caa5 fo <fosorio@loc.gov> 1773838486 +0000	checkout: moving from main to simplify-URLs
+a1d61ac7bbc2a7a57fe5c3c326f985077ec8caa5 20b1ebae99f2400ba42f7141fb27bb26ef1c3042 fo <fosorio@loc.gov> 1773838791 +0000	commit (merge): Merge branch 'main' into simplify-URLs
+20b1ebae99f2400ba42f7141fb27bb26ef1c3042 20b1ebae99f2400ba42f7141fb27bb26ef1c3042 fo <fosorio@loc.gov> 1773841562 +0000	reset: moving to HEAD
+20b1ebae99f2400ba42f7141fb27bb26ef1c3042 ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773841565 +0000	checkout: moving from simplify-URLs to main
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773841792 +0000	reset: moving to HEAD
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 20b1ebae99f2400ba42f7141fb27bb26ef1c3042 fo <fosorio@loc.gov> 1773841798 +0000	checkout: moving from main to simplify-URLs
+20b1ebae99f2400ba42f7141fb27bb26ef1c3042 44b053d3bbe495611aa44ba2d390a2aeef7c54ee fo <fosorio@loc.gov> 1773852135 +0000	commit: Adjustments for changes to profile.
+44b053d3bbe495611aa44ba2d390a2aeef7c54ee ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773852190 +0000	checkout: moving from simplify-URLs to main
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 a37e264199b52b8363350289358460fab1d310a0 fo <fosorio@loc.gov> 1773852219 +0000	checkout: moving from main to derive-new-record
+a37e264199b52b8363350289358460fab1d310a0 a37e264199b52b8363350289358460fab1d310a0 fo <fosorio@loc.gov> 1773852427 +0000	reset: moving to HEAD
+a37e264199b52b8363350289358460fab1d310a0 83ce667e9cdee21f6c0ee3bb51677566a0925a74 fo <fosorio@loc.gov> 1773852598 +0000	commit (merge): Merge branch 'main' into derive-new-record
+83ce667e9cdee21f6c0ee3bb51677566a0925a74 83ce667e9cdee21f6c0ee3bb51677566a0925a74 fo <fosorio@loc.gov> 1773854023 +0000	reset: moving to HEAD
+83ce667e9cdee21f6c0ee3bb51677566a0925a74 6f949806bf1a763a7fe3889813a35f306d6701f9 fo <fosorio@loc.gov> 1773856658 +0000	commit: Add comma
+6f949806bf1a763a7fe3889813a35f306d6701f9 ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773858395 +0000	checkout: moving from derive-new-record to main
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 6f949806bf1a763a7fe3889813a35f306d6701f9 fo <fosorio@loc.gov> 1773860197 +0000	checkout: moving from main to derive-new-record
+6f949806bf1a763a7fe3889813a35f306d6701f9 9ef1c61348128e6e248e8e2c70e1ee00e5e55102 fo <fosorio@loc.gov> 1773865144 +0000	commit: 008/39
+9ef1c61348128e6e248e8e2c70e1ee00e5e55102 ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773865154 +0000	checkout: moving from derive-new-record to main
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 29d1295f7991a5c45549384ee57601b54f10b56f fo <fosorio@loc.gov> 1773865167 +0000	checkout: moving from main to empty-record-stuff
+29d1295f7991a5c45549384ee57601b54f10b56f 29d1295f7991a5c45549384ee57601b54f10b56f fo <fosorio@loc.gov> 1773865584 +0000	reset: moving to HEAD
+29d1295f7991a5c45549384ee57601b54f10b56f ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773865608 +0000	checkout: moving from empty-record-stuff to main
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 29d1295f7991a5c45549384ee57601b54f10b56f fo <fosorio@loc.gov> 1773865637 +0000	checkout: moving from main to empty-record-stuff
+29d1295f7991a5c45549384ee57601b54f10b56f 73720270bf0c77870cc81ec8b89ccf3188bdd579 fo <fosorio@loc.gov> 1773865733 +0000	merge main: Merge made by the 'ort' strategy.
+73720270bf0c77870cc81ec8b89ccf3188bdd579 9ef1c61348128e6e248e8e2c70e1ee00e5e55102 fo <fosorio@loc.gov> 1773865775 +0000	checkout: moving from empty-record-stuff to derive-new-record
+9ef1c61348128e6e248e8e2c70e1ee00e5e55102 73720270bf0c77870cc81ec8b89ccf3188bdd579 fo <fosorio@loc.gov> 1773865812 +0000	checkout: moving from derive-new-record to empty-record-stuff
+73720270bf0c77870cc81ec8b89ccf3188bdd579 6a39dcef06bbe86bd05df27856fe6b1ebd4db8f9 fo <fosorio@loc.gov> 1773865849 +0000	commit: Fix 008/39=c
+6a39dcef06bbe86bd05df27856fe6b1ebd4db8f9 20d56c0e255900db9abc7e4d7c095b11d6353649 fo <fosorio@loc.gov> 1773866023 +0000	checkout: moving from empty-record-stuff to fix-expand-new-record
+20d56c0e255900db9abc7e4d7c095b11d6353649 6a39dcef06bbe86bd05df27856fe6b1ebd4db8f9 fo <fosorio@loc.gov> 1773866043 +0000	checkout: moving from fix-expand-new-record to empty-record-stuff
+6a39dcef06bbe86bd05df27856fe6b1ebd4db8f9 ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fo <fosorio@loc.gov> 1773919484 +0000	checkout: moving from empty-record-stuff to main
+ae722e0f20f83c0ef3f2f12d5c6673252dc91057 fcc2cf0d14185b000267d69857b44f3368ef168c fo <fosorio@loc.gov> 1773919489 +0000	pull origin main: Fast-forward
+fcc2cf0d14185b000267d69857b44f3368ef168c 9ef1c61348128e6e248e8e2c70e1ee00e5e55102 fo <fosorio@loc.gov> 1773919513 +0000	checkout: moving from main to derive-new-record
+9ef1c61348128e6e248e8e2c70e1ee00e5e55102 619a56544f78f2e3d47356a2a14b55fb2ab60c7e fo <fosorio@loc.gov> 1773919615 +0000	commit (merge): Merge branch 'main' into derive-new-record
+619a56544f78f2e3d47356a2a14b55fb2ab60c7e 7042489805e0cc123634bb111e0898acc919fc64 fo <fosorio@loc.gov> 1773926356 +0000	commit: Fix sometimes causing a crash when deriving an instance
+7042489805e0cc123634bb111e0898acc919fc64 a862c22648680b8c669afc5d60dfc70309fc627e fo <fosorio@loc.gov> 1773929867 +0000	commit: Fix crash when no date in admin
+a862c22648680b8c669afc5d60dfc70309fc627e d558643aa1aea09f3192593a6e66fe0db4e9e02a fo <fosorio@loc.gov> 1773930319 +0000	commit: Add agent to admin
+d558643aa1aea09f3192593a6e66fe0db4e9e02a d7e7d6967846717d191384e7375f2fd92903f9cc fo <fosorio@loc.gov> 1773932168 +0000	commit: Derived record stays status=new
+d7e7d6967846717d191384e7375f2fd92903f9cc fcc2cf0d14185b000267d69857b44f3368ef168c fo <fosorio@loc.gov> 1773933389 +0000	checkout: moving from derive-new-record to main
+fcc2cf0d14185b000267d69857b44f3368ef168c fcc2cf0d14185b000267d69857b44f3368ef168c fo <fosorio@loc.gov> 1773935134 +0000	checkout: moving from main to complex-search-note-up
+fcc2cf0d14185b000267d69857b44f3368ef168c 5d90ebc51b8daf933d2ea7c8e9a6892f998706b8 fo <fosorio@loc.gov> 1773935529 +0000	commit: Add note above variants
+5d90ebc51b8daf933d2ea7c8e9a6892f998706b8 218b52e4339bcf218b96d9eca49a5dcf74ae2598 fo <fosorio@loc.gov> 1773939103 +0000	commit: Adjust style of note
+218b52e4339bcf218b96d9eca49a5dcf74ae2598 fcc2cf0d14185b000267d69857b44f3368ef168c fo <fosorio@loc.gov> 1773941525 +0000	checkout: moving from complex-search-note-up to main
+fcc2cf0d14185b000267d69857b44f3368ef168c 7d585b6f1917641c1efa8eece9c3fba7e3f671ac fo <fosorio@loc.gov> 1773942234 +0000	pull origin main: Fast-forward
+7d585b6f1917641c1efa8eece9c3fba7e3f671ac 7d585b6f1917641c1efa8eece9c3fba7e3f671ac fo <fosorio@loc.gov> 1774030581 +0000	reset: moving to HEAD
+7d585b6f1917641c1efa8eece9c3fba7e3f671ac cad42fe03f358d66f89822f5b788c02b104215a8 fo <fosorio@loc.gov> 1774030593 +0000	pull origin main: Fast-forward
+cad42fe03f358d66f89822f5b788c02b104215a8 cad42fe03f358d66f89822f5b788c02b104215a8 fo <fosorio@loc.gov> 1774030821 +0000	checkout: moving from main to class-component-fix
+cad42fe03f358d66f89822f5b788c02b104215a8 ac8e2411bf4d8454cd9fee940fa98750fd0914d7 fo <fosorio@loc.gov> 1774030852 +0000	commit: Fix class component being incomplete when empty
+ac8e2411bf4d8454cd9fee940fa98750fd0914d7 cad42fe03f358d66f89822f5b788c02b104215a8 fo <fosorio@loc.gov> 1774031830 +0000	checkout: moving from class-component-fix to main
+cad42fe03f358d66f89822f5b788c02b104215a8 6156ef15035e2b28becc440c20b43e208431ec09 fo <fosorio@loc.gov> 1774031835 +0000	pull origin main: Fast-forward
+6156ef15035e2b28becc440c20b43e208431ec09 6156ef15035e2b28becc440c20b43e208431ec09 fo <fosorio@loc.gov> 1774034765 +0000	checkout: moving from main to copy-cat-comparison
+6156ef15035e2b28becc440c20b43e208431ec09 f94dcdc304cf78ef7c773aea3a5f6175f8cbb8bd fo <fosorio@loc.gov> 1774525091 +0000	commit: Start comparison modal
+f94dcdc304cf78ef7c773aea3a5f6175f8cbb8bd 6156ef15035e2b28becc440c20b43e208431ec09 fo <fosorio@loc.gov> 1774525100 +0000	checkout: moving from copy-cat-comparison to main
+6156ef15035e2b28becc440c20b43e208431ec09 af40b231251dfd1400ed6dc52f115176e48ed959 fo <fosorio@loc.gov> 1774525104 +0000	pull origin main: Fast-forward
+af40b231251dfd1400ed6dc52f115176e48ed959 af40b231251dfd1400ed6dc52f115176e48ed959 fo <fosorio@loc.gov> 1774525852 +0000	checkout: moving from main to fix-copycat-no-record-id
+af40b231251dfd1400ed6dc52f115176e48ed959 3533da86e8a0081e8763afa7423ee1bf13e31d7c fo <fosorio@loc.gov> 1774525860 +0000	commit: Fix sometimes missing record id
+3533da86e8a0081e8763afa7423ee1bf13e31d7c af40b231251dfd1400ed6dc52f115176e48ed959 fo <fosorio@loc.gov> 1774526666 +0000	checkout: moving from fix-copycat-no-record-id to main
+af40b231251dfd1400ed6dc52f115176e48ed959 3533da86e8a0081e8763afa7423ee1bf13e31d7c fo <fosorio@loc.gov> 1774555650 +0000	checkout: moving from main to fix-copycat-no-record-id
+3533da86e8a0081e8763afa7423ee1bf13e31d7c af40b231251dfd1400ed6dc52f115176e48ed959 fo <fosorio@loc.gov> 1774557988 +0000	checkout: moving from fix-copycat-no-record-id to main
+af40b231251dfd1400ed6dc52f115176e48ed959 824cc31108ac4382817d292eb59d4bd32041d26e fo <fosorio@loc.gov> 1774558009 +0000	pull origin main: Fast-forward
+824cc31108ac4382817d292eb59d4bd32041d26e f94dcdc304cf78ef7c773aea3a5f6175f8cbb8bd fo <fosorio@loc.gov> 1774956171 +0000	checkout: moving from main to copy-cat-comparison
+f94dcdc304cf78ef7c773aea3a5f6175f8cbb8bd 3873c732e6de55348f20021e3154c3c2768a5392 fo <fosorio@loc.gov> 1774957333 +0000	commit: Fix indicator whitespace collapsing
+3873c732e6de55348f20021e3154c3c2768a5392 f6586ee700fbb0146823eb9667cb29093aea2ad0 fo <fosorio@loc.gov> 1774958338 +0000	commit: More styling, ready for buttons
+f6586ee700fbb0146823eb9667cb29093aea2ad0 e84043cc01c69c4ac107722d163293df83f3800c fo <fosorio@loc.gov> 1775044574 +0000	commit: buttons working
+e84043cc01c69c4ac107722d163293df83f3800c 824cc31108ac4382817d292eb59d4bd32041d26e fo <fosorio@loc.gov> 1775129177 +0000	checkout: moving from copy-cat-comparison to main
+824cc31108ac4382817d292eb59d4bd32041d26e 824cc31108ac4382817d292eb59d4bd32041d26e fo <fosorio@loc.gov> 1775129308 +0000	checkout: moving from main to scratch-no-035
+824cc31108ac4382817d292eb59d4bd32041d26e 678996d41e8da2453a33193e324b60f4c091a03e fo <fosorio@loc.gov> 1775129312 +0000	commit: Don't create 035 for scratch records
+678996d41e8da2453a33193e324b60f4c091a03e 824cc31108ac4382817d292eb59d4bd32041d26e fo <fosorio@loc.gov> 1775130411 +0000	checkout: moving from scratch-no-035 to main
+824cc31108ac4382817d292eb59d4bd32041d26e c9491d789496c162a984e9a3b5f0993c500e56a2 fo <fosorio@loc.gov> 1775130423 +0000	pull origin main: Fast-forward
+c9491d789496c162a984e9a3b5f0993c500e56a2 e84043cc01c69c4ac107722d163293df83f3800c fo <fosorio@loc.gov> 1775130645 +0000	checkout: moving from main to copy-cat-comparison
+e84043cc01c69c4ac107722d163293df83f3800c e4394aa6d4940aec3d8e454f73b47bbd8fd670f0 fo <fosorio@loc.gov> 1775131304 +0000	commit: Fix existing record not showing
+e4394aa6d4940aec3d8e454f73b47bbd8fd670f0 af4d69e3e2f8a93aa859d89cb940b665e32d5b7f fo <fosorio@loc.gov> 1775216711 +0000	commit: Fix some issue wht not searching for existing
+af4d69e3e2f8a93aa859d89cb940b665e32d5b7f b3265127d37d6a3ca11feef220c59e38adf8c0ca fo <fosorio@loc.gov> 1775217415 +0000	commit: Fix more instances of existing record not found, Comparison button
+b3265127d37d6a3ca11feef220c59e38adf8c0ca 84cb223143c347479bcc9314bde3e0da24f2b10e fo <fosorio@loc.gov> 1775475738 +0000	commit: Add 'cancel' button to preview
+84cb223143c347479bcc9314bde3e0da24f2b10e c0b359cc35cee3837c338f99330374798e222f3c fo <fosorio@loc.gov> 1775476832 +0000	commit: Fix modal selection not mattering
+c0b359cc35cee3837c338f99330374798e222f3c e15b0c72d47a30a43e707e57c9e23efb8d61e998 fo <fosorio@loc.gov> 1775561434 +0000	commit: More styling
+e15b0c72d47a30a43e707e57c9e23efb8d61e998 062a899b338dd084856143b5e975f9e27618d854 fo <fosorio@loc.gov> 1775561953 +0000	commit: Take out return
+062a899b338dd084856143b5e975f9e27618d854 c9491d789496c162a984e9a3b5f0993c500e56a2 fo <fosorio@loc.gov> 1775646778 +0000	checkout: moving from copy-cat-comparison to main
+c9491d789496c162a984e9a3b5f0993c500e56a2 3c3e6834653875a800a155fe9ebd937829e9d8be fo <fosorio@loc.gov> 1775646784 +0000	pull origin main: Fast-forward
+3c3e6834653875a800a155fe9ebd937829e9d8be 062a899b338dd084856143b5e975f9e27618d854 fo <fosorio@loc.gov> 1775646810 +0000	checkout: moving from main to copy-cat-comparison
+062a899b338dd084856143b5e975f9e27618d854 917c06a57eaab7496dcb5e67f199ddacd6c3fc9e fo <fosorio@loc.gov> 1775646820 +0000	merge main: Merge made by the 'ort' strategy.
+917c06a57eaab7496dcb5e67f199ddacd6c3fc9e 06ccfb01d799f2cb491aa012dd7b34f6a8afa73d fo <fosorio@loc.gov> 1775733008 +0000	commit: Start putting existing record into html
+06ccfb01d799f2cb491aa012dd7b34f6a8afa73d 3c3e6834653875a800a155fe9ebd937829e9d8be fo <fosorio@loc.gov> 1775733038 +0000	checkout: moving from copy-cat-comparison to main
+3c3e6834653875a800a155fe9ebd937829e9d8be 3c3e6834653875a800a155fe9ebd937829e9d8be fo <fosorio@loc.gov> 1775735127 +0000	reset: moving to HEAD
+3c3e6834653875a800a155fe9ebd937829e9d8be 3c3e6834653875a800a155fe9ebd937829e9d8be fo <fosorio@loc.gov> 1776079282 +0000	checkout: moving from main to conf-046-update
+3c3e6834653875a800a155fe9ebd937829e9d8be 067b36738905856f57a59cf42ce59268861daf54 fo <fosorio@loc.gov> 1776079287 +0000	commit: Use $s
+067b36738905856f57a59cf42ce59268861daf54 067b36738905856f57a59cf42ce59268861daf54 fo <fosorio@loc.gov> 1776166524 +0000	reset: moving to HEAD
+067b36738905856f57a59cf42ce59268861daf54 3c3e6834653875a800a155fe9ebd937829e9d8be fo <fosorio@loc.gov> 1776166549 +0000	checkout: moving from conf-046-update to main
+3c3e6834653875a800a155fe9ebd937829e9d8be d7e7d6967846717d191384e7375f2fd92903f9cc fo <fosorio@loc.gov> 1776166557 +0000	checkout: moving from main to derive-new-record
+d7e7d6967846717d191384e7375f2fd92903f9cc 3c3e6834653875a800a155fe9ebd937829e9d8be fo <fosorio@loc.gov> 1776166566 +0000	checkout: moving from derive-new-record to main
+3c3e6834653875a800a155fe9ebd937829e9d8be 911f458b97ba4bc863c18c86bee26a40abaf7355 fo <fosorio@loc.gov> 1776166572 +0000	pull origin main: Fast-forward
+911f458b97ba4bc863c18c86bee26a40abaf7355 d7e7d6967846717d191384e7375f2fd92903f9cc fo <fosorio@loc.gov> 1776166579 +0000	checkout: moving from main to derive-new-record
+d7e7d6967846717d191384e7375f2fd92903f9cc 699985c26581e21b91aad5324fdec3c24c4a5801 fo <fosorio@loc.gov> 1776166877 +0000	commit (merge): Merge branch 'main' into derive-new-record
+699985c26581e21b91aad5324fdec3c24c4a5801 911acaae068972f67c2afebb92639375528cb6e5 fo <fosorio@loc.gov> 1776167106 +0000	commit: Add missing comma
+911acaae068972f67c2afebb92639375528cb6e5 911f458b97ba4bc863c18c86bee26a40abaf7355 fo <fosorio@loc.gov> 1776167179 +0000	checkout: moving from derive-new-record to main
+911f458b97ba4bc863c18c86bee26a40abaf7355 067b36738905856f57a59cf42ce59268861daf54 fo <fosorio@loc.gov> 1776167196 +0000	checkout: moving from main to conf-046-update
+3c3e6834653875a800a155fe9ebd937829e9d8be 3c3e6834653875a800a155fe9ebd937829e9d8be fo <fosorio@loc.gov> 1776187670 +0000	reset: moving to HEAD
+3c3e6834653875a800a155fe9ebd937829e9d8be 5eaec194b068f5cc032506feb5f15a7ac7e349f6 fo <fosorio@loc.gov> 1776187710 +0000	commit: Trim colon from dates
+5eaec194b068f5cc032506feb5f15a7ac7e349f6 911f458b97ba4bc863c18c86bee26a40abaf7355 fo <fosorio@loc.gov> 1776187726 +0000	checkout: moving from conf-046-update to main
+911f458b97ba4bc863c18c86bee26a40abaf7355 5eaec194b068f5cc032506feb5f15a7ac7e349f6 fo <fosorio@loc.gov> 1776187989 +0000	checkout: moving from main to conf-046-update
+5eaec194b068f5cc032506feb5f15a7ac7e349f6 1a240cb273f843872e2d201c58d418af61d8d7e8 fo <fosorio@loc.gov> 1776188431 +0000	commit: Adjust failing test
+1a240cb273f843872e2d201c58d418af61d8d7e8 911f458b97ba4bc863c18c86bee26a40abaf7355 fo <fosorio@loc.gov> 1776188455 +0000	checkout: moving from conf-046-update to main
+911f458b97ba4bc863c18c86bee26a40abaf7355 0db750c206b86a3cf275de3dcf480f373845765e fo <fosorio@loc.gov> 1776188649 +0000	pull origin main: Fast-forward
+0db750c206b86a3cf275de3dcf480f373845765e 1a240cb273f843872e2d201c58d418af61d8d7e8 fo <fosorio@loc.gov> 1776188660 +0000	checkout: moving from main to conf-046-update
+1a240cb273f843872e2d201c58d418af61d8d7e8 0c10d944a8c700c98227943c8955f62af68e2635 fo <fosorio@loc.gov> 1776188666 +0000	merge main: Merge made by the 'ort' strategy.
+0c10d944a8c700c98227943c8955f62af68e2635 0db750c206b86a3cf275de3dcf480f373845765e fo <fosorio@loc.gov> 1776188699 +0000	checkout: moving from conf-046-update to main
+0db750c206b86a3cf275de3dcf480f373845765e 0c10d944a8c700c98227943c8955f62af68e2635 fo <fosorio@loc.gov> 1776188793 +0000	checkout: moving from main to conf-046-update
+0c10d944a8c700c98227943c8955f62af68e2635 2551a7097a2fd29f743d1482f63e4eec251b8b3c fo <fosorio@loc.gov> 1776188812 +0000	pull origin conf-046-update: Merge made by the 'ort' strategy.
+2551a7097a2fd29f743d1482f63e4eec251b8b3c 0db750c206b86a3cf275de3dcf480f373845765e fo <fosorio@loc.gov> 1776189600 +0000	checkout: moving from conf-046-update to main
+0db750c206b86a3cf275de3dcf480f373845765e 1408d748dc2aa3472277c6521abef27ada7019e0 fo <fosorio@loc.gov> 1776189609 +0000	pull origin main: Fast-forward
+1408d748dc2aa3472277c6521abef27ada7019e0 06ccfb01d799f2cb491aa012dd7b34f6a8afa73d fo <fosorio@loc.gov> 1776189630 +0000	checkout: moving from main to copy-cat-comparison
+06ccfb01d799f2cb491aa012dd7b34f6a8afa73d 30aaa6343b2b872cb3a59af0d022280b9e73e424 fo <fosorio@loc.gov> 1776189640 +0000	merge main: Merge made by the 'ort' strategy.
+30aaa6343b2b872cb3a59af0d022280b9e73e424 90b5a5379c09f5d8d199e181cc9a59b49f6ffb45 fo <fosorio@loc.gov> 1776345842 +0000	commit: HTML for the different records matches better
+90b5a5379c09f5d8d199e181cc9a59b49f6ffb45 1408d748dc2aa3472277c6521abef27ada7019e0 fo <fosorio@loc.gov> 1776345859 +0000	checkout: moving from copy-cat-comparison to main
+1408d748dc2aa3472277c6521abef27ada7019e0 b0bf2b6030ac4f639769d025019c21df287fb3b7 fo <fosorio@loc.gov> 1776345863 +0000	pull origin main: Fast-forward
+b0bf2b6030ac4f639769d025019c21df287fb3b7 911acaae068972f67c2afebb92639375528cb6e5 fo <fosorio@loc.gov> 1776345922 +0000	checkout: moving from main to derive-new-record
+911acaae068972f67c2afebb92639375528cb6e5 0c4372a691bab7fd4064319f99e9da0a40d357f4 fo <fosorio@loc.gov> 1776348946 +0000	commit: Adjust failing test
+0c4372a691bab7fd4064319f99e9da0a40d357f4 b0bf2b6030ac4f639769d025019c21df287fb3b7 fo <fosorio@loc.gov> 1776348962 +0000	checkout: moving from derive-new-record to main
+b0bf2b6030ac4f639769d025019c21df287fb3b7 b0bf2b6030ac4f639769d025019c21df287fb3b7 fo <fosorio@loc.gov> 1776351002 +0000	checkout: moving from main to nar-cip-titles
+b0bf2b6030ac4f639769d025019c21df287fb3b7 d5f3b423aa33463f766c8d0960a7dedc385a742e fo <fosorio@loc.gov> 1776351047 +0000	commit: Add cip check for NARs
+d5f3b423aa33463f766c8d0960a7dedc385a742e 23a7eda267d00a8e0e2356e0ecfd91307bf46de7 fo <fosorio@loc.gov> 1776353015 +0000	commit: cleanup
+23a7eda267d00a8e0e2356e0ecfd91307bf46de7 f716334016bc34acbc6bd04b2afb5a9a49655e64 fo <fosorio@loc.gov> 1776358363 +0000	commit: Move CIP to $b, fix error with multi SOR
+f716334016bc34acbc6bd04b2afb5a9a49655e64 b0bf2b6030ac4f639769d025019c21df287fb3b7 fo <fosorio@loc.gov> 1776360227 +0000	checkout: moving from nar-cip-titles to main
+b0bf2b6030ac4f639769d025019c21df287fb3b7 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776360239 +0000	pull origin main: Fast-forward
+7f3a13779add21628755042a5da1534dcf380421 90b5a5379c09f5d8d199e181cc9a59b49f6ffb45 fo <fosorio@loc.gov> 1776360286 +0000	checkout: moving from main to copy-cat-comparison
+90b5a5379c09f5d8d199e181cc9a59b49f6ffb45 765155588fcf176231dd2d76c9b136335cae3ba5 fo <fosorio@loc.gov> 1776362263 +0000	commit: test update
+765155588fcf176231dd2d76c9b136335cae3ba5 765155588fcf176231dd2d76c9b136335cae3ba5 fo <fosorio@loc.gov> 1776366115 +0000	reset: moving to HEAD
+765155588fcf176231dd2d76c9b136335cae3ba5 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776366117 +0000	checkout: moving from copy-cat-comparison to main
+7f3a13779add21628755042a5da1534dcf380421 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776366299 +0000	reset: moving to HEAD
+7f3a13779add21628755042a5da1534dcf380421 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776366316 +0000	checkout: moving from main to hub-creation-search-toggle
+7f3a13779add21628755042a5da1534dcf380421 3013f42060d0a059b89955e750da9418dd892a21 fo <fosorio@loc.gov> 1776366521 +0000	commit: Add search toggle to hub creation name lookup
+3013f42060d0a059b89955e750da9418dd892a21 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776366545 +0000	checkout: moving from hub-creation-search-toggle to main
+7f3a13779add21628755042a5da1534dcf380421 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776369360 +0000	reset: moving to HEAD
+7f3a13779add21628755042a5da1534dcf380421 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776681476 +0000	checkout: moving from main to nar-hub-names
+7f3a13779add21628755042a5da1534dcf380421 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776681492 +0000	checkout: moving from nar-hub-names to main
+7f3a13779add21628755042a5da1534dcf380421 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776681515 +0000	checkout: moving from main to uneditable-fields
+7f3a13779add21628755042a5da1534dcf380421 6716551de9b1a9b7f099936f55b85a7aa97a116e fo <fosorio@loc.gov> 1776681518 +0000	commit: Don't flag `expressionOf` as uneditable
+6716551de9b1a9b7f099936f55b85a7aa97a116e 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776681537 +0000	checkout: moving from uneditable-fields to main
+7f3a13779add21628755042a5da1534dcf380421 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776681607 +0000	checkout: moving from main to nar-titles
+7f3a13779add21628755042a5da1534dcf380421 d47d541e02f44b507ac38c565c7922a77b2f6c81 fo <fosorio@loc.gov> 1776682969 +0000	commit: Remove subttitle from nar creation
+d47d541e02f44b507ac38c565c7922a77b2f6c81 b04096e49116da84440d7aec99f6b8f28b603845 fo <fosorio@loc.gov> 1776684812 +0000	commit: Remove subtitle from HUB creation's "Use Work Title"
+b04096e49116da84440d7aec99f6b8f28b603845 0fc71cf4479b4adcc4bd62c346ed934ff1917617 fo <fosorio@loc.gov> 1776684937 +0000	commit: cleanup
+0fc71cf4479b4adcc4bd62c346ed934ff1917617 7f3a13779add21628755042a5da1534dcf380421 fo <fosorio@loc.gov> 1776857540 +0000	checkout: moving from nar-titles to main
+7f3a13779add21628755042a5da1534dcf380421 e6285d54af1d5f005550570895f6f2602098c6d9 fo <fosorio@loc.gov> 1776857545 +0000	pull origin main: Fast-forward
+e6285d54af1d5f005550570895f6f2602098c6d9 e6285d54af1d5f005550570895f6f2602098c6d9 fo <fosorio@loc.gov> 1777029815 +0000	checkout: moving from main to class-numb-insert
+e6285d54af1d5f005550570895f6f2602098c6d9 279d388b1064e5394d5bef1e8d29c71cc6ff3c70 fo <fosorio@loc.gov> 1777029819 +0000	commit: Fix check wfor first name
+279d388b1064e5394d5bef1e8d29c71cc6ff3c70 602e304855530a1e2123e853c1f93321a1ba9bb6 fo <fosorio@loc.gov> 1777030523 +0000	commit: Fix for complex modal lookup too
+602e304855530a1e2123e853c1f93321a1ba9bb6 ebed53731e47717aeefe1965975ff96c717020a7 fo <fosorio@loc.gov> 1777030815 +0000	commit: Remove information in `(...)`, if it's part of the number
+ebed53731e47717aeefe1965975ff96c717020a7 ebed53731e47717aeefe1965975ff96c717020a7 fo <fosorio@loc.gov> 1777031100 +0000	reset: moving to HEAD
+ebed53731e47717aeefe1965975ff96c717020a7 e6285d54af1d5f005550570895f6f2602098c6d9 fo <fosorio@loc.gov> 1777289082 +0000	checkout: moving from class-numb-insert to main
+e6285d54af1d5f005550570895f6f2602098c6d9 67c1d42b1b0129beaff50872ff2523877a9b9d83 fo <fosorio@loc.gov> 1777289089 +0000	pull origin main: Fast-forward
+67c1d42b1b0129beaff50872ff2523877a9b9d83 67c1d42b1b0129beaff50872ff2523877a9b9d83 fo <fosorio@loc.gov> 1777291224 +0000	reset: moving to HEAD
+67c1d42b1b0129beaff50872ff2523877a9b9d83 67c1d42b1b0129beaff50872ff2523877a9b9d83 fo <fosorio@loc.gov> 1777291237 +0000	checkout: moving from main to fix-hiding-lc-class
+67c1d42b1b0129beaff50872ff2523877a9b9d83 f4ce13d777b05a1bb80aec3965ccc390b6e1a39d fo <fosorio@loc.gov> 1777293300 +0000	commit: Fix add class number not showing sometimes
+f4ce13d777b05a1bb80aec3965ccc390b6e1a39d b070e0b9a6df26f24af6d6c8e5d9a86c7144e741 fo <fosorio@loc.gov> 1777294446 +0000	commit: Remove test
+b070e0b9a6df26f24af6d6c8e5d9a86c7144e741 67c1d42b1b0129beaff50872ff2523877a9b9d83 fo <fosorio@loc.gov> 1777295139 +0000	checkout: moving from fix-hiding-lc-class to main
+67c1d42b1b0129beaff50872ff2523877a9b9d83 ca7948b6255e9a3775ef634dc211ff97b49085d3 fo <fosorio@loc.gov> 1777295143 +0000	pull origin main: Fast-forward
+ca7948b6255e9a3775ef634dc211ff97b49085d3 ca7948b6255e9a3775ef634dc211ff97b49085d3 fo <fosorio@loc.gov> 1777296594 +0000	checkout: moving from main to add-item-class-bug
+ca7948b6255e9a3775ef634dc211ff97b49085d3 6f297a354a3f0bd7785f31aecad9159069c2857f fo <fosorio@loc.gov> 1777296602 +0000	commit: Fix classNumber field not appearing correctly when adding an item
+6f297a354a3f0bd7785f31aecad9159069c2857f ca7948b6255e9a3775ef634dc211ff97b49085d3 fo <fosorio@loc.gov> 1777296921 +0000	checkout: moving from add-item-class-bug to main
+ca7948b6255e9a3775ef634dc211ff97b49085d3 55b2514bd68e1d80fa1080b5fc97260ce8f77025 fo <fosorio@loc.gov> 1777296927 +0000	pull origin main: Fast-forward
+55b2514bd68e1d80fa1080b5fc97260ce8f77025 765155588fcf176231dd2d76c9b136335cae3ba5 fo <fosorio@loc.gov> 1777300281 +0000	checkout: moving from main to copy-cat-comparison
+765155588fcf176231dd2d76c9b136335cae3ba5 55b2514bd68e1d80fa1080b5fc97260ce8f77025 fo <fosorio@loc.gov> 1777303140 +0000	checkout: moving from copy-cat-comparison to main
+55b2514bd68e1d80fa1080b5fc97260ce8f77025 55b2514bd68e1d80fa1080b5fc97260ce8f77025 fo <fosorio@loc.gov> 1777304245 +0000	checkout: moving from main to send-to-work-with-subtitle
+55b2514bd68e1d80fa1080b5fc97260ce8f77025 c5b179051d39909dca95e925b9a433e0a5e4087f fo <fosorio@loc.gov> 1777304249 +0000	commit: Send subtitle with `Send to work`
+c5b179051d39909dca95e925b9a433e0a5e4087f 0ec9e81becf80d920146df8d4c05e21dd8aed815 fo <fosorio@loc.gov> 1777310435 +0000	commit: Adjust for work > instance too.
+0ec9e81becf80d920146df8d4c05e21dd8aed815 b388b86b02012b17c964f708f74da3ae022ba491 fo <fosorio@loc.gov> 1777312039 +0000	commit: Cleanup
+b388b86b02012b17c964f708f74da3ae022ba491 2f350fdc9124042ae5b55cf1e868572ecb9f0a64 fo <fosorio@loc.gov> 1777314700 +0000	commit: clean up
+2f350fdc9124042ae5b55cf1e868572ecb9f0a64 55b2514bd68e1d80fa1080b5fc97260ce8f77025 fo <fosorio@loc.gov> 1777379139 +0000	checkout: moving from send-to-work-with-subtitle to main
+55b2514bd68e1d80fa1080b5fc97260ce8f77025 97c654211a36a6b14a1ce196c67052ca014e56d6 fo <fosorio@loc.gov> 1777379160 +0000	pull origin main: Fast-forward
+97c654211a36a6b14a1ce196c67052ca014e56d6 765155588fcf176231dd2d76c9b136335cae3ba5 fo <fosorio@loc.gov> 1777379243 +0000	checkout: moving from main to copy-cat-comparison
+765155588fcf176231dd2d76c9b136335cae3ba5 6564a54222736833e105eea646631d5224de7ab7 fo <fosorio@loc.gov> 1777379253 +0000	merge main: Merge made by the 'ort' strategy.
+6564a54222736833e105eea646631d5224de7ab7 6033de14885f1601d462c996ed347396ca92eace fo <fosorio@loc.gov> 1777381782 +0000	commit: Some styling
+6033de14885f1601d462c996ed347396ca92eace 97c654211a36a6b14a1ce196c67052ca014e56d6 fo <fosorio@loc.gov> 1777382657 +0000	checkout: moving from copy-cat-comparison to main
+97c654211a36a6b14a1ce196c67052ca014e56d6 6033de14885f1601d462c996ed347396ca92eace fo <fosorio@loc.gov> 1777384243 +0000	checkout: moving from main to copy-cat-comparison
+6033de14885f1601d462c996ed347396ca92eace 8c9deab2a9345efb73e34c88daab95b24ca7c539 fo <fosorio@loc.gov> 1777384486 +0000	commit: changelog update
+8c9deab2a9345efb73e34c88daab95b24ca7c539 ec83ce4df77529b781c362358b9c2271b1316deb fo <fosorio@loc.gov> 1777385533 +0000	commit: cleanup
+ec83ce4df77529b781c362358b9c2271b1316deb d7fcdb81b2142e61b3df1d69ca5616a94ec5c907 fo <fosorio@loc.gov> 1777395815 +0000	commit: Add hover highlight over marc
+d7fcdb81b2142e61b3df1d69ca5616a94ec5c907 a64722b4fd7c4f202d9cd9a39b1eed2402008679 fo <fosorio@loc.gov> 1777398006 +0000	commit: add `badge` when comparison is being created
+a64722b4fd7c4f202d9cd9a39b1eed2402008679 97c654211a36a6b14a1ce196c67052ca014e56d6 fo <fosorio@loc.gov> 1777403213 +0000	checkout: moving from copy-cat-comparison to main
+97c654211a36a6b14a1ce196c67052ca014e56d6 54bd5bc0c95b8176855cbff8f27ab1362eabede9 fo <fosorio@loc.gov> 1777403230 +0000	pull origin main: Fast-forward
+54bd5bc0c95b8176855cbff8f27ab1362eabede9 6716551de9b1a9b7f099936f55b85a7aa97a116e fo <fosorio@loc.gov> 1777404097 +0000	checkout: moving from main to uneditable-fields
+6716551de9b1a9b7f099936f55b85a7aa97a116e ded700099bff28391849b22941f0ccc5dca02f6e fo <fosorio@loc.gov> 1777404280 +0000	merge main: Merge made by the 'ort' strategy.
+ded700099bff28391849b22941f0ccc5dca02f6e ded700099bff28391849b22941f0ccc5dca02f6e fo <fosorio@loc.gov> 1777406589 +0000	reset: moving to HEAD
+ded700099bff28391849b22941f0ccc5dca02f6e 54bd5bc0c95b8176855cbff8f27ab1362eabede9 fo <fosorio@loc.gov> 1777406592 +0000	checkout: moving from uneditable-fields to main
+54bd5bc0c95b8176855cbff8f27ab1362eabede9 54bd5bc0c95b8176855cbff8f27ab1362eabede9 fo <fosorio@loc.gov> 1777407419 +0000	reset: moving to HEAD
+54bd5bc0c95b8176855cbff8f27ab1362eabede9 5d810b33af11510d6eaa37ffe54b0d441b366d44 fo <fosorio@loc.gov> 1777464398 +0000	pull origin main: Fast-forward
+5d810b33af11510d6eaa37ffe54b0d441b366d44 5d810b33af11510d6eaa37ffe54b0d441b366d44 fo <fosorio@loc.gov> 1777464672 +0000	checkout: moving from main to lccn-search-cc
+5d810b33af11510d6eaa37ffe54b0d441b366d44 3a99847b40f57c2a9d490a0824076f370b746aab fo <fosorio@loc.gov> 1777465697 +0000	commit: Update match search
+3a99847b40f57c2a9d490a0824076f370b746aab 74595364de3780a5434328e030840d47fdaf91ce fo <fosorio@loc.gov> 1777465932 +0000	commit: Fix reseting to "Other" when typing
+74595364de3780a5434328e030840d47fdaf91ce 95b1829cdebc81d955bcfb2271c249a92f54e455 fo <fosorio@loc.gov> 1777466323 +0000	commit: Reduce some duplicate code
+95b1829cdebc81d955bcfb2271c249a92f54e455 5d810b33af11510d6eaa37ffe54b0d441b366d44 fo <fosorio@loc.gov> 1777467322 +0000	checkout: moving from lccn-search-cc to main
+5d810b33af11510d6eaa37ffe54b0d441b366d44 d37c28a3f2d11676a89a8b8d2fb37f908474f40e fo <fosorio@loc.gov> 1777467333 +0000	pull origin main: Fast-forward
+d37c28a3f2d11676a89a8b8d2fb37f908474f40e ded700099bff28391849b22941f0ccc5dca02f6e fo <fosorio@loc.gov> 1777467700 +0000	checkout: moving from main to uneditable-fields
+ded700099bff28391849b22941f0ccc5dca02f6e 36d1c5b3e872d7e1f97698c5f1c4151e9fac7b16 fo <fosorio@loc.gov> 1777468048 +0000	commit: Don't apply deepHier flag when there is a URI
+36d1c5b3e872d7e1f97698c5f1c4151e9fac7b16 36d1c5b3e872d7e1f97698c5f1c4151e9fac7b16 fo <fosorio@loc.gov> 1777471844 +0000	reset: moving to HEAD
+36d1c5b3e872d7e1f97698c5f1c4151e9fac7b16 d37c28a3f2d11676a89a8b8d2fb37f908474f40e fo <fosorio@loc.gov> 1777471847 +0000	checkout: moving from uneditable-fields to main
+d37c28a3f2d11676a89a8b8d2fb37f908474f40e c494b730267ac661f93c074f4f732ac830a79dea fo <fosorio@loc.gov> 1777472101 +0000	commit: Remove `pre` styling
+c494b730267ac661f93c074f4f732ac830a79dea 36d1c5b3e872d7e1f97698c5f1c4151e9fac7b16 fo <fosorio@loc.gov> 1777472336 +0000	checkout: moving from main to uneditable-fields
+36d1c5b3e872d7e1f97698c5f1c4151e9fac7b16 fa2cc96e3cdec6d993bbb506f342126e340f311f fo <fosorio@loc.gov> 1777473460 +0000	commit: treat `Expression of` like `bf:relation`
+fa2cc96e3cdec6d993bbb506f342126e340f311f 7dc95932bf0a4d61f0fd5c2cf4f71b696a3fb849 fo <fosorio@loc.gov> 1777473650 +0000	commit (merge): Merge branch 'main' into uneditable-fields
+7dc95932bf0a4d61f0fd5c2cf4f71b696a3fb849 c494b730267ac661f93c074f4f732ac830a79dea fo <fosorio@loc.gov> 1777475276 +0000	checkout: moving from uneditable-fields to main
+c494b730267ac661f93c074f4f732ac830a79dea 69421208fd86c0ab60f26e5383b3233be43f654d fo <fosorio@loc.gov> 1777475321 +0000	pull origin main: Fast-forward
+69421208fd86c0ab60f26e5383b3233be43f654d 8f757d09012bba8a73c66cb56880721dc26d17cc fo <fosorio@loc.gov> 1777479361 +0000	checkout: moving from main to test-update
+8f757d09012bba8a73c66cb56880721dc26d17cc 69421208fd86c0ab60f26e5383b3233be43f654d fo <fosorio@loc.gov> 1777479389 +0000	checkout: moving from test-update to main
+69421208fd86c0ab60f26e5383b3233be43f654d 0c4372a691bab7fd4064319f99e9da0a40d357f4 fo <fosorio@loc.gov> 1777479556 +0000	checkout: moving from main to derive-new-record
+0c4372a691bab7fd4064319f99e9da0a40d357f4 9c493d9775cfde376b69639f643e6204b5cc708f fo <fosorio@loc.gov> 1777479563 +0000	merge main: Merge made by the 'ort' strategy.
+9c493d9775cfde376b69639f643e6204b5cc708f fa80c47e898818c97cd869d9cb51a1dd2daa3b85 fo <fosorio@loc.gov> 1777482392 +0000	commit: Add some comments
+fa80c47e898818c97cd869d9cb51a1dd2daa3b85 69421208fd86c0ab60f26e5383b3233be43f654d fo <fosorio@loc.gov> 1777484374 +0000	checkout: moving from derive-new-record to main
+69421208fd86c0ab60f26e5383b3233be43f654d 69421208fd86c0ab60f26e5383b3233be43f654d fo <fosorio@loc.gov> 1777484632 +0000	checkout: moving from main to scratch-record-updates
+69421208fd86c0ab60f26e5383b3233be43f654d 85a096c774e58423f2b16a940a1905b275e5c909 fo <fosorio@loc.gov> 1777484636 +0000	commit: Replace extra LCCN field with ISBN
+85a096c774e58423f2b16a940a1905b275e5c909 673c37e7869f60ec3234737f76a5e6513933c6ec fo <fosorio@loc.gov> 1777484820 +0000	commit: Replace name with Cataloger ID in adminMetadata
+673c37e7869f60ec3234737f76a5e6513933c6ec 8603227cda0a7e4a8019f9e2f01853335ad295d6 fo <fosorio@loc.gov> 1777485220 +0000	commit: Add defaults for work
+8603227cda0a7e4a8019f9e2f01853335ad295d6 5f8c86b5a577f6dcb7f4397457d8b5a1dfb24f18 fo <fosorio@loc.gov> 1777485519 +0000	commit: 040 $c = `DLC-MRC`
+5f8c86b5a577f6dcb7f4397457d8b5a1dfb24f18 3acdb88a70353d4980769a095e45054d0807b2fc fo <fosorio@loc.gov> 1777488542 +0000	commit: cleanup
+3acdb88a70353d4980769a095e45054d0807b2fc e6c636e40ea053e0d9417b8b94c6f1267b184213 fo <fosorio@loc.gov> 1777492065 +0000	commit: Update some tests
+e6c636e40ea053e0d9417b8b94c6f1267b184213 69421208fd86c0ab60f26e5383b3233be43f654d fo <fosorio@loc.gov> 1777492653 +0000	checkout: moving from scratch-record-updates to main
+69421208fd86c0ab60f26e5383b3233be43f654d aa2f58b61d35c2055ef07e14787f623a9d5773e6 fo <fosorio@loc.gov> 1777492665 +0000	pull origin main: Fast-forward
+aa2f58b61d35c2055ef07e14787f623a9d5773e6 fa80c47e898818c97cd869d9cb51a1dd2daa3b85 fo <fosorio@loc.gov> 1777492703 +0000	checkout: moving from main to derive-new-record
+fa80c47e898818c97cd869d9cb51a1dd2daa3b85 aa2f58b61d35c2055ef07e14787f623a9d5773e6 fo <fosorio@loc.gov> 1777493146 +0000	checkout: moving from derive-new-record to main
+aa2f58b61d35c2055ef07e14787f623a9d5773e6 fa80c47e898818c97cd869d9cb51a1dd2daa3b85 fo <fosorio@loc.gov> 1777493638 +0000	checkout: moving from main to derive-new-record
+fa80c47e898818c97cd869d9cb51a1dd2daa3b85 389b42a962f51a996e6832f64be4a9895a7b64c0 fo <fosorio@loc.gov> 1777547268 +0000	commit: TODOs
+389b42a962f51a996e6832f64be4a9895a7b64c0 aa2f58b61d35c2055ef07e14787f623a9d5773e6 fo <fosorio@loc.gov> 1777547275 +0000	checkout: moving from derive-new-record to main
+aa2f58b61d35c2055ef07e14787f623a9d5773e6 389b42a962f51a996e6832f64be4a9895a7b64c0 fo <fosorio@loc.gov> 1777550542 +0000	checkout: moving from main to derive-new-record
+389b42a962f51a996e6832f64be4a9895a7b64c0 4cc907da8bf76ab2f60279942e9b39fd3048ba69 fo <fosorio@loc.gov> 1777560387 +0000	commit: Fix derived recods not working with secondary instances
+4cc907da8bf76ab2f60279942e9b39fd3048ba69 f2783afdd5f90bc56adb794baf2963f70973e331 fo <fosorio@loc.gov> 1777569206 +0000	commit: works with multiple converions
+f2783afdd5f90bc56adb794baf2963f70973e331 41bab6804241a71e850aa34e6a998b6eb7938b5e fo <fosorio@loc.gov> 1777570240 +0000	commit: Remove finished TODOs
+41bab6804241a71e850aa34e6a998b6eb7938b5e aa2f58b61d35c2055ef07e14787f623a9d5773e6 fo <fosorio@loc.gov> 1777570265 +0000	checkout: moving from derive-new-record to main
+aa2f58b61d35c2055ef07e14787f623a9d5773e6 aa2f58b61d35c2055ef07e14787f623a9d5773e6 fo <fosorio@loc.gov> 1777636343 +0000	reset: moving to HEAD
+aa2f58b61d35c2055ef07e14787f623a9d5773e6 6da588d6097f6e4b16d0879707d42932bb4555f1 fo <fosorio@loc.gov> 1777636348 +0000	pull origin main: Fast-forward
+6da588d6097f6e4b16d0879707d42932bb4555f1 6da588d6097f6e4b16d0879707d42932bb4555f1 fo <fosorio@loc.gov> 1777636359 +0000	checkout: moving from main to find-and-replace
+6da588d6097f6e4b16d0879707d42932bb4555f1 6da588d6097f6e4b16d0879707d42932bb4555f1 fo <fosorio@loc.gov> 1777637577 +0000	checkout: moving from find-and-replace to main
+6da588d6097f6e4b16d0879707d42932bb4555f1 6da588d6097f6e4b16d0879707d42932bb4555f1 fo <fosorio@loc.gov> 1777638085 +0000	checkout: moving from main to fix-046-error-nars
+6da588d6097f6e4b16d0879707d42932bb4555f1 4b44d07947d5b3a9d30df1abec5abfbadd92de9f fo <fosorio@loc.gov> 1777638089 +0000	commit: Check that zero46 exists, before checking the keys
+4b44d07947d5b3a9d30df1abec5abfbadd92de9f 4b44d07947d5b3a9d30df1abec5abfbadd92de9f fo <fosorio@loc.gov> 1777638236 +0000	reset: moving to HEAD
+4b44d07947d5b3a9d30df1abec5abfbadd92de9f 4b44d07947d5b3a9d30df1abec5abfbadd92de9f fo <fosorio@loc.gov> 1777638587 +0000	reset: moving to HEAD
+4b44d07947d5b3a9d30df1abec5abfbadd92de9f 4b44d07947d5b3a9d30df1abec5abfbadd92de9f fo <fosorio@loc.gov> 1777638714 +0000	reset: moving to HEAD

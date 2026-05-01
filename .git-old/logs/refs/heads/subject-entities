@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 c987c650800a3decb548deac1901c418b0cc067f fo <fosorio@loc.gov> 1770131705 +0000	branch: Created from HEAD
+c987c650800a3decb548deac1901c418b0cc067f f4f02dd962f01aace001a92b0d5660bc9dad7a96 fo <fosorio@loc.gov> 1770141433 +0000	commit: Add entities search.
+f4f02dd962f01aace001a92b0d5660bc9dad7a96 9be4c660c3881f8a723b3a09076351a4b4fa71f9 fo <fosorio@loc.gov> 1770144026 +0000	commit: Cleanup. XML was right
+9be4c660c3881f8a723b3a09076351a4b4fa71f9 0287f475be4cdd27055264a7d9517712cee99ec2 fo <fosorio@loc.gov> 1770144532 +0000	commit: version++, changelong update
+0287f475be4cdd27055264a7d9517712cee99ec2 a931143f52e5b584cf9e0b5c06521d10c6defd3e fo <fosorio@loc.gov> 1770146939 +0000	commit: Limit to staging environment
+a931143f52e5b584cf9e0b5c06521d10c6defd3e 3edaff285a47f2646e8744fc71628825849ebd92 fo <fosorio@loc.gov> 1770147868 +0000	commit: Update how dashes are handled
