@@ -25,6 +25,7 @@ import ShelfListingModal from "@/components/panels/edit/modals/ShelfListing.vue"
 import AutoDeweyModal from "./components/panels/edit/modals/AutoDeweyModal.vue";
 import YoshinoSubjectsModal from "./components/panels/edit/modals/YoshinoSubjectsModal.vue";
 import UpdateAvailableModal from "@/components/general/UpdateAvailableModal.vue";
+import CipModal from "@/components/panels/edit/modals/CipModal.vue"
 
 
 
@@ -58,6 +59,7 @@ export default {
     NacoStubCreateModal,
     MarvaLogModal,
     UserDirectoryModal,
+    CipModal,
     FolioSyncModal
 
   },
@@ -73,7 +75,7 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection', 'isTestEnv']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal', 'showFolioSyncModal']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal', 'showFolioSyncModal', 'showCipModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode','ssoSessionExpired']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showLoginModalSSO','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
@@ -201,6 +203,10 @@ export default {
   </template>
   <template v-if="showTextMacroModal==true">
     <TextMacroModal v-model="showTextMacroModal"  />
+  </template>
+
+  <template v-if="showCipModal==true">
+    <CipModal v-model="showCipModal" />
   </template>
 
   <template v-if="showNonLatinBulkModal==true">

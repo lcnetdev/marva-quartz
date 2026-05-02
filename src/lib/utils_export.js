@@ -581,6 +581,8 @@ const utilsExport = {
         		// extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
 
+				if (!ptObj){ continue }
+
 				if (ptObj.deleted){
 					continue
 				}
@@ -1804,28 +1806,76 @@ const utilsExport = {
 
 	// build the BF2MARC package
 	let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
+	let multiInstanceRecord = [] // Work/instance pair for earch instance
+
 	let bf2MarcWorks = rdfBasic.getElementsByTagName("bf:Work")
 	for (let x = 0; x < bf2MarcWorks.length; x++){
 		if (bf2MarcWorks[x].parentNode && bf2MarcWorks[x].parentNode.tagName && bf2MarcWorks[x].parentNode.tagName.toLowerCase() == 'rdf'){
 			bf2MarcXmlElRdf.appendChild(bf2MarcWorks[x].cloneNode(true))
 		}
 	}
+
 	let bf2MarcInstances = rdfBasic.getElementsByTagName("bf:Instance")
 	for (let x = 0; x < bf2MarcInstances.length; x++){
 		if (bf2MarcInstances[x].parentNode && bf2MarcInstances[x].parentNode.tagName && bf2MarcInstances[x].parentNode.tagName.toLowerCase() == 'rdf'){
 			bf2MarcXmlElRdf.appendChild(bf2MarcInstances[x].cloneNode(true))
 		}
 	}
+
+	if (bf2MarcInstances.length > 1){
+		for (let x = 0; x < bf2MarcInstances.length; x++){
+			let bf2MarcXmlElRdfMultiInstance = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
+
+			let isSecondary = false // secondary instance should be with an instance, not alone with a work
+			for (let child of bf2MarcInstances[x].children){
+				if (child.tagName == "rdf:type" && child.hasAttribute("rdf:resource") && child.getAttribute("rdf:resource") == 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'){
+					isSecondary = true
+				}
+			}
+
+			if (bf2MarcInstances[x].parentNode && bf2MarcInstances[x].parentNode.tagName && bf2MarcInstances[x].parentNode.tagName.toLowerCase() == 'rdf'){
+				// don't split off secondary instances
+				if (!isSecondary){
+					bf2MarcXmlElRdfMultiInstance.appendChild(bf2MarcWorks[0].cloneNode(true))
+					bf2MarcXmlElRdfMultiInstance.appendChild(bf2MarcInstances[x].cloneNode(true))
+					multiInstanceRecord.push( (new XMLSerializer()).serializeToString(bf2MarcXmlElRdfMultiInstance))
+				} else {
+					// don't append new, add to last one
+					// bf2MarcXmlElRdfMultiInstance.appendChild(bf2MarcInstances[x].cloneNode(true))
+					let secondaryInstance = bf2MarcInstances[x].cloneNode(true)
+					let endPos = multiInstanceRecord.at(-1).indexOf("</bf:Instance>") + "</bf:Instance>".length
+					multiInstanceRecord[multiInstanceRecord.length - 1] = multiInstanceRecord.at(-1).slice(0, endPos) + (new XMLSerializer()).serializeToString(secondaryInstance) + multiInstanceRecord.at(-1).slice(endPos)
+				}
+			}
+
+
+
+			// match items to the instance
+			let bf2MarcItems = rdfBasic.getElementsByTagName("bf:Item")
+			let instanceId = bf2MarcInstances[x].getAttribute('rdf:about')
+			if (bf2MarcItems.length > 0){
+				for (let item of bf2MarcItems){
+					let itemOf = item.firstChild.getAttribute("rdf:resource")
+					if (itemOf == instanceId){
+						bf2MarcXmlElRdfMultiInstance.appendChild(item.cloneNode(true))
+					}
+				}
+			}
+		}
+	}
+
 	let bf2MarcItems = rdfBasic.getElementsByTagName("bf:Item")
 	for (let x = 0; x < bf2MarcItems.length; x++){
 		if (bf2MarcItems[x].parentNode && bf2MarcItems[x].parentNode.tagName && bf2MarcItems[x].parentNode.tagName.toLowerCase() == 'rdf'){
 			bf2MarcXmlElRdf.appendChild(bf2MarcItems[x].cloneNode(true))
 		}
 	}
+	// if there are multiple items
 
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
 	// console.info("strXmlBasic: ", strXmlBasic)
+	console.info("multiInstanceRecord: ", multiInstanceRecord)
 
 	return {
 		xmlDom: rdf,
@@ -1835,7 +1885,8 @@ const utilsExport = {
 		xlmStringBasic: strXmlBasic,
 		voidTitle: xmlVoidDataTitle,
 		voidContributor:xmlVoidDataContributor,
-		componentXmlLookup:componentXmlLookup
+		componentXmlLookup:componentXmlLookup,
+		bf2MarcMulti: multiInstanceRecord,
 	}
   },
 

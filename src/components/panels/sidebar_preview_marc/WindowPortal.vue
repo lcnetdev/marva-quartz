@@ -2,7 +2,19 @@
 <template>
         <template v-if="open">
             <div class="marc-preview-content">
-            <MarcDisplay :previewData="content" selected="" v-if="type == 'marc'"/>
+
+                <template v-for="key in Object.keys(content['versions'])">
+                    <div class="conversion-heading">Conversion {{ key }}:</div>
+                    <div class="toggle-btn-grp cssonly">
+                        <div v-for="(r, idx) of content['versions'][key].record">
+                        <input type="radio" :value="idx" class="record-radio" v-model="selected" name="recordSelect" />
+                        <label onclick="" class="toggle-btn">Record {{ idx + 1 }}</label>
+                        </div>
+                    </div>
+
+                    <MarcDisplay :previewData="content['versions'][content.default].record[selected]" />
+                </template>
+
             </div>
         </template>
 </template>
@@ -15,7 +27,7 @@ import MarcDisplay from './MarcDisplay.vue'
 
 export default {
     components: {
-      MarcDisplay
+        MarcDisplay
     },
     name: 'window-portal',
     emits: ['close'],
@@ -35,12 +47,22 @@ export default {
         sourceDoc: {
             type: Object,
             default: {}
-        }
+        },
+        version: {
+            type: String,
+            default: ''
+        },
+        selected: {
+            type: Number,
+            default: 0
+        },
     },
     data() {
         return {
             windowRef: null,
             currentPanels: null,
+            version: this.version,
+            selected: this.selected,
         }
     },
     computed: {
