@@ -2033,6 +2033,8 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
+      console.info("setValueLiteral")
+      console.info("\tvalue: ", value)
       //Save
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
@@ -8596,7 +8598,7 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
-    getHighlightedText: function(){
+    getHighlightedText: async function(){
       let titleCase = false
       let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
       let el = false
@@ -8618,7 +8620,42 @@ export const useProfileStore = defineStore('profile', {
         // {level: 0, propertyURI: structure.propertyURI},
         let pp = this.buildPropertyPath(structure, [], fieldGuid)
         let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
-        this.setValueLiteral(targetGuid, fieldGuid, pp, currentValue[0].value.replace(highlightedText, titleCase), currentValue[0]['@language'], false)
+
+        console.info("currentValue: ", currentValue)
+        if (currentValue.length > 1){
+          let newText = ""
+          let nonLatin = false
+          for (let val of currentValue){
+            if (val['@language'].toLowerCase().includes('latn')){
+              newText = val.value.replace(highlightedText, titleCase)
+              this.setValueLiteral(targetGuid, fieldGuid, pp, newText, val['@language'], false)
+            } else {
+              nonLatin = val
+            }
+          }
+
+          // Adjust the non-Latin form to match
+          let otherScriptCodes = false
+          const config = useConfigStore()
+          for (let key in config.scriptShifterLangCodes){
+            let codeObj = config.scriptShifterLangCodes[key]
+            console.info("codeObj", codeObj)
+            console.info("nonLatin['@language']", nonLatin['@language'])
+            if (nonLatin['@language'] && codeObj.code.toLowerCase() == nonLatin['@language'].toLowerCase()){
+              otherScriptCodes = key
+              console.info("otherScriptCodes: ", otherScriptCodes)
+              break
+            }
+          }
+
+          let transValue = await utilsNetwork.scriptShifterRequestTrans(otherScriptCodes, newText, false, "r2s") //abazin_cyrillic
+          console.info("transValue: ", transValue, "--", typeof transValue)
+          this.setValueLiteral(targetGuid, nonLatin['@guid'], pp, transValue.output, nonLatin['@language'], false)
+        } else {
+          this.setValueLiteral(targetGuid, fieldGuid, pp, currentValue[0].value.replace(highlightedText, titleCase), currentValue[0]['@language'], false)
+        }
+
+
       }
 
 
