@@ -8601,8 +8601,10 @@ export const useProfileStore = defineStore('profile', {
       let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
       let el = false
       if (highlightedText){
-        const selection = document.getSelection();
-        el = selection.anchorNode[0] // this doesn't work in firefox
+        const selection = window.getSelection();
+        try {
+          el = selection.anchorNode[0] // this doesn't work in firefox
+        } catch(err){}
       }
 
       if (el){
@@ -8627,7 +8629,7 @@ export const useProfileStore = defineStore('profile', {
           let newText = ""
           let nonLatin = false
           for (let val of currentValue){
-            if (val['@language'].toLowerCase().includes('latn')){
+            if (( val['@language'] && val['@language'].toLowerCase().includes('latn')) || val['@language'] == null){
               newText = val.value.replace(highlightedText, titleCase)
               this.setValueLiteral(targetGuid, fieldGuid, pp, newText, val['@language'], false)
             } else {
@@ -8683,7 +8685,7 @@ export const useProfileStore = defineStore('profile', {
           for (let el in node){
             return traverse( target, node[el])
           }
-        }else if (typeof node === "object"){
+        } else if (typeof node === "object"){
           for (let key of Object.keys(node)){
             if (!key.startsWith("@")){
               pp.push(
@@ -8702,7 +8704,6 @@ export const useProfileStore = defineStore('profile', {
 
       return pp
     },
-
 
 
 
