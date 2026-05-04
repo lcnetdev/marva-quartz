@@ -641,10 +641,10 @@ export const useProfileStore = defineStore('profile', {
             // if we are stage try to find stage
             if (config.returnUrls.env === 'staging') {
               defaultWs = wsData.data.find(ws => ws.name === 'marva-stage')
-            } 
+            }
             if (config.returnUrls.env === 'production') {
               defaultWs = wsData.data.find(ws => ws.name === 'marva-prod')
-            } 
+            }
 
             if (defaultWs) {
                 let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
@@ -8594,6 +8594,79 @@ export const useProfileStore = defineStore('profile', {
       if (usePreferenceStore().returnValue('--b-general-auto-save')){
         this.saveRecord()
       }
+    },
+
+    getHighlightedText: function(){
+      let titleCase = false
+      let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
+      let el = false
+      if (highlightedText){
+        const selection = document.getSelection();
+        console.info("selection: ", selection)
+        console.info("selection: ", selection.anchorNode[0])
+        el = selection.anchorNode[0] // this doesn't work in firefox
+      }
+
+      if (el){
+        let fieldGuid = el.getAttribute("data-guid")
+        let targetGuid = el.getAttribute("data-parent")
+        let pt = utilsProfile.returnPt(this.activeProfile, targetGuid)
+        let structure = this.returnStructureByGUID(targetGuid)
+        // make titlecase
+        titleCase = this.toTitleCase(highlightedText)
+
+        // {level: 0, propertyURI: structure.propertyURI},
+        let pp = this.buildPropertyPath(structure, [], fieldGuid)
+        let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
+        this.setValueLiteral(targetGuid, fieldGuid, pp, currentValue[0].value.replace(highlightedText, titleCase), currentValue[0]['@language'], false)
+      }
+
+
+    },
+
+    toTitleCase: function (str) {
+      return str.replace(
+        /\w\S*/g,
+        text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+      );
+    },
+
+    /**
+     * Build the property path from the initial component GUID until we find the fieldGuid
+     *
+     * @param {Object} structure - Structure to build the propertyPath for
+     * @param {Object} pp - Starting propertyPath, has the first piece of the path
+     * @param {String} endGuid - target at the end of path
+     */
+    buildPropertyPath: function(structure, pp, endGuid){
+      let userValue = structure.userValue
+
+      // go through UserValue building path to endGuid
+      const traverse = (target, node) => {
+        if (node['@guid'] && node['@guid'] == target){
+          return
+        } else if(Array.isArray(node)) {
+          for (let el in node){
+            return traverse( target, node[el])
+          }
+        }else if (typeof node === "object"){
+          for (let key of Object.keys(node)){
+            if (!key.startsWith("@")){
+              pp.push(
+                {
+                  level: pp.length,
+                  propertyURI: key
+                }
+              )
+              return  traverse( target, node[key])
+            }
+          }
+        }
+      };
+
+      traverse(endGuid, userValue)
+
+      return pp
     },
 
 

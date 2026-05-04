@@ -304,6 +304,13 @@ export default {
                     hotkey: "ctrl+y",
                     // class: (this.profileStore.redoRecords.length > 0) ? "active" : "inactive",
                     click: () => { this.profileStore.redoChange() }
+                  },
+                  {
+                    text: "Title Case",
+                    title: "Title Case",
+                    icon: "titlecase",
+                    hotkey: "ctrl+alt+t",
+                    click: () => { this.profileStore.getHighlightedText() }
                   }
                 // )
               // }
@@ -899,7 +906,7 @@ export default {
         // if we are in staging try to find the staging workspace name and set it
         if (config.returnUrls.env === 'staging') {
           currentWorkspaceName = 'marva-stage'
-        } 
+        }
         if (config.returnUrls.isBibframeDotOrg){
           currentWorkspaceName = 'marva-prod'
         }
