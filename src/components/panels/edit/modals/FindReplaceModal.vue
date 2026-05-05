@@ -210,25 +210,26 @@ export default {
                     </div>
                     <h2>Find & Replace</h2>
                     <div class="container-search">
-                        <div class="search-fields">
-                            <label for="input-find" onclick="" class="toggle-btn">Find: </label>
-                            <input id="input-find" type="text" class="search-mode-radio" v-model="findTarget"
-                                name="inputFind" autofocus />
-                            &nbsp;&nbsp;&nbsp;
-                            <label for="input-case" onclick="" class="toggle-btn">Match Case? </label>
-                            <input id="input-case" type="checkbox" class="search-mode-radio" v-model="matchCase"
-                                name="inputFind" />
-                        </div>
+                        <form ref="urlToLoadForm" v-on:submit.prevent="">
+                            <div class="search-fields">
+                                <label for="input-find" onclick="" class="toggle-btn">Find: </label>
+                                <input id="input-find" type="text" class="search-mode-radio" v-model="findTarget"
+                                    name="inputFind" autofocus />
+                                &nbsp;&nbsp;&nbsp;
+                                <label for="input-case" onclick="" class="toggle-btn">Match Case? </label>
+                                <input id="input-case" type="checkbox" class="search-mode-radio" v-model="matchCase"
+                                    name="inputFind" />
+                            </div>
 
-                        <div class="search-fields">
-                            <label for="input-replace" onclick="" class="toggle-btn">Replace: </label>
-                            <input id="input-replace" type="text" class="search-mode-radio" v-model="replaceTarget"
-                                name="inputReplace" />
-                        </div>
+                            <div class="search-fields">
+                                <label for="input-replace" onclick="" class="toggle-btn">Replace: </label>
+                                <input id="input-replace" type="text" class="search-mode-radio" v-model="replaceTarget"
+                                    name="inputReplace" />
+                            </div>
+                            <br>
+                            <button @click="find">Find</button>
+                        </form>
 
-                        <br>
-
-                        <button @click="find">Find</button>
                     </div>
 
                     <div v-if="matches.length >= 0" class="container-results">
