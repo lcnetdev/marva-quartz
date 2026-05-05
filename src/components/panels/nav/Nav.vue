@@ -46,6 +46,7 @@
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 import { useConfigStore } from '@/stores/config'
+import { useMarvaScanStore } from '@/stores/marvaScan'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 import VueFileToolbarMenu from 'vue-file-toolbar-menu'
@@ -98,7 +99,7 @@ export default {
   },
   computed: {
 
-    ...mapStores(useProfileStore, usePreferenceStore),
+    ...mapStores(useProfileStore, usePreferenceStore, useMarvaScanStore),
 
     ...mapState(useProfileStore, ['profilesLoaded', 'activeProfile', 'rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
@@ -391,6 +392,12 @@ export default {
                   window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
                 }, icon: "contact_support"
               }]),
+
+              {
+                text: "Marva Scan", click: () => {
+                  this.marvaScanStore.openModal()
+                }, icon: "qr_code_scanner"
+              },
 
               { is: 'separator' },
               {
