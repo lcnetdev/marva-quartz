@@ -130,6 +130,10 @@
           return true
         }
 
+        if (!this.goodTags()){
+          return true
+        }
+
         if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !this.good670()){
           return true
         }
@@ -219,6 +223,12 @@
       // Check that the advanced marc entry have indicators
       goodIndicators: function(){
         let good = this.extraMarcStatements.every((row) => row.indicators.length == 2)
+        return good
+      },
+
+      // Check that tag fields aren't empty
+      goodTags: function(){
+        let good = this.extraMarcStatements.every((row) => row.fieldTag.length == 3)
         return good
       },
 
@@ -2057,6 +2067,18 @@
                 <div>
                   <div class="error-info-title">Other Checks:</div>
 
+                  <template v-if="goodTags()">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">All Tags Present</span>
+                        </div>
+                  </template>
+                  <template v-else>
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">Tag Missing</span><span data-tooltip="Add missing Tag in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
+                  </template>
 
                   <template v-if="goodIndicators()">
                         <div>
@@ -2179,7 +2201,7 @@
                       v-model="row.fieldTag"
                       maxlength="3"
                       placeholder="TAG"
-                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.fieldTag.length != 3}]"
                       :style="`margin-right: 1em; width: 50px; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                     />
                     <input
