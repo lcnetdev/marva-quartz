@@ -52,7 +52,12 @@ export default {
     },
 
     watch: {
-
+        matchCase(newVal, oldVal){
+            console.info("newVal: ", newVal)
+            console.info("oldVal: ", oldVal)
+            this.matchCase = newVal
+            this.find()
+        }
 
     },
 
@@ -80,18 +85,24 @@ export default {
         find() {
             this.matches = []
             console.info("finding: ", this.findTarget)
-            console.info("activeProfile: ", this.activeProfile)
+            console.info("\tactiveProfile: ", this.activeProfile)
+            console.info("\tmatchCase? ", this.matchCase)
+            console.info("\tmatches: ", this.matches)
 
             let literals = document.getElementsByTagName('textarea')
             for (let field of literals) {
                 let value = field.value
                 if (!this.matchCase) {
-                    if (value.toLocaleLowerCase().includes(this.findTarget.toLocaleLowerCase())) {
-                        this.matches.push(field)
+                    let reg = new RegExp(this.findTarget, "dig")
+                    let matches = value.matchAll(reg)
+                    for (let match of matches){
+                        this.matches.push({'match': match, 'text': value, 'field': field})
                     }
                 } else {
-                    if (value.includes(this.findTarget)) {
-                        this.matches.push(field)
+                    let reg = new RegExp(this.findTarget, "dg")
+                    let matches = value.matchAll(reg)
+                    for (let match of matches){
+                        this.matches.push({'match': match, 'text': value, 'field': field})
                     }
                 }
             }
@@ -99,7 +110,52 @@ export default {
             console.info("matches: ", this.matches)
         },
 
-        replace(all = false) {
+        replace(data){
+            console.info("Replacing: ", data)
+            let target = data.field
+            let fieldGuid = target.getAttribute("data-guid")
+            let targetGuid = target.getAttribute("data-parent")
+
+            console.info("\ttarget: ", target.value)
+
+            let newText = target.value.slice(0, data.match.indices[0][0]) + this.replaceTarget + target.value.slice(data.match.indices[0][1])
+
+            let pp
+            try {
+                let structure = this.returnStructureByGUID(targetGuid)
+                pp = this.buildPropertyPath(structure, [], fieldGuid)
+            } catch(err){
+                console.error("Error building PropertyPath: ", err)
+                return
+            }
+            let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
+            console.info("\tcurrentValue: ", currentValue)
+            console.info("\tnewText: ", newText)
+
+            for (let val of currentValue){
+                if (( val['@language'] && val['@language'].toLowerCase().includes('latn')) || val['@language'] == null){
+                    // console.info("\tdo it")
+                    // console.info("\t\t", targetGuid)
+                    // console.info("\t\t", fieldGuid)
+                    // console.info("\t\t", pp)
+                    // console.info("\t\t", newText)
+                    // console.info("\t\t", val['@language'])
+                    this.setValueLiteral(targetGuid, fieldGuid, pp, newText, val['@language'], false)
+                    target.value = newText
+                }
+            }
+        },
+
+        loopLiteralsToReplace(all = false) {
+
+            /**
+             * TODO:
+             *   - [X] Case matching
+             *   - [] How to handle mulitple matches in 1 textarea
+             *   - [] Replace All
+             *   - [] Handle non-Latin?
+             */
+
             console.info("replacing")
             if (!this.replaceTarget){
                 let cont = confirm("There's no replacement text. Continuing will delete text.")
@@ -107,44 +163,34 @@ export default {
             }
             if (!all){
                 let target = this.matches[this.activeMatch]
-                let fieldGuid = target.getAttribute("data-guid")
-                let targetGuid = target.getAttribute("data-parent")
-                // need to account for matching case
-                let newText = target.value.replace(this.findTarget, this.replaceTarget)
-
-                let pp
-                try {
-                    let structure = this.returnStructureByGUID(targetGuid)
-                    pp = this.buildPropertyPath(structure, [], fieldGuid)
-                } catch(err){
-                    console.error("Error building PropertyPath: ", err)
-                    return
-                }
-                let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
-                console.info("currentValue: ", currentValue)
-
-                for (let val of currentValue){
-                    if (( val['@language'] && val['@language'].toLowerCase().includes('latn')) || val['@language'] == null){
-                        this.setValueLiteral(targetGuid, fieldGuid, pp, newText, val['@language'], false)
-                    }
-                }
+                this.replace(target)
+                // if (this.activeMatch < this.matches.length){
+                //     this.activeMatch++
+                // }
             } else {
-
+                for (let target of this.matches){
+                    this.replace(target)
+                }
             }
 
-            // do search again
-            this.find()
+
+            setTimeout(()=>{
+                this.find()
+            }, 500)
         },
 
-        buildDisplay(text){
-            // TODO account for case matching
+        buildDisplay(text, details){
+            // wrap target text in HTML to style it
             let target = this.findTarget
             const tag = "<span class='match-bold'>"
-            const idxStart = text.indexOf(target);
+
+            const idxStart = details.match.indices[0][0]
             const idxEnd = Number(idxStart) + target.length + tag.length
 
-            text = text.slice(0, idxStart) + tag + text.slice(idxStart);
-            text = text.slice(0, idxStart+tag.length + target.length) + "</span>" + text.slice(idxEnd)
+            if (idxStart >= 0 && idxEnd >= 0 ){
+                text = text.slice(0, idxStart) + tag + text.slice(idxStart);
+                text = text.slice(0, idxStart+tag.length + target.length) + "</span>" + text.slice(idxEnd)
+            }
 
             return text
         },
@@ -204,14 +250,14 @@ export default {
                     <table>
                         <tbody>
                             <tr v-for="(match, idx) of matches">
-                                <td :class="{ active: activeMatch === idx }" @click="activeMatch = idx" v-html="buildDisplay(match.value)">
+                                <td :class="{ active: activeMatch === idx }" @click="activeMatch = idx" v-html="buildDisplay(match.text, match)">
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <button @click="replace()">Replace</button>
-                    <button @click="replace(true)">Replace All</button>
+                    <button @click="loopLiteralsToReplace()">Replace</button>
+                    <button @click="loopLiteralsToReplace(true)">Replace All</button>
                 </div>
 
             </div>
