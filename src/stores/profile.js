@@ -2033,13 +2033,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      console.info("--------------------------\nsetValueLiteral")
-      console.info("\tcomponentGuid: ", componentGuid)
-      console.info("\tfieldGuid: ", fieldGuid)
-      console.info("\tpropertyPath: ", propertyPath)
-      console.info("\tvalue: ", )
-      console.info("\tlang: ", lang)
-      Save
+      // console.info("--------------------------\nsetValueLiteral")
+      // console.info("\tcomponentGuid: ", componentGuid)
+      // console.info("\tfieldGuid: ", fieldGuid)
+      // console.info("\tpropertyPath: ", propertyPath)
+      // console.info("\tvalue: ", )
+      // console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
@@ -8681,33 +8680,66 @@ export const useProfileStore = defineStore('profile', {
      * @param {String} endGuid - target at the end of path
      */
     buildPropertyPath: function(structure, pp, endGuid){
+      console.info("buildingPath to ", endGuid)
       let userValue = structure.userValue
 
       // go through UserValue building path to endGuid
+      // const traverse = (target, node) => {
+      //   console.info("travsering: ", node)
+      //   if (node['@guid'] && node['@guid'] == target){
+      //     return
+      //   } else if(Array.isArray(node)) {
+      //     for (let el in node){
+      //       return traverse( target, node[el])
+      //     }
+      //   } else if (typeof node === "object"){
+      //     for (let key of Object.keys(node)){
+      //       if (!key.startsWith("@")){
+      //         pp.push(
+      //           {
+      //             level: pp.length,
+      //             propertyURI: key
+      //           }
+      //         )
+      //         return  traverse( target, node[key])
+      //       }
+      //     }
+      //   }
+      // };
+
+      // https://stackoverflow.com/questions/53543303/find-a-full-object-path-to-a-given-value-with-javascript
       const traverse = (target, node) => {
-        if (node['@guid'] && node['@guid'] == target){
-          return
-        } else if(Array.isArray(node)) {
-          for (let el in node){
-            return traverse( target, node[el])
-          }
-        } else if (typeof node === "object"){
-          for (let key of Object.keys(node)){
-            if (!key.startsWith("@")){
-              pp.push(
-                {
-                  level: pp.length,
-                  propertyURI: key
-                }
-              )
-              return  traverse( target, node[key])
+        for (let el in node){
+          if (node[el] && typeof node[el] === "object"){
+            let result  = traverse(target, node[el])
+            if (result){
+              if (el.startsWith("http")){
+                result.unshift(el)
+              }
+              return result
+            }
+          } else if (node['@guid'] && node['@guid'] == target){
+            if (el.startsWith("http")){
+              return [el]
+            } else {
+              return []
             }
           }
         }
+
       };
 
-      traverse(endGuid, userValue)
+      let path = traverse(endGuid, userValue)
+      for (let p of path){
+        pp.push(
+          {
+            level: pp.length,
+            propertyURI: p
+          }
+        )
+      }
 
+      console.info("pp: ", pp)
       return pp
     },
 
