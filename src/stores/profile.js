@@ -2033,13 +2033,13 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      // console.info("--------------------------\nsetValueLiteral")
-      // console.info("\tcomponentGuid: ", componentGuid)
-      // console.info("\tfieldGuid: ", fieldGuid)
-      // console.info("\tpropertyPath: ", propertyPath)
-      // console.info("\tvalue: ", )
-      // console.info("\tlang: ", lang)
-      //Save
+      console.info("--------------------------\nsetValueLiteral")
+      console.info("\tcomponentGuid: ", componentGuid)
+      console.info("\tfieldGuid: ", fieldGuid)
+      console.info("\tpropertyPath: ", propertyPath)
+      console.info("\tvalue: ", )
+      console.info("\tlang: ", lang)
+      Save
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 

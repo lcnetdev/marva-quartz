@@ -44,9 +44,7 @@ export default {
     computed: {
         ...mapStores(useProfileStore, usePreferenceStore),
         ...mapWritableState(usePreferenceStore, ['showFindReplaceModal', 'panelDisplay', 'panelSizePresets']),
-        ...mapWritableState(useProfileStore, ['activeProfile', 'findLiterals', 'setValueLiteral', 'buildPropertyPath', 'returnStructureByGUID', 'returnLiteralValueFromProfile']),
-
-
+        ...mapWritableState(useProfileStore, ['activeComponent', 'activeProfile', 'findLiterals', 'setValueLiteral', 'buildPropertyPath', 'returnStructureByGUID', 'returnLiteralValueFromProfile']),
 
 
 
@@ -54,8 +52,6 @@ export default {
 
     watch: {
         matchCase(newVal, oldVal) {
-            console.info("newVal: ", newVal)
-            console.info("oldVal: ", oldVal)
             this.matchCase = newVal
             this.find()
         }
@@ -85,11 +81,6 @@ export default {
 
         find() {
             this.matches = []
-            console.info("finding: ", this.findTarget)
-            console.info("\tactiveProfile: ", this.activeProfile)
-            console.info("\tmatchCase? ", this.matchCase)
-            console.info("\tmatches: ", this.matches)
-
             let literals = document.getElementsByTagName('textarea')
             for (let field of literals) {
                 let fieldGuid = field.getAttribute("data-guid")
@@ -101,7 +92,7 @@ export default {
                     let matches = value.matchAll(reg)
                     for (let match of matches) {
                         let structure = this.returnStructureByGUID(targetGuid)
-                        console.info("struct: ", structure)
+                        console.info("structure: ", structure)
                         this.matches.push({ 'match': match, 'text': value, 'field': field, 'component': structure })
                     }
                 } else {
@@ -109,24 +100,17 @@ export default {
                     let matches = value.matchAll(reg)
                     for (let match of matches) {
                         let structure = this.returnStructureByGUID(targetGuid)
-                        console.info("struct: ", structure)
+                        console.info("structure: ", structure)
                         this.matches.push({ 'match': match, 'text': value, 'field': field, 'component': structure })
                     }
                 }
             }
-
-            console.info("matches: ", this.matches)
-
         },
 
         replace(data) {
-            console.info("Replacing: ", data)
             let target = data.field
             let fieldGuid = target.getAttribute("data-guid")
             let targetGuid = target.getAttribute("data-parent")
-
-            console.info("\ttarget: ", target.value)
-
             let newText = target.value.slice(0, data.match.indices[0][0]) + this.replaceTarget + target.value.slice(data.match.indices[0][1])
 
             let pp
@@ -137,18 +121,12 @@ export default {
                 console.error("Error building PropertyPath: ", err)
                 return
             }
+            console.info("pp: ", pp)
             let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
-            console.info("\tcurrentValue: ", currentValue)
-            console.info("\tnewText: ", newText)
+            console.info("currentValue: ", currentValue)
 
             for (let val of currentValue) {
                 if ((val['@language'] && val['@language'].toLowerCase().includes('latn')) || val['@language'] == null) {
-                    // console.info("\tdo it")
-                    // console.info("\t\t", targetGuid)
-                    // console.info("\t\t", fieldGuid)
-                    // console.info("\t\t", pp)
-                    // console.info("\t\t", newText)
-                    // console.info("\t\t", val['@language'])
                     this.setValueLiteral(targetGuid, fieldGuid, pp, newText, val['@language'], false)
                     target.value = newText
                 }
@@ -156,15 +134,6 @@ export default {
         },
 
         loopLiteralsToReplace(all = false) {
-
-            /**
-             * TODO:
-             *   - [X] Case matching
-             *   - [X] How to handle mulitple matches in 1 textarea
-             *   - [X] Replace All
-             *   - [] Handle non-Latin?
-             */
-
             console.info("replacing")
             if (!this.replaceTarget) {
                 let cont = confirm("There's no replacement text. Continuing will delete text.")
@@ -173,9 +142,6 @@ export default {
             if (!all) {
                 let target = this.matches[this.activeMatch]
                 this.replace(target)
-                // if (this.activeMatch < this.matches.length){
-                //     this.activeMatch++
-                // }
             } else {
                 for (let target of this.matches) {
                     this.replace(target)
@@ -202,6 +168,11 @@ export default {
             }
 
             return text
+        },
+
+        jumpToComponent(pName, eName){
+            this.showFindReplaceModal = false
+            this.activeComponent = this.activeProfile.rt[pName].pt[eName]
         },
 
 
@@ -238,7 +209,6 @@ export default {
                         <button class="close-button" @pointerup="close">X</button>
                     </div>
                     <h2>Find & Replace</h2>
-                    {{ initalHeight }}
                     <div class="container-search">
                         <div class="search-fields">
                             <label for="input-find" onclick="" class="toggle-btn">Find: </label>
@@ -265,13 +235,15 @@ export default {
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Source</th>
                                     <th>Component</th>
                                     <th>Value</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(match, idx) of matches">
-                                    <td class="component-label">{{ match.component.propertyLabel }}</td>
+                                    <td>{{ match.component.parentId.split(":").at(-1) }}</td>
+                                    <td class="component-label" @click="jumpToComponent(match.component.parentId, match.component.id)">{{ match.component.propertyLabel }}</td>
                                     <td :class="{ active: activeMatch === idx }" @click="activeMatch = idx"
                                         v-html="buildDisplay(match.text, match)">
                                     </td>
@@ -316,6 +288,10 @@ span.match-bold {
 </style>
 
 <style scoped>
+.component-label {
+    cursor: 'pointer';
+}
+
 .container-search {
     display: table;
 }
