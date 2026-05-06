@@ -201,7 +201,7 @@ function yoshinoParseRdf(xmlText) {
     const subjectData = {
       label,
       xml,
-      source: sourceName || 'Library of Congress Subject Headings',
+      source: sourceName || 'Unknown',
       components,
       uri: topUri,
       marcKey: topMarcKey,
