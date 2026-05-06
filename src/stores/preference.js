@@ -1565,11 +1565,29 @@ export const usePreferenceStore = defineStore('preference', {
       '--c-edit-copy-cat-card-marc-hover' : {
           value:'transparent',
           desc: 'The color of the subfield when hovering over the MARC.',
-          descShort: 'Marc Hover',
+          descShort: 'MARC Hover',
           type: 'color',
           group: 'Copy Cat',
           range: null
       },
+
+      '--c-edit-copy-cat-comp-existing' : {
+          value:'#fafad2',
+          desc: 'When comparing, color of the background for the existing record.',
+          descShort: 'Existing Color',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
+      },
+      '--c-edit-copy-cat-comp-new' : {
+          value:'#e3ffd8',
+          desc: 'When comparing, color of the background for the new record.',
+          descShort: 'New Color',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
+      },
+
       '--n-edit-copy-cat-font-size' : {
           desc: 'The fontsize of the text in the Copy Cat search.',
           descShort: 'Font Size',
@@ -1589,13 +1607,13 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Copy Cat',
         range: [true,false]
       },
-	  '--n-edit-copyt-cat-prio': {
-	  	desc: 'Default Prority for CopyCat',
-		descShort: 'Priority Default',
-		value: '3',
-		type: 'string',
-		group: 'Copy Cat'
-	  }
+      '--n-edit-copyt-cat-prio': {
+        desc: 'Default Prority for CopyCat',
+      descShort: 'Priority Default',
+      value: '3',
+      type: 'string',
+      group: 'Copy Cat'
+      }
 
 
     }
@@ -2051,6 +2069,9 @@ export const usePreferenceStore = defineStore('preference', {
 
     styleModalBackgroundColor(){ return `background-color: ${this.returnValue('--c-edit-modals-background-color')};`},
     styleModalTextColor(){ return `color: ${this.returnValue('--c-edit-modals-text-color')};`},
+
+    styleCopyCatBackgroundColor(){ return `background-color: ${this.returnValue('--c-edit-copy-cat-components')};`},
+    styleCopyCatTextColor(){ return `color: ${this.returnValue('--c-edit-copy-cat-font-color')};`},
 
 
 
