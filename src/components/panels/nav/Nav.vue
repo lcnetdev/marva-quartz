@@ -832,6 +832,16 @@ export default {
         }
       }
 
+      if (this.activeProfile.id && this.$route.name == 'Edit') {
+        menu.push(
+          {
+            text: this.profileOrStaging() + this.activeProfile.id,
+            class: "current-profile",
+
+          }
+        )
+      }
+
       if (this.activeProfile.id && this.$route.name == 'Edit' && config.returnUrls.displayLCOnlyFeatures && this.windowWidth > 1500) {
         let recordMenu = []
         recordMenu.push(
@@ -899,7 +909,7 @@ export default {
         // if we are in staging try to find the staging workspace name and set it
         if (config.returnUrls.env === 'staging') {
           currentWorkspaceName = 'marva-stage'
-        } 
+        }
         if (config.returnUrls.isBibframeDotOrg){
           currentWorkspaceName = 'marva-prod'
         }
