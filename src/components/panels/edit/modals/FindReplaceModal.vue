@@ -92,7 +92,6 @@ export default {
                     let matches = value.matchAll(reg)
                     for (let match of matches) {
                         let structure = this.returnStructureByGUID(targetGuid)
-                        console.info("structure: ", structure)
                         this.matches.push({ 'match': match, 'text': value, 'field': field, 'component': structure })
                     }
                 } else {
@@ -100,7 +99,6 @@ export default {
                     let matches = value.matchAll(reg)
                     for (let match of matches) {
                         let structure = this.returnStructureByGUID(targetGuid)
-                        console.info("structure: ", structure)
                         this.matches.push({ 'match': match, 'text': value, 'field': field, 'component': structure })
                     }
                 }
@@ -121,9 +119,7 @@ export default {
                 console.error("Error building PropertyPath: ", err)
                 return
             }
-            console.info("pp: ", pp)
             let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
-            console.info("currentValue: ", currentValue)
 
             for (let val of currentValue) {
                 if ((val['@language'] && val['@language'].toLowerCase().includes('latn')) || val['@language'] == null) {
@@ -134,7 +130,6 @@ export default {
         },
 
         loopLiteralsToReplace(all = false) {
-            console.info("replacing")
             if (!this.replaceTarget) {
                 let cont = confirm("There's no replacement text. Continuing will delete text.")
                 if (!cont) { return }
@@ -142,6 +137,9 @@ export default {
             if (!all) {
                 let target = this.matches[this.activeMatch]
                 this.replace(target)
+                if (this.activeMatch < this.matches.length-1){
+                    this.activeMatch++
+                }
             } else {
                 for (let target of this.matches) {
                     this.replace(target)
@@ -286,12 +284,14 @@ span.match-bold {
     width: 100%;
     overflow: scroll;
 }
+
+.component-label {
+    cursor: pointer;
+}
 </style>
 
 <style scoped>
-.component-label {
-    cursor: 'pointer';
-}
+
 
 .container-search {
     display: table;

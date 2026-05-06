@@ -8676,36 +8676,11 @@ export const useProfileStore = defineStore('profile', {
      * Build the property path from the initial component GUID until we find the fieldGuid
      *
      * @param {Object} structure - Structure to build the propertyPath for
-     * @param {Object} pp - Starting propertyPath, has the first piece of the path
+     * @param {Object} pp - Starting propertyPath
      * @param {String} endGuid - target at the end of path
      */
     buildPropertyPath: function(structure, pp, endGuid){
-      console.info("buildingPath to ", endGuid)
       let userValue = structure.userValue
-
-      // go through UserValue building path to endGuid
-      // const traverse = (target, node) => {
-      //   console.info("travsering: ", node)
-      //   if (node['@guid'] && node['@guid'] == target){
-      //     return
-      //   } else if(Array.isArray(node)) {
-      //     for (let el in node){
-      //       return traverse( target, node[el])
-      //     }
-      //   } else if (typeof node === "object"){
-      //     for (let key of Object.keys(node)){
-      //       if (!key.startsWith("@")){
-      //         pp.push(
-      //           {
-      //             level: pp.length,
-      //             propertyURI: key
-      //           }
-      //         )
-      //         return  traverse( target, node[key])
-      //       }
-      //     }
-      //   }
-      // };
 
       // https://stackoverflow.com/questions/53543303/find-a-full-object-path-to-a-given-value-with-javascript
       const traverse = (target, node) => {
@@ -8739,7 +8714,6 @@ export const useProfileStore = defineStore('profile', {
         )
       }
 
-      console.info("pp: ", pp)
       return pp
     },
 

@@ -1130,7 +1130,7 @@ export default {
 
   methods: {
 
-    profileOrStaging(){
+    profileOrStaging(){ // TODO: get this back on the nav bar
       if (this.isStaging()) {
         return  "STAGING: "
       }
