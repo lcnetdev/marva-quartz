@@ -5,7 +5,7 @@
         :lock-scroll="true" class="comparison-modal" content-class="comparison-modal-content">
 
         <div ref="compModalContainer" class="comp-modal-container">
-            <div :style="`position: relative; ${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`"
+            <div :style="`position: relative; ${this.preferenceStore.styleCopyCatBackgroundColor()}; ${this.preferenceStore.styleCopyCatTextColor()}`"
                 class="comp-container-outer">
 
                 <div class="header">
@@ -15,7 +15,7 @@
                 <splitpanes class="default-theme" vertical>
                     <pane max-size="50">
                         <h3>CopyCat Record</h3>
-                        <div class="marc-wrapper record-copycat">
+                        <div class="marc-wrapper record-copycat" :style="{'background-color': this.preferenceStore.returnValue('--c-edit-copy-cat-comp-new')}">
                             <div class="marc" v-html="recordCopyCat" @mouseover="highlightTags" @mouseout="highlightTags"></div>
                             <!-- {{ recordCopyCat }} -->
                             <!-- .native.capture -->
@@ -25,7 +25,7 @@
                         <span class="heading">
                             <h3>Existing BFDB Record</h3> <a :href="existingRecordUrl.replace('8080', '8230')" target="_blank">link to BFDB</a>
                         </span>
-                        <div class="marc-wrapper record-existing">
+                        <div class="marc-wrapper record-existing" :style="{'background-color': this.preferenceStore.returnValue('--c-edit-copy-cat-comp-existing')}">
                             <!-- <pre v-if="recordExisting.length > 0">
                                 {{ recordExisting }}
                             </pre> -->
@@ -38,7 +38,7 @@
                 </splitpanes>
 
                 <div v-if="!preview"
-                    :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`"
+                    :style="`${this.preferenceStore.styleCopyCatBackgroundColor()}; ${this.preferenceStore.styleCopyCatTextColor()}`"
                     class="footer">
                     <h1 v-if="Object.keys(recordExisting).length > 0">There is an existing record. If you continue, the copycat record will overlay the existing record.</h1>
                     <h1 v-else>There is no existing record. If you continue, you will create a new record.</h1>
@@ -180,13 +180,13 @@ export default {
 
 .record-existing,
 .record-copycat {
-    background-color: #e3ffd8;
+    /* background-color: #e3ffd8; */
     width: inherit;
     overflow-wrap: anywhere;
 }
 
 .record-existing {
-    background-color: #fafad2;
+    /* background-color: #fafad2; */
     width: inherit;
     overflow-wrap: anywhere;
 }
