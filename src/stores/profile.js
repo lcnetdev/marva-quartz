@@ -42,7 +42,7 @@ let dataChangedTimeout = null
 
 // const nonLatinRegex = /^[A-z\u00C0-\u00ff\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9]+$/;
 // const latinRegex = /^[\u3040-\u309F\u30A0-\u30FF]+$/;
-const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\u2C60-\u2C7F\uA720-\uA7FF]+$/
+const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u02B0-\u02FF\u0300-\u036F\u1E00-\u1EFF\u2070-\u20BF\u2C60-\u2C7F\uA720-\uA7FF\uFE20-\uFE2F]+$/
 
 //https://stackoverflow.com/questions/49562546/how-to-get-all-properties-values-of-a-javascript-nested-objects-without-knowing
 // clean cacheGuid of items that match the children of the PT that is insert default values too
