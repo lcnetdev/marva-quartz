@@ -139,7 +139,7 @@
               There was an error getting the results: "{{ wcResults.error.message }}"
             </h2>
             <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0 && !queryingWc">
-              Showing 10 of {{ wcResults.results.numberOfRecords }} results </h2>
+              Showing {{ wcResults.results.numberOfRecords > 10 ? 10 : wcResults.results.numberOfRecords }} of {{ wcResults.results.numberOfRecords }} results </h2>
                 <!-- Pagination -->
                 <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc"
                   class="wc-search-paging">
