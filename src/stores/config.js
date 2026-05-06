@@ -453,6 +453,7 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2025443360',label:"NAR Tests", idUrl:'https://id.loc.gov/resources/instances/2025443360.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
     {lccn:'2023548750',label:"Subject Test", idUrl:'https://id.loc.gov/resources/instances/2023548750.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'66082276',label:"Non-latin Rare", idUrl:'https://id.loc.gov/resources/instances/66082276.html', profile:'Rare Matereials',profileId:'lc:RT:bf2:RareMat:Instance'},
 
 
 
