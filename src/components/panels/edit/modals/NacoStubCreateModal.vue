@@ -320,6 +320,8 @@
             }
           }
 
+          console.info("this.oneXXParts: ", this.oneXXParts)
+
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
           // console.log("additonalFields",additonalFields)
@@ -700,8 +702,13 @@
 
             if (dollarKey.d){
 
-              dollarKey.d = dollarKey.d.replace(":", "")
-              let lifeDates  = dollarKey.d.split('-')
+              let lifeDates = []
+              if (dollarKey.d.includes(":")){
+                let temp = dollarKey.d.replace(":", "")
+                lifeDates  = temp.split('-')
+              } else {
+                lifeDates  = dollarKey.d.split('-')
+              }
 
               // if the first part is empty, or starts with a YYYY build the 046, otherwise don't
               let dateCheck = /^[0-9]{4}/.test(lifeDates[0]) || lifeDates[0] == ""
