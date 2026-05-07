@@ -137,9 +137,9 @@ export default {
             if (!all) {
                 let target = this.matches[this.activeMatch]
                 this.replace(target)
-                if (this.activeMatch < this.matches.length-1){
-                    this.activeMatch++
-                }
+                // if (this.activeMatch < this.matches.length-1){
+                //     this.activeMatch++
+                // }
             } else {
                 for (let target of this.matches) {
                     this.replace(target)
