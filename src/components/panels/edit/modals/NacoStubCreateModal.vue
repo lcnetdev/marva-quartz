@@ -1588,11 +1588,25 @@
             }
           }
 
-          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and\s+|,/).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and\s+|,/)
-          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+und\s+|\s+e\s+|;/).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+und\s+|\s+e\s+|;/)
+          // /\s{1};\s{1}|,\s*(?=[^)^\]]*(?:\(|\[|$))|\&|and|und/g) --> split on <space>;<space> and commas not in ()
+          // favor splitting on semicolon. Seems reliable to get the first name without bleed from other names. But after that, anything can happen
+          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|\s+e\s+|;/g).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|\s+e\s+|;/g)
+            console.info("split semi: ", this.statementOfResponsibilityOptions)
+          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|,/g).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|,/g)
+            console.info("split comma: ", this.statementOfResponsibilityOptions)
           }
+
+          // SOR examples that make rules difficult
+          // Cecilia Leibovitz ; photographs by David Lewis Taylor & Talia Marek
+          // Ana Rodriguez Alvarez, Jeffrey J. Mora Sanchez (directores) ; prologo E. Raul Zaffaroni; prologo a la edicion costarricense Javier Llobet Rodriguez
+          // Sally Friedman and Davy Schultz, Editors
+          // Pedro Romaguera Esteva ; pròleg, Dr. Jordi Maíz Chacón, Professor de la UIB
+          // Dina de Sousa e Santos (organizadora) ; prefácios, Professor Phillip Rothwell (Universidade de Oxford), Doutora Elisabete Vera Cruz (Universidade Agostinho Neto, UAN)
+          // Archie Bogle and Don McKay ; compiled by by Gordon Andreassend, Andrew Blackman and Don McKay
+          // editor-in-chief, Elaine Wyllie ; associate editors, Barry E. Gidal, Ahsan Moosa Naduvil Valappil, Howard P. Goodkin, Elaine Wirrell, Stephan Schuele
+          // Alberto Pitta ; organização, Thais Darzé, Paulo Darzé ; curadoria e texto, Daniel Rangel
 
           let addingDefaultExtraMarcStatements = false
 
