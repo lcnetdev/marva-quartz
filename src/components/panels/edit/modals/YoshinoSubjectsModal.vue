@@ -845,8 +845,7 @@
         },
 
         insertClassification: function(c) {
-            this.profileStore.yoshinoInsertClassification(c)
-            console.log(c)
+            this.profileStore.yoshinoInsertClassification(c)            
             this.profileStore.logEvent('SUBJECT_FINDER_INSERT_CLASSIFICATION', { metadata: [c.portion] })
             this.insertedClassifications.add(c.key)
             this.insertedClassifications = new Set(this.insertedClassifications)
