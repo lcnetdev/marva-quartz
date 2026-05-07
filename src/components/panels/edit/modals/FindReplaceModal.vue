@@ -242,7 +242,10 @@ export default {
                             <tbody>
                                 <tr v-for="(match, idx) of matches">
                                     <td>{{ match.component.parentId.split(":").at(-1) }}</td>
-                                    <td class="component-label" @click="jumpToComponent(match.component.parentId, match.component.id)">{{ match.component.propertyLabel }}</td>
+                                    <td class="component-label" @click="jumpToComponent(match.component.parentId, match.component.id)">
+                                        {{ match.component.propertyLabel }}
+                                        <span class="material-icons">move_down</span>
+                                    </td>
                                     <td :class="{ active: activeMatch === idx }" @click="activeMatch = idx"
                                         v-html="buildDisplay(match.text, match)">
                                     </td>
