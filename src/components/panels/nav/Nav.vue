@@ -134,6 +134,10 @@ export default {
       return this.preferenceStore.featureFlags.includes('subject-suggest')
     },
 
+    marvaScanAllowed() {
+      return this.preferenceStore.featureFlags.includes('marva-scan')
+    },
+
     yoshinoHasSummary() {
       if (!this.activeProfile || !this.activeProfile.rtOrder) return false
       for (let rt of this.activeProfile.rtOrder) {
@@ -393,11 +397,11 @@ export default {
                 }, icon: "contact_support"
               }]),
 
-              {
+              ...(this.marvaScanAllowed ? [{
                 text: "Marva Scan", click: () => {
                   this.marvaScanStore.openModal()
                 }, icon: "qr_code_scanner"
-              },
+              }] : []),
 
               { is: 'separator' },
               {
