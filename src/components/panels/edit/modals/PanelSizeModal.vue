@@ -163,6 +163,7 @@
           @dragging="dragResize"
           :sticks="['br']"
           :stickSize="22"
+          :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`"
         >
           <div id="panel-resize-content" ref="panelResizeContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
             <div class="menu-buttons">
@@ -241,14 +242,17 @@
 </template>
 <style>
 
-  .content-container{
-
-    background-color: white;
-  }
+  /* .content-container{
+    background-color: white !important;
+  } */
 
 </style>
 
 <style scoped>
+
+  .content-container{
+    background-color: white !important;
+  }
 
   .icon-size{
     font-size: 2.5em;
