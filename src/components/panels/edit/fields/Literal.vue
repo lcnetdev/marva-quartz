@@ -81,6 +81,7 @@
                     @keyup="navKey"
                     :ref="'input_' + lValue['@guid']"
                     :data-guid="lValue['@guid']"
+                    :data-parent="guid"
                     :disabled="readOnly"
                     ></textarea>
                 </div>
@@ -110,6 +111,7 @@
                   @keydown="keyDown"
                   :ref="'input_' + lValue['@guid']"
                   :data-guid="lValue['@guid']"
+                  :data-parent="guid"
                   :disabled="readOnly"
                   :readonly="structure.propertyLabel=='Local identifier'"
                   ></textarea>

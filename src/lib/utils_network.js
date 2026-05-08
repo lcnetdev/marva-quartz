@@ -3498,7 +3498,13 @@ const utilsNetwork = {
     */
     scriptShifterRequestTrans: async function(lang,text,capitalize,t_dir){
 
-            let url = useConfigStore().returnUrls.scriptshifter + 'trans'
+      console.info("scriptShifterRequestTrans")
+      console.info("\tlang:", lang)
+      console.info("\ttext:", text)
+      console.info("\tcapitalize:", capitalize)
+      console.info("\tt_dir:", t_dir)
+
+      let url = useConfigStore().returnUrls.scriptshifter + 'trans'
 
       let r = await fetch(url, {
         method: 'POST',

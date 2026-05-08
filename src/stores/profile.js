@@ -641,10 +641,10 @@ export const useProfileStore = defineStore('profile', {
             // if we are stage try to find stage
             if (config.returnUrls.env === 'staging') {
               defaultWs = wsData.data.find(ws => ws.name === 'marva-stage')
-            } 
+            }
             if (config.returnUrls.env === 'production') {
               defaultWs = wsData.data.find(ws => ws.name === 'marva-prod')
-            } 
+            }
 
             if (defaultWs) {
                 let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
@@ -2033,7 +2033,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      //Save
+      // console.info("--------------------------\nsetValueLiteral")
+      // console.info("\tcomponentGuid: ", componentGuid)
+      // console.info("\tfieldGuid: ", fieldGuid)
+      // console.info("\tpropertyPath: ", propertyPath)
+      // console.info("\tvalue: ", )
+      // console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
@@ -8596,6 +8601,121 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    getHighlightedText: async function(){
+      let titleCase = false
+      let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
+      let el = false
+      if (highlightedText){
+        const selection = window.getSelection();
+        try {
+          el = selection.anchorNode[0] // this doesn't work in firefox
+        } catch(err){}
+      }
+
+      if (el){
+        let fieldGuid = el.getAttribute("data-guid")
+        let targetGuid = el.getAttribute("data-parent")
+        let pt = utilsProfile.returnPt(this.activeProfile, targetGuid)
+        let structure = this.returnStructureByGUID(targetGuid)
+        // make titlecase
+        titleCase = this.toTitleCase(highlightedText)
+
+        // {level: 0, propertyURI: structure.propertyURI},
+        let pp
+        try {
+          pp = this.buildPropertyPath(structure, [], fieldGuid)
+        } catch(err){
+          console.error("Error building PropertyPath: ", err)
+          return
+        }
+        let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
+
+        if (currentValue.length > 1){
+          let newText = ""
+          let nonLatin = false
+          for (let val of currentValue){
+            if (( val['@language'] && val['@language'].toLowerCase().includes('latn')) || val['@language'] == null){
+              newText = val.value.replace(highlightedText, titleCase)
+              this.setValueLiteral(targetGuid, fieldGuid, pp, newText, val['@language'], false)
+            } else {
+              nonLatin = val
+            }
+          }
+
+          // Adjust the non-Latin form to match
+          let otherScriptCodes = false
+          const config = useConfigStore()
+          for (let key in config.scriptShifterLangCodes){
+            let codeObj = config.scriptShifterLangCodes[key]
+            if (nonLatin['@language'] && codeObj.code.toLowerCase() == nonLatin['@language'].toLowerCase()){
+              otherScriptCodes = key
+              break
+            }
+          }
+
+          let transValue = await utilsNetwork.scriptShifterRequestTrans(otherScriptCodes, newText, false, "r2s") //abazin_cyrillic
+          this.setValueLiteral(targetGuid, nonLatin['@guid'], pp, transValue.output, nonLatin['@language'], false)
+        } else {
+          this.setValueLiteral(targetGuid, fieldGuid, pp, currentValue[0].value.replace(highlightedText, titleCase), currentValue[0]['@language'], false)
+        }
+
+
+      }
+
+
+    },
+
+    toTitleCase: function (str) {
+      return str.replace(
+        /\w\S*/g,
+        text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+      );
+    },
+
+    /**
+     * Build the property path from the initial component GUID until we find the fieldGuid
+     *
+     * @param {Object} structure - Structure to build the propertyPath for
+     * @param {Object} pp - Starting propertyPath
+     * @param {String} endGuid - target at the end of path
+     */
+    buildPropertyPath: function(structure, pp, endGuid){
+      let userValue = structure.userValue
+
+      // https://stackoverflow.com/questions/53543303/find-a-full-object-path-to-a-given-value-with-javascript
+      const traverse = (target, node) => {
+        for (let el in node){
+          if (node[el] && typeof node[el] === "object"){
+            let result  = traverse(target, node[el])
+            if (result){
+              if (el.startsWith("http")){
+                result.unshift(el)
+              }
+              return result
+            }
+          } else if (node['@guid'] && node['@guid'] == target){
+            if (el.startsWith("http")){
+              return [el]
+            } else {
+              return []
+            }
+          }
+        }
+
+      };
+
+      let path = traverse(endGuid, userValue)
+      for (let p of path){
+        pp.push(
+          {
+            level: pp.length,
+            propertyURI: p
+          }
+        )
+      }
+
+      return pp
+    },
 
 
 

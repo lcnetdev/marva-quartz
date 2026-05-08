@@ -35,6 +35,10 @@
         <PanelSizeModal v-model="showPanelSizeModal" />
       </template>
 
+      <template v-if="showFindReplaceModal == true">
+        <FindReplaceModal v-model="showFindReplaceModal" />
+      </template>
+
 
     </Teleport>
 
@@ -58,6 +62,7 @@ import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
 import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
 
 import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
+import FindReplaceModal from '../edit/modals/FindReplaceModal.vue'
 
 import StatusIndicator from './nav_components/StatusIndicator.vue'
 import RecordHistory from './nav_components/RecordHistory.vue'
@@ -73,7 +78,7 @@ const timeAgo = new TimeAgo('en-US')
 
 
 export default {
-  components: { VueFileToolbarMenu, PostModal, ValidateModal, RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal, PanelSizeModal },
+  components: { VueFileToolbarMenu, PostModal, ValidateModal, RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal, PanelSizeModal, FindReplaceModal },
 
   data() {
     return {
@@ -104,7 +109,7 @@ export default {
     ...mapState(useProfileStore, ['profilesLoaded', 'activeProfile', 'rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal', 'showFindReplaceModal']),
     ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal']),
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
@@ -309,6 +314,20 @@ export default {
                     hotkey: "ctrl+y",
                     // class: (this.profileStore.redoRecords.length > 0) ? "active" : "inactive",
                     click: () => { this.profileStore.redoChange() }
+                  },
+                  {
+                    text: "Title Case",
+                    title: "Title Case",
+                    icon: "titlecase",
+                    hotkey: "ctrl+alt+t",
+                    click: () => { this.profileStore.getHighlightedText() }
+                  },
+                  {
+                    text: "Find & Replace",
+                    title: "find Replace",
+                    icon: "find_replace",
+                    hotkey: "ctrl+alt+h",
+                    click: () => { this.showFindReplaceModal = true; }
                   }
                 // )
               // }
@@ -1132,7 +1151,7 @@ export default {
 
   methods: {
 
-    profileOrStaging(){
+    profileOrStaging(){ // TODO: get this back on the nav bar
       if (this.isStaging()) {
         return  "STAGING: "
       }

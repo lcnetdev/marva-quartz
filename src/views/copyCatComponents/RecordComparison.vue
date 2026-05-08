@@ -124,12 +124,10 @@ export default {
             }
         },
         createCopyCat: function(){
-            console.info("creating")
             this.$emit('createCopyCat')
         },
 
         cancelCopyCat: function(){
-            console.info("canceling")
             this.$emit('cancelCopyCat')
         },
 
