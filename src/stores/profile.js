@@ -3370,7 +3370,6 @@ export const useProfileStore = defineStore('profile', {
             this.dataChanged()
 
             // console.log("USERVALUE IS",userValue)
-            console.info("userValue: ", userValue)
             pt.userValue = userValue
         }
     },

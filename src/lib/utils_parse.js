@@ -521,7 +521,6 @@ const utilsParse = {
         continue
       }
 
-
       // does this tle have a URI or a type?
       if (xml.attributes['rdf:resource']){
         profile.rt[pkey].URI = xml.attributes['rdf:resource'].value
@@ -821,7 +820,6 @@ const utilsParse = {
             }
 
 
-
             // start populating the data
             let populateData = null
             populateData = JSON.parse(JSON.stringify(ptk))
@@ -844,12 +842,6 @@ const utilsParse = {
             // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
             //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])
             // }
-
-
-
-
-
-
 
             // we want all userValues to includ the root predicate property
             // we will map that to the base level to make things cleaner below
@@ -1044,16 +1036,34 @@ const utilsParse = {
 
                       // if there is a RDF type node here it is the parent's type
                       // overwrite the basic type that was set via the bnode type
+                      // don't do this with complexSubjects, those should remain bf:Topic so the XML matches what came in
                       if (gChild.attributes && gChild.attributes['rdf:about']){
-                        userValue['@type'] = gChild.attributes['rdf:about'].value
+                        let type = gChild.attributes['rdf:about'].value
+                        if (type != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
+                          userValue['@type'] = type
+                        } else {
+                          userValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+                            "@guid": short.generate(),
+                            "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+                          }]
+                        }
                       }else if (gChild.attributes && gChild.attributes['rdf:resource']){
-                        userValue['@type'] = gChild.attributes['rdf:resource'].value
+                        let type = gChild.attributes['rdf:resource'].value
+                        if (type != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
+                          userValue['@type'] = type
+                        } else {
+                          userValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+                            "@guid": short.generate(),
+                            "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+                          }]
+                        }
                       }else{
                         console.warn('---------------------------------------------')
                         console.warn('There was a gChild RDF Type node but could not extract the type')
                         console.warn(gChild)
                         console.warn('---------------------------------------------')
                       }
+
 
                     }
                   }else if (gChild.children.length ==0){
@@ -1716,6 +1726,11 @@ const utilsParse = {
             sucessfulElements.push(e.outerHTML)
 
 
+            if (tle == "bf:Work" && populateData.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+              console.info("\t\t\t\t\tuserValue: ", JSON.parse(JSON.stringify(userValue)))
+              console.info("\t\t\t\t\tpopulateData: ", JSON.parse(JSON.stringify(populateData)))
+            }
+
             // check if we marked this component deepHierarchy
             if (populateData.deepHierarchy){
               // check if it is a relation with a URI, if so it is okay
@@ -1762,6 +1777,9 @@ const utilsParse = {
                 let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
                 let newpos = currentpos + 1
                 profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
+                if (tle == "bf:Work" && populateData.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                  console.info("\t\t\t\tpopulateData: ", JSON.parse(JSON.stringify(populateData)))
+                }
                 populateData.id = newKey
                 ptsCreatedThisLoop.push(newKey)
                 pt[newKey] = populateData
@@ -1879,6 +1897,10 @@ const utilsParse = {
       }
 
       // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
+
+      if (tle == "bf:Work"){
+        console.info("\t\t\tprofile: ", JSON.parse(JSON.stringify(profile)))
+      }
 
       profile = this.reorderAllNonLatinLiterals(profile)
       profile = this.groupSubjects(profile)
