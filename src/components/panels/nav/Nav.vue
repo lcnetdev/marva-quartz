@@ -320,7 +320,14 @@ export default {
                     title: "Title Case",
                     icon: "titlecase",
                     hotkey: "ctrl+alt+t",
-                    click: () => { this.profileStore.getHighlightedText() }
+                    click: () => { this.profileStore.getHighlightedText('title') }
+                  },
+                  {
+                    text: "Lower Case",
+                    title: "Lower Case",
+                    icon: "lowercase",
+                    hotkey: "ctrl+alt+l",
+                    click: () => { this.profileStore.getHighlightedText('lower') }
                   },
                   {
                     text: "Find & Replace",

@@ -8601,7 +8601,7 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
-    getHighlightedText: async function(){
+    getHighlightedText: async function(textType){
       let titleCase = false
       let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
       let el = false
@@ -8618,7 +8618,11 @@ export const useProfileStore = defineStore('profile', {
         let pt = utilsProfile.returnPt(this.activeProfile, targetGuid)
         let structure = this.returnStructureByGUID(targetGuid)
         // make titlecase
-        titleCase = this.toTitleCase(highlightedText)
+        if (textType == 'title'){
+          titleCase = this.toTitleCase(highlightedText)
+        } else if (textType == 'lower'){
+          titleCase = highlightedText.toLowerCase()
+        }
 
         // {level: 0, propertyURI: structure.propertyURI},
         let pp
