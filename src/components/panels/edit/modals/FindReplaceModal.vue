@@ -270,7 +270,7 @@ export default {
 
 
 </template>
-<style>
+<style scoped>
 span.match-bold {
     font-weight: bolder;
     font-size: 16px;
