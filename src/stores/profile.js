@@ -6918,7 +6918,12 @@ export const useProfileStore = defineStore('profile', {
 
       // Use rich component data if available for complex subjects
       if (components && components.length > 1) {
-        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        // subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        subjectValue['@type'] = 'bf:Topic'
+        subjectValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+          "@guid": short.generate(),
+          "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+        }]
         subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = components.map(c => {
           let comp = {
             '@guid': translator.new(),
@@ -6944,7 +6949,12 @@ export const useProfileStore = defineStore('profile', {
         subjectValue['@type'] = components[0].type || 'http://www.loc.gov/mads/rdf/v1#Topic'
       } else if (label.includes('--')) {
         // Fallback: parse from label if no component data
-        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        // subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        subjectValue['@type'] = 'bf:Topic'
+        subjectValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+          "@guid": short.generate(),
+          "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+        }]
         let parts = label.split('--').map(s => s.trim())
         subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = parts.map(part => ({
           '@guid': translator.new(),
