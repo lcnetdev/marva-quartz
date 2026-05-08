@@ -641,10 +641,10 @@ export const useProfileStore = defineStore('profile', {
             // if we are stage try to find stage
             if (config.returnUrls.env === 'staging') {
               defaultWs = wsData.data.find(ws => ws.name === 'marva-stage')
-            } 
+            }
             if (config.returnUrls.env === 'production') {
               defaultWs = wsData.data.find(ws => ws.name === 'marva-prod')
-            } 
+            }
 
             if (defaultWs) {
                 let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
@@ -3081,7 +3081,7 @@ export const useProfileStore = defineStore('profile', {
 
             // keeps track of the @type, will be the last @type of the hiearchy when done looping
             let thisLevelType
-
+            let complexCheck = false
             for (let p of propertyPath){
                 // if the property is owl:sameAs it is the last field
                 // of where we are building the entitiy, so we don't  want
@@ -3106,7 +3106,8 @@ export const useProfileStore = defineStore('profile', {
 
                 // if it's a complexSubject, replace bf:Topic with madsrdf:ComplexSubject -- the conversion expects this
                 if (thisLevelType == "http://id.loc.gov/ontologies/bibframe/Topic" && propertyPath.some((obj) => obj.propertyURI == "http://www.loc.gov/mads/rdf/v1#componentList")){
-                  thisLevelType = 'madsrdf:ComplexSubject'
+                  // thisLevelType = 'madsrdf:ComplexSubject'
+                  complexCheck = true
                 }
 
                 let thisLevel = {'@guid':short.generate()}
@@ -3241,6 +3242,13 @@ export const useProfileStore = defineStore('profile', {
                     "http://www.w3.org/2000/01/rdf-schema#label": fullLabel
                 }]
 
+                if (complexCheck){
+                  currentUserValuePos["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+                    "@guid": short.generate(),
+                    "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+                  }]
+                }
+
                 // we need to make the component list then
 
 
@@ -3362,6 +3370,7 @@ export const useProfileStore = defineStore('profile', {
             this.dataChanged()
 
             // console.log("USERVALUE IS",userValue)
+            console.info("userValue: ", userValue)
             pt.userValue = userValue
         }
     },
