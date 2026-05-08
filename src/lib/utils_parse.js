@@ -1726,11 +1726,6 @@ const utilsParse = {
             sucessfulElements.push(e.outerHTML)
 
 
-            if (tle == "bf:Work" && populateData.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
-              console.info("\t\t\t\t\tuserValue: ", JSON.parse(JSON.stringify(userValue)))
-              console.info("\t\t\t\t\tpopulateData: ", JSON.parse(JSON.stringify(populateData)))
-            }
-
             // check if we marked this component deepHierarchy
             if (populateData.deepHierarchy){
               // check if it is a relation with a URI, if so it is okay
@@ -1777,9 +1772,6 @@ const utilsParse = {
                 let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
                 let newpos = currentpos + 1
                 profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
-                if (tle == "bf:Work" && populateData.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
-                  console.info("\t\t\t\tpopulateData: ", JSON.parse(JSON.stringify(populateData)))
-                }
                 populateData.id = newKey
                 ptsCreatedThisLoop.push(newKey)
                 pt[newKey] = populateData
@@ -1897,10 +1889,6 @@ const utilsParse = {
       }
 
       // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
-
-      if (tle == "bf:Work"){
-        console.info("\t\t\tprofile: ", JSON.parse(JSON.stringify(profile)))
-      }
 
       profile = this.reorderAllNonLatinLiterals(profile)
       profile = this.groupSubjects(profile)
