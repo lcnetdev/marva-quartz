@@ -278,9 +278,9 @@ export default {
                         <template v-if="copyrightAsPub">
                             <li>Use the "Copyright Year" as the "Publication Year" and put [brackets] around 264 $c</li>
                         </template>
-                        <template v-if="ebookCip">
-                            <li>Set the "Note about the Instance."</li>
-                        </template>
+                    </template>
+                    <template v-if="ebookCip">
+                        <li>Set the "Note about the Instance."</li>
                     </template>
                 </ul>
 
