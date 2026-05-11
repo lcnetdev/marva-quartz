@@ -35,8 +35,17 @@ export const usePreferenceStore = defineStore('preference', {
     // catRequireCode: false,
     catCode: null,
 
+    // SSO JWT token and user info
+    jwt: null,
+    ssoUser: null,
+    ssoSessionExpired: false,
+
+    // feature flags enabled for the current user
+    featureFlags: [],
+
     // show the login box
     showLoginModal: false,
+    showLoginModalSSO: false,
 
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
 
@@ -63,9 +72,9 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
-
-
     copyMode: false,
+
+    showFindReplaceModal: false,
 
     panelDisplay:{
 
@@ -330,6 +339,25 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Previews',
           range: null
       },
+      '--n-edit-main-splitpane-marc-font-weight' : {
+          desc: 'The boldness level of the MARC preview text.',
+          descShort: 'MARC Boldness',
+          value: 400,
+          type: 'number',
+          step: 100,
+          group: 'Sidebars - Previews',
+          range: [100,1000]
+      },
+      '--c-edit-main-splitpane-marc-font-family' : {
+          value:'Avenir, Helvetica, Arial, sans-serif',
+          desc: 'The font of the MARC preview text.',
+          descShort: 'MARC Font',
+          value: 'monospace',
+          type: 'font',
+          group: 'Sidebars - Previews',
+          range: null
+      },
+
       '--b-edit-main-splitpane-opac-no-scrollbar' : {
           desc: 'Do not display a scroll bar in the preview side panels.',
           descShort: 'No Scrollbar',
@@ -1429,6 +1457,20 @@ export const usePreferenceStore = defineStore('preference', {
         index: 7
       },
 
+
+      '--b-shelflist-mlc-division' : {
+        desc: 'Auto insert this Divsion value after the MLCX part of a MLC number.',
+        descShort: 'MLC Division',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 8
+      },
+
+
+
+
+
     '--b-edit-main-splitpane-edit-inline-mode' : {
       desc: 'Compact Advanced Modular Mode.',
       descShort: 'Use CAMM Mode',
@@ -1523,11 +1565,29 @@ export const usePreferenceStore = defineStore('preference', {
       '--c-edit-copy-cat-card-marc-hover' : {
           value:'transparent',
           desc: 'The color of the subfield when hovering over the MARC.',
-          descShort: 'Marc Hover',
+          descShort: 'MARC Hover',
           type: 'color',
           group: 'Copy Cat',
           range: null
       },
+
+      '--c-edit-copy-cat-comp-existing' : {
+          value:'#fafad2',
+          desc: 'When comparing, color of the background for the existing record.',
+          descShort: 'Existing Color',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
+      },
+      '--c-edit-copy-cat-comp-new' : {
+          value:'#e3ffd8',
+          desc: 'When comparing, color of the background for the new record.',
+          descShort: 'New Color',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
+      },
+
       '--n-edit-copy-cat-font-size' : {
           desc: 'The fontsize of the text in the Copy Cat search.',
           descShort: 'Font Size',
@@ -1547,13 +1607,13 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Copy Cat',
         range: [true,false]
       },
-	  '--n-edit-copyt-cat-prio': {
-	  	desc: 'Default Prority for CopyCat',
-		descShort: 'Priority Default',
-		value: '3',
-		type: 'string',
-		group: 'Copy Cat'
-	  }
+      '--n-edit-copyt-cat-prio': {
+        desc: 'Default Prority for CopyCat',
+      descShort: 'Priority Default',
+      value: '3',
+      type: 'string',
+      group: 'Copy Cat'
+      }
 
 
     }
@@ -1573,12 +1633,206 @@ export const usePreferenceStore = defineStore('preference', {
     returnUserNameForPosting: function(){
       return this.catCode.trim()
     },
+    returnSsoUsername: function(){
+      if (this.ssoUser){
+        let username = this.ssoUser.username || this.ssoUser.name || this.ssoUser.email
+        if (username && username.includes('@')){
+          return username.split('@')[0]
+        }
+        return username || null
+      }
+      return null
+    },
 
 
 
 
   },
   actions: {
+
+    /**
+    * Check URL for SSO token, store it, and populate user info from the JWT payload.
+    * Called early in App.vue mounted() before initalize().
+    * @return {boolean} - true if an SSO user is authenticated
+    */
+    handleSsoToken: function(){
+      // Check URL for ?token= from SAML callback redirect
+      const urlParams = new URLSearchParams(window.location.search)
+      const tokenFromUrl = urlParams.get('token')
+
+      if (tokenFromUrl) {
+        console.log('SSO: Found token in URL, storing and cleaning')
+        window.localStorage.setItem('marva_jwt', tokenFromUrl)
+      }
+
+      // Load JWT from localStorage
+      const storedToken = window.localStorage.getItem('marva_jwt')
+      if (!storedToken) {
+        return false
+      }
+
+      // Decode JWT payload (not verification — that happens server-side)
+      try {
+        const payload = JSON.parse(atob(storedToken.split('.')[1]))
+        // Check if expired
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          window.localStorage.removeItem('marva_jwt')
+          this.jwt = null
+          this.ssoUser = null
+          return false
+        }
+        this.jwt = storedToken
+        this.ssoUser = payload
+        // Populate catInitals from SSO claims
+        this.catInitals = payload.name || payload.email || 'SSO User'
+        window.localStorage.setItem('marva-catInitals', this.catInitals)
+        // Restore catCode from localStorage only, never from JWT
+        let storedCatCode = window.localStorage.getItem('marva-catCode')
+        if (storedCatCode && storedCatCode.trim() != ''){
+          this.catCode = storedCatCode
+          // One-time SSO migration: prompt users to confirm their catId on first SSO login
+          // Only check before the cutoff date (March 12 2026)
+          if (Date.now() < new Date('2026-03-12').getTime() && !window.localStorage.getItem('marva-SSOFirstTimeChecked')){
+            window.localStorage.setItem('marva-SSOFirstTimeChecked', 'true')
+            this.showLoginModalSSO = true
+          }
+        } else {
+          this.catCode = null
+          this.showLoginModalSSO = true
+        }
+        console.log('SSO: User authenticated as', this.catInitals, '| ssoUser set:', !!this.ssoUser)
+        return true
+      } catch (e) {
+        console.error('Failed to decode JWT:', e)
+        window.localStorage.removeItem('marva_jwt')
+        return false
+      }
+    },
+
+    /**
+    * Redirect the browser to the SSO login endpoint.
+    * @param {string} utilUrl - the util service base URL from configStore.returnUrls.util
+    */
+    ssoLogin: function(utilUrl){
+      // save current route path so we can redirect back after SSO
+      // strip the base path since router.push will add it back
+      let basePath = import.meta.env.BASE_URL || '/'
+      let currentPath = window.location.pathname + window.location.hash
+      if (currentPath.startsWith(basePath)){
+        currentPath = '/' + currentPath.slice(basePath.length)
+      }
+      if (currentPath && currentPath !== '/'){
+        window.localStorage.setItem('marva-redirectAfterSSO', currentPath)
+      }
+      window.location.href = utilUrl + 'auth/login'
+    },
+
+    /**
+    * Fetch feature flags enabled for the current user from the backend.
+    * @param {string} utilUrl - the util service base URL
+    */
+    fetchFeatureFlags: async function(utilUrl){
+      try {
+        let headers = {}
+        if (this.jwt){
+          headers['Authorization'] = 'Bearer ' + this.jwt
+        }
+        let response = await fetch(utilUrl + 'my-features', {
+          headers: headers
+        })
+        if (response.ok){
+          let data = await response.json()
+          this.featureFlags = data.features || []
+        } else {
+          console.warn('Failed to fetch feature flags:', response.status)
+        }
+      } catch (e) {
+        console.warn('Error fetching feature flags:', e)
+      }
+    },
+
+    /**
+    * Start a background timer that refreshes the JWT before it expires.
+    * Checks every 60 seconds; refreshes when within 15 minutes of expiry.
+    * If the token is already expired or refresh fails, redirect to SSO login.
+    * @param {string} utilUrl - the util service base URL
+    */
+    startJwtRefreshTimer: function(utilUrl){
+      if (this._refreshTimer) return // already running
+
+      this._refreshTimer = window.setInterval(async () => {
+        const token = window.localStorage.getItem('marva_jwt')
+        if (!token) return
+
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          if (!payload.exp) return
+
+          const msUntilExpiry = payload.exp * 1000 - Date.now()
+
+          // Already expired — try a silent refresh first (Entra session may still be valid)
+          if (msUntilExpiry <= 0) {
+            console.warn('JWT expired, attempting silent refresh...')
+            try {
+              const resp = await fetch(utilUrl + 'auth/refresh', {
+                headers: { 'Authorization': 'Bearer ' + token }
+              })
+              if (resp.ok) {
+                const data = await resp.json()
+                if (data.token) {
+                  window.localStorage.setItem('marva_jwt', data.token)
+                  this.jwt = data.token
+                  const newPayload = JSON.parse(atob(data.token.split('.')[1]))
+                  this.ssoUser = newPayload
+                  console.log('JWT refreshed after expiry, new expiry:', new Date(newPayload.exp * 1000).toLocaleTimeString())
+                  return
+                }
+              }
+            } catch (e) { /* refresh failed, fall through */ }
+
+            // Refresh failed — mark as expired but don't redirect
+            // The user can keep viewing their current work
+            this.jwt = null
+            this.ssoUser = null
+            this.ssoSessionExpired = true
+            console.warn('SSO session expired. User will need to re-authenticate on next action.')
+            return
+          }
+
+          // Within 15 minutes of expiry — refresh silently
+          if (msUntilExpiry < 15 * 60 * 1000) {
+            const resp = await fetch(utilUrl + 'auth/refresh', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            })
+            if (resp.ok) {
+              const data = await resp.json()
+              if (data.token) {
+                window.localStorage.setItem('marva_jwt', data.token)
+                this.jwt = data.token
+                const newPayload = JSON.parse(atob(data.token.split('.')[1]))
+                this.ssoUser = newPayload
+                console.log('JWT refreshed, new expiry:', new Date(newPayload.exp * 1000).toLocaleTimeString())
+              }
+            } else {
+              console.warn('JWT refresh failed, status:', resp.status)
+            }
+          }
+        } catch (e) {
+          console.error('JWT refresh check error:', e)
+        }
+      }, 60 * 1000) // check every 60 seconds
+    },
+
+    /**
+    * Clear JWT and redirect to SSO logout endpoint.
+    * @param {string} utilUrl - the util service base URL from configStore.returnUrls.util
+    */
+    ssoLogout: function(utilUrl){
+      window.localStorage.removeItem('marva_jwt')
+      this.jwt = null
+      this.ssoUser = null
+      window.location.href = utilUrl + 'auth/logout'
+    },
 
     /**
     * Setup the preference store, access settings stored in localstorage, etc.
@@ -1815,6 +2069,9 @@ export const usePreferenceStore = defineStore('preference', {
 
     styleModalBackgroundColor(){ return `background-color: ${this.returnValue('--c-edit-modals-background-color')};`},
     styleModalTextColor(){ return `color: ${this.returnValue('--c-edit-modals-text-color')};`},
+
+    styleCopyCatBackgroundColor(){ return `background-color: ${this.returnValue('--c-edit-copy-cat-components')};`},
+    styleCopyCatTextColor(){ return `color: ${this.returnValue('--c-edit-copy-cat-font-color')};`},
 
 
 

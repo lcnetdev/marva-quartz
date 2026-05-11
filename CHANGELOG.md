@@ -1,12 +1,80 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.6.2] - 2025-04-28
+### Update
+- Copycat has a MARC comparison view. The comparison is shown after selecting a profile to load with and provides a chance for the cataloger to backout. Comparison can also be envoked from a "Compare" button if an existing record is found.
 
-## [1.4.10] - 2025-02-13
+## [1.6.1] - 2025-04-27
+### Update
+- 046 generation in NAR creation should be more smoothly updating on change
+- When multiple LCCs are set for a work and use the Tool nav bar to open shelflisting it will only use the first LCC component
+- Remove the legacy DCTap option, it tries to sniff out the stage marva profile if no pref is set in localstorage
+### Added
+- Added a Quick Select for the Literal "Set Language" modal that populates based on previous usage.
+
+
+
+## [1.6.x] - 2025-03-20
+### Added
+- Introduced MLC Number Generator (https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/mlc-numbers.md)
+
+## [1.5.3] - 2026-03-20
+## Added
+- Undo/redo support for 10 changes. `ctrl+z`, `ctrl+y`
+
+## Update
+- Save has a shortcut. `ctrl+s`
+- Shortcuts for copy/paste
+- `046` not created when `$d` has qualifier
+
+## [1.5.2] - 2026-03-13
+### Update
+- Layout: add hotkey to remove layout: `ctrl+backspace`
+- Subject builder:  label change: `Hierarchical Geo` -> `Geo. Subdiv.`, will include non-hierarchical terms
+- Change shortcut keys for search modes so they don't clash with the layouts
+- Subject builder: NAF search can be limited like the contributor search
+- Single Sign-On Added (https://bibframe.org/docs/view/documentation-marva-manual/accessing-marva.md)
+- Marva Event History (https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/marva-history-log.md)
+- Marva User Directory (https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/user-directory.md)
+
+
+## [1.4.12] - 2026-03-6
+### Update
+- NAR: When using the auth label used in the search interface for your 1xx it will maintain the 1001, 1101, etc. instead of overwriting with 1xx##
+- NAR: Auto 046 creation for hyphenated last names now also works for last names sepearted with a space (Jones-Smith, and Jones Smith, will trigger it now)
+- NAR: Will auto cleanup double spaces in the NAR 1xx
+- You can now highlgiht a portion of the Instance Subtitle when using "Send Subtitle to Work Variant" and it will only send the selected (highlighted) text
+- Subject builder: move geo subdivisions into one option, formerly `Hierarchical geo`. Don't show geo subdivisions under LCSH/LCNAF & don't show names as subdivisions
+
+## [1.4.11] - 2026-02-27
+### Update
+- NAR creation supports 046 for 110 & 111
+
+
+### Fixed
+- CopyCat overlay override not working like it should
+- Fixed issue with partial in place transliteration when using "Captialize first word" preference
+- Fixed issue with partial in place transliteration when using ko + han mixed languages.
+
+## [1.4.10] - 2026-02-13
+### Added
+- Styling for staging
+
+### Fixed
+- Macros in NAR 1XX/4XX search reverting the character combo
+- NARs created from subjects having the wrong hyphen
+
 ### Update
 - Subject subfield delimiters to include `ǂ`
+- NAR will insert `$b()` into the 670 in advanced mode
+- CopyCat to work at page 5+
+- Expand information in search restuls details
 
-## [1.4.9] - 2025-02-13
+### Fixed
+- More issues with library
+
+## [1.4.9] - 2026-02-13
 ### Update
 - Changes to match backend refactor
 - URL target for navigation to load screen
@@ -19,16 +87,16 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - `$q` not parsing when pasting MARC subject strings
 
-## [1.4.8] - 2025-02-03
+## [1.4.8] - 2026-02-03
 ### Added
 - Support for Subject Entities in Subject Builder
 
-## [1.4.7] - 2025-01-20
+## [1.4.7] - 2026-01-20
 ### Changed
 - ClassWeb search will search `LCSH (w/names)` to do a combined search.
 - Ability to keyword search subject by appending `?` to the search term
 
-## [1.4.6] - 2025-01-16
+## [1.4.6] - 2026-01-16
 ### Added
 - Added support for automatically populating 4xx from the MARC key if present.
 - NAR will strip trailing period if at end of string and previous char is lowercase.

@@ -289,12 +289,16 @@
 
         const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
         if (answer) {
+          this.profileStore.yoshinoResults = null
+          this.profileStore.yoshinoInsertedSubjects = []
           next()
         } else {
           next(false)
         }
 
       }else{
+        this.profileStore.yoshinoResults = null
+        this.profileStore.yoshinoInsertedSubjects = []
         next()
       }
 

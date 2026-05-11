@@ -51,6 +51,21 @@
                     </span>
                 </span>
             </template>
+            <template v-else-if="(Object.keys(contextData).includes('establishDates') && contextData['establishDates'].length > 0)
+                || (Object.keys(contextData).includes('terminateDates') && contextData['terminateDates'].length > 0)">
+                <br>
+                <span class="dates-container" style="padding-bottom: 10px;">
+                    <span v-if="contextData['establishDates'] && contextData['establishDates'].length > 0"
+                        style="margin-right: 15px;">
+                        <span class="modal-context-data-title">Established: </span>
+                        <span>{{ contextData['establishDates'][0] }}</span>
+                    </span>
+                    <span v-if="contextData['terminateDates'] && contextData['terminateDates'].length > 0">
+                        <span class="modal-context-data-title">Terminated: </span>
+                        <span>{{ contextData['terminateDates'][0] }}</span>
+                    </span>
+                </span>
+            </template>
             <br>
 
             <!-- Labels & Relationships -->
@@ -139,14 +154,14 @@
                             <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                                 this.labelMap[key] : key }}:</span>
                             <ul class="">
-                                <li class="" v-if="key == 'lcclasses'" v-for="v in contextData['lcclasses']">
+                                <li class="" v-if="key == 'lcclasses'" v-for="(v, idx) in contextData['lcclasses']">
                                     <template v-if="typeof v != 'string'">
                                         ({{ v.assigner }})
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v.code"
                                             target="_blank">{{ v.code }}</a>
                                         <button class="material-icons see-search"
                                             ref="addClass"
-                                            @click="addClassNumber(v.code)">add</button>
+                                            @click="addClassNumber(v.code, idx)">add</button>
                                     </template>
                                     <template v-else>
                                         {{ v }}
@@ -348,8 +363,8 @@ export default {
         newSearch: function (term) {
             this.$emit('newSearch', term)
         },
-        addClassNumber: function (code) {
-            let button = this.$refs.addClass[0]
+        addClassNumber: function (code, idx) {
+            let button = this.$refs.addClass[idx]
             button.innerText = "check"
 
             this.$emit('addClassNumber', code)

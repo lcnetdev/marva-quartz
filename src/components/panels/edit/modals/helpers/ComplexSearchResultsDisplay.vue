@@ -39,6 +39,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
             <SearchResultOption
                 searchType="names"
@@ -48,6 +49,8 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
+                @nafSearch="nafSearch"
             />
             <SearchResultOption
                 searchType="subjectsComplex"
@@ -57,6 +60,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
             <SearchResultOption
                 searchType="subjectsChildrenComplex"
@@ -66,6 +70,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
             <SearchResultOption
                 searchType="subjectsChildren"
@@ -75,6 +80,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
 
             <SearchResultOption
@@ -85,6 +91,7 @@
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
+                :searchMode="searchMode"
             />
         </div>
     </div>
@@ -156,6 +163,11 @@ export default {
         selectContext: function(idx){
             this.$emit('selectContext', idx)
         },
+
+        nafSearch: function(type){
+            this.$emit('nafSearch', type)
+        },
+
         loadContext:function(pickPosition){
             if (this.pickCurrent == null) {
                 this.pickPostion = pickPosition

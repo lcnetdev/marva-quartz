@@ -44,6 +44,12 @@ const router = createRouter({
       component: Load
 
     },
+    {
+      path: "/marvalog/:searchId",
+      name: "MarvaLog",
+      component: Load,
+      props: true
+    },
 
 
 

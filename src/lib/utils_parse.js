@@ -476,7 +476,7 @@ const utilsParse = {
       let isHub = false
       if (pkey.includes(':Work')){
         tle = "bf:Work"
-      }else if (pkey.includes(':Instance')){
+      }else if (pkey.endsWith(':Instance')){
         tle = "bf:Instance"
       }else if (pkey.includes(':Item')){
         tle = "bf:Item"
@@ -569,7 +569,6 @@ const utilsParse = {
       }
 
       // is there admin metdata in the data? If so we need to insert that profile template into the pt
-
       let adminMetadataCount = xml.getElementsByTagName('bf:adminMetadata').length
       if (adminMetadataCount>0){
         let parent
@@ -615,6 +614,7 @@ const utilsParse = {
         profile.rt[pkey].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
 
       }
+
       // some more optional xml enrichment here to help the process
       // first try to give hints to which PT to use based on some rules we are using at LC
       if (tle == "bf:Work"){
@@ -1727,6 +1727,16 @@ const utilsParse = {
                 }
               }
 
+              // if it's expression of with a URI
+              if (populateData.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
+                // if there's a uri, @id, set to false
+                let userValue = populateData.userValue
+                let data = userValue["http://id.loc.gov/ontologies/bibframe/expressionOf"][0]
+                if (Object.keys(data).includes("@id")){
+                  delete populateData.deepHierarchy
+                }
+              }
+
               // trying to turn it off for transcribed series
               if (populateData.id.indexOf('transcribed_series') >-1){
                 populateData.deepHierarchy = false
@@ -1937,6 +1947,25 @@ const utilsParse = {
 
 
             }
+
+            // if a "new" record is being loaded, update it
+            if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
+              if (userValue["http://id.loc.gov/ontologies/bibframe/status"]){
+                let status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
+                if (status["@id"] == "http://id.loc.gov/vocabulary/mstatus/n"){
+                // status = change
+                  status["@id"] = "http://id.loc.gov/vocabulary/mstatus/c"
+                  status["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "changed"
+
+                  // update date
+                  let date = userValue["http://id.loc.gov/ontologies/bibframe/date"][0]
+                  date["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]
+
+                  // delete userValue["http://id.loc.gov/ontologies/bibframe/status"]
+                  // delete userValue["http://id.loc.gov/ontologies/bibframe/date"]
+                }
+              }
+            }
           }
 
           // if we're working on the primary admin field
@@ -1946,7 +1975,7 @@ const utilsParse = {
               userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
                 {
                   "@guid": short.generate(),
-                  "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
+                  "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catCode
                 }
               ]
             }
@@ -2002,7 +2031,6 @@ const utilsParse = {
 
 
       }
-
 
       let uniquePropertyURIs  = {}
       // we are now going to do some ananlyis on profile, see how many properties are acutally used, what is not used, etc
@@ -2110,6 +2138,7 @@ const utilsParse = {
             // console.log(pkey,key)
             // console.log(profile.rt[pkey].pt[key].valueConstraint.valueTemplateRefs)
             // console.log(rtName)
+
             useProfileStore().rtLookup[rtName].propertyTemplates.forEach((ptObj)=>{
               if (allUris.indexOf(ptObj.propertyURI)==-1){
                 allUris.push(ptObj.propertyURI)
@@ -2175,8 +2204,11 @@ const utilsParse = {
     }
 
     profile = this.extractISBN(profile)
+    profile = this.extractLCCN(profile)
 
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
+    // save for undo
+    useProfileStore().saveState(profile)
 
     return profile
   },
@@ -2199,6 +2231,37 @@ const utilsParse = {
                     profile.linkedData.isbn = []
                   }
                   profile.linkedData.isbn.push(bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].trim())
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (profile.linkedData && profile.linkedData.isbn){
+      // make a copy of the orginal isbns from the record
+      profile.linkedData.originalIsbns = JSON.parse(JSON.stringify(profile.linkedData.isbn))
+    }
+    return profile
+  },
+
+  extractLCCN: function(profile){
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+        if (ptObj.propertyURI == 'http://id.loc.gov/ontologies/bibframe/identifiedBy'){
+          if (ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'] && ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]){
+            let bnode = ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]
+            if (bnode['@type'] && bnode['@type'] == 'http://id.loc.gov/ontologies/bibframe/Lccn'){
+              if (bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'] && bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]){
+                if (bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']){
+                  if (!profile.linkedData){
+                    profile.linkedData = {}
+                  }
+                  if (!profile.linkedData.lccn){
+                    profile.linkedData.lccn = []
+                  }
+                  profile.linkedData.lccn.push(bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].trim())
                 }
               }
             }
@@ -2424,6 +2487,10 @@ const utilsParse = {
               source = subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source'][0]['@id']
               if (source == 'http://id.loc.gov/authorities/subjects'){
                 source = 'lcsh'
+              } else if (source == 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh'){
+                source = 'lcsh'
+              } else {
+                source = 'unknown'
               }
             } else if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].includes("id.loc.gov")){
               source = "lcsh"
@@ -2443,9 +2510,11 @@ const utilsParse = {
       }
     }
 
+    let sortedSubjects =  Object.keys(subjectSources).sort()
+
     // always have LCSH first and maintain the first subject
     let pos = 0
-    for (let t of Object.keys(subjectSources).sort((a,b) => a == 'lcsh' ? -1 : a < b ? 1 : 0)){
+    for (let t of sortedSubjects){
       for (let sub of subjectSources[t]){
         profile.rt[rtTarget].pt[subjectOrder.at(pos)].userValue = sub.value
         pos++
@@ -2472,7 +2541,7 @@ const utilsParse = {
    * @return {Object} - The profile with reordered literal arrays
    */
    reorderAllNonLatinLiterals: function(profile){
-
+    console.log(JSON.stringify(profile,null,2))
     function process (obj, func) {
       if (obj && obj.userValue){
         obj = obj.userValue
@@ -2524,10 +2593,6 @@ const utilsParse = {
 
 
   },
-
-
-
-
 
 
 

@@ -32,6 +32,8 @@
         fontValue: {},
         booleanValue: {},
 
+        copyLabel: 'Copy to Clipboard',
+
       }
     },
     computed: {
@@ -56,7 +58,7 @@
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -72,9 +74,34 @@
         onSelectElement (event) {
           const tagName = event.target.tagName
 
-          if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+          if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || tagName === 'BUTTON') {
             event.stopPropagation()
           }
+        },
+
+        async copyToClipboard() {
+          let text
+          try {
+            text = JSON.stringify(this.debugModalData, null, 2)
+          } catch {
+            text = String(this.debugModalData)
+          }
+          try {
+            await navigator.clipboard.writeText(text)
+            this.copyLabel = 'Copied!'
+          } catch {
+            // Fallback for non-secure contexts where clipboard API is unavailable.
+            const ta = document.createElement('textarea')
+            ta.value = text
+            ta.style.position = 'fixed'
+            ta.style.opacity = '0'
+            document.body.appendChild(ta)
+            ta.select()
+            try { document.execCommand('copy'); this.copyLabel = 'Copied!' }
+            catch { this.copyLabel = 'Copy failed' }
+            document.body.removeChild(ta)
+          }
+          window.setTimeout(() => { this.copyLabel = 'Copy to Clipboard' }, 1500)
         },
 
 
@@ -83,7 +110,7 @@
 
     mounted() {
       this.$nextTick(()=>{
-     
+
       })
 
     }
@@ -101,7 +128,7 @@
       :hide-overlay="true"
       :overlay-transition="'vfm-fade'"
 
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -116,14 +143,15 @@
         >
           <div id="debug-content" ref="debugContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
             <div class="menu-buttons">
+              <button class="copy-button" @pointerup="copyToClipboard()">{{ copyLabel }}</button>
               <button class="close-button" @pointerup="showDebugModal=false">X</button>
             </div>
 
-            <vue-json-pretty 
+            <vue-json-pretty
               :path="'res'"
               :highlightMouseoverNode="true"
               :collapsedOnClickBrackets="true"
-              :data="debugModalData"      
+              :data="debugModalData"
               >
             </vue-json-pretty>
 
@@ -141,7 +169,7 @@
 
 <style scoped>
 
- 
+
 
   .checkbox-option{
     width: 20px;
@@ -178,9 +206,20 @@
     border: solid 1px black;
     cursor: pointer;
   }
+  .copy-button{
+    position: absolute;
+    right: 35px;
+    top: 5px;
+    background-color: white;
+    border-radius: 5px;
+    border: solid 1px black;
+    cursor: pointer;
+    padding: 2px 10px;
+    font-size: 0.85em;
+  }
   .debug-modal{
     background-color: white;
-    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27); 
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     border-radius: 1em;
     padding:1em;

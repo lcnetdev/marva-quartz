@@ -10,6 +10,8 @@ import utilsNetwork from '@/lib/utils_network';
 import utilsParse from '@/lib/utils_parse';
 import utilsRDF from '@/lib/utils_rdf';
 import utilsExport from '@/lib/utils_export';
+import { parseDimensions } from '@/lib/parseDimensions';
+
 // import utilsMisc from '@/lib/utils_misc';
 
 import shortCodesOverrides from "@/lib/shortCodesOverrides.json"
@@ -40,7 +42,7 @@ let dataChangedTimeout = null
 
 // const nonLatinRegex = /^[A-z\u00C0-\u00ff\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9]+$/;
 // const latinRegex = /^[\u3040-\u309F\u30A0-\u30FF]+$/;
-const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\u2C60-\u2C7F\uA720-\uA7FF]+$/
+const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u02B0-\u02FF\u0300-\u036F\u1E00-\u1EFF\u2070-\u20BF\u2C60-\u2C7F\uA720-\uA7FF\uFE20-\uFE2F]+$/
 
 //https://stackoverflow.com/questions/49562546/how-to-get-all-properties-values-of-a-javascript-nested-objects-without-knowing
 // clean cacheGuid of items that match the children of the PT that is insert default values too
@@ -104,6 +106,17 @@ export const useProfileStore = defineStore('profile', {
     savedHubModalData:{},
 
     showCipModal: false,
+    showMarvaLogModal: false,
+    marvaLogResults: [],
+    marvaLogSearchValue: '',
+    marvaLogLoading: false,
+
+    showUserDirectoryModal: false,
+    userDirectoryResults: [],
+    userDirectoryLoading: false,
+
+    showFolioSyncModal: false,
+
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -120,6 +133,10 @@ export const useProfileStore = defineStore('profile', {
       guid: null,
       structure: null,
     },
+
+    showYoshinoSubjectsModal: false,
+    yoshinoResults: null,
+    yoshinoInsertedSubjects: [],
 
     cammModeErrors: {
 
@@ -159,7 +176,16 @@ export const useProfileStore = defineStore('profile', {
     hiddenSubjects: false,
     hiddenClassNumbers: false,
 
+
+
+
     localMarva: false,
+
+    // undo
+    currentState: null,
+    undoRecords: [],
+    redoRecords: [],
+    undoRedoLimit: 10
   }),
   getters: {
 
@@ -607,6 +633,39 @@ export const useProfileStore = defineStore('profile', {
           } catch (err) {
             console.error('Error fetching dancer workspace list:', err)
           }
+        }else{
+          try {
+            let wsResponse = await fetch(config.returnUrls.dancerWorkspaceList)
+            let wsData = await wsResponse.json()
+            console.log("wsData",wsData)
+            let defaultWs
+            // if we are stage try to find stage
+            if (config.returnUrls.env === 'staging') {
+              defaultWs = wsData.data.find(ws => ws.name === 'marva-stage')
+            }
+            if (config.returnUrls.env === 'production') {
+              defaultWs = wsData.data.find(ws => ws.name === 'marva-prod')
+            }
+
+            if (defaultWs) {
+                let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
+                profilesURL = dancerBaseUrl + defaultWs.id + '/profile'
+                startingURL = dancerBaseUrl + defaultWs.id + '/starting-points'
+            }
+
+            if (config.returnUrls.externalDev) {
+                profilesURL = config.returnUrls.profiles
+                startingURL = config.returnUrls.starting
+
+            }
+
+
+          } catch (err) {
+            console.error('Error fetching dancer workspace list:', err)
+          }
+
+
+
         }
       }
 
@@ -980,55 +1039,55 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-      // HACKHACKHACKHACK
-      if (config.returnUrls.env != 'production'){
-          startingPointData.json.splice(2,0,{
-              "menuGroup": "GPO Monograph",
-              "menuItems": [
-                  {
-                      "label": "Instance",
-                      "type": [
-                          "http://id.loc.gov/ontologies/bibframe/Instance"
-                      ],
-                      "useResourceTemplates": [
-                          "lc:RT:bf2:GPOMono:Instance"
-                      ]
-                  },
-                  {
-                      "label": "Work",
-                      "type": [
-                          "http://id.loc.gov/ontologies/bibframe/Work"
-                      ],
-                      "useResourceTemplates": [
-                          "lc:RT:bf2:GPOMono:Work"
-                      ]
-                  }
-              ]
-          })
-          startingPointData.json.splice(3,0,{
-              "menuGroup": "GPO Serial",
-              "menuItems": [
-                  {
-                      "label": "Instance",
-                      "type": [
-                          "http://id.loc.gov/ontologies/bibframe/Instance"
-                      ],
-                      "useResourceTemplates": [
-                          "lc:RT:bf2:GPOSerial:Instance"
-                      ]
-                  },
-                  {
-                      "label": "Work",
-                      "type": [
-                          "http://id.loc.gov/ontologies/bibframe/Work"
-                      ],
-                      "useResourceTemplates": [
-                          "lc:RT:bf2:GPOSerial:Work"
-                      ]
-                  }
-              ]
-          })
-      }
+      // // removed march 2026
+      // if (config.returnUrls.env != 'production'){
+      //     startingPointData.json.splice(2,0,{
+      //         "menuGroup": "GPO Monograph",
+      //         "menuItems": [
+      //             {
+      //                 "label": "Instance",
+      //                 "type": [
+      //                     "http://id.loc.gov/ontologies/bibframe/Instance"
+      //                 ],
+      //                 "useResourceTemplates": [
+      //                     "lc:RT:bf2:GPOMono:Instance"
+      //                 ]
+      //             },
+      //             {
+      //                 "label": "Work",
+      //                 "type": [
+      //                     "http://id.loc.gov/ontologies/bibframe/Work"
+      //                 ],
+      //                 "useResourceTemplates": [
+      //                     "lc:RT:bf2:GPOMono:Work"
+      //                 ]
+      //             }
+      //         ]
+      //     })
+      //     startingPointData.json.splice(3,0,{
+      //         "menuGroup": "GPO Serial",
+      //         "menuItems": [
+      //             {
+      //                 "label": "Instance",
+      //                 "type": [
+      //                     "http://id.loc.gov/ontologies/bibframe/Instance"
+      //                 ],
+      //                 "useResourceTemplates": [
+      //                     "lc:RT:bf2:GPOSerial:Instance"
+      //                 ]
+      //             },
+      //             {
+      //                 "label": "Work",
+      //                 "type": [
+      //                     "http://id.loc.gov/ontologies/bibframe/Work"
+      //                 ],
+      //                 "useResourceTemplates": [
+      //                     "lc:RT:bf2:GPOSerial:Work"
+      //                 ]
+      //             }
+      //         ]
+      //     })
+      // }
 
 
       startingPointData.json.forEach((sp)=>{
@@ -1975,11 +2034,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      console.info("setValueLiteral")
-      console.info(componentGuid)
-      console.info(fieldGuid)
-      console.info(JSON.stringify(propertyPath))
-      //Save
+      // console.info("--------------------------\nsetValueLiteral")
+      // console.info("\tcomponentGuid: ", componentGuid)
+      // console.info("\tfieldGuid: ", fieldGuid)
+      // console.info("\tpropertyPath: ", propertyPath)
+      // console.info("\tvalue: ", )
+      // console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
@@ -2227,7 +2287,7 @@ export const useProfileStore = defineStore('profile', {
 
 
           // also remove the paired literal lines if needed
-          console.log("Building lines")
+          // console.log("Building lines")
           utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
 
 
@@ -2263,6 +2323,19 @@ export const useProfileStore = defineStore('profile', {
         }
 
 
+
+        // this is a hook to watch for MLC numbering configuration
+        // if they add a divsion to the MLC number or remove it then we want to flip a flag
+        // so that the next MLC number generated will also insert the divsion or not
+        if (propertyPath.some((pp) => pp.propertyURI.includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")) && value.startsWith("MLC")){
+          console.log("--------MLC change detected------------")
+          let mlcMatch = value.match(/^MLC[SMLF]([A-Z])/i)
+          if (mlcMatch) {
+            usePreferenceStore().setValue('--b-shelflist-mlc-division',mlcMatch[1].toUpperCase())
+          } else {
+            usePreferenceStore().setValue('--b-shelflist-mlc-division',"")
+          }
+        }
 
 
         // console.log("Before prune")
@@ -3437,7 +3510,71 @@ export const useProfileStore = defineStore('profile', {
 
       if (saved){
         this.activeProfileSaved = true
+        this.logEvent('SAVED_RECORD')
       }
+    },
+
+    /**
+    * Log an event to the backend, extracting user/record info from current state
+    * @param {string} eventType - e.g. "LOAD_FROM_LCCN", "LOAD_FROM_COPYCAT", "CREATED_RECORD"
+    * @param {object} opts - optional overrides: eId, lccn, instanceId, metadata
+    */
+    logEvent: async function(eventType, opts = {}){
+      let prefStore = usePreferenceStore()
+
+      // get the username from the SSO JWT payload
+      let username = null
+      if (prefStore.ssoUser){
+        username = prefStore.ssoUser.username || prefStore.ssoUser.name || prefStore.ssoUser.email
+      }
+      if (!username){
+        username = prefStore.catInitals
+      }
+      if (!username){
+        console.warn('logEvent: no username available, skipping')
+        return false
+      }
+
+      // pull eId and lccn from activeProfile if not provided
+      let eId = opts.eId || (this.activeProfile && this.activeProfile.eId) || null
+      let lccn = opts.lccn || null
+      let instanceId = opts.instanceId || null
+
+      // try to extract lccn and instanceId from the record XML if available
+      if (!lccn || !instanceId){
+        try {
+          let xml = await utilsExport.buildXML(this.activeProfile)
+          if (xml && xml.xlmStringBasic){
+            let parser = new DOMParser()
+            let doc = parser.parseFromString(xml.xlmStringBasic, 'application/xml')
+            if (!lccn){
+              let lccnEl = doc.getElementsByTagNameNS('http://id.loc.gov/ontologies/lclocal/', 'lccn')[0]
+              if (lccnEl){
+                lccn = lccnEl.textContent
+              }
+            }
+            if (!instanceId){
+              let extEls = doc.getElementsByTagNameNS('http://id.loc.gov/ontologies/lclocal/', 'externalid')
+              for (let el of extEls){
+                if (el.textContent.includes('/instances/')){
+                  instanceId = el.textContent
+                  break
+                }
+              }
+            }
+          }
+        } catch(e){
+          console.warn('logEvent: could not extract XML metadata', e)
+        }
+      }
+
+      let eventOpts = {}
+      if (eId) eventOpts.eId = eId
+      if (lccn) eventOpts.lccn = lccn
+      if (instanceId) eventOpts.instanceId = instanceId
+      if (opts.metadata) eventOpts.metadata = opts.metadata
+
+      return await utilsNetwork.logEvent(username, eventType, eventOpts)
     },
 
     /**
@@ -3504,7 +3641,7 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.status = 'published'
         await this.saveRecord()
 
-
+        this.logEvent('PUBLISHED_RECORD')
 
         const config = useConfigStore()
 
@@ -3826,6 +3963,186 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    /**
+     * Pass the component GUID to use and it will insert a MLC number into the userValue
+     * based on the dimensions in the instance otherwise it will ask the user to give the size
+    **/
+    insertMLCNumber: async function(componentGuid){
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      let enhanceResults = await this.mlcNumberEnhance()
+
+      // console.log("enhance results",enhanceResults)
+      // look for the dimensions in the instance
+      let dimensions = null
+      for (let rtId in this.activeProfile.rt){
+        if (this.activeProfile.rt[rtId].URI && this.activeProfile.rt[rtId].URI.indexOf('/instances/')>-1){
+          let instancePt = this.activeProfile.rt[rtId].pt
+          for (let ptId in instancePt){
+            if (instancePt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/dimensions' && instancePt[ptId].userValue && instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'] && instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'][0]['http://id.loc.gov/ontologies/bibframe/dimensions']){
+            dimensions = instancePt[ptId].userValue['http://id.loc.gov/ontologies/bibframe/dimensions'][0]['http://id.loc.gov/ontologies/bibframe/dimensions']
+            break
+            }
+          }
+          if (dimensions){
+            break
+          }
+        }
+      }
+      if (dimensions){
+        let size = parseDimensions(dimensions)
+        // if it wasnt able to parse it unset it
+        if (!size || !size.size){
+          dimensions = null
+        }else{
+          dimensions = size.size
+        }
+      }
+
+      if (!dimensions){
+        dimensions = prompt("Could not find dimensions in the record. Please enter the MLC size to use: S, M, L or F")
+        // check they did it right
+        if (dimensions && ['S','M','L','F'].includes(dimensions.toUpperCase())){
+          dimensions = dimensions.toUpperCase()
+        }else{
+          alert("Invalid size entered. Try inserting MLC again and enter S, M, L or F. ")
+          return
+        }
+
+      }else{
+        // it did parse scuessfully convert the lib respomse into the size letter
+        if (dimensions== 'small'){
+          dimensions = 'S'
+        }else if (dimensions == 'medium'){
+          dimensions = 'M'
+        }else if (dimensions == 'large'){
+          dimensions = 'L'
+        }else if (dimensions == 'oversize' || dimensions == 'folio'){
+          dimensions = 'F'
+        }else{
+          alert("Error in parsing dimensions. ", dimensions)
+          return
+        }
+      }
+
+      // now ask the API for the next number
+      let number = await utilsNetwork.getMLCNumber(dimensions.toLowerCase())
+      this.logEvent('REQUESTED_MLC_NUMBER', { metadata: [number] })
+
+      let division = usePreferenceStore().returnValue('--b-shelflist-mlc-division')
+      if (division && division != ""){
+        // they have used a divsion before or set it so insert the value in the correct place in the MLC number
+        number = number.slice(0, 4) + division + number.slice(4)
+      }
+
+      if (enhanceResults.useP){
+        number = number + ' (P)'
+      }else if (enhanceResults.useLCC){
+        number = number + ` (${enhanceResults.useLCC})`
+      }
+
+
+      // now update the userValue of the pt with that number
+      // it goes into the userValue -> http://id.loc.gov/ontologies/bibframe/classification[0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+      if (!pt.userValue){
+        pt.userValue = {}
+      }
+      let dataFieldGuid = short.generate()
+      if (!pt.userValue['http://id.loc.gov/ontologies/bibframe/classification']){
+        pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] = [{
+          "@guid": short.generate(),
+          "@type": "http://id.loc.gov/ontologies/bibframe/ClassificationLcc",
+          "http://id.loc.gov/ontologies/bibframe/assigner": [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress"
+            }]
+          }],
+          "http://id.loc.gov/ontologies/bibframe/classificationPortion": [{
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }],
+          "http://id.loc.gov/ontologies/bibframe/status": [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/mstatus/uba",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Status",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "used by assigner"
+            }]
+          }]
+        }]
+      }else{
+        let classEntry = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+        if (!classEntry['@guid']) classEntry['@guid'] = short.generate()
+        if (!classEntry['@type']) classEntry['@type'] = "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/assigner']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/assigner'] = [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress"
+            }]
+          }]
+        }
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/status']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/status'] = [{
+            "@guid": short.generate(),
+            "@id": "http://id.loc.gov/vocabulary/mstatus/uba",
+            "@type": "http://id.loc.gov/ontologies/bibframe/Status",
+            "http://www.w3.org/2000/01/rdf-schema#label": [{
+              "@guid": short.generate(),
+              "http://www.w3.org/2000/01/rdf-schema#label": "used by assigner"
+            }]
+          }]
+        }
+        if (!classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+          classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion'] = [{
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }]
+        }else{
+          classEntry['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] = {
+            "@guid": dataFieldGuid,
+            "http://id.loc.gov/ontologies/bibframe/classificationPortion": number
+          }
+        }
+      }
+
+      // remove any empty classification entries (cloned but never populated)
+      for (let rtId in this.activeProfile.rt){
+        for (let ptId in this.activeProfile.rt[rtId].pt){
+          let ptObj = this.activeProfile.rt[rtId].pt[ptId]
+          if (ptObj.propertyURI === 'http://id.loc.gov/ontologies/bibframe/classification' && ptObj.userValue){
+            if (!ptObj.userValue['http://id.loc.gov/ontologies/bibframe/classification']){
+              // userValue only has @root, nothing else — mark as deleted
+              ptObj.deleted = true
+            }else{
+              let classArr = ptObj.userValue['http://id.loc.gov/ontologies/bibframe/classification']
+              for (let i = classArr.length - 1; i >= 0; i--){
+                if (!classArr[i]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+                  classArr.splice(i, 1)
+                }
+              }
+            }
+          }
+        }
+      }
+
+
+
+      this.dataChanged()
+
+      return dataFieldGuid
+
+
+    },
+
 
     /**
     * If it is a LCC component info about the LCC numbers
@@ -3856,11 +4173,13 @@ export const useProfileStore = defineStore('profile', {
       let cutterGuid = null
 
       let work = null
+      let inst = null
       let title = null
       let titleNonSort = null
       let firstSubject = null
       let secondSubject = null
       let contributors = []
+      let subtitle = null
 
       let titleNonLatin = null
 
@@ -4010,6 +4329,36 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      // look at the instance to get the subtitle
+      for (let rtId in this.activeProfile.rt){
+        if (rtId.indexOf(":Instance") > -1){
+          inst = this.activeProfile.rt[rtId]
+          if (inst){ break }
+        }
+      }
+
+      if (inst){
+        for (let ptId of inst.ptOrder){
+        let pt = JSON.parse(JSON.stringify(inst.pt[ptId]))
+
+        if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
+          let titleUserValue = pt.userValue
+
+          if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
+            titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+            if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']){
+              let sub = titleUserValue['http://id.loc.gov/ontologies/bibframe/subtitle']
+              subtitle = sub[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+            }
+          }
+        }
+      }
+    }
+
+    if (subtitle && title){
+      title = title.replace(": " + subtitle, "").trim()
+    }
+
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 
@@ -4052,6 +4401,7 @@ export const useProfileStore = defineStore('profile', {
 
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:classNumber,
             cutterNumber:cutterNumber,
@@ -4068,6 +4418,7 @@ export const useProfileStore = defineStore('profile', {
           // console.log("RETRUN FA:LSE 2")
           return {
             title: null,
+            subtitle: null,
             titleNonLatin: null,
             classNumber:null,
             cutterNumber:null,
@@ -4094,6 +4445,7 @@ export const useProfileStore = defineStore('profile', {
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
@@ -4109,6 +4461,7 @@ export const useProfileStore = defineStore('profile', {
         } else if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/expressionOf')){
           return {
             title: title,
+            subtitle: subtitle,
             titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
@@ -4131,6 +4484,154 @@ export const useProfileStore = defineStore('profile', {
       //ClassificationLcc
       // console.log("RETRUN FA:LSE 3")
       return false
+
+    },
+
+    /**
+    * Walks the active profile and extracts subject and genreForm labels/URIs,
+    * then looks up classification URIs for each subject
+    * @return {object} - {subjects: [], genreForms: []}
+    */
+    mlcNumberEnhance: async function(){
+
+      let subjects = []
+      let genreForms = []
+
+      for (let rtId in this.activeProfile.rt){
+        if (rtId.indexOf(":Work") > -1){
+          for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+            let pt = this.activeProfile.rt[rtId].pt[ptId]
+
+            // collect subjects
+            if (pt && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' && !pt.deleted){
+              let uv = pt.userValue
+              if (uv && uv['http://id.loc.gov/ontologies/bibframe/subject'] && uv['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && uv['http://id.loc.gov/ontologies/bibframe/subject'][0]){
+                let subj = uv['http://id.loc.gov/ontologies/bibframe/subject'][0]
+                let label = null
+                let uri = null
+                if (subj['http://www.w3.org/2000/01/rdf-schema#label'] && subj['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && subj['http://www.w3.org/2000/01/rdf-schema#label'][0] && subj['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+                  label = subj['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+                } else if (subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length > 0 && subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0] && subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
+                  label = subj['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+                }
+                // get URI: top-level @id, or first componentList entry's @id
+                if (subj['@id']){
+                  uri = subj['@id']
+                } else if (subj['http://www.loc.gov/mads/rdf/v1#componentList'] && subj['http://www.loc.gov/mads/rdf/v1#componentList'].length > 0 && subj['http://www.loc.gov/mads/rdf/v1#componentList'][0] && subj['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']){
+                  uri = subj['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']
+                }
+                if (label){
+                  subjects.push({label: label, uri: uri})
+                }
+              }
+            }
+
+            // collect genreForms
+            if (pt && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/genreForm' && !pt.deleted){
+              let uv = pt.userValue
+              if (uv && uv['http://id.loc.gov/ontologies/bibframe/genreForm'] && uv['http://id.loc.gov/ontologies/bibframe/genreForm'].length > 0 && uv['http://id.loc.gov/ontologies/bibframe/genreForm'][0]){
+                let gf = uv['http://id.loc.gov/ontologies/bibframe/genreForm'][0]
+                let label = null
+                let uri = null
+                if (gf['http://www.w3.org/2000/01/rdf-schema#label'] && gf['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && gf['http://www.w3.org/2000/01/rdf-schema#label'][0] && gf['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+                  label = gf['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+                } else if (gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length > 0 && gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0] && gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
+                  label = gf['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+                }
+                // get URI: top-level @id, or first componentList entry's @id
+                if (gf['@id']){
+                  uri = gf['@id']
+                } else if (gf['http://www.loc.gov/mads/rdf/v1#componentList'] && gf['http://www.loc.gov/mads/rdf/v1#componentList'].length > 0 && gf['http://www.loc.gov/mads/rdf/v1#componentList'][0] && gf['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']){
+                  uri = gf['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']
+                }
+                if (label){
+                  genreForms.push({label: label, uri: uri})
+                }
+              }
+            }
+
+          }
+        }
+      }
+
+      // look up classification for the first subject only
+      let useLCC = null
+      if (subjects.length > 0 && subjects[0].uri){
+        let classification = await utilsNetwork.getSubjectClassification(subjects[0].uri)
+        if (classification && classification.length > 0){
+          useLCC = classification.charAt(0)
+        }
+      }
+
+      // determine P-class from genreForms
+      // URIs that indicate useP = true (fiction-related)
+      let pClassTrueURIs = [
+        'http://id.loc.gov/authorities/genreForms/gf2014026339',
+        'http://id.loc.gov/authorities/genreForms/gf2014026243',
+        'http://id.loc.gov/authorities/genreForms/gf2014026259',
+        'http://id.loc.gov/authorities/genreForms/gf2018026099',
+        'http://id.loc.gov/authorities/genreForms/gf2015026019',
+        'http://id.loc.gov/authorities/genreForms/gf2014026456',
+        'http://id.loc.gov/authorities/genreForms/gf2015026020',
+        'http://id.loc.gov/authorities/genreForms/gf2014026518',
+        'http://id.loc.gov/authorities/genreForms/gf2014026542',
+        'http://id.loc.gov/authorities/genreForms/gf2014026559'
+      ]
+      // URIs that map to specific letter codes (also useP = true)
+      let pClassLetterURIs = {
+        'http://id.loc.gov/authorities/genreForms/gf2014026297': 'd',
+        'http://id.loc.gov/authorities/genreForms/gf2014026094': 'e',
+        'http://id.loc.gov/authorities/genreForms/gf2015026020': 'f',
+        'http://id.loc.gov/authorities/genreForms/gf2014026110': 'h',
+        'http://id.loc.gov/authorities/genreForms/gf2014026141': 'i',
+        'http://id.loc.gov/authorities/genreForms/gf2014026054': 'i',
+        'http://id.loc.gov/authorities/genreForms/gf2014026542': 'j',
+        'http://id.loc.gov/authorities/genreForms/gf2014026488': 'p',
+        'http://id.loc.gov/authorities/genreForms/gf2014026481': 'p',
+        'http://id.loc.gov/authorities/genreForms/gf2011026363': 's'
+      }
+
+      let useP = false
+      for (let gf of genreForms){
+        // check URI matches
+        if (gf.uri && pClassTrueURIs.includes(gf.uri)){
+          useP = true
+          break
+        }
+        if (gf.uri && pClassLetterURIs[gf.uri]){
+          useP = true
+          break
+        }
+        // check label patterns
+        let label = (gf.label || '').toLowerCase()
+        if (label.includes('fiction') && !label.includes('onfiction')){
+          useP = true
+          break
+        }
+        if ((gf.label || '').includes('(Fiction)')){
+          useP = true
+          break
+        }
+        if (label.includes('humor')){
+          useP = true
+          break
+        }
+        if (label.includes('poetry')){
+          useP = true
+          break
+        }
+        if (label.includes('speeches')){
+          useP = true
+          break
+        }
+      }
+
+      return {
+        subjects: subjects,
+        genreForms: genreForms,
+        useP: useP,
+        useLCC: useLCC
+      }
 
     },
 
@@ -4692,6 +5193,9 @@ export const useProfileStore = defineStore('profile', {
         // they changed something
         this.dataChanged()
 
+        // send back the component guid incase the UI needs to do something with it
+        return newPt['@guid']
+
       }else{
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
 
@@ -4911,17 +5415,17 @@ export const useProfileStore = defineStore('profile', {
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
         // console.log("Data changed, this.activeProfile", this.activeProfile)
+
+        // save the current record for undo
+        this.saveState()
+
         // if they have auto save on then save it also
         if (usePreferenceStore().returnValue('--b-general-auto-save')){
-
           this.saveRecord()
-
-
         }
 
       },500)
     },
-
 
     /**
     * A helper that can be run before loading a new record to do any maintenance needed
@@ -4931,6 +5435,7 @@ export const useProfileStore = defineStore('profile', {
     prepareForNewRecord:  function(){
 
       this.activeProfile = {}
+      this.linkedData = {}
 
     },
 
@@ -5605,7 +6110,7 @@ export const useProfileStore = defineStore('profile', {
               if (!key.startsWith("@")){
                   let result = false
                   try{
-                    if (userValue[key].length == 0){ return }
+                    if (userValue[key].length == 0){ return true }
                     // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
                     //  has an populate electronicLocator
                     if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
@@ -5750,8 +6255,10 @@ export const useProfileStore = defineStore('profile', {
       //     "postLocation": "http://preprod-8299.id.loc.gov/resources/hubs/bf110051-532b-c50c-5d5c-baa4ea6d2044"
       // }
 
-
-
+      if (pubResuts && pubResuts.status){
+        let hubId = pubResuts.postLocation ? pubResuts.postLocation.split('/').pop() : null
+        this.logEvent('PUBLISHED_HUB', { metadata: [hubId] })
+      }
 
       return pubResuts
 
@@ -5789,6 +6296,48 @@ export const useProfileStore = defineStore('profile', {
       return false
     },
 
+    checkCip(){
+      /**
+       * CIP is signaled by
+       *
+       * Projected publication date (YYMM) is populated
+       * encoding level: prepublication
+       * 906 $e ecip <not checking this one>
+       *
+       * in the instance.
+       *
+       * If either of the checks is true, flagging it as a CIP
+       */
+      let isCip = false
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            let userValue = pt.userValue
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bflc/projectedProvisionDate"){
+              try {
+                let value = userValue["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"][0]["http://id.loc.gov/ontologies/bflc/projectedProvisionDate"]
+                if (value){
+                  isCip = true
+                }
+              } catch { }
+            }
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/adminMetadata" && pt.adminMetadataType == 'primary'){
+              try{
+                let encodingLevel = userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
+                let code = encodingLevel["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"]
+                if (code == 8 || code == '8'){
+                  isCip = true
+                }
+              } catch { }
+            }
+          }
+        }
+      }
+
+      return isCip
+    },
+
     /**
      * Retrieves the main title from the NACO stub work profile by traversing the resource template structure.
      * Looks for a property with URI "http://id.loc.gov/ontologies/bibframe/title" and extracts its main title value.
@@ -5798,6 +6347,40 @@ export const useProfileStore = defineStore('profile', {
      * @requires activeProfile - Profile must be loaded with valid RT structure
      */
     nacoStubReturnMainTitle(){
+      let subtitle = ''
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/title"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                ){
+                  // look for the one that is set as latin first, if we can find it
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']){
+                    if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
+                      subtitle = aTitle['http://id.loc.gov/ontologies/bibframe/subtitle']
+                    }
+                  }
+
+                  // otherwise look for the first one that doesn't have a language tag
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']){
+                    if (!aTitle['@language']){
+                      subtitle = aTitle['http://id.loc.gov/ontologies/bibframe/subtitle']
+                    }
+                  }
+
+                  // if we can't find one without a language tag, just return the first one
+                  subtitle = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                }
+            }
+          }
+        }
+      }
 
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
@@ -5816,19 +6399,40 @@ export const useProfileStore = defineStore('profile', {
                   // look for the one that is set as latin first, if we can find it
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
-                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                      let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                      // remove the subtitle
+                      if (title.includes(subtitle)){
+                        title = title.replace(subtitle, "")
+                        title = title.split(" : ")[0]
+                      }
+                      return title
                     }
                   }
 
                   // otherwise look for the first one that doesn't have a language tag
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (!aTitle['@language']){
-                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                      let title = aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                      // remove the subtitle
+                      if (title.includes(subtitle)){
+                        title = title.replace(subtitle, "")
+                        title = title.split(" : ")[0]
+                      }
+                      return title
                     }
                   }
 
                   // if we can't find one without a language tag, just return the first one
-                  return pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                  let title = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+
+                  // remove the subtitle
+                  if (title.includes(subtitle)){
+                    title = title.replace(subtitle, "")
+                    title = title.split(" : ")[0]
+                  }
+                  return title
                 }
             }
           }
@@ -6116,6 +6720,9 @@ export const useProfileStore = defineStore('profile', {
     async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
       console.log(oneXX,fourXX,mainTitle,workURI,zero46)
       let lccn = await utilsNetwork.nacoLccn()
+      if (lccn){
+        this.logEvent('NACO_LCCN_ISSUED', { metadata: [lccn] })
+      }
       let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode)
       NARData.lccn = lccn
       return NARData
@@ -6135,6 +6742,13 @@ export const useProfileStore = defineStore('profile', {
       // pubResuts = {'postLocation': 'https://id.loc.gov/authorities/names/n83122656', status: 'published'}
       console.log('pubResuts')
       console.log(pubResuts)
+
+      if (pubResuts && pubResuts.status === 'published'){
+        this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+      }else if (pubResuts && pubResuts.status === true){
+        this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+      }
+
       return {
         xml: xml,
         pubResuts: pubResuts,
@@ -6217,6 +6831,261 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
+    },
+
+    /**
+     * Insert a subject heading from the Yoshino recommendation pipeline into the active profile.
+     * Finds or creates an empty subject component in the Work RT and populates it.
+     *
+     * @param {string} label - The subject heading label
+     * @param {string} source - The vocabulary source name (e.g. "Library of Congress Subject Headings")
+     * @param {array} components - Parsed component data from the RDF [{label, uri, type, marcKey}, ...]
+     * @param {string|null} uri - Top-level subject URI (e.g. from rdf:about on the subject element)
+     * @param {string|null} marcKey - Top-level marcKey for the whole heading
+     */
+    yoshinoInsertSubject: async function(label, source, components, uri, marcKey) {
+      let activeProfile = this.activeProfile
+      let workRt = null
+      let emptySubjectPt = null
+      let lastSubjectPt = null
+      console.log("label, source, components, uri, marcKey", label, source, components, uri, marcKey)
+      // Find the Work RT
+      for (let rt of activeProfile.rtOrder) {
+        if (rt.indexOf(':Work') > -1) {
+          workRt = rt
+          break
+        }
+      }
+      if (!workRt) return
+
+      // Find an empty subject component or the last subject component
+      for (let ptId of activeProfile.rt[workRt].ptOrder) {
+        let pt = activeProfile.rt[workRt].pt[ptId]
+        if (pt && pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/subject' && !pt.deleted) {
+          lastSubjectPt = pt
+          let uv = pt.userValue
+          if (!pt.hasData || !uv ||
+              !uv['http://id.loc.gov/ontologies/bibframe/subject'] ||
+              uv['http://id.loc.gov/ontologies/bibframe/subject'].length === 0 ||
+              !uv['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type']) {
+            emptySubjectPt = pt
+          }
+        }
+      }
+
+      // If no empty subject component, duplicate the last one to create a new empty one
+      let targetPt = emptySubjectPt
+      if (!targetPt && lastSubjectPt) {
+        let newGuid = await this.duplicateComponent(lastSubjectPt['@guid'], this.returnStructureByGUID(lastSubjectPt['@guid']))
+        if (newGuid) {
+          targetPt = this.returnStructureByGUID(newGuid)
+        }
+      }
+
+      if (!targetPt) return
+
+      // Build the userValue
+      let subjectValue = {
+        '@guid': translator.new(),
+        'http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme': [{
+          '@guid': translator.new(),
+          '@id': 'http://id.loc.gov/authorities/subjects'
+        }],
+        'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': [{
+          '@guid': translator.new(),
+          'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': label
+        }],
+        'http://www.w3.org/2000/01/rdf-schema#label': [{
+          '@guid': translator.new(),
+          'http://www.w3.org/2000/01/rdf-schema#label': label
+        }],
+      }
+
+      // Set top-level @id if provided (the URI of the whole subject heading)
+      if (uri) {
+        subjectValue['@id'] = uri
+      }
+
+      // Set top-level marcKey if provided
+      if (marcKey) {
+        subjectValue['http://id.loc.gov/ontologies/bflc/marcKey'] = [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bflc/marcKey': marcKey
+        }]
+      }
+
+      // Use rich component data if available for complex subjects
+      if (components && components.length > 1) {
+        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = components.map(c => {
+          let comp = {
+            '@guid': translator.new(),
+            '@type': c.type || 'http://www.loc.gov/mads/rdf/v1#Topic',
+            'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': [{
+              '@guid': translator.new(),
+              'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': c.label
+            }]
+          }
+          if (c.uri) {
+            comp['@id'] = c.uri
+          }
+          if (c.marcKey) {
+            comp['http://id.loc.gov/ontologies/bflc/marcKey'] = [{
+              '@guid': translator.new(),
+              'http://id.loc.gov/ontologies/bflc/marcKey': c.marcKey
+            }]
+          }
+          return comp
+        })
+      } else if (components && components.length === 1) {
+        // Solo subject with rich data - type from component
+        subjectValue['@type'] = components[0].type || 'http://www.loc.gov/mads/rdf/v1#Topic'
+      } else if (label.includes('--')) {
+        // Fallback: parse from label if no component data
+        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        let parts = label.split('--').map(s => s.trim())
+        subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = parts.map(part => ({
+          '@guid': translator.new(),
+          '@type': 'http://www.loc.gov/mads/rdf/v1#Topic',
+          'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': [{
+            '@guid': translator.new(),
+            'http://www.loc.gov/mads/rdf/v1#authoritativeLabel': part
+          }]
+        }))
+      } else {
+        subjectValue['@type'] = 'http://www.loc.gov/mads/rdf/v1#Topic'
+      }
+
+      // Add source
+      if (source && (source.toLowerCase().includes('lcsh') || source.toLowerCase().includes('library of congress subject'))) {
+        subjectValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          '@id': 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh',
+          'http://www.w3.org/2000/01/rdf-schema#label': [{
+            '@guid': translator.new(),
+            'http://www.w3.org/2000/01/rdf-schema#label': 'Library of Congress subject headings'
+          }]
+        }]
+      } else if (source && source.toLowerCase().includes('children')) {
+        subjectValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          '@id': 'http://id.loc.gov/vocabulary/subjectSchemes/cyac',
+          'http://www.w3.org/2000/01/rdf-schema#label': [{
+            '@guid': translator.new(),
+            'http://www.w3.org/2000/01/rdf-schema#label': source
+          }]
+        }]
+      } else if (source && source.toLowerCase().includes('mesh')) {
+        subjectValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          '@id': 'http://id.loc.gov/vocabulary/subjectSchemes/mesh',
+          'http://www.w3.org/2000/01/rdf-schema#label': [{
+            '@guid': translator.new(),
+            'http://www.w3.org/2000/01/rdf-schema#label': source
+          }]
+        }]
+      }
+
+      // Set the userValue
+      targetPt.userValue = {
+        '@guid': targetPt.userValue?.['@guid'] || translator.new(),
+        '@root': 'http://id.loc.gov/ontologies/bibframe/subject',
+        'http://id.loc.gov/ontologies/bibframe/subject': [subjectValue]
+      }
+
+      console.log('--- Yoshino: Insert Subject ---')
+      console.log('Label:', label)
+      console.log('Source:', source)
+      console.log('Top-level URI:', uri)
+      console.log('Top-level marcKey:', marcKey)
+      console.log('Components:', JSON.parse(JSON.stringify(components || [])))
+      console.log('Built userValue:', JSON.parse(JSON.stringify(targetPt.userValue)))
+
+      targetPt.hasData = true
+      targetPt.userModified = true
+      targetPt.dataLoaded = false
+
+      this.dataChanged()
+    },
+
+    yoshinoInsertClassification: async function(classification) {
+      let activeProfile = this.activeProfile
+      let workRt = null
+      let emptyPt = null
+      let lastPt = null
+
+      for (let rt of activeProfile.rtOrder) {
+        if (rt.indexOf(':Work') > -1) {
+          workRt = rt
+          break
+        }
+      }
+      if (!workRt) return
+
+      for (let ptId of activeProfile.rt[workRt].ptOrder) {
+        let pt = activeProfile.rt[workRt].pt[ptId]
+        if (pt && pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/classification' && !pt.deleted) {
+          lastPt = pt
+          let uv = pt.userValue
+          if (!pt.hasData || !uv ||
+              !uv['http://id.loc.gov/ontologies/bibframe/classification'] ||
+              uv['http://id.loc.gov/ontologies/bibframe/classification'].length === 0 ||
+              !uv['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type']) {
+            emptyPt = pt
+          }
+        }
+      }
+
+      let targetPt = emptyPt
+      if (!targetPt && lastPt) {
+        let newGuid = await this.duplicateComponent(lastPt['@guid'], this.returnStructureByGUID(lastPt['@guid']))
+        if (newGuid) {
+          targetPt = this.returnStructureByGUID(newGuid)
+        }
+      }
+      if (!targetPt) return
+
+      let classValue = {
+        '@guid': translator.new(),
+        '@type': classification.type,
+        'http://id.loc.gov/ontologies/bibframe/classificationPortion': [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bibframe/classificationPortion': classification.portion
+        }]
+      }
+
+      if (classification.sourceCode) {
+        classValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          'http://id.loc.gov/ontologies/bibframe/code': [{
+            '@guid': translator.new(),
+            'http://id.loc.gov/ontologies/bibframe/code': classification.sourceCode
+          }]
+        }]
+      }
+
+      if (classification.edition) {
+        classValue['http://id.loc.gov/ontologies/bibframe/edition'] = [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bibframe/edition': classification.edition
+        }]
+      }
+
+      targetPt.userValue = {
+        '@guid': targetPt.userValue?.['@guid'] || translator.new(),
+        '@root': 'http://id.loc.gov/ontologies/bibframe/classification',
+        'http://id.loc.gov/ontologies/bibframe/classification': [classValue]
+      }
+
+      targetPt.hasData = true
+      targetPt.userModified = true
+      targetPt.dataLoaded = false
+
+      this.dataChanged()
     },
 
     /** Add a component to the library
@@ -6435,7 +7304,6 @@ export const useProfileStore = defineStore('profile', {
 
               }
 
-
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
                 if (this.compareComponentStructure(ptObjFound, component)){  //ptObjFound.hashCode == component.hashCode
@@ -6562,6 +7430,8 @@ export const useProfileStore = defineStore('profile', {
       delete found['valueConstraint']['valueDataType']['dataTypeLabel']
       delete found['valueConstraint']['valueDataType']['remark']
       delete found['valueConstraint']['defaults']
+      delete found['refTemplateUserValue']
+      delete found['refTemplateUserValueKeys']
 
       let libraryComponent = JSON.parse(JSON.stringify(componentLibrary))
       delete libraryComponent['@guid']
@@ -6584,6 +7454,33 @@ export const useProfileStore = defineStore('profile', {
       delete libraryComponent['valueConstraint']['valueDataType']['dataTypeLabel']
       delete libraryComponent['valueConstraint']['valueDataType']['remark']
       delete libraryComponent['valueConstraint']['defaults']
+      delete libraryComponent['refTemplateUserValue']
+      delete libraryComponent['refTemplateUserValueKeys']
+
+      if (found['valueConstraint']['valueDataType'] && Object.keys(found['valueConstraint']['valueDataType'].length > 0)){
+        for (let key of Object.keys(found['valueConstraint']['valueDataType'])){
+          if (found['valueConstraint']['valueDataType'][key] == ""){
+            delete found['valueConstraint']['valueDataType'][key]
+          }
+        }
+      }
+
+      if (libraryComponent['valueConstraint']['valueDataType'] && Object.keys(libraryComponent['valueConstraint']['valueDataType'].length > 0)){
+        for (let key of Object.keys(libraryComponent['valueConstraint']['valueDataType'])){
+          if (libraryComponent['valueConstraint']['valueDataType'][key] == ""){
+            delete libraryComponent['valueConstraint']['valueDataType'][key]
+          }
+        }
+      }
+
+
+      // Some adjustments for Items
+      if (found['parentId'].includes("Item-")){
+        found['parentId'] = found['parentId'].split('-')[0]
+      }
+      if (libraryComponent['parentId'].includes("Item-")){
+        libraryComponent['parentId'] = libraryComponent['parentId'].split('-')[0]
+      }
 
       // Get everything into a reliable order
       found.valueConstraint = Object.keys(found.valueConstraint).sort().reduce(
@@ -6615,8 +7512,26 @@ export const useProfileStore = defineStore('profile', {
         {}
       );
 
+
+      // update uris to be more generic.
+      let ordereString = JSON.stringify(orderedFound)
+      let libraryString = JSON.stringify(orderedLibrary)
+
+      ordereString = ordereString.replaceAll("//id.loc.gov", "//example.com")
+      libraryString = libraryString.replaceAll("//id.loc.gov", "//example.com")
+
+      ordereString = ordereString.replaceAll("//preprod.id.loc.gov", "//example.com")
+      libraryString = libraryString.replaceAll("//preprod.id.loc.gov", "//example.com")
+
+      orderedFound = JSON.parse(ordereString)
+      orderedLibrary = JSON.parse(libraryString)
+
+      // console.info("existing: ", JSON.stringify(orderedFound))
+      // console.info("library: ", JSON.stringify(orderedLibrary))
+
       let orderedFoundHashCode =  hashCode(JSON.stringify(orderedFound))
       let orderedLibraryHashCode = hashCode(JSON.stringify(orderedLibrary))
+
 
       // if the existing hashMatches the stripped down library hash
       if (componentExisting.hashCode == orderedLibraryHashCode){
@@ -6999,9 +7914,13 @@ export const useProfileStore = defineStore('profile', {
                       {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
                     ]
 
-                    console.log("Found LCC data:",this.activeShelfListData)
-                    console.log(JSON.stringify(pt,null,2))
+                    // console.log("Found LCC data:",this.activeShelfListData)
+                    // console.log(JSON.stringify(pt,null,2))
                     foundLCC = true
+
+                    // this is what we want,break here to prevent hitting the second lcc if the recrd has two
+                    break
+
                   }else{
                     // not LCC
                     // continue
@@ -7039,14 +7958,13 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
+      console.log("Final activeShelfListData:",this.activeShelfListData)
 
     },
 
 
     reorderAllNonLatinLiterals(){
       this.activeProfile = utilsParse.reorderAllNonLatinLiterals(this.activeProfile)
-
     },
 
     /**
@@ -7075,18 +7993,19 @@ export const useProfileStore = defineStore('profile', {
         thumbnail: [],
         lcsh: [],
         genre: [],
+        booksellerResults: [],
         contributors: utilsProfile.returnContributorUris(this.activeProfile),
         isbn: (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn) ? this.activeProfile.linkedData.isbn : [],
       }
-      console.log(":linkedDatalinkedData",linkedData)
+      // console.log(":linkedDatalinkedData",linkedData)
 
       for (let isbn of linkedData.isbn){
 
         let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
-        console.log("baseData",baseData)
+        // console.log("baseData",baseData)
 
         let oclcMarcData = utilsNetwork.linkedDataExtractOclcMarc(baseData.results)
-        console.log("oclcMarcData",oclcMarcData)
+        // console.log("oclcMarcData",oclcMarcData)
         linkedData.subtitle = linkedData.subtitle.concat(oclcMarcData.filter((v) => (v.dataType == 'subtitle')));
         linkedData.noteContent = linkedData.noteContent.concat(oclcMarcData.filter((v) => (v.dataType == 'description')));
         linkedData.noteTOC = linkedData.noteTOC.concat(oclcMarcData.filter((v) => (v.dataType == 'toc')));
@@ -7109,7 +8028,7 @@ export const useProfileStore = defineStore('profile', {
         if (baseData.results.isbns && baseData.results.isbns.length > 0){
           let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
           googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
-          console.log("googleBookData",googleBookData)
+          // console.log("googleBookData",googleBookData)
 
           googleBookData.filter((v) => (v.dataType == 'toc'))
 
@@ -7177,14 +8096,15 @@ export const useProfileStore = defineStore('profile', {
         // console.log("lcshContributors",lcshContributors)
         // kick this off but don't wait for it to finish
         utilsNetwork.linkedDataLCSHContributorsExtract(lcshContributors).then((colabResults)=>{
-          console.log("colabResults",colabResults)
+          // console.log("colabResults",colabResults)
         })
         // if (lcshContributors && lcshContributors.length > 0){
       }
 
-      console.log("linkedData",linkedData)
+      // console.log("linkedData",linkedData)
       this.linkedData = linkedData
       this.linkedData.done = true
+      this.linkedData.eId = this.activeProfile && this.activeProfile.eId
 
     },
 
@@ -7441,18 +8361,22 @@ export const useProfileStore = defineStore('profile', {
             return true
           }
           // fallback on assigner
-          let assigner = data["http://id.loc.gov/ontologies/bibframe/assigner"][0]
-          let id = assigner['@id']
-          let label = assigner["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+          if (data["http://id.loc.gov/ontologies/bibframe/assigner"]){
+            let assigner = data["http://id.loc.gov/ontologies/bibframe/assigner"][0]
+            let id = assigner['@id']
+            let label = assigner["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
 
-          if (!label.includes("Library of Congress")){
+            if (!label.includes("Library of Congress")){
+              return false
+            }
+          } else {
             return false
           }
         }
 
         return true
       } catch(err){
-        console.error("Error with displaySubject preference: ", err)
+        console.error("Error with displayClass preference: ", err)
         return false
       }
     },
@@ -7502,14 +8426,24 @@ export const useProfileStore = defineStore('profile', {
       let subjectCount = 0
       let subjectHidden = 0
       let subjectLast = null
+      let subjectFirst = false
+      let subjectList = []
+      let subjectProfile = null
 
       let classCount = 0
       let classHidden = 0
       let classLast = null
+      let classFirst = false
+      let classList = []
+      let classProfile = null
 
       for (let rt in profile.rt){
         for (let pt in profile.rt[rt].pt){
+
           if (pt.includes("id_loc_gov_ontologies_bibframe_subject__subjects")){
+            if (!subjectFirst){
+              subjectFirst = pt
+            }
             let comp =  profile.rt[rt].pt[pt]
             if (comp.deleted === undefined || (Object.keys(comp).includes('deleted') && comp.deleted != true)){
               subjectCount++
@@ -7518,9 +8452,14 @@ export const useProfileStore = defineStore('profile', {
               subjectHidden++
             }
             subjectLast = comp
+            subjectList.push(comp)
+            subjectProfile = rt
           }
 
           if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers")){
+            if (!classFirst){
+              classFirst = pt
+            }
             let comp =  profile.rt[rt].pt[pt]
             if (comp.deleted === undefined || (Object.keys(comp).includes('deleted') && comp.deleted != true)){
               classCount++
@@ -7529,6 +8468,8 @@ export const useProfileStore = defineStore('profile', {
               classHidden++
             }
             classLast = comp
+            classList.push(comp)
+            classProfile = rt
           }
         }
       }
@@ -7538,13 +8479,34 @@ export const useProfileStore = defineStore('profile', {
         // add an empty subject component
         // componentGuid, structure
         this.duplicateComponent(subjectLast["@guid"], this.returnStructureByGUID(subjectLast["@guid"]))
+
+        // make sure this new component is first
+        let posFirst = profile.rt[subjectProfile].ptOrder.indexOf(subjectFirst)
+        let posLast = profile.rt[subjectProfile].ptOrder.indexOf(subjectLast.id)
+        let newPropertyId = profile.rt[subjectProfile].ptOrder.at(posLast+1)
+        profile.rt[subjectProfile].ptOrder.splice(Number(posFirst), 0, newPropertyId)
+
+        // remove the last subject
+        profile.rt[subjectProfile].ptOrder.splice(posLast+2, 1)
+
       }
 
       let showingClassNumber = classCount - classHidden
       if (showingClassNumber == 0){
-        // add an empty subject component
+        // add an empty classNum component
         // componentGuid, structure
         this.duplicateComponent(classLast["@guid"], this.returnStructureByGUID(classLast["@guid"]))
+
+        // make sure this new component is first
+        let posFirst = profile.rt[classProfile].ptOrder.indexOf(classFirst)
+        let posLast = profile.rt[classProfile].ptOrder.indexOf(classLast.id)
+        let newPropertyId = profile.rt[classProfile].ptOrder.at(posLast+1)
+
+
+        profile.rt[classProfile].ptOrder.splice(Number(posFirst), 0, newPropertyId)
+
+        // remove the last classNum
+        profile.rt[classProfile].ptOrder.splice(posLast+2, 1)
       }
 
       if (subjectHidden > 0){
@@ -7562,6 +8524,203 @@ export const useProfileStore = defineStore('profile', {
       return results
     },
 
+    // ---------------------------UNDO STUFF BELOW HERE--------------------------------------
+    saveState: function(profile=false){
+      // profile is populated when the record is loaded from the URL
+      if (!profile){
+        profile = JSON.stringify(this.activeProfile)
+      } else {
+        profile = JSON.stringify(profile)
+      }
+
+      if (this.currentState){
+        if (this.undoRecords.length < this.undoRedoLimit){
+          this.undoRecords.push(this.currentState)
+        } else { // remove the oldest profile
+          this.undoRecords.shift()
+          this.undoRecords.push(this.currentState)
+        }
+      }
+
+      this.currentState = profile
+
+
+    },
+
+    undoChange: async function(){
+      if (this.undoRecords.length < 1){
+        alert("Nothing to undo. We can't go back anymore.")
+        return
+      }
+      let profile = JSON.stringify(this.activeProfile)
+
+      // go back
+      let last = this.undoRecords.pop()
+      this.activeProfile = JSON.parse(last)
+
+      // save the profile to redo
+      if (this.redoRecords.length < this.undoRedoLimit){
+        this.redoRecords.push(profile)
+      } else { // remove the oldest profile
+        this.redoRecords.shift()
+        this.redoRecords.push(profile)
+      }
+      // trigger xml refresh
+      this.dataChangedTimestamp = Date.now()
+
+      this.activeProfileSaved = false
+      if (usePreferenceStore().returnValue('--b-general-auto-save')){
+        this.saveRecord()
+      }
+    },
+
+    redoChange: async function(){
+      if (this.redoRecords.length < 1){
+        alert("Nothing to redo. We can't go forward anymore.")
+        return
+      }
+      // let profile = JSON.stringify(this.activeProfile)
+      this.currentState = JSON.stringify(this.activeProfile)
+
+      // save the profile to undo
+      if (this.undoRecords.length < this.undoRedoLimit){
+        this.undoRecords.push(this.currentState)
+      } else { // remove the oldest profile
+        this.undoRecords.shift()
+        this.undoRecords.push(this.currentState)
+      }
+
+      let last = this.redoRecords.pop()
+      this.activeProfile = JSON.parse(last)
+
+      // trigger xml refresh
+      this.dataChangedTimestamp = Date.now()
+
+      this.activeProfileSaved = false
+      if (usePreferenceStore().returnValue('--b-general-auto-save')){
+        this.saveRecord()
+      }
+    },
+
+    getHighlightedText: async function(textType){
+      let titleCase = false
+      let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
+      let el = false
+      if (highlightedText){
+        const selection = window.getSelection();
+        try {
+          el = selection.anchorNode[0] // this doesn't work in firefox
+        } catch(err){}
+      }
+
+      if (el){
+        let fieldGuid = el.getAttribute("data-guid")
+        let targetGuid = el.getAttribute("data-parent")
+        let pt = utilsProfile.returnPt(this.activeProfile, targetGuid)
+        let structure = this.returnStructureByGUID(targetGuid)
+        // make titlecase
+        if (textType == 'title'){
+          titleCase = this.toTitleCase(highlightedText)
+        } else if (textType == 'lower'){
+          titleCase = highlightedText.toLowerCase()
+        }
+
+        // {level: 0, propertyURI: structure.propertyURI},
+        let pp
+        try {
+          pp = this.buildPropertyPath(structure, [], fieldGuid)
+        } catch(err){
+          console.error("Error building PropertyPath: ", err)
+          return
+        }
+        let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
+
+        if (currentValue.length > 1){
+          let newText = ""
+          let nonLatin = false
+          for (let val of currentValue){
+            if (( val['@language'] && val['@language'].toLowerCase().includes('latn')) || val['@language'] == null){
+              newText = val.value.replace(highlightedText, titleCase)
+              this.setValueLiteral(targetGuid, fieldGuid, pp, newText, val['@language'], false)
+            } else {
+              nonLatin = val
+            }
+          }
+
+          // Adjust the non-Latin form to match
+          let otherScriptCodes = false
+          const config = useConfigStore()
+          for (let key in config.scriptShifterLangCodes){
+            let codeObj = config.scriptShifterLangCodes[key]
+            if (nonLatin['@language'] && codeObj.code.toLowerCase() == nonLatin['@language'].toLowerCase()){
+              otherScriptCodes = key
+              break
+            }
+          }
+
+          let transValue = await utilsNetwork.scriptShifterRequestTrans(otherScriptCodes, newText, false, "r2s") //abazin_cyrillic
+          this.setValueLiteral(targetGuid, nonLatin['@guid'], pp, transValue.output, nonLatin['@language'], false)
+        } else {
+          this.setValueLiteral(targetGuid, fieldGuid, pp, currentValue[0].value.replace(highlightedText, titleCase), currentValue[0]['@language'], false)
+        }
+
+
+      }
+
+
+    },
+
+    toTitleCase: function (str) {
+      return str.replace(
+        /\w\S*/g,
+        text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+      );
+    },
+
+    /**
+     * Build the property path from the initial component GUID until we find the fieldGuid
+     *
+     * @param {Object} structure - Structure to build the propertyPath for
+     * @param {Object} pp - Starting propertyPath
+     * @param {String} endGuid - target at the end of path
+     */
+    buildPropertyPath: function(structure, pp, endGuid){
+      let userValue = structure.userValue
+
+      // https://stackoverflow.com/questions/53543303/find-a-full-object-path-to-a-given-value-with-javascript
+      const traverse = (target, node) => {
+        for (let el in node){
+          if (node[el] && typeof node[el] === "object"){
+            let result  = traverse(target, node[el])
+            if (result){
+              if (el.startsWith("http")){
+                result.unshift(el)
+              }
+              return result
+            }
+          } else if (node['@guid'] && node['@guid'] == target){
+            if (el.startsWith("http")){
+              return [el]
+            } else {
+              return []
+            }
+          }
+        }
+
+      };
+
+      let path = traverse(endGuid, userValue)
+      for (let p of path){
+        pp.push(
+          {
+            level: pp.length,
+            propertyURI: p
+          }
+        )
+      }
+
+      return pp
+    },
 
 
 

@@ -7,8 +7,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 4,
-    versionPatch: 10,
+    versionMinor: 6,
+    versionPatch: 2,
 
 
 
@@ -45,12 +45,12 @@ export const useConfigStore = defineStore('config', {
         // starting: 'http://localhost:9401/util/profiles/starting/prod',
 
         // offical stage profiles that work outside firewall
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-profiles.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-starting.json',
 
         // offical prod profiles that work outside firewall
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
 
         // offical stage profiles inside the firewall
         // starting: 'https://preprod-3001.id.loc.gov/marva/util/profiles/starting/stage',
@@ -71,7 +71,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
-        dev: true,
+        dev: false,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
@@ -84,17 +84,20 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
         publish : 'http://localhost:9401/marva/util/publish/staging',
         validate: 'http://localhost:9401/marva/util/validate/prod',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
+        externalDev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
         publicEndpoints:true,
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         isBibframeDotOrg: false,
+
+        folioMLCEndpoint: 'http://localhost:9401/marva/util/folio/next-mlc/staging',
 
         dancerEnabled: true,
         dancerWorkspaceList: "http://localhost:9401/marva/dancer/api/serve/workspaces",
@@ -120,6 +123,9 @@ export const useConfigStore = defineStore('config', {
         worldCat: 'https://preprod-3001.id.loc.gov/marva/util/worldcat/',
         copyCatUpload: 'https://preprod-3001.id.loc.gov/marva/util/copycat/upload/stag', // change ports for production
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
+
+        folioMLCEndpoint: 'https://preprod-3001.id.loc.gov/marva/util/folio/next-mlc/staging',
+
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
@@ -152,6 +158,8 @@ export const useConfigStore = defineStore('config', {
         profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/profile',
         starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/starting-points',
 
+        folioMLCEndpoint: 'https://editor.id.loc.gov/marva/util/folio/next-mlc/production',
+
 
         lcap: 'https://lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
 
@@ -172,8 +180,8 @@ export const useConfigStore = defineStore('config', {
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
         bfdb : 'https://id.loc.gov/',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
         id: 'https://id.loc.gov/',
         env : 'production',
         publicEndpoints:true,
@@ -195,8 +203,8 @@ export const useConfigStore = defineStore('config', {
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
         bfdb : 'https://id.loc.gov/',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
         id: 'https://id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
@@ -444,6 +452,8 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2023478519',label:"bf:relation test", idUrl:'https://id.loc.gov/resources/instances/2023478519.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'2025443360',label:"NAR Tests", idUrl:'https://id.loc.gov/resources/instances/2025443360.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2023548750',label:"Subject Test", idUrl:'https://id.loc.gov/resources/instances/2023548750.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'66082276',label:"Non-latin Rare", idUrl:'https://id.loc.gov/resources/instances/66082276.html', profile:'Rare Matereials',profileId:'lc:RT:bf2:RareMat:Instance'},
 
 
 
@@ -536,6 +546,12 @@ export const useConfigStore = defineStore('config', {
       "All":{"url":"http://id.loc.gov/authorities/performanceMediums/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
       }
     ]},
+    "http://preprod.id.loc.gov/authorities/performanceMediums" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+      "All":{"url":"http://id.loc.gov/authorities/performanceMediums/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+      }
+    ]},
+
 
 
     "http://id.loc.gov/authorities/subjects" : {
@@ -589,7 +605,18 @@ export const useConfigStore = defineStore('config', {
 				}
 			]
 		},
-
+    "http://preprod.id.loc.gov/vocabulary/maudience" : {
+			"name":"audience",
+			"type":"complex",
+			"processor" : 'lcAuthorities',
+			"modes":[
+				{
+          'MARC Audience':{"url": "https://preprod.id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+					'LCDGT':{"url": "https://preprod.id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+          'LCSH':{"url": "https://preprod.id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+				}
+			]
+		},
 
     "HierarchicalGeographic": {
       "name":"names",
@@ -598,7 +625,8 @@ export const useConfigStore = defineStore('config', {
 
       "modes":[
         {
-          'All':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'hier':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All': {"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions", "all":true}
         }
       ]
     },
@@ -628,16 +656,31 @@ export const useConfigStore = defineStore('config', {
 
 
     "http://id.loc.gov/entities/providers" : {"name":"providers", "type":"complex", "modes":[]},
+
     "http://id.loc.gov/entities/relationships" : {"name":"relationships", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
       "All":{"url":"https://id.loc.gov/entities/relationships/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
       }
     ]},
+    "http://preprod.id.loc.gov/entities/relationships" : {"name":"relationships", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+      "All":{"url":"https://preprod.id.loc.gov/entities/relationships/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+      }
+    ]},
+
+
     "http://id.loc.gov/vocabulary/geographicAreas" : {"name":"geographicAreas", "processor" : 'lcAuthorities', "type":"complex", "minCharBeforeSearch":2, "modes":[
       {
       "All":{"url":"https://id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
       }
     ]},
+    "http://preprod.id.loc.gov/vocabulary/geographicAreas" : {"name":"geographicAreas", "processor" : 'lcAuthorities', "type":"complex", "minCharBeforeSearch":2, "modes":[
+      {
+      "All":{"url":"https://preprod.id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+      }
+    ]},
+
+
 
     "https://preprod-8230.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {

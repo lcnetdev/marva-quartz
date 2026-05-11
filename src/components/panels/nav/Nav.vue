@@ -35,6 +35,10 @@
         <PanelSizeModal v-model="showPanelSizeModal" />
       </template>
 
+      <template v-if="showFindReplaceModal == true">
+        <FindReplaceModal v-model="showFindReplaceModal" />
+      </template>
+
 
     </Teleport>
 
@@ -46,6 +50,7 @@
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 import { useConfigStore } from '@/stores/config'
+import { useMarvaScanStore } from '@/stores/marvaScan'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 import VueFileToolbarMenu from 'vue-file-toolbar-menu'
@@ -57,6 +62,7 @@ import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
 import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
 
 import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
+import FindReplaceModal from '../edit/modals/FindReplaceModal.vue'
 
 import StatusIndicator from './nav_components/StatusIndicator.vue'
 import RecordHistory from './nav_components/RecordHistory.vue'
@@ -73,7 +79,7 @@ const timeAgo = new TimeAgo('en-US')
 
 
 export default {
-  components: { VueFileToolbarMenu, PostModal, ValidateModal, RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal, PanelSizeModal },
+  components: { VueFileToolbarMenu, PostModal, ValidateModal, RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal, PanelSizeModal, FindReplaceModal },
 
   data() {
     return {
@@ -98,13 +104,15 @@ export default {
   },
   computed: {
 
-    ...mapStores(useProfileStore, usePreferenceStore),
+    ...mapStores(useProfileStore, usePreferenceStore, useMarvaScanStore),
 
     ...mapState(useProfileStore, ['profilesLoaded', 'activeProfile', 'rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
-    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showCipModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal', 'showFindReplaceModal']),
+    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal', 'showCipModal']),
+
+
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
 
@@ -129,12 +137,38 @@ export default {
       return (this.panelDisplay.linkedData) ? 'done' : ''
     },
 
+    yoshinoAllowed() {
+      return this.preferenceStore.featureFlags.includes('subject-suggest')
+    },
+
+    marvaScanAllowed() {
+      return this.preferenceStore.featureFlags.includes('marva-scan')
+    },
+
+    yoshinoHasSummary() {
+      if (!this.activeProfile || !this.activeProfile.rtOrder) return false
+      for (let rt of this.activeProfile.rtOrder) {
+        if (rt.indexOf(':Work') === -1) continue
+        for (let ptId of this.activeProfile.rt[rt].ptOrder) {
+          let pt = this.activeProfile.rt[rt].pt[ptId]
+          if (pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/summary' &&
+              pt.userValue?.['http://id.loc.gov/ontologies/bibframe/summary']?.[0]?.['http://www.w3.org/2000/01/rdf-schema#label']?.[0]?.['http://www.w3.org/2000/01/rdf-schema#label']) {
+            return true
+          }
+        }
+      }
+      return false
+    },
 
     userName() {
-      if (this.preferenceStore.catInitals && this.preferenceStore.catCode) {
-        return `${this.preferenceStore.catInitals} (${this.preferenceStore.catCode})`
-      } else if (this.preferenceStore.catInitals) {
-        return this.preferenceStore.catInitals
+      let displayName = this.preferenceStore.catInitals
+      if (this.preferenceStore.ssoUser && this.preferenceStore.ssoUser.email){
+        displayName = this.preferenceStore.ssoUser.email.split('@')[0]
+      }
+      if (displayName && this.preferenceStore.catCode) {
+        return `${displayName} (${this.preferenceStore.catCode})`
+      } else if (displayName) {
+        return displayName
       } else {
         ""
       }
@@ -224,13 +258,29 @@ export default {
             {
               text: 'LC Marva Manual',
               click: () => {
-                const routeData = window.open('https://www.loc.gov/catworkshop/bibframe/Library-of-Congress-Marva-Quartz-User-Manual.pdf')
+                const routeData = window.open('https://bibframe.org/docs/view/documentation-marva-manual/index.md')
               },
               icon: "📄"
             }
           )
         }
 
+      menuButtonSubMenu.push(
+        {
+          text: 'User Directory',
+          click: () => {
+            this.showUserDirectoryModal = true
+          },
+          icon: "👥"
+        },
+        {
+          text: 'FOLIO Sync Info',
+          click: () => {
+            this.showFolioSyncModal = true
+          },
+          icon: "sync"
+        }
+      )
 
       if (this.$route.path.startsWith('/edit/')) {
         menuButtonSubMenu.push({ is: 'separator' })
@@ -246,7 +296,52 @@ export default {
           {
             text: 'Add Item',
             click: () => { this.addItem() }
-          }
+          },
+          {
+            text: 'Edit', icon: 'access_time', menu: [
+              //  if (this.activeProfile.id && this.$route.name == 'Edit') {
+                // menu.push(
+                  {
+                    text:"Undo",
+                    title: "Undo",
+                    icon: "undo",
+                    hotkey: "ctrl+z",
+
+                    click: () => { this.profileStore.undoChange() }
+                  },
+                  {
+                    text: "Redo",
+                    title: "Redo",
+                    icon: "redo",
+                    hotkey: "ctrl+y",
+                    // class: (this.profileStore.redoRecords.length > 0) ? "active" : "inactive",
+                    click: () => { this.profileStore.redoChange() }
+                  },
+                  {
+                    text: "Title Case",
+                    title: "Title Case",
+                    icon: "titlecase",
+                    hotkey: "ctrl+alt+t",
+                    click: () => { this.profileStore.getHighlightedText('title') }
+                  },
+                  {
+                    text: "Lower Case",
+                    title: "Lower Case",
+                    icon: "lowercase",
+                    hotkey: "ctrl+alt+l",
+                    click: () => { this.profileStore.getHighlightedText('lower') }
+                  },
+                  {
+                    text: "Find & Replace",
+                    title: "find Replace",
+                    icon: "find_replace",
+                    hotkey: "ctrl+alt+h",
+                    click: () => { this.showFindReplaceModal = true; }
+                  }
+                // )
+              // }
+            ]
+          },
         )
       }
 
@@ -320,6 +415,21 @@ export default {
                   this.showAutoDeweyModal = true
                 }, icon: "smart_toy"
               },
+              ...(this.yoshinoAllowed ? [{
+                text: "Subject Finder", click: () => {
+                  this.showYoshinoSubjectsModal = true
+                }, icon: "radar"
+              }] : [{
+                text: "Req Subject Finder Access", click: () => {
+                  window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
+                }, icon: "contact_support"
+              }]),
+
+              ...(this.marvaScanAllowed ? [{
+                text: "Marva Scan", click: () => {
+                  this.marvaScanStore.openModal()
+                }, icon: "qr_code_scanner"
+              }] : []),
 
               { is: 'separator' },
               {
@@ -336,12 +446,14 @@ export default {
               { is: 'separator' },
               {
                 text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
+                hotkey: 'ctrl+alt+c',
                 click: () => { this.preferenceStore.toggleCopyMode() },
                 icon: this.preferenceStore.copyMode ? "content_copy" : "block"
               },
               {
                 text: "Paste Content",
                 icon: "content_paste",
+                hotkey: "alt+v",
                 click: () => {
                   this.$nextTick(() => {
                     this.profileStore.pasteSelected()
@@ -544,6 +656,7 @@ export default {
             disabled: (this.layoutActive) ? false : true,
             class: (this.layoutActive) ? "layout-active" : "layout-not-active",
             title: "Turn off layout",
+            hotkey: "ctrl+backspace",
 
             click: () => {
               this.layoutActive = false
@@ -685,6 +798,8 @@ export default {
             // active: this.happy,
             icon: (this.activeProfileSaved) ? "turned_in" : "turned_in_not",
             class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
+            title: "Save locally",
+            hotkey: "ctrl+s",
 
 
             click: () => { this.profileStore.saveRecord() }
@@ -830,23 +945,35 @@ export default {
         }
 
         // Add Legacy Profiles option at the bottom
-        if (!config.returnUrls.isBibframeDotOrg) {
-          dancerMenuItems.push({
-            text: 'Legacy Profiles',
-            icon: !currentWorkspace ? 'check' : '',
-            click: () => {
-              window.localStorage.removeItem('marva-dancerWorkspace')
-              window.location.reload()
-            }
-          })
-        }
+        // We dont add the legacy profiles anymore after a period of transition
+        // if (!config.returnUrls.isBibframeDotOrg) {
+        //   dancerMenuItems.push({
+        //     text: 'Legacy Profiles',
+        //     icon: !currentWorkspace ? 'check' : '',
+        //     click: () => {
+        //       window.localStorage.removeItem('marva-dancerWorkspace')
+        //       window.location.reload()
+        //     }
+        //   })
+        // }
 
         // Find the current workspace name
-        let currentWorkspaceName = 'Legacy'
+        let currentWorkspaceName = ''
+        // if we are in staging try to find the staging workspace name and set it
+        if (config.returnUrls.env === 'staging') {
+          currentWorkspaceName = 'marva-stage'
+        }
+        if (config.returnUrls.isBibframeDotOrg){
+          currentWorkspaceName = 'marva-prod'
+        }
+
+        // if it stored in the local storage find it by name
         const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
         if (selectedWorkspace) {
           currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
         }
+
+
 
         menu.push({
           text: 'DCTap: ' + currentWorkspaceName,
@@ -885,6 +1012,7 @@ export default {
               text: "Copy Selected",
               icon: "content_copy",
               id: "copy-selected-button",
+              hotkey: "alt+c",
               click: () => {
                 this.$nextTick(() => {
                   this.profileStore.copySelected()
@@ -894,6 +1022,7 @@ export default {
             {
               text: "Paste Content",
               icon: "content_paste",
+              hotkey: "alt+v",
               click: () => {
                 this.$nextTick(() => {
                   this.profileStore.pasteSelected()
@@ -958,17 +1087,20 @@ export default {
         )
       }
 
-      menu.push(
-        // {
-        //   is: StatusIndicator,
-        // },
-        {
+      // User account button — shows SSO account modal or login modal
+      if (this.preferenceStore.ssoUser) {
+        menu.push({
           text: this.userName,
-          // active: this.happy,
+          icon: "account_circle",
+          click: () => { this.showLoginModalSSO = true }
+        })
+      } else {
+        menu.push({
+          text: this.userName,
           icon: "account_circle",
           click: () => { this.showLoginModal = true }
-        }
-      )
+        })
+      }
 
       // Put Copy Mode options below the main menu
       if (this.preferenceStore.copyMode) {
@@ -1011,6 +1143,7 @@ export default {
           {
             text: !this.allSelected ? "Select All" : "Deselect All",
             icon: !this.allSelected ? "select_all" : "deselect",
+            hotkey: "alt+a",
             click: () => {
               this.$nextTick(() => {
                 this.selectAll()
@@ -1041,7 +1174,7 @@ export default {
 
   methods: {
 
-    profileOrStaging(){
+    profileOrStaging(){ // TODO: get this back on the nav bar
       if (this.isStaging()) {
         return  "STAGING: "
       }
@@ -1628,6 +1761,10 @@ export default {
 
 .staging-warning {
   background-color: rgb(255, 196, 0) !important;
+}
+
+:deep() div.bar-button.inactive {
+  pointer-events: none;
 }
 
 

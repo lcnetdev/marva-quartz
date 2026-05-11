@@ -67,6 +67,8 @@
           "varianttitles": "Varants Titles",
           "birthdates": "Date of Birth",
           "deathdates": "Date of Death",
+          "establishDates":"Established",
+          "terminateDates":"Terminated",
           "birthplaces": "Place of Birth",
           "locales": "Associated Locales",
           "activityfields": "Fields of Activity",
@@ -88,7 +90,7 @@
 
         },
         panelDetailOrder: [
-            "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds",
+            "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","establishDates","terminateDates",
             "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
@@ -188,7 +190,11 @@
        *
        * @param classNum - number to add
        */
-      addClassNumber: async function(classNum){
+      addClassNumber: async function(classNum, idx){
+        // remove any paranthetical
+        if (classNum.match(/\(.*\)/)){
+          classNum = classNum.replace(/\(.*\)/, "")
+        }
         // 2025454279
         let profile = this.activeProfile
 
@@ -244,7 +250,7 @@
         try {
           this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
           // Give user some feedback
-          let button = this.$refs.addClass[0]
+          let button = this.$refs.addClass[idx]
           button.innerText = "check"
         } catch(err) {
           console.error("Couldn't add the class number: ", err)
@@ -1082,9 +1088,13 @@
             <div class="complex-lookup-modal-search">
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
-                  <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
-				  </div>
-                  <div style="z-index: 100; float: left; margin-left: 10px;" v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))">
+                  <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/>
+                    <label onclick="" class="toggle-btn">{{opt.label}}</label>
+                  </div>
+				        </div>
+
+                <div style="height: 22px; min-height: 22px;">
+                  <div style="z-index: 100; float: left; margin-left: 10px;">
                     Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
                     Showing "<={{ offsetStep }}" results
                     <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
@@ -1099,7 +1109,7 @@
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
                       </a>
 
-                      <span class="pagination-label" > Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
+                      <span class="pagination-label" > {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last"}} </span>
 
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
@@ -1111,10 +1121,11 @@
 
                   </div>
                   <div v-else style="min-height: 27px;"></div>
+                </div>
 
-				  <div id="container" v-if="modalSelectOptions.length == 7">
+				  <div id="container" v-if="modalSelectOptions.length >= 6">
             <span v-if="activeComplexSearch && activeComplexSearch[0]">
-              </br><br><br>
+
             </span>
             <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
             <label for="search-type" class="toggle-container">
@@ -1212,13 +1223,28 @@
                       </span>
                       <br>
                     </template>
+                    <template v-else-if="(Object.keys(activeContext.extra).includes('establishDates') && activeContext.extra['establishDates'].length > 0)
+                    || (Object.keys(activeContext.extra).includes('terminateDates') && activeContext.extra['terminateDates'].length > 0)">
+
+                      <span class="dates-container" style="padding-bottom: 10px;">
+                        <span v-if="activeContext.extra['establishDates'] && activeContext.extra['establishDates'].length > 0 " style="margin-right: 15px;">
+                          <span class="modal-context-data-title">Established: </span>
+                          <span>{{ activeContext.extra['establishDates'][0] }}</span>
+                        </span>
+                        <span v-if="activeContext.extra['terminateDates'] && activeContext.extra['terminateDates'].length > 0 ">
+                          <span class="modal-context-data-title">Terminated: </span>
+                          <span>{{ activeContext.extra['terminateDates'][0] }}</span>
+                        </span>
+                      </span>
+                      <br>
+                    </template>
 
                     <!-- Labels & Relationships -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
+                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
-                          <ul class="details-list">
+                          <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
                               <span v-if="key !='sees' && key !='relateds'">{{v}}</span>
                               <div v-else-if="key == 'relateds'">
@@ -1269,10 +1295,10 @@
                           <template v-if="key=='lcclasses'">
                             <span  class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                             <ul class="">
-                              <li class="" v-if="key=='lcclasses'" v-for="v in activeContext.extra['lcclasses']">
+                              <li class="" v-if="key=='lcclasses'" v-for="(v, idx) in activeContext.extra['lcclasses']">
                                   <template v-if="v.assigner">({{ v.assigner }}) </template>
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
-                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code)" ref="addClass">add</button>
+                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code, idx)" ref="addClass">add</button>
                                 <template v-if="v.label">
                                   <span v-if="v.label.split('--').length == 1">
                                     --{{ v.label.split("--").at(-1) }}
@@ -1289,13 +1315,13 @@
                             <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                                 this.labelMap[key] : key }}:</span>
                             <ul class="">
-                                <li class="" v-if="key == 'lcclasss'" v-for="v in activeContext.extra[key]">
+                                <li class="" v-if="key == 'lcclasss'" v-for="(v, idx) in activeContext.extra[key]">
                                     <template v-if="typeof v == 'string'">
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v"
                                             target="_blank">{{ v }}</a>
                                         <button class="material-icons see-search add-class"
                                             ref="addClass"
-                                            @click="addClassNumber(v)">add</button>
+                                            @click="addClassNumber(v, idx)">add</button>
                                     </template>
                                     <template v-else>
                                         {{ v }}
@@ -1743,6 +1769,10 @@
 
 .literal-input {
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+}
+
+.note-data {
+  columns: 1;
 }
 
 </style>

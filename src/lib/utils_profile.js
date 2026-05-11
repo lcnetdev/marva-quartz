@@ -470,10 +470,7 @@ const utilsProfile = {
     let xml = await utilsNetwork.loadSavedRecord(recordId)
     let meta = this.returnMetaFromSavedXML(xml)
 
-
-
     utilsParse.parseXml(meta.xml)
-
     // alert(parseBfdb.hasItem)
 
     let useProfile = null
@@ -510,15 +507,9 @@ const utilsProfile = {
               }
             }
           }
-
-
-
       }
-
-
-
-
     }
+
 
 
 

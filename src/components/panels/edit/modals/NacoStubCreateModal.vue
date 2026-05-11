@@ -96,8 +96,7 @@
         tmpErrorMessage:false,
 
         validating: false,
-        validationResult: null
-
+        validationResult: null,
       }
     },
     computed: {
@@ -131,6 +130,13 @@
           return true
         }
 
+        if (!this.goodTags()){
+          return true
+        }
+
+        if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !this.good670()){
+          return true
+        }
 
         return false
       }
@@ -148,7 +154,12 @@
     },
 
     methods: {
-
+      getOneXXtag(){
+        if (!this.oneXX){ return false }
+        let tag = this.oneXX.substring(0,3)
+        if (tag == '1XX') { return false}
+        return tag
+      },
       // Find exact match for authLabel in API response
       findAuthExactMatch(response, searchValue) {
         if (!response || !response.metadata || !response.metadata.values || !searchValue) {
@@ -203,9 +214,21 @@
         })
       },
 
+      // Check that advanced mode doesn't have 670 $b ()
+      good670: function(){
+        let good = this.extraMarcStatements.some((row) => !row.value.includes('$b ()'))
+        return good
+      },
+
       // Check that the advanced marc entry have indicators
       goodIndicators: function(){
         let good = this.extraMarcStatements.every((row) => row.indicators.length == 2)
+        return good
+      },
+
+      // Check that tag fields aren't empty
+      goodTags: function(){
+        let good = this.extraMarcStatements.every((row) => row.fieldTag.length == 3)
         return good
       },
 
@@ -297,6 +320,8 @@
             }
           }
 
+          console.info("this.oneXXParts: ", this.oneXXParts)
+
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
           // console.log("additonalFields",additonalFields)
@@ -348,11 +373,14 @@
               }
               if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              } else {
+                f670.value = f670.value + ' $b ()'
               }
               if (this.instanceURI){
                 f670.u = this.instanceURI
                 f670.value = f670.value + ` $u ${this.instanceURI}`
               }
+
               this.extraMarcStatements.push(f670)
             }
 
@@ -367,23 +395,10 @@
 
             // console.log("extraMarcStatements",this.extraMarcStatements)
             // is there a 046 field already?
-            let has046 = this.extraMarcStatements.some(field => field.fieldTag === '046')
+            let has046 = this.extraMarcStatements.some(field => field.fieldTag === '046') //TODO expand for corp and conf
             if (!has046) {
-            if (this.zero46 !== null){
-                let f046 = {
-                  fieldTag: '046',
-                  indicators: '##',
-                  value: ''
-                }
-                if (this.zero46 && this.zero46.f ){
-                  f046.value = `$f ${this.zero46.f}`
-                }
-                if (this.zero46 && this.zero46.g){
-                  f046.value = f046.value + ` $g ${this.zero46.g}`
-                }
-                if (f046.value != ''){
-                  f046.value = f046.value + ` $2 edtf`
-                }
+              if (this.zero46 !== null){
+                let f046 = this.build046()
                 this.extraMarcStatements.push(f046)
               }
             }
@@ -531,8 +546,6 @@
         },
 
         async searchAuthLabel(authLabel,field){
-
-
           this.searching = true
 
           // clear results
@@ -550,7 +563,7 @@
             this.searching = false
             return false
           }
-          let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true )
+          let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true)
           // console.log("search results",results)
 
           this.oneXXExactMatches = this.findAuthExactMatch(results, authLabel)
@@ -593,8 +606,24 @@
 
         checkOneXX(){
           this.oneXXErrors = []
+          this.oneXX = this.oneXX.replace(/  +/g, ' ')
+          this.oneXX = this.oneXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
+
+
+
 
           if (this.oneXX.length<3){ return true}
+
+          // check the auth label for a textmacro and update it
+          let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+          if (useTextMacros && useTextMacros.length>0){
+            for (let m of useTextMacros){
+              if (this.oneXX.indexOf(m.lookFor) > -1){
+                this.oneXX = this.oneXX.replace(m.lookFor,m.replaceWith)
+                this.searchValueLocal = this.oneXX
+              }
+            }
+          }
 
           if (/[^0-9 #]/.test(this.oneXX.slice(3,5))){
             this.oneXXErrors.push("There's an invalid indicator for 1XX")
@@ -607,7 +636,6 @@
 
           let oneXXParts = this.oneXX.split(/[$‡ǂ|]/)
           if (oneXXParts.length>0){
-
             let fieldTag = oneXXParts[0].slice(0,3)
 
             let indicators = oneXXParts[0].slice(3,5)
@@ -664,9 +692,6 @@
               authLabel = authLabel + ' ' + dollarKey.g
             }
 
-
-
-
             if (dollarKey.a){
               window.clearTimeout(this.oneXXResultsTimeout)
               this.oneXXResultsTimeout = window.setTimeout(()=>{
@@ -677,20 +702,59 @@
 
             if (dollarKey.d){
 
-              let lifeDates  = dollarKey.d.split('-')
-              if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
+              let lifeDates = []
+              if (dollarKey.d.includes(":")){
+                let temp = dollarKey.d.replace(":", "")
+                lifeDates  = temp.split('-')
+              } else {
+                lifeDates  = dollarKey.d.split('-')
+              }
+
+              // if the first part is empty, or starts with a YYYY build the 046, otherwise don't
+              let dateCheck = /^[0-9]{4}/.test(lifeDates[0]) || lifeDates[0] == ""
+
+              if (!dateCheck){
                 this.zero46 = {}
-                this.zero46.f = lifeDates[0]
-                if (lifeDates[1].trim().length>0){
-                  this.zero46.g = lifeDates[1]
+              } else {
+                // Personal Name 100
+                if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
+                  this.zero46 = {}
+                  this.zero46.f = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.g = lifeDates[1]
+                  }
+
                 }
+                if (lifeDates.length==1 && (fieldTag == '100' || fieldTag == 100)){
+                  this.zero46 = {}
+                  this.zero46.f = lifeDates[0]
+                }
+                // Corporate Name 110
+                if (lifeDates.length>1 && (fieldTag == '110' || fieldTag == 110)){
+                  this.zero46 = {}
+                  this.zero46.q = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.r = lifeDates[1]
+                  }
 
+                }
+                if (lifeDates.length==1 && (fieldTag == '110' || fieldTag == 110)){
+                  this.zero46 = {}
+                  this.zero46.s = lifeDates[0]
+                }
+                // Conf Name 111
+                if (lifeDates.length>1 && (fieldTag == '111' || fieldTag == 111)){
+                  this.zero46 = {}
+                  this.zero46.s = lifeDates[0]
+                  if (lifeDates[1].trim().length>0){
+                    this.zero46.t = lifeDates[1]
+                  }
+                }
+                if (lifeDates.length==1 && (fieldTag == '111' || fieldTag == 111)){
+                  this.zero46 = {}
+                  this.zero46.s = lifeDates[0]
+                }
               }
-              if (lifeDates.length==1 && (fieldTag == '100' || fieldTag == 100)){
-                this.zero46 = {}
-                this.zero46.f = lifeDates[0]
-              }
-
             }
 
             if (dollarKey.t){ // Name titles don't get 046 for the person
@@ -701,46 +765,61 @@
               this.zero46 = {}
             }
 
+            if (this.zero46 && Object.keys(this.zero46).length > 0){
+
+              window.setTimeout(()=>{
+                this.rebuild046()
+              },10)
+
+            }else{
+
+              // not really nessary
+
+
+            }
+
             if (dollarKey.a){
-              if (/[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)){
-              //  console.log("found a hyphenated name")
+              // Check for compound last names: hyphenated ("Jacobsen-Smith, Alejandro") or spaced ("Jacobsen Smith, Alejandro")
+              let isHyphenated = /[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)
+              let isSpacedCompound = !isHyphenated && /[A-Z][a-z]+ [A-Z][a-z]+,/.test(dollarKey.a)
+
+              if (isHyphenated || isSpacedCompound){
+               let separator = isHyphenated ? '-' : ' '
                if (dollarKey.a.split(',')[0]){
-                let hyphenated = dollarKey.a.split(',')[0].split('-')
-                // console.log(hyphenated)
-                if (hyphenated.length == 2){
-                  let newDollarA = `${hyphenated[1]}, ${dollarKey.a.split(',')[1].trim()} ${hyphenated[0]}-`
-                  let hyphenated4xx = {}
+                let compoundParts = dollarKey.a.split(',')[0].split(separator)
+                if (compoundParts.length == 2){
+                  let trailingSeparator = isHyphenated ? separator : ''
+                  let newDollarA = `${compoundParts[1]}, ${dollarKey.a.split(',')[1].trim()} ${compoundParts[0]}${trailingSeparator}`
+                  let compound4xx = {}
                   for (let partKey of Object.keys(dollarKey)){
-                    hyphenated4xx[partKey] = dollarKey[partKey]
+                    compound4xx[partKey] = dollarKey[partKey]
                   }
-                  hyphenated4xx.a = newDollarA
+                  compound4xx.a = newDollarA
 
                   // turn it into a 4xx
-                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.split('');
-                  hyphenated4xx.fieldTag[0] = '4';
-                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.join('');
+                  compound4xx.fieldTag = compound4xx.fieldTag.split('');
+                  compound4xx.fieldTag[0] = '4';
+                  compound4xx.fieldTag = compound4xx.fieldTag.join('');
                   let subfields = ""
-                  for (let key in hyphenated4xx){
+                  for (let key in compound4xx){
                     if (key.length==1){
-                      subfields = subfields + '$'+key+' '+hyphenated4xx[key] + ' '
+                      subfields = subfields + '$'+key+' '+compound4xx[key] + ' '
                     }
                   }
-                  hyphenated4xx.preview = `${hyphenated4xx.fieldTag} ${hyphenated4xx.indicators.replace(/\s/g,'#')} ${subfields}`
-                  // console.log("hyphenated4xx",hyphenated4xx)
-                  this.hyphenated4xx = hyphenated4xx
+                  compound4xx.preview = `${compound4xx.fieldTag} ${compound4xx.indicators.replace(/\s/g,'#')} ${subfields}`
+                  this.hyphenated4xx = compound4xx
                   this.buildHyphenated4xx = true
 
                   if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
                     // if there isn't a 4xx field already in advanced mode
                     if (this.extraMarcStatements.length > 0){
 
-
                       // remove all the 4xx fields from extraMarcStatements that are autoGenerated
                       this.extraMarcStatements = this.extraMarcStatements.filter(field => !(field.fieldTag.startsWith("4") && field.autoGenerated));
 
                       this.extraMarcStatements.push({
-                        fieldTag: hyphenated4xx.fieldTag,
-                        indicators: hyphenated4xx.indicators.replace(/\s/g,'#'),
+                        fieldTag: compound4xx.fieldTag,
+                        indicators: compound4xx.indicators.replace(/\s/g,'#'),
                         value: subfields,
                         autoGenerated: true,
                       })
@@ -749,14 +828,9 @@
                   }
                 }
 
-
-
                }
 
-
-
               }
-
 
             }
 
@@ -782,10 +856,22 @@
 
         checkFourXX(){
 
-
-
           this.fourXXErrors = []
+          this.fourXX = this.fourXX.replace(/  +/g, ' ')
+          this.fourXX = this.fourXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
+
           if (this.fourXX.length<3){ return true}
+
+          // check the auth label for a textmacro and update it
+          let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+          if (useTextMacros && useTextMacros.length>0){
+            for (let m of useTextMacros){
+              if (this.fourXX.indexOf(m.lookFor) > -1){
+                this.fourXX = this.fourXX.replace(m.lookFor,m.replaceWith)
+                this.searchValueLocal = this.fourXX
+              }
+            }
+          }
 
           if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
             this.fourXXErrors.push("There's an invalid indicator for 4XX")
@@ -905,12 +991,19 @@
           }
 
 
-
-
-
-
         },
 
+        set1xxFromSearchString(lastComplexLookupString){
+
+          // Check if oneXX already has a valid tag+indicators prefix (e.g. "10010", "1001 ", "110##")
+          let existingPrefix = this.oneXX.match(/^1\d{2}[0-9# ]{2}/)
+          if (existingPrefix) {
+            this.oneXX = existingPrefix[0] + '$a ' + lastComplexLookupString
+          } else {
+            this.oneXX = '1XX##$a ' + lastComplexLookupString
+          }
+
+        },
         addRow(){
 
           this.extraMarcStatements.push({
@@ -1177,16 +1270,43 @@
             //
 
           }
+        },
 
+        build046(){
+          console.log("build046", this.zero46)
+          let f046 = {
+            fieldTag: '046',
+            indicators: '##',
+            value: ''
+          }
 
+          if (this.getOneXXtag() == '100'){
+            if (this.zero46 && this.zero46.f ){
+              f046.value = `$f ${this.zero46.f}`
+            }
+            if (this.zero46 && this.zero46.g){
+              f046.value = f046.value + ` $g ${this.zero46.g}`
+            }
+          } else if (this.getOneXXtag() == '110'){
+            if (this.zero46 && this.zero46.q ){
+              f046.value = `$q ${this.zero46.q}`
+            }
+            if (this.zero46 && this.zero46.r){
+              f046.value = f046.value + ` $r ${this.zero46.r}`
+            }
+          }else if (this.getOneXXtag() == '111'){
+            if (this.zero46 && this.zero46.s ){
+              f046.value = `$s ${this.zero46.s}`
+            }
+            if (this.zero46 && this.zero46.t){
+              f046.value = f046.value + ` $t ${this.zero46.t}`
+            }
+          }
+          if (f046.value != ''){
+            f046.value = f046.value + ` $2 edtf`
+          }
 
-
-
-
-
-
-
-
+          return f046
         },
 
 
@@ -1228,12 +1348,55 @@
           }
 
 
+          window.setTimeout(()=>{
+            this.rebuild046()
+          },10)
 
 
 
           window.setTimeout(()=>{
             event.target.value = 'home'
           },500)
+
+        },
+
+
+        rebuild046(){
+
+          // rebuild 046 if $d is present
+          if (this.oneXX.includes("$d")){
+            let tmp046 = this.build046()
+
+            // Delete the existing 046
+            let existing046 = false
+            for (let idx in this.extraMarcStatements){
+              let tmp = this.extraMarcStatements[idx]
+              if (tmp.fieldTag == '046'){
+                existing046 = idx
+              }
+            }
+
+            if (tmp046.value != ""){
+              if (existing046){
+                if (this.getOneXXtag() == '151'){ // if it would be empty don't add it
+                  this.extraMarcStatements.splice(existing046, 1)
+                  this.zero46 = {}
+                  return
+                }
+                this.extraMarcStatements[existing046] = tmp046
+              } else {
+                if (this.getOneXXtag() == '151'){
+                  this.zero46 = {}
+                  return
+                }
+                this.extraMarcStatements.push(tmp046)
+              }
+            } else if (existing046){ // remove the exising 046
+              this.extraMarcStatements.splice(existing046, 1)
+              return
+            }
+          }
+
 
         },
 
@@ -1386,10 +1549,16 @@
           this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
           this.field245 = this.profileStore.nacoStubReturn245()
 
-
+          // Check if the record might be a CIP
+          let isCip = this.profileStore.checkCip()
 
           if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source != 'subject')){
-            this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+            if (isCip){
+              this.mainTitleNote = "CIP title page (" + this.statementOfResponsibility  + ")"
+            }
+            else {
+              this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+            }
           }
 
           if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source == 'subject')){
@@ -1411,15 +1580,31 @@
             }
 
             if (startPos && endPos){
-              this.mainTitleNote = "title page (" + _245.slice(startPos, endPos).trim() + ")"
+              if (isCip){
+                this.mainTitleNote = "CIP title page (" + _245.slice(startPos, endPos).trim() + ")"
+              } else {
+                this.mainTitleNote = "title page (" + _245.slice(startPos, endPos).trim() + ")"
+              }
             }
           }
 
-          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and\s+|,/).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and\s+|,/)
-          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+und\s+|\s+e\s+|;/).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+und\s+|\s+e\s+|;/)
+          // /\s{1};\s{1}|,\s*(?=[^)^\]]*(?:\(|\[|$))|\&|and|und/g) --> split on <space>;<space> and commas not in ()
+          // favor splitting on semicolon. Seems reliable to get the first name without bleed from other names. But after that, anything can happen
+          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|\s+e\s+|;/g).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|\s+e\s+|;/g)
+          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|,/g).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|,/g)
           }
+
+          // SOR examples that make rules difficult
+          // Cecilia Leibovitz ; photographs by David Lewis Taylor & Talia Marek
+          // Ana Rodriguez Alvarez, Jeffrey J. Mora Sanchez (directores) ; prologo E. Raul Zaffaroni; prologo a la edicion costarricense Javier Llobet Rodriguez
+          // Sally Friedman and Davy Schultz, Editors
+          // Pedro Romaguera Esteva ; pròleg, Dr. Jordi Maíz Chacón, Professor de la UIB
+          // Dina de Sousa e Santos (organizadora) ; prefácios, Professor Phillip Rothwell (Universidade de Oxford), Doutora Elisabete Vera Cruz (Universidade Agostinho Neto, UAN)
+          // Archie Bogle and Don McKay ; compiled by by Gordon Andreassend, Andrew Blackman and Don McKay
+          // editor-in-chief, Elaine Wyllie ; associate editors, Barry E. Gidal, Ahsan Moosa Naduvil Valappil, Howard P. Goodkin, Elaine Wirrell, Stephan Schuele
+          // Alberto Pitta ; organização, Thais Darzé, Paulo Darzé ; curadoria e texto, Daniel Rangel
 
           let addingDefaultExtraMarcStatements = false
 
@@ -1434,6 +1619,8 @@
               }
               if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              } else {
+                f670.value = f670.value + ' $b ()'
               }
               if (this.instanceURI){
                 f670.u = this.instanceURI
@@ -1463,10 +1650,10 @@
           if (this.lastComplexLookupString.trim() != ''){
             const yearMatch = this.lastComplexLookupString.match(/(\d{4})/)
             if (yearMatch) {
-              // Only insert if not already preceded by $d
+              // Only insert if not already preceded by $d, and there isn't already a $d,
               const year = yearMatch[1]
               const idx = this.lastComplexLookupString.indexOf(year)
-              if (idx > 0 && !/\$d\s*$/.test(this.lastComplexLookupString.slice(0, idx))) {
+              if (!this.lastComplexLookupString.includes("$d") && idx > 0 && !/\$d\s*$/.test(this.lastComplexLookupString.slice(0, idx))) {
                 this.lastComplexLookupString =
                   this.lastComplexLookupString.slice(0, idx) +
                   ' $d ' +
@@ -1480,7 +1667,7 @@
 
 
           this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
-          console.log("populatedValue",this.populatedValue)
+          // console.log("populatedValue",this.populatedValue)
           if (this.populatedValue && this.populatedValue.marcKey && !resetMode){
 
             // we never want 7xx so replace it
@@ -1559,20 +1746,7 @@
 
             // add the 046 if this is the first time we are populating the extraMarcStatements
             if (this.zero46 !== null){
-              let f046 = {
-                fieldTag: '046',
-                indicators: '##',
-                value: ''
-              }
-              if (this.zero46 && this.zero46.f ){
-                f046.value = `$f ${this.zero46.f}`
-              }
-              if (this.zero46 && this.zero46.g){
-                f046.value = f046.value + ` $g ${this.zero46.g}`
-              }
-              if (f046.value != ''){
-                f046.value = f046.value + ` $2 edtf`
-              }
+              let f046 = this.build046()
               this.extraMarcStatements.push(f046)
             }
 
@@ -1617,11 +1791,12 @@
             }
             if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
-              }
+            }
             if (this.instanceURI){
               f670.u = this.instanceURI
               f670.value = f670.value + ` $u ${this.instanceURI}`
             }
+
             this.extraMarcStatements.push(f670)
           }
         },
@@ -1698,7 +1873,7 @@
 
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1; position: relative;">
-                  <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
+                  <button class="paste-from-search simptip-position-left" @click="set1xxFromSearchString(lastComplexLookupString); checkOneXX()" v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <!-- <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-"> -->
                   <textarea
                     ref="nar-1xx"
@@ -1711,7 +1886,7 @@
                     ></textarea>
 
                   <div v-if="populatedValue && populatedValue.marcKey && (!populatedValue.marcKey.includes(lastComplexLookupString.replace(/ *(\$[a-z]) */g, '$1')))">
-                    (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
+                    (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="set1xxFromSearchString(lastComplexLookupString); checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
                   </div>
                 </div>
               </div>
@@ -1911,6 +2086,18 @@
                 <div>
                   <div class="error-info-title">Other Checks:</div>
 
+                  <template v-if="goodTags()">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">All Tags Present</span>
+                        </div>
+                  </template>
+                  <template v-else>
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">Tag Missing</span><span data-tooltip="Add missing Tag in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
+                  </template>
 
                   <template v-if="goodIndicators()">
                         <div>
@@ -1923,6 +2110,13 @@
                           <span class="material-icons not-unique-icon">cancel</span>
                           <span class="not-unique-text">Indicators Missing</span><span data-tooltip="Add missing indicator in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                         </div>
+                  </template>
+
+                  <template v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !good670()">
+                    <div>
+                      <span class="material-icons not-unique-icon">cancel</span>
+                      <span class="not-unique-text">Placeholder in 670 $b</span>
+                    </div>
                   </template>
 
                   <template v-if="mainTitle">
@@ -1976,7 +2170,7 @@
                       <div style="padding: 0.2em;">
                         Multi SOR found:
                         <template v-for="(sor, index) in statementOfResponsibilityOptions">
-                          <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'; update670()">{{ sor }}</button>
+                          <button style="font-size: 0.75em;" @click="mainTitleNote = profileStore.checkCip() ? 'CIP title page (' + sor.trim() + ')' : 'title page (' + sor.trim() + ')'; update670()">{{ sor }}</button>
                         </template>
                       </div>
 
@@ -1991,7 +2185,9 @@
                   </template>
 
                   <template v-if="zero46 && Object.keys(zero46).length>0">
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                    <div v-if="getOneXXtag() == '100'" class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                    <div v-else-if="getOneXXtag() == '110'" class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.q) ? ("$q" + zero46.q) : "" }}{{ (zero46.r) ? ("$r" + zero46.r) : "" }}$2edtf</div>
+                    <div v-else-if="getOneXXtag() == '111'" class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.s) ? ("$s" + zero46.s) : "" }}{{ (zero46.t) ? ("$t" + zero46.t) : "" }}$2edtf</div>
                   </template>
 
                   <div class="selectable" style="font-family: monospace; padding: 0.2em;" v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
@@ -2024,7 +2220,7 @@
                       v-model="row.fieldTag"
                       maxlength="3"
                       placeholder="TAG"
-                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.fieldTag.length != 3}]"
                       :style="`margin-right: 1em; width: 50px; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                     />
                     <input
@@ -2047,6 +2243,7 @@
 
 
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
+                    <button v-if="extraMarcStatements.length-1 == index && index != 0" @click="removeRow($event,index)" style="margin-left: 1em;">-</button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
                   </div>
                 </div>

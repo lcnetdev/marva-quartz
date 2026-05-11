@@ -495,23 +495,23 @@ export default {
       if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
         this.displayList.push("Loading Data.")
         // if the data isn't loaded yet we will wait a few times
-        await new Promise(r => setTimeout(r, 1250));
+        await new Promise(r => setTimeout(r, 5000));
         this.displayList=[]
 
         if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
           this.displayList.push("Loading Data..")
-          await new Promise(r => setTimeout(r, 1250));
+          await new Promise(r => setTimeout(r, 5000));
           this.displayList=[]
 
 
           if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
             this.displayList.push("Loading Data...")
-            await new Promise(r => setTimeout(r, 1250));
+            await new Promise(r => setTimeout(r, 5000));
             this.displayList=[]
 
             if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
               this.displayList.push("Loading Data....")
-              await new Promise(r => setTimeout(r, 1250));
+              await new Promise(r => setTimeout(r, 5000));
               this.displayList=[]
 
               if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){

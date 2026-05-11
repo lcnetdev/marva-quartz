@@ -283,7 +283,15 @@ const utilsExport = {
   */
 	hasUserValue: function(userValue){
 		for (let key in userValue){
-			if (key == '@id' || key.includes('http://') || key.includes('https://')){
+			if (key == '@id'){
+				return true
+			}
+			if (key.includes('http://') || key.includes('https://')){
+				let v = userValue[key]
+				// an empty array means this is a placeholder pt with no real data — keep looking
+				if (Array.isArray(v) && v.length === 0){
+					continue
+				}
 				return true
 			}
 		}
@@ -423,7 +431,7 @@ const utilsExport = {
 			***End Source***
 			`
 
-			utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
+			// utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
 
 
 
@@ -1051,7 +1059,6 @@ const utilsExport = {
 
 
 											}else{
-
 												console.error('key2', key2, value1[key2], 'not a literal, should not happen')
 												xmlLog.push(`Key 2 (${key2}) error, not a literal ${value1[key2]}`)
 
@@ -1294,6 +1301,7 @@ const utilsExport = {
 								// console.log(ptObj.propertyURI, 'Does not have @type, something is wrong here', userValue)
 								// console.log("suggest type is:",await this.suggestType(ptObj.propertyURI))
 								console.warn("Should not be here")
+								console.log("ptObj", ptObj)
 								// alert("Not everything entered was serialized into XML, please report this record and check the output.")
 							}
 
@@ -1392,8 +1400,12 @@ const utilsExport = {
 		// Add in a adminMetadata to the resources with this user id
 		// catInitals.log(profile)
 		//get user info from preferenceStore instead of the profile
-		let userInitial = usePreferenceStore().catInitals
-		let catCode = usePreferenceStore().catCode
+		let prefStore = usePreferenceStore()
+		let userInitial = prefStore.catInitals
+		if (prefStore.ssoUser && prefStore.ssoUser.email){
+			userInitial = prefStore.ssoUser.email.split('@')[0]
+		}
+		let catCode = prefStore.catCode
 		let user = `${userInitial} (${catCode})`
 		profile.user = user
 		// let catCode = profile.user.split(" (")
@@ -1419,6 +1431,7 @@ const utilsExport = {
 		bf_catalogerId.innerHTML = escapeHTML(catCode)
 
 		let bf_date = this.createElByBestNS("bf:date")
+		bf_date.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://www.w3.org/2001/XMLSchema#dateTime')
 		bf_date.innerHTML = new Date().toISOString()
 
 		// Add agent
@@ -2370,6 +2383,38 @@ const utilsExport = {
 				subfieldsValues.push(`$g ${zero46.g}`)
 			}
 
+			if (zero46.q){
+				let field046q = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046q.setAttribute( 'code', 'f')
+				field046q.innerHTML = zero46.q
+				field046.appendChild(field046q)
+				subfieldsValues.push(`$q ${zero46.q}`)
+
+			}
+			if (zero46.r && zero46.r.length > 0){
+				let field046r = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046r.setAttribute( 'code', 'r')
+				field046r.innerHTML = zero46.r
+				field046.appendChild(field046r)
+				subfieldsValues.push(`$r ${zero46.r}`)
+			}
+
+			if (zero46.s){
+				let field046s = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046s.setAttribute( 'code', 's')
+				field046s.innerHTML = zero46.s
+				field046.appendChild(field046s)
+				subfieldsValues.push(`$q ${zero46.s}`)
+
+			}
+			if (zero46.t && zero46.t.length > 0){
+				let field046t = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046t.setAttribute( 'code', 't')
+				field046t.innerHTML = zero46.t
+				field046.appendChild(field046t)
+				subfieldsValues.push(`$t ${zero46.t}`)
+			}
+
 			let field0462 = document.createElementNS(marcNamespace,"marcxml:subfield");
 			field0462.setAttribute( 'code', '2')
 			field0462.innerHTML = 'edtf'
@@ -2430,7 +2475,9 @@ const utilsExport = {
 
 					// there might be repeated subfields, split the value and loop through tem
 					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+
 					for (let v of useValues){
+
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
 						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
@@ -2444,6 +2491,15 @@ const utilsExport = {
 			}
 
 			rootEl.appendChild(fieldName4xx)
+
+			// fourXXSubfieldsValues looks like this: ['$7 (bcp47)ko-hang', '$a BLAH BLAH BLAH']
+			// reorder so the $7 is at the end if it exists
+			let sevenIndex = fourXXSubfieldsValues.findIndex(s => s.startsWith("$7"))
+			if (sevenIndex > -1){
+				let sevenValue = fourXXSubfieldsValues.splice(sevenIndex, 1)[0]
+				fourXXSubfieldsValues.push(sevenValue)
+			}
+
 			marcTextArray.push({txt: this.buildMarcTxtLine(fourXXParts.fieldTag, fourXXParts.indicators.charAt(0).replace(" ","#"), fourXXParts.indicators.charAt(1).replace(" ","#"), fourXXSubfieldsValues), field: fourXXParts.fieldTag, fieldInt: parseInt(fourXXParts.fieldTag)})
 
 		}

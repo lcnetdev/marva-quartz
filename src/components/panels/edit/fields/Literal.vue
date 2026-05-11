@@ -81,6 +81,7 @@
                     @keyup="navKey"
                     :ref="'input_' + lValue['@guid']"
                     :data-guid="lValue['@guid']"
+                    :data-parent="guid"
                     :disabled="readOnly"
                     ></textarea>
                 </div>
@@ -110,6 +111,7 @@
                   @keydown="keyDown"
                   :ref="'input_' + lValue['@guid']"
                   :data-guid="lValue['@guid']"
+                  :data-parent="guid"
                   :disabled="readOnly"
                   :readonly="structure.propertyLabel=='Local identifier'"
                   ></textarea>
@@ -138,7 +140,7 @@
 
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/classificationPortion'">
 
-        <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://' + classWebURL() + '/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
+        <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://' + classWebURL() + '/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'" target="_blank">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://' + classWebURL() + '/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+lccFeatureData.classNumber" target="_blank">ClassWeb Browse: {{ lccFeatureData.classNumber }}</a><br/>
 
         <a style="color:black" v-if="lccFeatureData.firstSubject" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
@@ -960,7 +962,6 @@ export default {
       }
 
       if (cmd == 'trans'){
-
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
         if (options.event && options.event?.target?.dataset?.shortcutActivated == 'true'){
           // check if the string value (fieldValue[0].value) ends with a single digit number
@@ -1027,9 +1028,12 @@ export default {
                 for (let osc of otherScriptCodes){
                   let transValue = await utilsNetwork.scriptShifterRequestTrans(osc,highlightedText,null,options.dir)
                   // now replace the highlighted text in the otherField
-
+                  if (transValue.output.length == 0 || transValue.warnings && transValue.warnings.length >0){
+                    continue
+                  }
                   // see if we can find transValue text in the other field value
-                  if (otherFieldValue[0].value.indexOf(transValue.output) > -1){
+                  let matchPos = otherFieldValue[0].value.toLocaleLowerCase().indexOf(transValue.output.toLocaleLowerCase())
+                  if (matchPos > -1){
 
                     // okay we found it then do the transliteration for this value highleted text and get the results
                     let thisTransValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,highlightedText,null,options.dir)
@@ -1037,8 +1041,9 @@ export default {
                       alert("Warning from transliteration: " + thisTransValue.warnings.join(", "))
                       break
                     }
-                    // and replce the transValue.output text in the other field with thisTransValue.output using this.profileStore.setValueLiteral
-                    let newOtherValue = otherFieldValue[0].value.replace(transValue.output, thisTransValue.output)
+                    // splice out the matched portion by position and insert the new transliteration
+                    let originalValue = otherFieldValue[0].value
+                    let newOtherValue = originalValue.substring(0, matchPos) + thisTransValue.output + originalValue.substring(matchPos + transValue.output.length)
                     this.profileStore.setValueLiteral(this.guid,otherFieldValue[0]['@guid'],this.propertyPath,newOtherValue,otherFieldValue[0]['@language'] )
 
                     didReplaceTransliteration = true
@@ -1092,6 +1097,8 @@ export default {
 
         // but also make sure the old string has the language tag
         this.profileStore.setValueLiteral(this.guid,fieldValue[0]['@guid'],this.propertyPath,fieldValue[0]['value'],fromLang)
+        // we want to make sure things are in the right order after we add the lang tags
+        this.profileStore.reorderAllNonLatinLiterals()
 
         // make sure the new literal fits
         this.$nextTick().then(() => {
@@ -1115,6 +1122,10 @@ export default {
 
       try{
         // this will fail when adding an additional literal and the current field is empty
+        // console.log(this.literalValues)
+        // console.log(this.literalValues[0])
+        // console.log(this.literalValues[0]['@guid'])
+        // console.log(this.$refs['input_' + this.literalValues[0]['@guid']][0])
         this.$refs['input_' + this.literalValues[0]['@guid']][0].focus()
       }catch(err){
         console.error("Adding a field from an empty field: ", err)
@@ -1300,6 +1311,10 @@ export default {
 
         let data = this.profileStore.returnLccInfo(this.guid, this.structure)
         // console.log("HERE for LCC data", data,  this.guid, this.structure)
+
+        // if it is a MLC number we dont need to show the extra interface
+        if (data && data.classNumber && data.classNumber.startsWith("MLC")){ return false }
+
         if (data.contributors && data.contributors.length>0){
           data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
         }

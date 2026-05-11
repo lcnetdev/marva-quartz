@@ -43,7 +43,7 @@ export default {
                 <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-opac-marc-html')"
                     v-html="ver.marcRecord"></div>
                 <pre v-else>
-            <code>
+            <code class="marc-record-text">                
               {{ ver.marcRecord }}
             </code>
           </pre>
@@ -109,6 +109,7 @@ li {
 .marc-preview-content {
     padding: 0.25em;
     color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+
 }
 
 .version-number {
@@ -119,7 +120,7 @@ li {
 
 .sidebar-header-text {
     font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size', true) + 0.25 + 'em'");
-    font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
+    /* font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')"); */
     color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
 
 }
@@ -142,7 +143,7 @@ li {
 
 /** MARC preview formatting */
 :deep() .marc.record {
-    font-family: monospace;
+    /* font-family: monospace; */
 }
 
 :deep() .marc.indicators {
@@ -163,6 +164,12 @@ li {
 
 :deep() div.marc.field {
     text-indent: 4em hanging;
+
+}
+:deep() .marc {
+    font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-marc-font-family')") !important;
+    font-weight: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-marc-font-weight')") !important;
+
 }
 
 :deep() span.marc.subfield:hover {
@@ -174,12 +181,19 @@ div.accordion-list details.accordion-item > div.accordion-item__content {
     padding-bottom: 0px !important;
 }
 
+.marc-record-text{
+    font-weight: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-marc-font-weight')");
+    font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-marc-font-family')") !important;
+
+}
+
 /* Allow the style to propogate to the popout window */
 div:has(div.version-number),
 div:has(div.marc.record) {
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')");
     color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')");
     font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size')");
-    font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
+    /* font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')"); */
+    font-weight: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-marc-font-weight')");
 }
 </style>
