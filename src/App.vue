@@ -60,7 +60,7 @@ export default {
     FieldColorsModal,
     HubStubCreateModal,
     NacoStubCreateModal,
-    CipModal
+    CipModal,
     MarvaLogModal,
     UserDirectoryModal,
     FolioSyncModal
