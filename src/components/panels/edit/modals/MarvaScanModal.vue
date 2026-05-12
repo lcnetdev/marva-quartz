@@ -59,34 +59,117 @@
 
           <!-- ============ SCAN TAB ============ -->
           <div v-if="activeTab === 'scan'" class="ms-tabpanel">
-            <!-- Pairing card: hidden once any live data has arrived this session. -->
-            <div v-if="!liveDataReceived" class="ms-grid">
+            <!-- Pairing card: hidden once any live data has arrived this session,
+                 but kept visible in webcam mode so the camera controls remain usable. -->
+            <div v-if="!liveDataReceived || captureSource === 'webcam'" class="ms-grid">
               <div class="ms-card ms-qr-card">
-                <h2>Scan with your phone</h2>
-                <div :class="['ms-status', statusClass]">
-                  <span>{{ statusMessage || 'Idle' }}</span>
+                <div class="ms-source-toggle">
+                  <label class="ms-source-radio">
+                    <input type="radio" value="phone" v-model="captureSource" />
+                    <span>Phone</span>
+                  </label>
+                  <label class="ms-source-radio">
+                    <input type="radio" value="webcam" v-model="captureSource" />
+                    <span>Webcam</span>
+                  </label>
                 </div>
-                <div class="ms-qr-container">
-                  <span v-if="!qrReady" class="ms-muted">Waiting for connection…</span>
-                  <!-- Vue-opaque mount point: qr-code-styling appends raw SVG nodes
-                       here and Vue must never try to diff those children. -->
-                  <div v-once ref="qrContainer" class="ms-qr-mount"></div>
+
+                <div v-show="captureSource === 'phone'">
+                  <h2>Scan with your phone</h2>
+                  <div :class="['ms-status', statusClass]">
+                    <span>{{ statusMessage || 'Idle' }}</span>
+                  </div>
+                  <div class="ms-qr-container">
+                    <span v-if="!qrReady" class="ms-muted">Waiting for connection…</span>
+                    <!-- Vue-opaque mount point: qr-code-styling appends raw SVG nodes
+                         here and Vue must never try to diff those children. -->
+                    <div v-once ref="qrContainer" class="ms-qr-mount"></div>
+                  </div>
+                  <div class="ms-qr-meta">
+                    <div v-if="connectionId">
+                      <span class="ms-label">Connection</span>
+                      <code>{{ connectionId }}</code>
+                    </div>
+                    <div v-if="resourceId">
+                      <span class="ms-label">Resource ID</span>
+                      <code>{{ resourceId }}</code>
+                    </div>
+                    <div v-if="qrUrl" class="ms-qrurl">
+                      <a :href="qrUrl" target="_blank" rel="noopener">Open mobile link</a>
+                    </div>
+                  </div>
+                  <div class="ms-actions">
+                    <button @click="restart()" :disabled="isConnecting">Reconnect</button>
+                  </div>
                 </div>
-                <div class="ms-qr-meta">
-                  <div v-if="connectionId">
-                    <span class="ms-label">Connection</span>
-                    <code>{{ connectionId }}</code>
+
+                <div v-show="captureSource === 'webcam'">
+                  <div class="ms-webcam-device-row">
+                    <label class="ms-webcam-device-label">
+                      <span>Camera</span>
+                      <select v-model="webcamDeviceId" @change="onWebcamDeviceChanged()">
+                        <option v-if="webcamDevices.length === 0" value="">(no cameras found)</option>
+                        <option v-for="d in webcamDevices" :key="d.deviceId" :value="d.deviceId">
+                          {{ d.label || 'Camera ' + d.deviceId.slice(0, 6) }}
+                        </option>
+                      </select>
+                    </label>
+                    <button class="ms-webcam-refresh" @click="enumerateWebcams()" title="Refresh device list">↻</button>
                   </div>
-                  <div v-if="resourceId">
-                    <span class="ms-label">Resource ID</span>
-                    <code>{{ resourceId }}</code>
+
+                  <div class="ms-webcam-stage">
+                    <video
+                      ref="webcamVideo"
+                      class="ms-webcam-video"
+                      autoplay
+                      playsinline
+                      muted
+                    ></video>
+                    <div v-if="webcamError" class="ms-webcam-error">{{ webcamError }}</div>
+                    <div v-else-if="!webcamReady" class="ms-webcam-overlay">
+                      <span class="ms-muted">{{ webcamStarting ? 'Starting camera…' : 'No camera active' }}</span>
+                    </div>
+                    <div v-if="webcamFlashing" class="ms-webcam-flash"></div>
+                    <div v-if="webcamToast" class="ms-webcam-toast">{{ webcamToast }}</div>
                   </div>
-                  <div v-if="qrUrl" class="ms-qrurl">
-                    <a :href="qrUrl" target="_blank" rel="noopener">Open mobile link</a>
+
+                  <div class="ms-webcam-categories">
+                    <button
+                      v-for="cat in webcamCategoryButtons"
+                      :key="'wc-'+cat.id"
+                      class="ms-webcam-cat-btn"
+                      :class="{ active: webcamSelectedCategory === cat.id }"
+                      :disabled="!webcamReady || webcamCapturing"
+                      @click="captureWebcam(cat.id, cat.multi)"
+                    >{{ cat.label }}</button>
                   </div>
-                </div>
-                <div class="ms-actions">
-                  <button @click="restart()" :disabled="isConnecting">Reconnect</button>
+
+                  <div v-if="webcamTocPages.length > 0" class="ms-webcam-toc-bar">
+                    <button
+                      class="ms-webcam-toc-reset"
+                      :disabled="webcamCapturing"
+                      @click="resetWebcamToc()"
+                    >Reset</button>
+                    <span class="ms-webcam-toc-count">
+                      {{ webcamTocPages.length }} {{ webcamTocPages.length === 1 ? 'page' : 'pages' }}
+                    </span>
+                    <button
+                      class="ms-webcam-toc-send"
+                      :disabled="webcamCapturing"
+                      @click="sendWebcamTocBundle()"
+                    >Send All</button>
+                  </div>
+
+                  <div class="ms-qr-meta">
+                    <div v-if="connectionId">
+                      <span class="ms-label">Connection</span>
+                      <code>{{ connectionId }}</code>
+                    </div>
+                    <div v-if="resourceId">
+                      <span class="ms-label">Resource ID</span>
+                      <code>{{ resourceId }}</code>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -394,6 +477,7 @@ import { VueFinalModal } from 'vue-final-modal'
 import VueDragResize from 'vue3-drag-resize'
 import { mapStores, mapState, mapWritableState } from 'pinia'
 import { useMarvaScanStore, MARVA_SCAN_STATUS } from '@/stores/marvaScan'
+import { MarvaScan } from '@/lib/marva_scan'
 
 const HUMAN_CATEGORY = {
   cover: 'Cover',
@@ -404,6 +488,19 @@ const HUMAN_CATEGORY = {
   back_cover: 'Back cover',
   ocr: 'OCR',
 }
+
+const WEBCAM_CATEGORIES = [
+  { id: 'cover',      label: 'Cover',         multi: false },
+  { id: 'summary',    label: 'Summary',       multi: false },
+  { id: 'title_page', label: 'Title Page',    multi: false },
+  { id: 'copyright',  label: 'Copyright',     multi: false },
+  { id: 'ocr',        label: 'Just OCR',      multi: false },
+  { id: 'llm_ocr',    label: 'Non-Latin OCR', multi: false },
+  { id: 'toc',        label: 'TOC',           multi: true  },
+  { id: 'back_cover', label: 'Back Cover',    multi: false },
+]
+
+const WEBCAM_PREF_KEY = 'marvaScan.webcam.preferences.v1'
 
 export default {
   name: 'MarvaScanModal',
@@ -464,6 +561,27 @@ export default {
       tocProbing: false,
       // Bumped per request so loadImageCategory can ignore stale fetches.
       imageRequestId: 0,
+
+      // ---- Webcam capture (alternative to phone QR pairing) ----
+      // 'phone' or 'webcam'. Initialized from localStorage on mount.
+      captureSource: 'phone',
+      // List of MediaDeviceInfo (videoinput only) discovered via enumerateDevices.
+      webcamDevices: [],
+      // Currently selected device id; falls back to first device when the saved
+      // one isn't available anymore.
+      webcamDeviceId: '',
+      // Active MediaStream; null when stopped.
+      webcamStream: null,
+      webcamReady: false,
+      webcamStarting: false,
+      webcamError: null,
+      // Default category — clicking a category button captures immediately.
+      webcamSelectedCategory: 'title_page',
+      webcamCapturing: false,
+      webcamFlashing: false,
+      webcamToast: '',
+      // Accumulated TOC pages waiting to be sent as a bundle.
+      webcamTocPages: [],
     }
   },
 
@@ -573,8 +691,12 @@ export default {
     },
 
     ocrSourceLabel() {
-      if (this.resultsByCategory && this.resultsByCategory.ocr) return 'live scan'
-      return 'retrieved'
+      // Match the source the ocrProposal getter actually chose, so the badge
+      // tells the user which extractor produced the text shown above it.
+      const src = this.ocrProposal && this.ocrProposal.source
+      const live = this.resultsByCategory && this.resultsByCategory[src || 'ocr']
+      if (src === 'llm_ocr') return live ? 'live scan (non-Latin)' : 'retrieved (non-Latin)'
+      return live ? 'live scan' : 'retrieved'
     },
 
     provisionSourceLabel() {
@@ -615,6 +737,10 @@ export default {
       return ''
     },
 
+    webcamCategoryButtons() {
+      return WEBCAM_CATEGORIES
+    },
+
     /**
      * Style for the magnifier circle. Centered on the cursor, with the source
      * image as background, scaled by `magnifierZoom`, positioned so the area
@@ -645,10 +771,40 @@ export default {
     },
   },
 
-  // No watchers — the editable title fields are seeded explicitly via
-  // seedTitleFromProposal() from mounted/onResult flow. Reactive watchers on
-  // store getters are surprisingly expensive here because the modal is wrapped
-  // in VueDragResize, which re-renders 60×/s during drag.
+  // No watchers on store getters — they are surprisingly expensive here because
+  // the modal is wrapped in VueDragResize, which re-renders 60×/s during drag.
+  // The only watcher is a local one for the capture-source toggle (cheap: just
+  // a string equality check) so we can start/stop the webcam on switch.
+  watch: {
+    captureSource(next, prev) {
+      if (next === prev) return
+      this.persistWebcamPreferences()
+      if (next === 'webcam') {
+        this.startWebcam()
+      } else {
+        this.stopWebcam()
+      }
+    },
+
+    // Switching tabs unmounts the scan panel and destroys the <video> element.
+    // When we come back to scan in webcam mode, the stream is still alive but
+    // detached from any DOM node — re-attach it (or restart if it was lost).
+    activeTab(next) {
+      if (next !== 'scan' || this.captureSource !== 'webcam') return
+      this.$nextTick(() => {
+        if (this._unmounted) return
+        const video = this.$refs.webcamVideo
+        if (!video) return
+        if (this.webcamStream && this.webcamStream.active) {
+          video.srcObject = this.webcamStream
+          video.play().catch(() => { /* autoplay may be blocked */ })
+          this.webcamReady = true
+        } else {
+          this.startWebcam()
+        }
+      })
+    },
+  },
 
   methods: {
     dragResize(newRect) {
@@ -945,6 +1101,225 @@ export default {
       window.setTimeout(() => { this.copyLabel = 'Copy JSON' }, 1500)
     },
 
+    // ---- Webcam capture ----
+
+    loadWebcamPreferences() {
+      try {
+        const raw = window.localStorage.getItem(WEBCAM_PREF_KEY)
+        if (!raw) return
+        const parsed = JSON.parse(raw)
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.captureSource === 'webcam' || parsed.captureSource === 'phone') {
+            this.captureSource = parsed.captureSource
+          }
+          if (typeof parsed.deviceId === 'string') {
+            this.webcamDeviceId = parsed.deviceId
+          }
+        }
+      } catch { /* ignore corrupted prefs */ }
+    },
+
+    persistWebcamPreferences() {
+      try {
+        window.localStorage.setItem(WEBCAM_PREF_KEY, JSON.stringify({
+          captureSource: this.captureSource,
+          deviceId: this.webcamDeviceId || '',
+        }))
+      } catch { /* localStorage might be disabled */ }
+    },
+
+    async enumerateWebcams() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+        this.webcamError = 'This browser does not support enumerateDevices.'
+        return
+      }
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        this.webcamDevices = devices.filter((d) => d.kind === 'videoinput')
+        // Browsers withhold device labels until the user has granted camera
+        // access at least once; the stream-start flow below triggers a
+        // re-enumerate so the dropdown can fill in real names.
+        if (this.webcamDevices.length === 0) return
+        const known = this.webcamDevices.some((d) => d.deviceId === this.webcamDeviceId)
+        if (!known) this.webcamDeviceId = this.webcamDevices[0].deviceId
+      } catch (e) {
+        this.webcamError = 'Could not list cameras: ' + (e.message || e)
+      }
+    },
+
+    async onWebcamDeviceChanged() {
+      this.persistWebcamPreferences()
+      if (this.captureSource !== 'webcam') return
+      await this.startWebcam()
+    },
+
+    async startWebcam() {
+      if (this._unmounted) return
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        this.webcamError = 'This browser does not support camera access.'
+        return
+      }
+      this.stopWebcam()
+      this.webcamError = null
+      this.webcamStarting = true
+      this.webcamReady = false
+
+      try {
+        if (this.webcamDevices.length === 0) await this.enumerateWebcams()
+        const constraints = { audio: false, video: {} }
+        if (this.webcamDeviceId) {
+          constraints.video.deviceId = { ideal: this.webcamDeviceId }
+        }
+        // Ask for a high-res capture frame — book pages are detail-dense.
+        constraints.video.width = { ideal: 3840 }
+        constraints.video.height = { ideal: 2160 }
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints)
+        if (this._unmounted || this.captureSource !== 'webcam') {
+          stream.getTracks().forEach((t) => t.stop())
+          return
+        }
+        this.webcamStream = stream
+        // After permission, labels become available — refresh the list so the
+        // dropdown shows real device names.
+        await this.enumerateWebcams()
+        // The stream's actual device may differ from the requested one (browser
+        // chose a fallback). Reflect the real one in the dropdown so persistence
+        // round-trips correctly next time.
+        const track = stream.getVideoTracks()[0]
+        if (track) {
+          const settings = track.getSettings && track.getSettings()
+          if (settings && settings.deviceId && settings.deviceId !== this.webcamDeviceId) {
+            this.webcamDeviceId = settings.deviceId
+          }
+        }
+        this.persistWebcamPreferences()
+
+        await this.$nextTick()
+        const video = this.$refs.webcamVideo
+        if (video) {
+          video.srcObject = stream
+          try { await video.play() } catch { /* autoplay may be blocked; user will retry */ }
+        }
+        this.webcamReady = true
+      } catch (e) {
+        const name = e && e.name
+        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+          this.webcamError = 'Camera permission denied. Allow access and try again.'
+        } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+          this.webcamError = 'No matching camera found.'
+        } else {
+          this.webcamError = 'Camera error: ' + (e && (e.message || e.name) || 'unknown')
+        }
+      } finally {
+        this.webcamStarting = false
+      }
+    },
+
+    stopWebcam() {
+      if (this.webcamStream) {
+        try { this.webcamStream.getTracks().forEach((t) => t.stop()) } catch { /* ignore */ }
+        this.webcamStream = null
+      }
+      const video = this.$refs.webcamVideo
+      if (video) {
+        try { video.pause() } catch { /* ignore */ }
+        video.srcObject = null
+      }
+      this.webcamReady = false
+    },
+
+    flashWebcam() {
+      this.webcamFlashing = true
+      window.setTimeout(() => { this.webcamFlashing = false }, 120)
+    },
+
+    showWebcamToast(msg, duration = 1800) {
+      this.webcamToast = msg
+      if (this._toastTimer) window.clearTimeout(this._toastTimer)
+      this._toastTimer = window.setTimeout(() => { this.webcamToast = '' }, duration)
+    },
+
+    captureWebcamFrame(quality = 0.95) {
+      const video = this.$refs.webcamVideo
+      if (!video || !video.videoWidth || !video.videoHeight) return null
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      canvas.getContext('2d').drawImage(video, 0, 0)
+      return canvas.toDataURL('image/jpeg', quality)
+    },
+
+    async captureWebcam(category, multi) {
+      if (this.webcamCapturing || !this.webcamReady) return
+      if (!this.connectionId) {
+        this.showWebcamToast('Still connecting — try again in a moment.', 2500)
+        return
+      }
+      this.webcamSelectedCategory = category
+      this.webcamCapturing = true
+      this.flashWebcam()
+
+      const dataUrl = this.captureWebcamFrame()
+      if (!dataUrl) {
+        this.webcamCapturing = false
+        this.showWebcamToast('Capture failed — camera not ready.', 2500)
+        return
+      }
+
+      if (multi) {
+        this.webcamTocPages.push(dataUrl)
+        this.showWebcamToast('Page ' + this.webcamTocPages.length + ' captured')
+        this.webcamCapturing = false
+        return
+      }
+
+      this.showWebcamToast('Sending…', 3000)
+      try {
+        await MarvaScan.sendPhoto({
+          connectionId: this.connectionId,
+          resourceId: this.resourceId,
+          imageDataUrl: dataUrl,
+          category,
+        })
+        this.showWebcamToast('Sent!')
+      } catch (e) {
+        this.showWebcamToast('Failed: ' + (e.message || e), 3000)
+      } finally {
+        this.webcamCapturing = false
+      }
+    },
+
+    resetWebcamToc() {
+      this.webcamTocPages = []
+      this.showWebcamToast('Reset')
+    },
+
+    async sendWebcamTocBundle() {
+      if (this.webcamCapturing || this.webcamTocPages.length === 0) return
+      if (!this.connectionId) {
+        this.showWebcamToast('Still connecting — try again in a moment.', 2500)
+        return
+      }
+      this.webcamCapturing = true
+      const count = this.webcamTocPages.length
+      this.showWebcamToast('Uploading ' + count + ' pages…', 4000)
+      try {
+        await MarvaScan.sendBundle({
+          connectionId: this.connectionId,
+          resourceId: this.resourceId,
+          category: 'toc',
+          dataUrls: this.webcamTocPages,
+        })
+        this.showWebcamToast('Sent ' + count + ' pages!')
+        this.webcamTocPages = []
+      } catch (e) {
+        this.showWebcamToast('Failed: ' + (e.message || e), 3000)
+      } finally {
+        this.webcamCapturing = false
+      }
+    },
+
     onSelectElement(event) {
       const tagName = event.target.tagName
       if (['INPUT', 'TD', 'BUTTON', 'TEXTAREA', 'SELECT', 'A', 'CODE', 'PRE'].includes(tagName)) {
@@ -983,18 +1358,34 @@ export default {
     this.magnifierVisible = false
     this.imageIndex = 1
     this.tocPageCount = 0
+    this.webcamTocPages = []
+    this.webcamToast = ''
+    this.webcamError = null
+    this.loadWebcamPreferences()
+    // Best-effort device enumeration before the user picks webcam — labels
+    // come back blank until permission is granted, but the list is enough to
+    // populate the dropdown.
+    this.enumerateWebcams()
     await this.marvaScanStore.probeExisting()
     if (this._unmounted) return
-    this.$nextTick(() => {
+    this.$nextTick(async () => {
       if (this._unmounted) return
       // Container only exists when the Scan tab is active and pairing is visible.
       const c = this.$refs.qrContainer || null
       this.marvaScanStore.start(c)
+      if (this.captureSource === 'webcam') {
+        // Wait one more tick so the <video> element is mounted under the webcam
+        // template branch before grabbing it.
+        await this.$nextTick()
+        if (!this._unmounted) this.startWebcam()
+      }
     })
   },
 
   beforeUnmount() {
     this._unmounted = true
+    if (this._toastTimer) window.clearTimeout(this._toastTimer)
+    this.stopWebcam()
     this.marvaScanStore.disconnect()
   },
 }
@@ -1199,6 +1590,219 @@ export default {
 }
 
 .ms-qrurl a { color: #1976d2; font-size: 0.78rem; }
+
+.ms-source-toggle {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.ms-source-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.ms-source-radio input[type="radio"] {
+  cursor: pointer;
+  margin: 0;
+}
+
+.ms-webcam-device-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ms-webcam-device-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.78rem;
+  color: #555;
+  flex: 1;
+}
+
+.ms-webcam-device-label select {
+  font-size: 0.85rem;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.ms-webcam-refresh {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 30px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.ms-webcam-refresh:hover { background: #f5f5f5; }
+
+.ms-webcam-stage {
+  position: relative;
+  background: #000;
+  border-radius: 6px;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ms-webcam-video {
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  display: block;
+  background: #000;
+}
+
+.ms-webcam-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ddd;
+  font-size: 0.85rem;
+}
+
+.ms-webcam-overlay .ms-muted { color: #ddd; }
+
+.ms-webcam-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(127, 29, 29, 0.85);
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 10px;
+  text-align: center;
+}
+
+.ms-webcam-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0.6;
+  pointer-events: none;
+  animation: ms-webcam-flash-fade 0.18s ease-out;
+}
+
+@keyframes ms-webcam-flash-fade {
+  0% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+.ms-webcam-toast {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.ms-webcam-categories {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.ms-webcam-cat-btn {
+  background: #eef2f7;
+  color: #1a1a2e;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 4px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 500;
+  min-height: 38px;
+  transition: background 0.1s, transform 0.05s;
+}
+
+.ms-webcam-cat-btn:hover:not(:disabled) {
+  background: #dde6f1;
+}
+
+.ms-webcam-cat-btn.active {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1565c0;
+}
+
+.ms-webcam-cat-btn:active:not(:disabled) { transform: scale(0.96); }
+
+.ms-webcam-cat-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ms-webcam-toc-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px;
+  background: #f0f7ff;
+  border-radius: 6px;
+}
+
+.ms-webcam-toc-count {
+  font-size: 0.8rem;
+  color: #1565c0;
+  font-weight: 500;
+}
+
+.ms-webcam-toc-reset {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: #555;
+}
+
+.ms-webcam-toc-send {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.ms-webcam-toc-send:disabled,
+.ms-webcam-toc-reset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .ms-actions {
   margin-top: 10px;

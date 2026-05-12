@@ -26,6 +26,7 @@ const HUMAN_CATEGORY = {
   summary: 'Summary',
   back_cover: 'Back cover',
   ocr: 'OCR',
+  llm_ocr: 'Non-Latin OCR',
 }
 
 function humanCategory(cat) {
@@ -199,7 +200,7 @@ export const useMarvaScanStore = defineStore('marvaScan', {
           retrievedByCat.add(cat)
         }
       }
-      const order = ['cover', 'title_page', 'copyright', 'toc', 'summary', 'back_cover', 'ocr']
+      const order = ['cover', 'title_page', 'copyright', 'toc', 'summary', 'back_cover', 'ocr', 'llm_ocr']
       const all = new Set([...live, ...retrievedByCat])
       const ordered = order.filter((c) => all.has(c))
       // Tack on anything we don't know about (defensive).
@@ -300,20 +301,35 @@ export const useMarvaScanStore = defineStore('marvaScan', {
     },
 
     /**
-     * Raw OCR text from merged ocr payload — for display/copy only, no insert.
-     * The OCR shape is { raw_text: "..." } per the API.
+     * Raw OCR text from merged ocr / llm_ocr payload — for display/copy only,
+     * no insert. Both shapes are { raw_text: "..." } per the API.
+     *
+     * `llm_ocr` (Sonnet-driven, preserves non-Latin scripts) wins over the
+     * plain `ocr` extractor when both are present, on the assumption that the
+     * user pressed the explicit Non-Latin OCR button on purpose.
      */
     ocrProposal() {
+      const llmCat = this.mergedDataByCategory.llm_ocr
       const ocrCat = this.mergedDataByCategory.ocr
-      const raw = ocrCat && ocrCat.raw_text
-      if (!isMeaningfulText(raw)) {
+      const llmRaw = llmCat && llmCat.raw_text
+      const ocrRaw = ocrCat && ocrCat.raw_text
+      let source = null
+      let raw = null
+      if (isMeaningfulText(llmRaw)) {
+        source = 'llm_ocr'
+        raw = llmRaw
+      } else if (isMeaningfulText(ocrRaw)) {
+        source = 'ocr'
+        raw = ocrRaw
+      }
+      if (!source) {
         if (_ocrProposalCache.last) _ocrProposalCache.last = null
         return null
       }
       const text = String(raw)
       const cached = _ocrProposalCache.last
-      if (cached && cached.text === text) return cached
-      const next = { text }
+      if (cached && cached.text === text && cached.source === source) return cached
+      const next = { text, source }
       _ocrProposalCache.last = next
       return next
     },
