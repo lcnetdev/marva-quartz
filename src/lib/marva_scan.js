@@ -131,4 +131,71 @@ export class MarvaScan {
     const resp = await fetch(url)
     return resp.json()
   }
+
+  /**
+   * Send a single captured image (as a JPEG data URL) to the processing
+   * endpoint. The result will come back over the WebSocket as an `onResult`
+   * event, keyed by the same connectionId.
+   */
+  static async sendPhoto({ connectionId, resourceId, imageDataUrl, category }, processUrl = MARVA_SCAN_PROCESS_URL) {
+    const payload = { connectionId, image: imageDataUrl, category }
+    if (resourceId) payload.resourceId = resourceId
+    const resp = await fetch(processUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    return resp.json()
+  }
+
+  /**
+   * Multi-page upload flow (used for TOC): request N presigned PUT URLs,
+   * upload each JPEG blob, then trigger processing with the resulting s3 keys.
+   * @param {{connectionId: string, resourceId: string, category: string,
+   *          dataUrls: string[]}} opts
+   */
+  static async sendBundle({ connectionId, resourceId, category, dataUrls }, processUrl = MARVA_SCAN_PROCESS_URL) {
+    const count = dataUrls.length
+    const uploadEndpoint = processUrl.replace(/\/process$/, '/upload')
+    const uploadResp = await fetch(uploadEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rid: resourceId || '', category, count }),
+    })
+    const uploadData = await uploadResp.json()
+    if (uploadData.error) throw new Error(uploadData.error)
+    const uploads = uploadData.uploads
+
+    await Promise.all(uploads.map((u, i) => {
+      const blob = dataUrlToBlob(dataUrls[i])
+      return fetch(u.url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'image/jpeg' },
+        body: blob,
+      }).then((r) => {
+        if (!r.ok) throw new Error('Upload failed: ' + r.status)
+      })
+    }))
+
+    const procResp = await fetch(processUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        connectionId,
+        s3_keys: uploads.map((u) => u.key),
+        category,
+        resourceId: resourceId || '',
+      }),
+    })
+    return procResp.json()
+  }
+}
+
+function dataUrlToBlob(dataUrl) {
+  const [header, b64] = dataUrl.split(',')
+  const mime = header.match(/:(.*?);/)[1]
+  const bytes = atob(b64)
+  const arr = new Uint8Array(bytes.length)
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i)
+  return new Blob([arr], { type: mime })
 }
