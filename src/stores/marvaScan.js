@@ -26,6 +26,7 @@ const HUMAN_CATEGORY = {
   summary: 'Summary',
   back_cover: 'Back cover',
   ocr: 'OCR',
+  llm_ocr: 'Non-Latin OCR',
 }
 
 function humanCategory(cat) {
@@ -51,6 +52,16 @@ const _summaryProposalsCache = { last: null }
 const _tocProposalCache = { last: null }
 const _ocrProposalCache = { last: null }
 const _provisionProposalCache = { last: null }
+const _isbnProposalCache = { last: null }
+
+/**
+ * Normalize an ISBN string: strip whitespace and hyphens, leave digits and
+ * a trailing X. Returns '' for anything not meaningful.
+ */
+function normalizeIsbn(raw) {
+  if (!isMeaningfulText(raw)) return ''
+  return String(raw).replace(/[\s-]/g, '').toUpperCase().replace(/[^0-9X]/g, '')
+}
 
 /**
  * Minimal MARC place-code → human label map for the codes we're likely to see
@@ -199,7 +210,7 @@ export const useMarvaScanStore = defineStore('marvaScan', {
           retrievedByCat.add(cat)
         }
       }
-      const order = ['cover', 'title_page', 'copyright', 'toc', 'summary', 'back_cover', 'ocr']
+      const order = ['cover', 'title_page', 'copyright', 'toc', 'summary', 'back_cover', 'ocr', 'llm_ocr']
       const all = new Set([...live, ...retrievedByCat])
       const ordered = order.filter((c) => all.has(c))
       // Tack on anything we don't know about (defensive).
@@ -300,20 +311,35 @@ export const useMarvaScanStore = defineStore('marvaScan', {
     },
 
     /**
-     * Raw OCR text from merged ocr payload — for display/copy only, no insert.
-     * The OCR shape is { raw_text: "..." } per the API.
+     * Raw OCR text from merged ocr / llm_ocr payload — for display/copy only,
+     * no insert. Both shapes are { raw_text: "..." } per the API.
+     *
+     * `llm_ocr` (Sonnet-driven, preserves non-Latin scripts) wins over the
+     * plain `ocr` extractor when both are present, on the assumption that the
+     * user pressed the explicit Non-Latin OCR button on purpose.
      */
     ocrProposal() {
+      const llmCat = this.mergedDataByCategory.llm_ocr
       const ocrCat = this.mergedDataByCategory.ocr
-      const raw = ocrCat && ocrCat.raw_text
-      if (!isMeaningfulText(raw)) {
+      const llmRaw = llmCat && llmCat.raw_text
+      const ocrRaw = ocrCat && ocrCat.raw_text
+      let source = null
+      let raw = null
+      if (isMeaningfulText(llmRaw)) {
+        source = 'llm_ocr'
+        raw = llmRaw
+      } else if (isMeaningfulText(ocrRaw)) {
+        source = 'ocr'
+        raw = ocrRaw
+      }
+      if (!source) {
         if (_ocrProposalCache.last) _ocrProposalCache.last = null
         return null
       }
       const text = String(raw)
       const cached = _ocrProposalCache.last
-      if (cached && cached.text === text) return cached
-      const next = { text }
+      if (cached && cached.text === text && cached.source === source) return cached
+      const next = { text, source }
       _ocrProposalCache.last = next
       return next
     },
@@ -351,6 +377,25 @@ export const useMarvaScanStore = defineStore('marvaScan', {
         return cached
       }
       _provisionProposalCache.last = next
+      return next
+    },
+
+    /**
+     * ISBN proposal from merged back_cover payload, normalized (digits/X only,
+     * no whitespace or hyphens). Returns null when there's nothing usable.
+     */
+    isbnProposal() {
+      const bc = this.mergedDataByCategory.back_cover
+      const raw = bc && bc.isbn
+      const normalized = normalizeIsbn(raw)
+      if (!normalized) {
+        if (_isbnProposalCache.last) _isbnProposalCache.last = null
+        return null
+      }
+      const cached = _isbnProposalCache.last
+      if (cached && cached.value === normalized) return cached
+      const next = { value: normalized, raw: String(raw) }
+      _isbnProposalCache.last = next
       return next
     },
 
@@ -1137,6 +1182,84 @@ export const useMarvaScanStore = defineStore('marvaScan', {
         '@guid': (targetPt.userValue && targetPt.userValue['@guid']) || translator.new(),
         '@root': PROP,
         [PROP]: [bnode],
+      }
+      targetPt.hasData = true
+      targetPt.userModified = true
+      targetPt.dataLoaded = false
+
+      try { profileStore.dataChanged() } catch { /* best-effort */ }
+      return true
+    },
+
+    /**
+     * Insert an ISBN identifier onto the Instance RT under bf:identifiedBy
+     * as a bf:Isbn typed bnode with an rdf:value child.
+     *
+     * The identifiedBy slot is shared by many identifier templates (LCCN,
+     * ISBN, OCLC, etc.). We pick a PT that's either:
+     *  - empty (no userValue), OR
+     *  - already typed as bf:Isbn (so we can duplicate it to get an empty
+     *    ISBN-flavored slot rather than clobbering an LCCN).
+     * If no Isbn-typed PT exists yet we fall back to any empty identifiedBy
+     * PT, since those are template-only and not yet committed to a subtype.
+     *
+     * @param {{value: string}} payload — caller is expected to pass the
+     *   already-normalized digits (see normalizeIsbn).
+     */
+    async insertIsbn(payload) {
+      const value = payload && typeof payload.value === 'string' ? payload.value.trim() : ''
+      if (!value) return false
+      const profileStore = useProfileStore()
+      const profile = profileStore.activeProfile
+      if (!profile || !profile.rt) return false
+
+      const instanceRt = this._findRt(profile, ':Instance')
+      if (!instanceRt) return false
+
+      const PROP = 'http://id.loc.gov/ontologies/bibframe/identifiedBy'
+      const ISBN_TYPE = 'http://id.loc.gov/ontologies/bibframe/Isbn'
+      const RDF_VALUE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#value'
+
+      // Prefer an existing Isbn-typed PT (empty or full). If only non-Isbn
+      // identifiedBy PTs exist, fall through to the unfiltered search so we
+      // can land in any empty identifiedBy slot.
+      const isIsbnPt = (pt) => {
+        const arr = pt && pt.userValue && pt.userValue[PROP]
+        if (!Array.isArray(arr) || arr.length === 0) return false
+        return arr.some((n) => n && n['@type'] === ISBN_TYPE)
+      }
+
+      let targetPt = await this._ensureEmptyPt(
+        profileStore,
+        profile,
+        instanceRt,
+        PROP,
+        (pt) => {
+          const arr = pt && pt.userValue && pt.userValue[PROP]
+          const empty = !arr || arr.length === 0
+          return empty || isIsbnPt(pt)
+        },
+      )
+      if (!targetPt) {
+        targetPt = await this._ensureEmptyPt(profileStore, profile, instanceRt, PROP)
+      }
+      if (!targetPt) return false
+
+      const isbnNode = {
+        '@guid': translator.new(),
+        '@type': ISBN_TYPE,
+        [RDF_VALUE]: [
+          {
+            '@guid': translator.new(),
+            [RDF_VALUE]: value,
+          },
+        ],
+      }
+
+      targetPt.userValue = {
+        '@guid': (targetPt.userValue && targetPt.userValue['@guid']) || translator.new(),
+        '@root': PROP,
+        [PROP]: [isbnNode],
       }
       targetPt.hasData = true
       targetPt.userModified = true
