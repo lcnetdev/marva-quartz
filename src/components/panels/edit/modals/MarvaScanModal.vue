@@ -203,7 +203,7 @@
             <!-- Insertable components, surfaced from merged (live + retrieved) data. -->
             <div class="ms-card ms-inserts-card">
               <h2>Insert from scanned data</h2>
-              <p class="ms-muted" v-if="!titleProposal && !sorProposal && !editionProposal && !provisionProposal && !primaryAuthorProposal && otherContributorsProposal.length === 0 && summaryProposals.length === 0 && !tocProposal && !ocrProposal">
+              <p class="ms-muted" v-if="!titleProposal && !sorProposal && !editionProposal && !provisionProposal && !primaryAuthorProposal && otherContributorsProposal.length === 0 && summaryProposals.length === 0 && !tocProposal && !ocrProposal && !isbnProposal">
                 Capture a title page, copyright page, summary, back cover, table of contents, or OCR to enable insertions.
               </p>
 
@@ -256,6 +256,22 @@
                 </div>
                 <div v-if="editionInsertedAt" class="ms-insert-confirm">
                   Inserted {{ formatTime(editionInsertedAt) }}
+                </div>
+              </div>
+
+              <div v-if="isbnProposal" class="ms-insert-block">
+                <div class="ms-insert-head">
+                  <h3>ISBN <span class="ms-source-badge">{{ isbnSourceLabel }}</span></h3>
+                  <button class="ms-insert-btn" @click="doInsertIsbn()">Insert into Instance</button>
+                </div>
+                <div class="ms-insert-fields">
+                  <label>
+                    <span>Number</span>
+                    <input type="text" :value="isbnValue" @input="isbnOverride = $event.target.value" />
+                  </label>
+                </div>
+                <div v-if="isbnInsertedAt" class="ms-insert-confirm">
+                  Inserted {{ formatTime(isbnInsertedAt) }}
                 </div>
               </div>
 
@@ -534,6 +550,9 @@ export default {
       summaryInsertedAt: {},
       tocOverride: null,
       tocInsertedAt: null,
+      // ISBN: editable override + inserted timestamp, same pattern as the others.
+      isbnOverride: null,
+      isbnInsertedAt: null,
       // Provision activity per-field overrides; null means "follow the proposal".
       provisionDateOverride: null,
       provisionPublisherOverride: null,
@@ -615,6 +634,7 @@ export default {
       'tocProposal',
       'ocrProposal',
       'provisionProposal',
+      'isbnProposal',
     ]),
     ...mapWritableState(useMarvaScanStore, ['showModal']),
 
@@ -683,6 +703,16 @@ export default {
     tocValue() {
       if (this.tocOverride !== null) return this.tocOverride
       return (this.tocProposal && this.tocProposal.text) || ''
+    },
+
+    isbnValue() {
+      if (this.isbnOverride !== null) return this.isbnOverride
+      return (this.isbnProposal && this.isbnProposal.value) || ''
+    },
+
+    isbnSourceLabel() {
+      if (this.resultsByCategory && this.resultsByCategory.back_cover) return 'live scan'
+      return 'retrieved'
     },
 
     tocSourceLabel() {
@@ -833,6 +863,8 @@ export default {
       this.summaryInsertedAt = {}
       this.tocOverride = null
       this.tocInsertedAt = null
+      this.isbnOverride = null
+      this.isbnInsertedAt = null
       this.provisionDateOverride = null
       this.provisionPublisherOverride = null
       this.provisionPlaceCodeOverride = null
@@ -953,6 +985,15 @@ export default {
         text: (this.tocValue || '').trim(),
       })
       if (ok) this.tocInsertedAt = Date.now()
+    },
+
+    async doInsertIsbn() {
+      // Strip whitespace and dashes the same way as the store proposal getter,
+      // so a user-edited value still gets normalized before insert.
+      const cleaned = (this.isbnValue || '').replace(/[\s-]/g, '').toUpperCase().replace(/[^0-9X]/g, '')
+      if (!cleaned) return
+      const ok = await this.marvaScanStore.insertIsbn({ value: cleaned })
+      if (ok) this.isbnInsertedAt = Date.now()
     },
 
     async doInsertProvision() {
