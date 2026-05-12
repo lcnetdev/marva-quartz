@@ -3497,8 +3497,7 @@ const utilsNetwork = {
     * @return {object|false} - the response from the service
     */
     scriptShifterRequestTrans: async function(lang,text,capitalize,t_dir){
-
-            let url = useConfigStore().returnUrls.scriptshifter + 'trans'
+      let url = useConfigStore().returnUrls.scriptshifter + 'trans'
 
       let r = await fetch(url, {
         method: 'POST',
