@@ -320,9 +320,6 @@
             }
           }
 
-          console.info("this.oneXXParts: ", this.oneXXParts)
-
-
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
           // console.log("additonalFields",additonalFields)
           let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode)
