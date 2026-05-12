@@ -289,10 +289,9 @@
       },
 
       hasPubDate: function(data){
-        console.info("data: ", data)
         let dates = data.extra.pubdates
 
-        if (dates.length > 0){
+        if (dates && dates.length > 0){
           return dates[0]
         }
 
