@@ -288,6 +288,17 @@
         return looksLikeLccn
       },
 
+      hasPubDate: function(data){
+        console.info("data: ", data)
+        let dates = data.extra.pubdates
+
+        if (dates.length > 0){
+          return dates[0]
+        }
+
+        return false
+      },
+
       generateLabel: function(data){
         let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
 
@@ -1162,6 +1173,7 @@
                         <span v-html="generateLabel(r)"></span>
                         <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
                         <span v-if="checkFromRda(r)" class="from-rda"> [RDA]</span>
+                        <span v-if="hasPubDate(r)" class="pub-date"> [{{ hasPubDate(r) }}]</span>
                       </div>
                     </option>
 
@@ -1779,6 +1791,10 @@
 
 .note-data {
   columns: 1;
+}
+
+.pub-date {
+  font-style: italic;
 }
 
 </style>
