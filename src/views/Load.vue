@@ -866,7 +866,6 @@ export default {
       if (useLoadUrl.trim() !== '') {
         this.loadingRecord = true
         let xml = await utilsNetwork.fetchBfdbXML(useLoadUrl)
-        console.info("bfdbXML: ", xml)
         if (!xml) {
           alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
           this.loadingRecord = false
