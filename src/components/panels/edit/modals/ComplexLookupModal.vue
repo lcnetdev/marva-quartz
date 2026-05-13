@@ -1167,14 +1167,7 @@
                       Searching...
                     </option>
 
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
-                      <div :class="['option-text', {unusable: !checkUsable(r)}]">
-                        <span v-html="generateLabel(r)"></span>
-                        <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
-                        <span v-if="checkFromRda(r)" class="from-rda"> [RDA]</span>
-                        <span v-if="hasPubDate(r)" class="pub-date"> [{{ hasPubDate(r) }}]</span>
-                      </div>
-                    </option>
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">{{ generateLabel(r) }}{{ checkFromAuth(r) ? ' (Auth)' : '' }}{{ checkFromRda(r) ? ' [RDA]' : '' }}{{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}</option>
 
                   </select>
                   <br>
@@ -1536,10 +1529,6 @@
     overflow-x: none;
     overflow-y: auto;
     outline:none;
-  }
-
-  .complex-lookup-result{
-    text-indent: 2em hanging;
   }
 
   .complex-lookup-results{
