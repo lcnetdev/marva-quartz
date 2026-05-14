@@ -2267,19 +2267,25 @@ const utilsExport = {
 
 		// check again if they made a 400 in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
-			console.log("x.tag", x.tag, "has667", has667)
 			if ((x.tag == '400' || x.fieldTag == '400') && !has667){
 				pos29 = 'a'
 			}
 		}
 
+		let pos17 = 'n'
+		if (extraMarcStatements.some((mrc) => mrc.fieldTag == '781') ){
+			pos17 = 'i'
+		}
+
 		let pos32 = "a"
 		// did they make a 4xx
-		if (oneXXParts.fieldTag == '110' || oneXXParts.fieldTag == '111' || oneXXParts.fieldTag == '130'){
+		if (['110', '111', '130', '151'].includes(oneXXParts.fieldTag) ){
 			pos32 = 'n'
 		}
 
-		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|' + pos29+ ' a'+pos32+'a' + " ".repeat(6)
+
+		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaab' + pos17 + " ".repeat(10) + '|' + pos29+ ' a'+pos32+'a' + " ".repeat(6)
+
 		console.log("field008.innerHTML", field008.innerHTML)
 		marcTxt =  marcTxt+ this.buildMarcTxtLine('008',' ',' ',[field008.innerHTML])
 
