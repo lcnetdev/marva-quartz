@@ -2272,9 +2272,9 @@ const utilsExport = {
 			}
 		}
 
-		let pos17 = 'n'
+		let pos06 = 'n'
 		if (extraMarcStatements.some((mrc) => mrc.fieldTag == '781') ){
-			pos17 = 'i'
+			pos06 = 'i'
 		}
 
 		let pos32 = "a"
@@ -2284,7 +2284,7 @@ const utilsExport = {
 		}
 
 
-		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaab' + pos17 + " ".repeat(10) + '|' + pos29+ ' a'+pos32+'a' + " ".repeat(6)
+		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  +  pos06 + '| azannaabn' + " ".repeat(10) + '|' + pos29+ ' a'+pos32+'a' + " ".repeat(6)
 
 		console.log("field008.innerHTML", field008.innerHTML)
 		marcTxt =  marcTxt+ this.buildMarcTxtLine('008',' ',' ',[field008.innerHTML])
