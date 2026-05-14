@@ -119,16 +119,3 @@ describe('SOR Splitting', () => {
 
 
 })
-
-
-// const wrapper = shallowMount(SubjectEditor)
-// wrapper.setData({
-//     components: expectedSimpleSubect,
-//     searchResults: {
-//         subjectsComplex: [],
-//         subjectsChildrenComplex: []
-//     }
-// })
-// wrapper.vm.add()
-// expect(wrapper.vm.components).toEqual(expectedSimpleSubect)
-// expect(wrapper.emitted().subjectAdded).toEqual([[expectedSimpleSubect]])
