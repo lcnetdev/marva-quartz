@@ -638,7 +638,9 @@
 
       openRemark(){
         let remark = this.returnRemark()
+        console.info("remark: ", remark)
         if (remark && (remark.indexOf('http://') > -1 || remark.indexOf('https://') > -1)){
+          console.info("going to ", this.returnRemark())
           window.open(this.returnRemark(), '_blank').focus()
         }else{
           alert(remark)
@@ -647,7 +649,7 @@
       },
 
       returnRemark: function(){
-
+        console.info("remarks?")
         // check the lowest level first
         if (this.profileStore.rtLookup[this.structure.parentId] && this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
           for (let pt of this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
@@ -683,7 +685,7 @@
         // maybe it is in the parent structure
         if (this.profileStore.rtLookup[parentStructure.parentId] && this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
           for (let pt of this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
-            if (pt.propertyURI == parentStructure.propertyURI && pt.remark){
+            if (pt.propertyURI == parentStructure.propertyURI && pt.remark && pt['@guid'] == this.guid){
               return pt.remark
             }
           }
