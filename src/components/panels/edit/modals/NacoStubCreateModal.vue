@@ -1587,10 +1587,12 @@
 
           // /\s{1};\s{1}|,\s*(?=[^)^\]]*(?:\(|\[|$))|\&|and|und/g) --> split on <space>;<space> and commas not in ()
           // favor splitting on semicolon. Seems reliable to get the first name without bleed from other names. But after that, anything can happen
-          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|\s+e\s+|;/g).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|\s+e\s+|;/g)
-          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|,/g).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and|und|\&\s+|,/g)
+          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/;\s+and|und|\&\s+|\s+e\s+|;/g).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/;\s+and|und|\&\s+|\s+e\s+|;/g)
+          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,\s+and|und|\&\s+|,/g).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,\s+and|und|\&\s+|,/g)
+          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/and|und|\&/g).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/and|und|\&/g)
           }
 
           // SOR examples that make rules difficult
