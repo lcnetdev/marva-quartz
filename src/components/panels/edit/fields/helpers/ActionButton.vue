@@ -647,7 +647,6 @@
       },
 
       returnRemark: function(){
-
         // check the lowest level first
         if (this.profileStore.rtLookup[this.structure.parentId] && this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
           for (let pt of this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
@@ -683,7 +682,7 @@
         // maybe it is in the parent structure
         if (this.profileStore.rtLookup[parentStructure.parentId] && this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
           for (let pt of this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
-            if (pt.propertyURI == parentStructure.propertyURI && pt.remark){
+            if (pt.propertyURI == parentStructure.propertyURI && pt.remark && pt['@guid'] == this.guid){
               return pt.remark
             }
           }

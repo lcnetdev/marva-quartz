@@ -62,6 +62,8 @@ export const useConfigStore = defineStore('config', {
 
         profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/profile',
         starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/starting-points',
+        // profiles:  'https://editor.id.loc.gov/marva/dancer/api/serve/marva-stage/profile',
+        // starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-stage/starting-points',
 
 
         // worldCat: 'http://localhost:5200/worldcat/',
