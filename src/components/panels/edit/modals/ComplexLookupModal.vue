@@ -87,10 +87,11 @@
           "subjects": "Subjects",
           "sees": "See Also",
           "genres": "Genre/Form",
+          "pubDate": "Publication Date"
 
         },
         panelDetailOrder: [
-            "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","establishDates","terminateDates",
+            "birthdates","deathdates", "pubDate", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","establishDates","terminateDates",
             "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
@@ -285,6 +286,16 @@
         let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
 
         return looksLikeLccn
+      },
+
+      hasPubDate: function(data){
+        let dates = data.extra.pubdates
+
+        if (dates && dates.length > 0){
+          return dates[0]
+        }
+
+        return false
       },
 
       generateLabel: function(data){
@@ -1156,13 +1167,7 @@
                       Searching...
                     </option>
 
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
-                      <div :class="['option-text', {unusable: !checkUsable(r)}]">
-                        <span v-html="generateLabel(r)"></span>
-                        <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
-                        <span v-if="checkFromRda(r)" class="from-rda"> [RDA]</span>
-                      </div>
-                    </option>
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">{{ generateLabel(r) }}{{ checkFromAuth(r) ? ' (Auth)' : '' }}{{ checkFromRda(r) ? ' [RDA]' : '' }}{{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}</option>
 
                   </select>
                   <br>
@@ -1209,7 +1214,8 @@
 
                     <!-- Dates -->
                     <template v-if="(Object.keys(activeContext.extra).includes('birthdates') && activeContext.extra['birthdates'].length > 0)
-                    || (Object.keys(activeContext.extra).includes('deathdates') && activeContext.extra['deathdates'].length > 0)">
+                    || (Object.keys(activeContext.extra).includes('deathdates') && activeContext.extra['deathdates'].length > 0)
+                    || (Object.keys(activeContext.extra).includes('pubdates') && activeContext.extra['pubdates'].length > 0)">
 
                       <span class="dates-container" style="padding-bottom: 10px;">
                         <span v-if="activeContext.extra['birthdates'] && activeContext.extra['birthdates'].length > 0 " style="margin-right: 15px;">
@@ -1219,6 +1225,10 @@
                         <span v-if="activeContext.extra['deathdates'] && activeContext.extra['deathdates'].length > 0 ">
                           <span class="modal-context-data-title">Date of Death: </span>
                           <span>{{ activeContext.extra['deathdates'][0] }}</span>
+                        </span>
+                        <span v-if="activeContext.extra['pubdates'] && activeContext.extra['pubdates'].length > 0 ">
+                          <span class="modal-context-data-title">Publication Date: </span>
+                          <span>{{ activeContext.extra['pubdates'][0] }}</span>
                         </span>
                       </span>
                       <br>
@@ -1521,10 +1531,6 @@
     outline:none;
   }
 
-  .complex-lookup-result{
-    text-indent: 2em hanging;
-  }
-
   .complex-lookup-results{
     padding: 0 1em 0 1em;
     height: 73%;
@@ -1773,6 +1779,10 @@
 
 .note-data {
   columns: 1;
+}
+
+.pub-date {
+  font-style: italic;
 }
 
 </style>

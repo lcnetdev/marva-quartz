@@ -933,7 +933,8 @@ const utilsExport = {
                                                     let pLvl4 = this.createElByBestNS(key3) // this was key2, was that a typo or is this going to break stuff?
 
 													// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
-													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
+													// if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
+													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://id.loc.gov/ontologies/bibframe/Topic'){
 														let cont = this.buildNoteType(bnodeLvl3, userValue[key1][0][key2][0], key3, xmlLog)
 														if (cont){ continue }
 													}
@@ -2267,19 +2268,25 @@ const utilsExport = {
 
 		// check again if they made a 400 in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
-			console.log("x.tag", x.tag, "has667", has667)
 			if ((x.tag == '400' || x.fieldTag == '400') && !has667){
 				pos29 = 'a'
 			}
 		}
 
+		let pos06 = 'n'
+		if (extraMarcStatements.some((mrc) => mrc.fieldTag == '781') ){
+			pos06 = 'i'
+		}
+
 		let pos32 = "a"
 		// did they make a 4xx
-		if (oneXXParts.fieldTag == '110' || oneXXParts.fieldTag == '111' || oneXXParts.fieldTag == '130'){
+		if (['110', '111', '130', '151'].includes(oneXXParts.fieldTag) ){
 			pos32 = 'n'
 		}
 
-		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|' + pos29+ ' a'+pos32+'a' + " ".repeat(6)
+
+		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  +  pos06 + '| azannaabn' + " ".repeat(10) + '|' + pos29+ ' a'+pos32+'a' + " ".repeat(6)
+
 		console.log("field008.innerHTML", field008.innerHTML)
 		marcTxt =  marcTxt+ this.buildMarcTxtLine('008',' ',' ',[field008.innerHTML])
 

@@ -410,12 +410,11 @@ export default {
     navKey: function(event){
 
 
-
-      if (event && event.code === 'ArrowUp'){
+      let useArrowNav = this.preferenceStore.returnValue('--b-edit-main-literal-component-jump')
+      if (useArrowNav && event && event.code === 'ArrowUp'){
         utilsMisc.globalNav('up',event.target)
       }
-      if (event && event.code === 'ArrowDown'){
-
+      if (useArrowNav && event && event.code === 'ArrowDown'){
         utilsMisc.globalNav('down',event.target)
       }
 

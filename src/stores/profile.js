@@ -3087,7 +3087,7 @@ export const useProfileStore = defineStore('profile', {
 
             // keeps track of the @type, will be the last @type of the hiearchy when done looping
             let thisLevelType
-
+            let complexCheck = false
             for (let p of propertyPath){
                 // if the property is owl:sameAs it is the last field
                 // of where we are building the entitiy, so we don't  want
@@ -3112,7 +3112,8 @@ export const useProfileStore = defineStore('profile', {
 
                 // if it's a complexSubject, replace bf:Topic with madsrdf:ComplexSubject -- the conversion expects this
                 if (thisLevelType == "http://id.loc.gov/ontologies/bibframe/Topic" && propertyPath.some((obj) => obj.propertyURI == "http://www.loc.gov/mads/rdf/v1#componentList")){
-                  thisLevelType = 'madsrdf:ComplexSubject'
+                  // thisLevelType = 'madsrdf:ComplexSubject'
+                  complexCheck = true
                 }
 
                 let thisLevel = {'@guid':short.generate()}
@@ -3246,6 +3247,13 @@ export const useProfileStore = defineStore('profile', {
                     "@guid": short.generate(),
                     "http://www.w3.org/2000/01/rdf-schema#label": fullLabel
                 }]
+
+                if (complexCheck){
+                  currentUserValuePos["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+                    "@guid": short.generate(),
+                    "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+                  }]
+                }
 
                 // we need to make the component list then
 
@@ -6916,7 +6924,12 @@ export const useProfileStore = defineStore('profile', {
 
       // Use rich component data if available for complex subjects
       if (components && components.length > 1) {
-        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        // subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        subjectValue['@type'] = 'bf:Topic'
+        subjectValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+          "@guid": short.generate(),
+          "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+        }]
         subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = components.map(c => {
           let comp = {
             '@guid': translator.new(),
@@ -6942,7 +6955,12 @@ export const useProfileStore = defineStore('profile', {
         subjectValue['@type'] = components[0].type || 'http://www.loc.gov/mads/rdf/v1#Topic'
       } else if (label.includes('--')) {
         // Fallback: parse from label if no component data
-        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        // subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        subjectValue['@type'] = 'bf:Topic'
+        subjectValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+          "@guid": short.generate(),
+          "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+        }]
         let parts = label.split('--').map(s => s.trim())
         subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = parts.map(part => ({
           '@guid': translator.new(),
