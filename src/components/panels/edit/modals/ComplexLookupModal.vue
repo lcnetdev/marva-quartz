@@ -298,6 +298,16 @@
         return false
       },
 
+      isSuppressed: function(data){
+        let suppressed = false
+
+        if (data.extra.status && data.extra.status == 'suppressed'){
+          suppressed = true
+        }
+
+        return suppressed
+      },
+
       generateLabel: function(data){
         let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
 
@@ -1167,7 +1177,12 @@
                       Searching...
                     </option>
 
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">{{ generateLabel(r) }}{{ checkFromAuth(r) ? ' (Auth)' : '' }}{{ checkFromRda(r) ? ' [RDA]' : '' }}{{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}</option>
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : isSuppressed(r) ? 'background-color:yellow' : ''" class="complex-lookup-result">  <!-- this.isSuppressed(r) ? 'color:yellow' :  -->
+                      {{ generateLabel(r) }}
+                      {{ checkFromAuth(r) ? ' (Auth)' : '' }}
+                      {{ checkFromRda(r) ? ' [RDA]' : '' }}
+                      {{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}
+                    </option>
 
                   </select>
                   <br>
@@ -1195,6 +1210,9 @@
                         <div class="modal-context-data-title">{{activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]}}</div>
                         <div v-if="activeContext.depreciated" style="background: pink;">
                           DEPRECATED AUTHORITY
+                        </div>
+                        <div v-if="activeContext.extra && activeContext.extra.status && activeContext.extra.status == 'suppressed'" style="background: yellow;">
+                          SUPPRESSED
                         </div>
                         <div v-if="activeContext.extra.collections && activeContext.extra.collections.includes('http://id.loc.gov/authorities/names/collection_NamesUndifferentiated')" style="background: pink;">
                           THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
