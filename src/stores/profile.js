@@ -105,6 +105,7 @@ export const useProfileStore = defineStore('profile', {
     savedNARModalData:{},
     savedHubModalData:{},
 
+    showCipModal: false,
     showMarvaLogModal: false,
     marvaLogResults: [],
     marvaLogSearchValue: '',

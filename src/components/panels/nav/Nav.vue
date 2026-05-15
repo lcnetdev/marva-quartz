@@ -67,6 +67,7 @@ import FindReplaceModal from '../edit/modals/FindReplaceModal.vue'
 import StatusIndicator from './nav_components/StatusIndicator.vue'
 import RecordHistory from './nav_components/RecordHistory.vue'
 import SystemStatus from './nav_components/SystemStatus.vue'
+import short from 'short-uuid'
 
 
 import TimeAgo from 'javascript-time-ago'
@@ -100,7 +101,6 @@ export default {
       default: [],
       type: Array
     }
-
   },
   computed: {
 
@@ -110,7 +110,9 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal', 'showFindReplaceModal']),
-    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal']),
+    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal', 'showCipModal']),
+
+
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
 
@@ -467,6 +469,20 @@ export default {
             ]
           }
         )
+      }
+
+      if (!this.disable.includes('Tools') && this.isStaging() && this.$route.path.startsWith('/edit/')) {
+        for (let sub in menu) {
+          if (menu[sub].text == 'Tools') {
+            menu[sub].menu.push(
+              {
+                text: 'Finish CIP',
+                click: () => { this.showCipModal = true },
+                icon: "incomplete_circle"
+              }
+            )
+          }
+        }
       }
 
       if (this.$route.path.startsWith('/edit/') && this.preferenceStore.returnValue('--c-general-ad-hoc')) {
@@ -1512,6 +1528,7 @@ export default {
         console.error('Failed to fetch dancer workspaces:', error)
       }
     },
+
 
     addAllDefaults: function () {
       for (let rt in this.activeProfile.rt) {
