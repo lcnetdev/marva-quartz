@@ -26,7 +26,7 @@ export default {
             height: 0,
             top: 100,
             left: 0,
-            initalHeight: 290,
+            initalHeight: 305,
             changedHeight: 650,
             initalLeft: 50,
             initalWidth: 600,
@@ -259,7 +259,8 @@ export default {
                     </div>
                 </div>
 
-                <h1>Finish CIP Record</h1>
+                <h1>Finalize Record</h1>
+                <p>A collection of common actions taken to finish a record.</p>
                 <br>
                 <label for="dateCheck">Update Dates: </label>
                 <input type="checkbox" name="dateCheck" id="dateCheck" v-model="updateDates" />

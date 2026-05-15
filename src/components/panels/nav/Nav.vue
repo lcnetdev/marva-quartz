@@ -476,9 +476,10 @@ export default {
           if (menu[sub].text == 'Tools') {
             menu[sub].menu.push(
               {
-                text: 'Finish CIP',
+                text: 'Finalize Record',
                 click: () => { this.showCipModal = true },
-                icon: "incomplete_circle"
+                icon: "incomplete_circle",
+                hotkey: "ctrl+alt+f",
               }
             )
           }
