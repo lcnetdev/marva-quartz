@@ -2975,7 +2975,7 @@ const utilsNetwork = {
           'Content-type': 'application/xml', // Indicates the content
           ...getAuthHeaders()
         },
-        signal: AbortSignal.timeout(3000),  // add a timeout
+        signal: AbortSignal.timeout(10000),  // add a timeout
         body: xml // We send data in JSON format
       }
       // console.log(putMethod)
@@ -2984,15 +2984,29 @@ const utilsNetwork = {
       let saved = false
 
       await fetch(url, putMethod)
-        .then(response => response.text())
-        .then((responseText)=>{
-          // console.log(responseText)
+        .then(async (response) => {
+          const responseText = await response.text()
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status} ${response.statusText}${responseText ? ` — ${responseText}` : ''}`)
+          }
           saved = true
         })
-        // .then(data => console.log(data)) // Manipulate the data retrieved back, if we want to do something with it
         .catch((err) => {
           console.log(err, " => ", url)
-          alert("Error: Could not save the record!", err)
+          let reason
+          if (err && err.name === 'TimeoutError') {
+            reason = `Request timed out after 3s.`
+          } else if (err && err.name === 'AbortError') {
+            reason = `Request was aborted.`
+          } else if (err instanceof TypeError) {
+            // fetch throws TypeError for network failures / CORS / DNS / offline
+            reason = `Network error — could not reach the server. ${err.message}`
+          } else if (err && err.message) {
+            reason = err.message
+          } else {
+            reason = String(err)
+          }
+          alert(`Error: Could not save the record!\n\nURL: ${url}\nReason: ${reason}`)
           saved = false
         }) // Do something with the error
 
