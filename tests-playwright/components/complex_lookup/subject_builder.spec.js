@@ -605,9 +605,9 @@ test('Add a Dogs with literal topic sub it has the correct XML', async ({ page }
     await page.getByText('Topic / Heading ($a $x)').click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
+    await expect(page.locator('#app')).toContainText('<rdfs:typexmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject" />');
     await expect(page.locator('#app')).toContainText('Dogs--literal');
-    await expect(page.locator('#app')).toContainText('<madsrdf:componentListrdf:parseType="Collection">');
+    await expect(page.locator('#app')).toContainText('<madsrdf:componentListxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"rdf:parseType="Collection">');
     await expect(page.locator('#app')).toContainText('<madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh85038796">');
     await expect(page.locator('#app')).toContainText('<madsrdf:Topic>');
     await expect(page.locator('#app')).toContainText('literal');
@@ -633,9 +633,9 @@ test('Add a Dogs with literal temporal sub it has the correct XML', async ({ pag
     await page.getByText('Chronological ($y)').click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
+    await expect(page.locator('#app')).toContainText('<rdfs:typexmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject" />');
     await expect(page.locator('#app')).toContainText('Dogs--literal');
-    await expect(page.locator('#app')).toContainText('<madsrdf:componentListrdf:parseType="Collection">');
+    await expect(page.locator('#app')).toContainText('<madsrdf:componentListxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"rdf:parseType="Collection">');
     await expect(page.locator('#app')).toContainText('<madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh85038796">');
     await expect(page.locator('#app')).toContainText('150 $aDogs');
     await expect(page.locator('#app')).toContainText('<madsrdf:Temporal>');
@@ -755,11 +755,11 @@ test('Able to add an edited subject', async ({ page }) => {
     await expect(page.getByRole('dialog')).toContainText('Add [SHIFT+Enter]');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<madsrdf:authoritativeLabel>Public schools--Austria--History--18th century--Congresses</madsrdf:authoritativeLabel>');
+    await expect(page.locator('#app')).toContainText('Public schools--Austria--History--18th century--Congresses</madsrdf:authoritativeLabel>');
     await expect(page.locator('#app')).toContainText('<madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh85108801">');
     await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">150  $aPublic schools</bflc:marcKey>');
     await expect(page.locator('#app')).toContainText('<madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh99001964">');
-    await expect(page.locator('#app')).toContainText('<madsrdf:authoritativeLabel>Congresses</madsrdf:authoritativeLabel>');
+    await expect(page.locator('#app')).toContainText('Congresses</madsrdf:authoritativeLabel>');
     await expect(page.locator('#app')).toContainText('bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180  $xCongresses</bflc:marcKey>');
 });
 
