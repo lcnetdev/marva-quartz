@@ -780,6 +780,15 @@ export const usePreferenceStore = defineStore('preference', {
       group: 'Literal Field',
       range: null
     },
+    '--b-edit-main-literal-component-jump' : {
+      desc: 'Use Up & Down arrows to jump to another component',
+      descShort: 'Move components with arrow keys.',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'Literal Field',
+      range: [true,false]
+    },
 
 
   // Lookup Field
