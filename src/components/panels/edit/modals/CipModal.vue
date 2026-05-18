@@ -261,45 +261,47 @@ export default {
 
                 <h1>Finalize Record</h1>
                 <p>A collection of common actions taken to finish a record.</p>
-                <br>
-                <label for="dateCheck">Update Dates: </label>
-                <input type="checkbox" name="dateCheck" id="dateCheck" v-model="updateDates" />
-                &nbsp;
-                <label for="ebookCip">Ebook? </label>
-                <input type="checkbox" name="ebookCip" id="ebookCip" v-model="ebookCip" />
-                <br><br>
-                <p>This will:</p>
-                <ul>
-                    <li>Remove the "Projected Publication Date"</li>
-                    <li>Change the encoding level to "full"</li>
-                    <template v-if="updateDates">
-                        <li>Match the "Provision Activity" dates and call number date to the "Publication Year"</li>
-                        <li>Insert the "Copyright Year" into the "Copyright date," if provided</li>
-                        <li>Update the "Note about the Instance," if appropriate</li>
-                        <template v-if="copyrightAsPub">
-                            <li>Use the "Copyright Year" as the "Publication Year" and put [brackets] around 264 $c</li>
-                        </template>
-                    </template>
-                    <template v-if="ebookCip">
-                        <li>Set the "Note about the Instance."</li>
-                    </template>
-                </ul>
-
-                <br></br>
-                <div class="cip-form" v-if="updateDates">
-                    <label for="pubYear">Publication Year: </label>
-                    <input type="text" name="pubYear" id="pubYear" v-model="zerozero8Date" />(default value taken from 008)
+                <form>
                     <br>
-                    <label for="copYear">Copyright Year: </label>
-                    <input type="text" name="copYear" id="copYear" v-model="copyrightDate" />
-                    &nbsp;
-                    <input type="checkbox" name="copyPub" id="copyPub" v-model="copyrightAsPub" />
-                    <label for="copyPub"> (Use CopyRight as Pub)</label>
+                    <label for="dateCheck">Update Dates: </label>
+                    <input type="checkbox" name="dateCheck" id="dateCheck" v-model="updateDates" />
+                    <!-- &nbsp;
+                    <label for="ebookCip">Ebook? </label>
+                    <input type="checkbox" name="ebookCip" id="ebookCip" v-model="ebookCip" /> -->
+                    <br><br>
+                    <p>This will:</p>
+                    <ul>
+                        <li>Remove the "Projected Publication Date"</li>
+                        <li>Change the encoding level to "full"</li>
+                        <template v-if="updateDates">
+                            <li>Match the "Provision Activity" dates and call number date to the "Publication Year"</li>
+                            <li>Insert the "Copyright Year" into the "Copyright date," if provided</li>
+                            <li>Update the "Note about the Instance," if appropriate</li>
+                            <template v-if="copyrightAsPub">
+                                <li>Use the "Copyright Year" as the "Publication Year" and put [brackets] around 264 $c</li>
+                            </template>
+                        </template>
+                        <template v-if="ebookCip">
+                            <li>Set the "Note about the Instance."</li>
+                        </template>
+                    </ul>
+
+                    <br></br>
+                    <div class="cip-form" v-if="updateDates">
+                        <label for="pubYear">Publication Year: </label>
+                        <input type="text" name="pubYear" id="pubYear" v-model="zerozero8Date" autofocus />(default value taken from 008)
+                        <br>
+                        <label for="copYear">Copyright Year: </label>
+                        <input type="text" name="copYear" id="copYear" v-model="copyrightDate" />
+                        &nbsp;
+                        <input type="checkbox" name="copyPub" id="copyPub" v-model="copyrightAsPub" />
+                        <label for="copyPub"> (Use CopyRight as Pub)</label>
 
 
-                </div>
+                    </div>
 
-                <button @click="finishCip()">Finish CIP</button>
+                    <button @click="finishCip()">Finish CIP</button>
+                </form>
             </div>
         </VueDragResize>
     </VueFinalModal>
