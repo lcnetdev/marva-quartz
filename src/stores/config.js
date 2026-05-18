@@ -9,7 +9,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 6,
-    versionPatch: 0,
+    versionPatch: 2,
 
 
 
@@ -62,7 +62,10 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://editor.id.loc.gov/marva/util/profiles/profile/prod',
 
         profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/profile',
+        // profiles : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod-copy-subjects/profile',
         starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-prod/starting-points',
+        // profiles:  'https://editor.id.loc.gov/marva/dancer/api/serve/marva-stage/profile',
+        // starting : 'https://editor.id.loc.gov/marva/dancer/api/serve/marva-stage/starting-points',
 
 
         // worldCat: 'http://localhost:5200/worldcat/',
@@ -90,6 +93,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
+        externalDev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
         publicEndpoints:true,
@@ -452,6 +456,8 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2023478519',label:"bf:relation test", idUrl:'https://id.loc.gov/resources/instances/2023478519.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'2025443360',label:"NAR Tests", idUrl:'https://id.loc.gov/resources/instances/2025443360.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2023548750',label:"Subject Test", idUrl:'https://id.loc.gov/resources/instances/2023548750.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'66082276',label:"Non-latin Rare", idUrl:'https://id.loc.gov/resources/instances/66082276.html', profile:'Rare Matereials',profileId:'lc:RT:bf2:RareMat:Instance'},
 
 
 

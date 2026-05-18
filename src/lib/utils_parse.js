@@ -521,7 +521,6 @@ const utilsParse = {
         continue
       }
 
-
       // does this tle have a URI or a type?
       if (xml.attributes['rdf:resource']){
         profile.rt[pkey].URI = xml.attributes['rdf:resource'].value
@@ -821,7 +820,6 @@ const utilsParse = {
             }
 
 
-
             // start populating the data
             let populateData = null
             populateData = JSON.parse(JSON.stringify(ptk))
@@ -844,12 +842,6 @@ const utilsParse = {
             // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
             //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])
             // }
-
-
-
-
-
-
 
             // we want all userValues to includ the root predicate property
             // we will map that to the base level to make things cleaner below
@@ -1044,16 +1036,34 @@ const utilsParse = {
 
                       // if there is a RDF type node here it is the parent's type
                       // overwrite the basic type that was set via the bnode type
+                      // don't do this with complexSubjects, those should remain bf:Topic so the XML matches what came in
                       if (gChild.attributes && gChild.attributes['rdf:about']){
-                        userValue['@type'] = gChild.attributes['rdf:about'].value
+                        let type = gChild.attributes['rdf:about'].value
+                        if (type != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
+                          userValue['@type'] = type
+                        } else {
+                          userValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+                            "@guid": short.generate(),
+                            "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+                          }]
+                        }
                       }else if (gChild.attributes && gChild.attributes['rdf:resource']){
-                        userValue['@type'] = gChild.attributes['rdf:resource'].value
+                        let type = gChild.attributes['rdf:resource'].value
+                        if (type != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
+                          userValue['@type'] = type
+                        } else {
+                          userValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+                            "@guid": short.generate(),
+                            "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+                          }]
+                        }
                       }else{
                         console.warn('---------------------------------------------')
                         console.warn('There was a gChild RDF Type node but could not extract the type')
                         console.warn(gChild)
                         console.warn('---------------------------------------------')
                       }
+
 
                     }
                   }else if (gChild.children.length ==0){
@@ -1727,6 +1737,16 @@ const utilsParse = {
                 }
               }
 
+              // if it's expression of with a URI
+              if (populateData.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
+                // if there's a uri, @id, set to false
+                let userValue = populateData.userValue
+                let data = userValue["http://id.loc.gov/ontologies/bibframe/expressionOf"][0]
+                if (Object.keys(data).includes("@id")){
+                  delete populateData.deepHierarchy
+                }
+              }
+
               // trying to turn it off for transcribed series
               if (populateData.id.indexOf('transcribed_series') >-1){
                 populateData.deepHierarchy = false
@@ -2123,11 +2143,11 @@ const utilsParse = {
           // now look into the rt of this propertiy to see what properties we have sucuessfully mapped and things we did not map
           let allUris = [profile.rt[pkey].pt[key].propertyURI]
           profile.rt[pkey].pt[key].valueConstraint.valueTemplateRefs.forEach((rtName)=>{
-            console.log('----')
-            console.log(profile.rt[pkey].pt[key])
-            console.log(pkey,key)
-            console.log(profile.rt[pkey].pt[key].valueConstraint.valueTemplateRefs)
-            console.log(rtName)
+            // console.log('----')
+            // console.log(profile.rt[pkey].pt[key])
+            // console.log(pkey,key)
+            // console.log(profile.rt[pkey].pt[key].valueConstraint.valueTemplateRefs)
+            // console.log(rtName)
 
             useProfileStore().rtLookup[rtName].propertyTemplates.forEach((ptObj)=>{
               if (allUris.indexOf(ptObj.propertyURI)==-1){
@@ -2583,10 +2603,6 @@ const utilsParse = {
 
 
   },
-
-
-
-
 
 
 

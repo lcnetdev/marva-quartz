@@ -130,6 +130,10 @@
           return true
         }
 
+        if (!this.goodTags()){
+          return true
+        }
+
         if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !this.good670()){
           return true
         }
@@ -222,6 +226,12 @@
         return good
       },
 
+      // Check that tag fields aren't empty
+      goodTags: function(){
+        let good = this.extraMarcStatements.every((row) => row.fieldTag.length == 3)
+        return good
+      },
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -309,7 +319,6 @@
               additonalFields.push(newField)
             }
           }
-
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
           // console.log("additonalFields",additonalFields)
@@ -690,8 +699,13 @@
 
             if (dollarKey.d){
 
-              dollarKey.d = dollarKey.d.replace(":", "")
-              let lifeDates  = dollarKey.d.split('-')
+              let lifeDates = []
+              if (dollarKey.d.includes(":")){
+                let temp = dollarKey.d.replace(":", "")
+                lifeDates  = temp.split('-')
+              } else {
+                lifeDates  = dollarKey.d.split('-')
+              }
 
               // if the first part is empty, or starts with a YYYY build the 046, otherwise don't
               let dateCheck = /^[0-9]{4}/.test(lifeDates[0]) || lifeDates[0] == ""
@@ -746,6 +760,19 @@
                 this.extraMarcStatements.splice(row, 1);
               }
               this.zero46 = {}
+            }
+
+            if (this.zero46 && Object.keys(this.zero46).length > 0){
+
+              window.setTimeout(()=>{
+                this.rebuild046()
+              },10)
+
+            }else{
+
+              // not really nessary
+
+
             }
 
             if (dollarKey.a){
@@ -1243,6 +1270,7 @@
         },
 
         build046(){
+          console.log("build046", this.zero46)
           let f046 = {
             fieldTag: '046',
             indicators: '##',
@@ -1316,6 +1344,22 @@
             this.checkFourXX()
           }
 
+
+          window.setTimeout(()=>{
+            this.rebuild046()
+          },10)
+
+
+
+          window.setTimeout(()=>{
+            event.target.value = 'home'
+          },500)
+
+        },
+
+
+        rebuild046(){
+
           // rebuild 046 if $d is present
           if (this.oneXX.includes("$d")){
             let tmp046 = this.build046()
@@ -1350,12 +1394,6 @@
             }
           }
 
-
-
-
-          window.setTimeout(()=>{
-            event.target.value = 'home'
-          },500)
 
         },
 
@@ -1547,11 +1585,7 @@
             }
           }
 
-          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and\s+|,/).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and\s+|,/)
-          } else if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+und\s+|\s+e\s+|;/).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+und\s+|\s+e\s+|;/)
-          }
+          this.statementOfResponsibilityOptions = this.splitSor(this.statementOfResponsibility)
 
           let addingDefaultExtraMarcStatements = false
 
@@ -1719,6 +1753,35 @@
 
           // console.log(this.scriptShifterOptions)
 
+        },
+
+        splitSor: function(sor){
+          let split = []
+          // /\s{1};\s{1}|,\s*(?=[^)^\]]*(?:\(|\[|$))|\&|and|und/g) --> split on <space>;<space> and commas not in ()
+          // favor splitting on semicolon. Seems reliable to get the first name without bleed from other names. But after that, anything can happen
+          // \s{1};\s{1}|;\s*(?=[^)^\]]*(?:\(|\[|$))|\&|and|und
+          // ;\s+and|und|\&\s+|\s+e\s+|;\s+
+          // ;|;\s?(?=(and))|(?<=;)\s?and
+          // ;|;\s?(?=and)
+          if (sor && sor.split(/(?:;?\s?(?:and|und|\&))\s?(?<=;.*)|\s?;\s?/g).length>1){
+            split = sor.split(/(?:;?\s?(?:and|und|\&))\s?(?<=;.*)|\s?;\s?/g)
+          } else if (sor && sor.split(/(?:,?\s?(?:and|und|\&))\s?(?<=,.*)|\s?,\s?/g).length>1){
+            split = sor.split(/(?:,?\s?(?:and|und|\&))\s?(?<=,.*)|\s?,\s?/g)
+          } else if (sor && sor.split(/\s+(?:and|und|\&){1}\s+/g).length>1){
+            split = sor.split(/\s+(?:and|und|\&){1}\s+/g)
+          }
+
+          return split //.map((name) => name.trim())
+
+          // SOR examples that make rules difficult
+          // Cecilia Leibovitz ; photographs by David Lewis Taylor & Talia Marek
+          // Ana Rodriguez Alvarez, Jeffrey J. Mora Sanchez (directores) ; prologo E. Raul Zaffaroni; prologo a la edicion costarricense Javier Llobet Rodriguez
+          // Sally Friedman and Davy Schultz, Editors
+          // Pedro Romaguera Esteva ; pròleg, Dr. Jordi Maíz Chacón, Professor de la UIB
+          // Dina de Sousa e Santos (organizadora) ; prefácios, Professor Phillip Rothwell (Universidade de Oxford), Doutora Elisabete Vera Cruz (Universidade Agostinho Neto, UAN)
+          // Archie Bogle and Don McKay ; compiled by by Gordon Andreassend, Andrew Blackman and Don McKay
+          // editor-in-chief, Elaine Wyllie ; associate editors, Barry E. Gidal, Ahsan Moosa Naduvil Valappil, Howard P. Goodkin, Elaine Wirrell, Stephan Schuele
+          // Alberto Pitta ; organização, Thais Darzé, Paulo Darzé ; curadoria e texto, Daniel Rangel
         },
 
         update670: function(){
@@ -2033,6 +2096,18 @@
                 <div>
                   <div class="error-info-title">Other Checks:</div>
 
+                  <template v-if="goodTags()">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">All Tags Present</span>
+                        </div>
+                  </template>
+                  <template v-else>
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">Tag Missing</span><span data-tooltip="Add missing Tag in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
+                  </template>
 
                   <template v-if="goodIndicators()">
                         <div>
@@ -2155,7 +2230,7 @@
                       v-model="row.fieldTag"
                       maxlength="3"
                       placeholder="TAG"
-                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.fieldTag.length != 3}]"
                       :style="`margin-right: 1em; width: 50px; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                     />
                     <input
@@ -2178,6 +2253,7 @@
 
 
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
+                    <button v-if="extraMarcStatements.length-1 == index && index != 0" @click="removeRow($event,index)" style="margin-left: 1em;">-</button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
                   </div>
                 </div>

@@ -42,7 +42,7 @@ let dataChangedTimeout = null
 
 // const nonLatinRegex = /^[A-z\u00C0-\u00ff\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9]+$/;
 // const latinRegex = /^[\u3040-\u309F\u30A0-\u30FF]+$/;
-const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\u2C60-\u2C7F\uA720-\uA7FF]+$/
+const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u02B0-\u02FF\u0300-\u036F\u1E00-\u1EFF\u2070-\u20BF\u2C60-\u2C7F\uA720-\uA7FF\uFE20-\uFE2F]+$/
 
 //https://stackoverflow.com/questions/49562546/how-to-get-all-properties-values-of-a-javascript-nested-objects-without-knowing
 // clean cacheGuid of items that match the children of the PT that is insert default values too
@@ -632,6 +632,39 @@ export const useProfileStore = defineStore('profile', {
           } catch (err) {
             console.error('Error fetching dancer workspace list:', err)
           }
+        }else{
+          try {
+            let wsResponse = await fetch(config.returnUrls.dancerWorkspaceList)
+            let wsData = await wsResponse.json()
+            console.log("wsData",wsData)
+            let defaultWs
+            // if we are stage try to find stage
+            if (config.returnUrls.env === 'staging') {
+              defaultWs = wsData.data.find(ws => ws.name === 'marva-stage')
+            }
+            if (config.returnUrls.env === 'production') {
+              defaultWs = wsData.data.find(ws => ws.name === 'marva-prod')
+            }
+
+            if (defaultWs) {
+                let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
+                profilesURL = dancerBaseUrl + defaultWs.id + '/profile'
+                startingURL = dancerBaseUrl + defaultWs.id + '/starting-points'
+            }
+
+            if (config.returnUrls.externalDev) {
+                profilesURL = config.returnUrls.profiles
+                startingURL = config.returnUrls.starting
+
+            }
+
+
+          } catch (err) {
+            console.error('Error fetching dancer workspace list:', err)
+          }
+
+
+
         }
       }
 
@@ -2000,7 +2033,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      //Save
+      // console.info("--------------------------\nsetValueLiteral")
+      // console.info("\tcomponentGuid: ", componentGuid)
+      // console.info("\tfieldGuid: ", fieldGuid)
+      // console.info("\tpropertyPath: ", propertyPath)
+      // console.info("\tvalue: ", )
+      // console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
@@ -3048,7 +3086,7 @@ export const useProfileStore = defineStore('profile', {
 
             // keeps track of the @type, will be the last @type of the hiearchy when done looping
             let thisLevelType
-
+            let complexCheck = false
             for (let p of propertyPath){
                 // if the property is owl:sameAs it is the last field
                 // of where we are building the entitiy, so we don't  want
@@ -3073,7 +3111,8 @@ export const useProfileStore = defineStore('profile', {
 
                 // if it's a complexSubject, replace bf:Topic with madsrdf:ComplexSubject -- the conversion expects this
                 if (thisLevelType == "http://id.loc.gov/ontologies/bibframe/Topic" && propertyPath.some((obj) => obj.propertyURI == "http://www.loc.gov/mads/rdf/v1#componentList")){
-                  thisLevelType = 'madsrdf:ComplexSubject'
+                  // thisLevelType = 'madsrdf:ComplexSubject'
+                  complexCheck = true
                 }
 
                 let thisLevel = {'@guid':short.generate()}
@@ -3207,6 +3246,13 @@ export const useProfileStore = defineStore('profile', {
                     "@guid": short.generate(),
                     "http://www.w3.org/2000/01/rdf-schema#label": fullLabel
                 }]
+
+                if (complexCheck){
+                  currentUserValuePos["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+                    "@guid": short.generate(),
+                    "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+                  }]
+                }
 
                 // we need to make the component list then
 
@@ -4316,8 +4362,8 @@ export const useProfileStore = defineStore('profile', {
       }
     }
 
-    if (subtitle){
-      title = title.replace(": " + subtitle).trim()
+    if (subtitle && title){
+      title = title.replace(": " + subtitle, "").trim()
     }
 
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
@@ -5396,6 +5442,7 @@ export const useProfileStore = defineStore('profile', {
     prepareForNewRecord:  function(){
 
       this.activeProfile = {}
+      this.linkedData = {}
 
     },
 
@@ -6070,7 +6117,7 @@ export const useProfileStore = defineStore('profile', {
               if (!key.startsWith("@")){
                   let result = false
                   try{
-                    if (userValue[key].length == 0){ return }
+                    if (userValue[key].length == 0){ return true }
                     // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
                     //  has an populate electronicLocator
                     if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
@@ -6808,7 +6855,7 @@ export const useProfileStore = defineStore('profile', {
       let workRt = null
       let emptySubjectPt = null
       let lastSubjectPt = null
-
+      console.log("label, source, components, uri, marcKey", label, source, components, uri, marcKey)
       // Find the Work RT
       for (let rt of activeProfile.rtOrder) {
         if (rt.indexOf(':Work') > -1) {
@@ -6876,7 +6923,12 @@ export const useProfileStore = defineStore('profile', {
 
       // Use rich component data if available for complex subjects
       if (components && components.length > 1) {
-        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        // subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        subjectValue['@type'] = 'bf:Topic'
+        subjectValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+          "@guid": short.generate(),
+          "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+        }]
         subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = components.map(c => {
           let comp = {
             '@guid': translator.new(),
@@ -6902,7 +6954,12 @@ export const useProfileStore = defineStore('profile', {
         subjectValue['@type'] = components[0].type || 'http://www.loc.gov/mads/rdf/v1#Topic'
       } else if (label.includes('--')) {
         // Fallback: parse from label if no component data
-        subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        // subjectValue['@type'] = 'madsrdf:ComplexSubject'
+        subjectValue['@type'] = 'bf:Topic'
+        subjectValue["http://www.w3.org/2000/01/rdf-schema#type"] = [{
+          "@guid": short.generate(),
+          "@id": "http://www.loc.gov/mads/rdf/v1#ComplexSubject"
+        }]
         let parts = label.split('--').map(s => s.trim())
         subjectValue['http://www.loc.gov/mads/rdf/v1#componentList'] = parts.map(part => ({
           '@guid': translator.new(),
@@ -6963,6 +7020,83 @@ export const useProfileStore = defineStore('profile', {
       console.log('Top-level marcKey:', marcKey)
       console.log('Components:', JSON.parse(JSON.stringify(components || [])))
       console.log('Built userValue:', JSON.parse(JSON.stringify(targetPt.userValue)))
+
+      targetPt.hasData = true
+      targetPt.userModified = true
+      targetPt.dataLoaded = false
+
+      this.dataChanged()
+    },
+
+    yoshinoInsertClassification: async function(classification) {
+      let activeProfile = this.activeProfile
+      let workRt = null
+      let emptyPt = null
+      let lastPt = null
+
+      for (let rt of activeProfile.rtOrder) {
+        if (rt.indexOf(':Work') > -1) {
+          workRt = rt
+          break
+        }
+      }
+      if (!workRt) return
+
+      for (let ptId of activeProfile.rt[workRt].ptOrder) {
+        let pt = activeProfile.rt[workRt].pt[ptId]
+        if (pt && pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/classification' && !pt.deleted) {
+          lastPt = pt
+          let uv = pt.userValue
+          if (!pt.hasData || !uv ||
+              !uv['http://id.loc.gov/ontologies/bibframe/classification'] ||
+              uv['http://id.loc.gov/ontologies/bibframe/classification'].length === 0 ||
+              !uv['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type']) {
+            emptyPt = pt
+          }
+        }
+      }
+
+      let targetPt = emptyPt
+      if (!targetPt && lastPt) {
+        let newGuid = await this.duplicateComponent(lastPt['@guid'], this.returnStructureByGUID(lastPt['@guid']))
+        if (newGuid) {
+          targetPt = this.returnStructureByGUID(newGuid)
+        }
+      }
+      if (!targetPt) return
+
+      let classValue = {
+        '@guid': translator.new(),
+        '@type': classification.type,
+        'http://id.loc.gov/ontologies/bibframe/classificationPortion': [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bibframe/classificationPortion': classification.portion
+        }]
+      }
+
+      if (classification.sourceCode) {
+        classValue['http://id.loc.gov/ontologies/bibframe/source'] = [{
+          '@guid': translator.new(),
+          '@type': 'http://id.loc.gov/ontologies/bibframe/Source',
+          'http://id.loc.gov/ontologies/bibframe/code': [{
+            '@guid': translator.new(),
+            'http://id.loc.gov/ontologies/bibframe/code': classification.sourceCode
+          }]
+        }]
+      }
+
+      if (classification.edition) {
+        classValue['http://id.loc.gov/ontologies/bibframe/edition'] = [{
+          '@guid': translator.new(),
+          'http://id.loc.gov/ontologies/bibframe/edition': classification.edition
+        }]
+      }
+
+      targetPt.userValue = {
+        '@guid': targetPt.userValue?.['@guid'] || translator.new(),
+        '@root': 'http://id.loc.gov/ontologies/bibframe/classification',
+        'http://id.loc.gov/ontologies/bibframe/classification': [classValue]
+      }
 
       targetPt.hasData = true
       targetPt.userModified = true
@@ -7797,9 +7931,13 @@ export const useProfileStore = defineStore('profile', {
                       {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
                     ]
 
-                    console.log("Found LCC data:",this.activeShelfListData)
-                    console.log(JSON.stringify(pt,null,2))
+                    // console.log("Found LCC data:",this.activeShelfListData)
+                    // console.log(JSON.stringify(pt,null,2))
                     foundLCC = true
+
+                    // this is what we want,break here to prevent hitting the second lcc if the recrd has two
+                    break
+
                   }else{
                     // not LCC
                     // continue
@@ -7837,7 +7975,7 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
+      console.log("Final activeShelfListData:",this.activeShelfListData)
 
     },
 
@@ -7876,15 +8014,15 @@ export const useProfileStore = defineStore('profile', {
         contributors: utilsProfile.returnContributorUris(this.activeProfile),
         isbn: (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn) ? this.activeProfile.linkedData.isbn : [],
       }
-      console.log(":linkedDatalinkedData",linkedData)
+      // console.log(":linkedDatalinkedData",linkedData)
 
       for (let isbn of linkedData.isbn){
 
         let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
-        console.log("baseData",baseData)
+        // console.log("baseData",baseData)
 
         let oclcMarcData = utilsNetwork.linkedDataExtractOclcMarc(baseData.results)
-        console.log("oclcMarcData",oclcMarcData)
+        // console.log("oclcMarcData",oclcMarcData)
         linkedData.subtitle = linkedData.subtitle.concat(oclcMarcData.filter((v) => (v.dataType == 'subtitle')));
         linkedData.noteContent = linkedData.noteContent.concat(oclcMarcData.filter((v) => (v.dataType == 'description')));
         linkedData.noteTOC = linkedData.noteTOC.concat(oclcMarcData.filter((v) => (v.dataType == 'toc')));
@@ -7907,7 +8045,7 @@ export const useProfileStore = defineStore('profile', {
         if (baseData.results.isbns && baseData.results.isbns.length > 0){
           let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
           googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
-          console.log("googleBookData",googleBookData)
+          // console.log("googleBookData",googleBookData)
 
           googleBookData.filter((v) => (v.dataType == 'toc'))
 
@@ -7975,14 +8113,15 @@ export const useProfileStore = defineStore('profile', {
         // console.log("lcshContributors",lcshContributors)
         // kick this off but don't wait for it to finish
         utilsNetwork.linkedDataLCSHContributorsExtract(lcshContributors).then((colabResults)=>{
-          console.log("colabResults",colabResults)
+          // console.log("colabResults",colabResults)
         })
         // if (lcshContributors && lcshContributors.length > 0){
       }
 
-      console.log("linkedData",linkedData)
+      // console.log("linkedData",linkedData)
       this.linkedData = linkedData
       this.linkedData.done = true
+      this.linkedData.eId = this.activeProfile && this.activeProfile.eId
 
     },
 
@@ -8480,6 +8619,125 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    getHighlightedText: async function(textType){
+      let titleCase = false
+      let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
+      let el = false
+      if (highlightedText){
+        const selection = window.getSelection();
+        try {
+          el = selection.anchorNode[0] // this doesn't work in firefox
+        } catch(err){}
+      }
+
+      if (el){
+        let fieldGuid = el.getAttribute("data-guid")
+        let targetGuid = el.getAttribute("data-parent")
+        let pt = utilsProfile.returnPt(this.activeProfile, targetGuid)
+        let structure = this.returnStructureByGUID(targetGuid)
+        // make titlecase
+        if (textType == 'title'){
+          titleCase = this.toTitleCase(highlightedText)
+        } else if (textType == 'lower'){
+          titleCase = highlightedText.toLowerCase()
+        }
+
+        // {level: 0, propertyURI: structure.propertyURI},
+        let pp
+        try {
+          pp = this.buildPropertyPath(structure, [], fieldGuid)
+        } catch(err){
+          console.error("Error building PropertyPath: ", err)
+          return
+        }
+        let currentValue = this.returnLiteralValueFromProfile(targetGuid, pp)
+
+        if (currentValue.length > 1){
+          let newText = ""
+          let nonLatin = false
+          for (let val of currentValue){
+            if (( val['@language'] && val['@language'].toLowerCase().includes('latn')) || val['@language'] == null){
+              newText = val.value.replace(highlightedText, titleCase)
+              this.setValueLiteral(targetGuid, fieldGuid, pp, newText, val['@language'], false)
+            } else {
+              nonLatin = val
+            }
+          }
+
+          // Adjust the non-Latin form to match
+          let otherScriptCodes = false
+          const config = useConfigStore()
+          for (let key in config.scriptShifterLangCodes){
+            let codeObj = config.scriptShifterLangCodes[key]
+            if (nonLatin['@language'] && codeObj.code.toLowerCase() == nonLatin['@language'].toLowerCase()){
+              otherScriptCodes = key
+              break
+            }
+          }
+
+          let transValue = await utilsNetwork.scriptShifterRequestTrans(otherScriptCodes, newText, false, "r2s") //abazin_cyrillic
+          this.setValueLiteral(targetGuid, nonLatin['@guid'], pp, transValue.output, nonLatin['@language'], false)
+        } else {
+          this.setValueLiteral(targetGuid, fieldGuid, pp, currentValue[0].value.replace(highlightedText, titleCase), currentValue[0]['@language'], false)
+        }
+
+
+      }
+
+
+    },
+
+    toTitleCase: function (str) {
+      return str.replace(
+        /\w\S*/g,
+        text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+      );
+    },
+
+    /**
+     * Build the property path from the initial component GUID until we find the fieldGuid
+     *
+     * @param {Object} structure - Structure to build the propertyPath for
+     * @param {Object} pp - Starting propertyPath
+     * @param {String} endGuid - target at the end of path
+     */
+    buildPropertyPath: function(structure, pp, endGuid){
+      let userValue = structure.userValue
+
+      // https://stackoverflow.com/questions/53543303/find-a-full-object-path-to-a-given-value-with-javascript
+      const traverse = (target, node) => {
+        for (let el in node){
+          if (node[el] && typeof node[el] === "object"){
+            let result  = traverse(target, node[el])
+            if (result){
+              if (el.startsWith("http")){
+                result.unshift(el)
+              }
+              return result
+            }
+          } else if (node['@guid'] && node['@guid'] == target){
+            if (el.startsWith("http")){
+              return [el]
+            } else {
+              return []
+            }
+          }
+        }
+
+      };
+
+      let path = traverse(endGuid, userValue)
+      for (let p of path){
+        pp.push(
+          {
+            level: pp.length,
+            propertyURI: p
+          }
+        )
+      }
+
+      return pp
+    },
 
 
 

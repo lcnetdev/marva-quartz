@@ -57,6 +57,9 @@
                 <input type="radio" name="match" id="bib-match"class="bib" value="bibid" @click="changeSearchType($event)">
                 <label for="bib-match" class="bib">Bib ID</label>
 
+                <input type="radio" name="match" id="oclc-match" class="oclc" value="oclc" @click="changeSearchType($event)">
+                <label for="oclc-match" class="oclc">OCLC Num</label>
+
                 <input type="radio" name="match" id="other-match" class="other" value="other" @click="changeSearchType($event)">
                 <label for="other-match" class="other">Other ID</label>
               </form>
@@ -66,19 +69,20 @@
           <br>
           <template v-if="searchType != 'lccn'">
             <label for="matchPoint">Match on: </label>
-            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn(searchType)" />
           </template>
 
-          <template v-if="existingLCCN || existingISBN">
+          <template v-if="existingLCCN || existingISBN || overrideAllow">
             <Badge v-if="existingLCCN"
               text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
-            <Badge v-if="existingISBN"
+            <Badge v-if="existingISBN || overrideAllow"
               text="A record with this identifier might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <h4>
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
                 existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
+              &nbsp;<button @click="showComp">Compare</button>
             </h4>
           </template>
           <template v-else>
@@ -88,7 +92,7 @@
 
           <br>
           <label for="lccn">LCCN: </label>
-          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
+          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn('lccn')"
             :disabled="selectedRecordUrl" />
           <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
             badgeType="primary" />
@@ -108,6 +112,8 @@
           <br>
           <h3>Load with profile:</h3>
           <Badge v-if="!this.selectedWcRecord" text="(select a record to continue)" badgeType="secondary" :noHover="true" />
+          <Badge v-if="this.creatingComp" text="Generating Comparison" badgeType="info" :noHover="true" />
+
           <template v-if="(!existingLCCN && !existingISBN && !overrideAllow) && selectedWcRecord">
             <Badge text="No record to overlay. You will create a new record." badgeType="warning" :noHover="true" />
           </template>
@@ -117,7 +123,7 @@
           <template></template>
           <div class="load-buttons">
             <button :class="['load-button', { 'disabled-button': disableCopyCatButtons() }]"
-              @click="loadCopyCat(s.instance)" v-for="s in startingPointsFiltered">
+              @click="compareRecords(s.instance)" v-for="s in startingPointsFiltered">
               {{ s.name }}
             </button>
           </div>
@@ -133,7 +139,7 @@
               There was an error getting the results: "{{ wcResults.error.message }}"
             </h2>
             <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0 && !queryingWc">
-              Showing 10 of {{ wcResults.results.numberOfRecords }} results </h2>
+              Showing {{ wcResults.results.numberOfRecords > 10 ? 10 : wcResults.results.numberOfRecords }} of {{ wcResults.results.numberOfRecords }} results </h2>
                 <!-- Pagination -->
                 <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc"
                   class="wc-search-paging">
@@ -173,6 +179,9 @@
     </pane>
   </splitpanes>
 
+  <!-- <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :guid="guid" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" /> -->
+  <RecordComparison ref="RecordComparisonModal" :existingRecordUrl="existingRecordUrl" :preview="compPreview" :recordCopyCat=selectedMarc :recordExisting=existingMarc @hideCompModal="hideCompModal()" v-model="displayCompModal" @cancelCopyCat="callbackCancel" @createCopyCat="callbackCreate"/>
+
 </template>
 
 
@@ -198,6 +207,7 @@ import en from 'javascript-time-ago/locale/en'
 import CopyCatCard from './copyCatComponents/CopyCatCard.vue'
 import Pagination from './copyCatComponents/Pagination.vue'
 import Badge from './copyCatComponents/Badge.vue'
+import RecordComparison from './copyCatComponents/RecordComparison.vue'
 
 import { DataTable } from "@jobinsjp/vue3-datatable"
 import "@jobinsjp/vue3-datatable/dist/style.css"
@@ -208,7 +218,7 @@ const timeAgo = new TimeAgo('en-US')
 const decimalTranslator = short("0123456789");
 
 export default {
-  components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge },
+  components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge, RecordComparison },
   data() {
     return {
 
@@ -282,6 +292,14 @@ export default {
       overrideAllow: false,
       overrideBibid: "",
 
+      displayCompModal: false,
+      existingMarc: false,
+      selectedMarc: {},
+      continueWithLoad: false,
+      compPreview: false,
+      targetProfile: null,
+      creatingComp: false,
+
     }
   },
   computed: {
@@ -317,10 +335,41 @@ export default {
   watch: {},
 
   methods: {
+    showComp: async function(){
+      this.compPreview = true
+      this.selectedMarc = this.selectedWcRecord.marcHTML
+
+      let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
+      if (existingMarcUrl && !this.existingMarc){
+        this.existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
+        this.existingMarc = this.htmlify(this.existingMarc)
+      }
+
+      this.displayCompModal = true
+    },
+    callbackCreate: function(){
+      this.continueWithLoad = true
+      this.displayCompModal = false
+      this.loadCopyCat(this.targetProfile)
+    },
+
+    callbackCancel: function(){
+      this.continueWithLoad = false
+      this.displayCompModal = false
+      return
+    },
+
+    hideCompModal: function(){
+      this.displayCompModal = false;
+    },
+
+
     changeSearchType: function (event) {
       this.searchType = event.target.value
 
-      this.checkLccn()
+      console.info("searchType: ", this.searchType)
+
+      this.checkLccn(this.searchType)
     },
 
     printMarc: function () {
@@ -353,7 +402,7 @@ export default {
       // check if there's an LCCN in the record
       let existingLccn = this.loadLccnFromRecord(value)
       this.selectedRecordUrl = existingLccn
-      this.checkLccn()
+      this.checkLccn('lccn')
       console.info("load: ", existingLccn)
       console.info("this.selectedRecordUrl: ", this.selectedRecordUrl)
     },
@@ -391,14 +440,15 @@ export default {
      * - lccn matc
      */
 
-    checkLccn: async function () {
-      console.info("checkLCCN: ", this.searchType)
+    checkLccn: async function (type=lccn) {
+      this.existingMarc = false // reset this if the check triggers
+      this.searchType = type
       // if (this.urlToLoad.length < 3){ return }
       if(this.overrideAllow && this.overrideBibid !=''){
         console.info("override: ", this.overrideBibid)
         console.info("checking override: ", this.overrideBibid)
         this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
-        this.searchType = 'bibid'
+        this.searchType = 'override'
       } else {
         this.existingLCCN = false
         this.existingISBN = false
@@ -407,18 +457,48 @@ export default {
       let recordData = null
 
       if (this.searchType == 'bibid'){
+        console.info("searching bibid")
         this.checkingLCCN = true
         let url = "https://preprod-8080.id.loc.gov/resources/instances/" + this.isbn + ".html"
         let resp = await utilsNetwork.searchBibId(this.isbn)
+        console.info("resp: ", resp)
         this.checkingLCCN = false
         if (resp.status == 200){
           this.existingISBN = true
           this.existingRecordUrl = url
           recordData = await resp.text()
         }
-      } else if (this.searchType == 'lccn') {
+      }
+      // check the ISBN
+      // else if (!this.existingLCCN && this.wcIndex == "sn"){
+      else if (this.searchType == 'other') {
         this.checkingLCCN = true
-        let resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        let potentialISBN = this.isbn
+        let resp = await utilsNetwork.searchLccn(potentialISBN, true)
+        this.checkingLCCN = false
+        try {
+          this.existingISBN = resp.status != 404
+          if (this.existingISBN) {
+            this.existingRecordUrl = resp.url
+            this.existingLCCN = false
+          } else {
+            this.existingRecordUrl = ""
+          }
+        } catch {
+          this.existingISBN = false
+          this.existingRecordUrl = ""
+        }
+      } else {
+        this.checkingLCCN = true
+        let oclcNum = this.isbn
+        let resp
+        if (this.searchType == 'lccn'){
+          resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        } else {
+          resp = await utilsNetwork.searchLccn(oclcNum, this.searchType)
+        }
+        // let resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        // let resp = await utilsNetwork.searchLccn(oclcNum, 'oclc')
         this.checkingLCCN = false
         try {
           this.existingLCCN = resp.status != 404
@@ -441,27 +521,6 @@ export default {
           }
         } catch {
           this.existingLCCN = null
-          this.existingRecordUrl = ""
-        }
-      }
-
-      // check the ISBN
-      // else if (!this.existingLCCN && this.wcIndex == "sn"){
-      else if (this.searchType == 'other') {
-        this.checkingLCCN = true
-        let potentialISBN = this.isbn
-        let resp = await utilsNetwork.searchLccn(potentialISBN)
-        this.checkingLCCN = false
-        try {
-          this.existingISBN = resp.status != 404
-          if (this.existingISBN) {
-            this.existingRecordUrl = resp.url
-            this.existingLCCN = false
-          } else {
-            this.existingRecordUrl = ""
-          }
-        } catch {
-          this.existingISBN = false
           this.existingRecordUrl = ""
         }
       }
@@ -509,10 +568,10 @@ export default {
     },
 
     checkRecordHasLccn: function (record) {
-      console.info("hasLCCN?: ", record)
+      // console.info("hasLCCN?: ", record)
       if (record) {
         let marc010 = this.getMarcFieldAsString(record, "010")
-        console.info("marc010: ", marc010)
+        // console.info("marc010: ", marc010)
         if (!marc010) { return false }
 
         if (marc010.includes('$a')) { return true }
@@ -619,27 +678,84 @@ export default {
       }
     },
 
+    htmlify: function(marcBlob){
+      let formattedMarcRecord = ["<div class='marc record'>"];
+      for (let [idx, line] of marcBlob.split("\n").entries()){
+        if (idx == 0){
+          let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
+          formattedMarcRecord.push(leader);
+        } else {
+          let tag = String(line.slice(0,3))
+          let value = null;                 // fixed fields?
+          let indicators = null;
+          let subfields = [];               // subfields
+          let subfieldsSplit = []
+          if (line == ""){ continue }
+          if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
+            value = line.slice(7)
+          } else {
+            let tmpIndicators = line.slice(4, 6)
+
+            indicators = [" ", " "]
+            indicators[0] = tmpIndicators.slice(0, tmpIndicators.length / 2)
+            indicators[1] = tmpIndicators.slice(tmpIndicators.length / 2, tmpIndicators.length)
+            let subfieldGroups = line.slice(7).replaceAll(/\$([a-z0-9]{1})/g, "-#-#-$1").split("-#-#-")
+
+            for (let sub of subfieldGroups){
+              if (sub != ""){
+                let field = "$" + sub.at(0)
+                let value = sub.slice(1)
+
+                subfields.push([field, value])
+              }
+            }
+          }
+
+          if (value) {
+            tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+            value = " <span class='marc value'>" + value + '</span>';
+            formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
+          } else {
+            subfields = subfields.map((subfield) =>
+              "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
+            );
+            indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
+            tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+            formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
+          }
+
+        }
+      }
+      formattedMarcRecord.push('</div>');
+      return formattedMarcRecord.join('\r\n');
+    },
+
+    compareRecords: async function(profile){
+      this.creatingComp = true
+      this.targetProfile = profile
+      this.continueWithLoad = false
+
+      // marc record: https://id.loc.gov/resources/instances/<bibid>.bf2m.txt
+      let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
+      let existingMarc = false
+      if (existingMarcUrl){
+        existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
+        this.existingMarc = existingMarc
+        this.existingMarc = this.htmlify(this.existingMarc)
+      }
+      this.selectedMarc = this.selectedWcRecord.marcHTML
+
+      this.compPreview = false
+      this.displayCompModal = true
+      this.creatingComp = false
+    },
+
+
     loadCopyCat: async function (profile) { // load into BFDB/ID
-      let continueWithLoad = true
-      if (this.existingLCCN) {
-        continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
-      }
-      if (this.existingISBN) {
-        continueWithLoad = confirm("There is a record that matches this ISBN. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
-      }
-      if (!continueWithLoad) { return }
 
       let xml = this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
 
       xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
-      let continueWithLccn = true
-      // if (!this.copyCatLccn){
-      if (this.urlToLoad.length != 10) {
-        continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
-      }
-
-
-      if (!continueWithLccn) { return }
 
       let parser = new DOMParser()
       xml = parser.parseFromString(xml, "text/xml")
@@ -766,7 +882,6 @@ export default {
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
       if (this.lccnLoadSelected) {
-
         this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
 
       }
@@ -1186,6 +1301,7 @@ p {
 
 label[class="lccn"],
 label[class="bib"],
+label[class="oclc"],
 label[class="other"]{
   font-weight: bold;
   color: grey;
@@ -1197,6 +1313,9 @@ label[class="lccn"]:focus,
 label[class="bib"]:hover,
 input[class="bib"]:checked + label,
 label[class="bib"]:focus,
+label[class="oclc"]:hover,
+input[class="oclc"]:checked + label,
+label[class="oclc"]:focus,
 label[class="other"]:hover,
 input[class="other"]:checked + label,
 label[class="other"]:focus {
