@@ -81,6 +81,7 @@
                     @keyup="navKey"
                     :ref="'input_' + lValue['@guid']"
                     :data-guid="lValue['@guid']"
+                    :data-parent="guid"
                     :disabled="readOnly"
                     ></textarea>
                 </div>
@@ -110,6 +111,7 @@
                   @keydown="keyDown"
                   :ref="'input_' + lValue['@guid']"
                   :data-guid="lValue['@guid']"
+                  :data-parent="guid"
                   :disabled="readOnly"
                   :readonly="structure.propertyLabel=='Local identifier'"
                   ></textarea>
@@ -408,12 +410,11 @@ export default {
     navKey: function(event){
 
 
-
-      if (event && event.code === 'ArrowUp'){
+      let useArrowNav = this.preferenceStore.returnValue('--b-edit-main-literal-component-jump')
+      if (useArrowNav && event && event.code === 'ArrowUp'){
         utilsMisc.globalNav('up',event.target)
       }
-      if (event && event.code === 'ArrowDown'){
-
+      if (useArrowNav && event && event.code === 'ArrowDown'){
         utilsMisc.globalNav('down',event.target)
       }
 

@@ -229,7 +229,7 @@
 
         setVariantLangReturn(value){
           this.hubTitleVariantLang = value
-          console.log(value,value,value,value,value)
+          // console.log(value,value,value,value,value)
           this.showLitLangModal=false
 
         },
@@ -884,7 +884,7 @@
                 <input type="text" ref="hub-title" v-model="hubTitle" class="title" placeholder="Hub Title" @keydown="keydown" @keyup="keyup">
               </div>
               <div style="flex-shrink: 1;">
-               <button v-if="activeHubStubData && activeHubStubData.title" class="title-button" @click="hubTitle=activeHubStubData.title"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Use Work Title</span></button>
+               <button v-if="activeHubStubData && activeHubStubData.title" class="title-button" @click="hubTitle = activeHubStubData.subtitle ? activeHubStubData.title + ' : ' + activeHubStubData.subtitle : activeHubStubData.title"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Use Work Title</span></button>
               </div>
               <template v-if="activeHubStubData && activeHubStubData.title && activeHubStubData.title.trim() != ''">
               </template>

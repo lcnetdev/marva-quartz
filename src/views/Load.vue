@@ -1092,11 +1092,11 @@ export default {
                       {
                         "@guid": short.generate(),
                         "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
-                        "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+                        "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
                         "http://id.loc.gov/ontologies/bibframe/code": [
                           {
                             "@guid": short.generate(),
-                            "http://id.loc.gov/ontologies/bibframe/code": "DLC",
+                            "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC",
                             "@datatype": "http://id.loc.gov/datatypes/orgs/code"
                           }
                         ]
@@ -1180,7 +1180,7 @@ export default {
                     "http://id.loc.gov/ontologies/bflc/catalogerId": [
                       {
                         "@guid": "fgHPJYcNZNBkeELEUv1M3E",
-                        "http://id.loc.gov/ontologies/bflc/catalogerId": this.preferenceStore.catInitals
+                        "http://id.loc.gov/ontologies/bflc/catalogerId": this.preferenceStore.catCode
                       }
                     ],
                     "http://id.loc.gov/ontologies/bflc/encodingLevel": [
@@ -1288,7 +1288,7 @@ export default {
                   "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
                     {
                       "@guid": short.generate(),
-                      "@type": "http://id.loc.gov/ontologies/bibframe/Lccn"
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Isbn"
                     }
                   ]
                 },
@@ -1361,14 +1361,15 @@ export default {
               this.activeProfile.rt[rt].ptOrder.splice(startPos+1, 0, 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1')
               this.activeProfile.rt[rt].ptOrder.splice(startPos+2, 0, 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_2')
             }
+          }
 
-            // add the defaults
-            //this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
-            for (let t of Object.keys(pt)){
-              let target = pt[t]
-              let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
-              this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
-            }
+          // add the defaults
+          //this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+          let pt = this.activeProfile.rt[rt].pt
+          for (let t of Object.keys(pt)){
+            let target = pt[t]
+            let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
+            this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
           }
         }
       }

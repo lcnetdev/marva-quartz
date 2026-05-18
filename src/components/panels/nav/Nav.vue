@@ -35,6 +35,10 @@
         <PanelSizeModal v-model="showPanelSizeModal" />
       </template>
 
+      <template v-if="showFindReplaceModal == true">
+        <FindReplaceModal v-model="showFindReplaceModal" />
+      </template>
+
 
     </Teleport>
 
@@ -46,6 +50,7 @@
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 import { useConfigStore } from '@/stores/config'
+import { useMarvaScanStore } from '@/stores/marvaScan'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 import VueFileToolbarMenu from 'vue-file-toolbar-menu'
@@ -57,6 +62,7 @@ import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
 import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
 
 import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
+import FindReplaceModal from '../edit/modals/FindReplaceModal.vue'
 
 import StatusIndicator from './nav_components/StatusIndicator.vue'
 import RecordHistory from './nav_components/RecordHistory.vue'
@@ -72,7 +78,7 @@ const timeAgo = new TimeAgo('en-US')
 
 
 export default {
-  components: { VueFileToolbarMenu, PostModal, ValidateModal, RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal, PanelSizeModal },
+  components: { VueFileToolbarMenu, PostModal, ValidateModal, RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal, PanelSizeModal, FindReplaceModal },
 
   data() {
     return {
@@ -98,12 +104,12 @@ export default {
   },
   computed: {
 
-    ...mapStores(useProfileStore, usePreferenceStore),
+    ...mapStores(useProfileStore, usePreferenceStore, useMarvaScanStore),
 
     ...mapState(useProfileStore, ['profilesLoaded', 'activeProfile', 'rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal', 'showFindReplaceModal']),
     ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal']),
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
@@ -131,6 +137,10 @@ export default {
 
     yoshinoAllowed() {
       return this.preferenceStore.featureFlags.includes('subject-suggest')
+    },
+
+    marvaScanAllowed() {
+      return this.preferenceStore.featureFlags.includes('marva-scan')
     },
 
     yoshinoHasSummary() {
@@ -304,6 +314,27 @@ export default {
                     hotkey: "ctrl+y",
                     // class: (this.profileStore.redoRecords.length > 0) ? "active" : "inactive",
                     click: () => { this.profileStore.redoChange() }
+                  },
+                  {
+                    text: "Title Case",
+                    title: "Title Case",
+                    icon: "titlecase",
+                    hotkey: "ctrl+alt+t",
+                    click: () => { this.profileStore.getHighlightedText('title') }
+                  },
+                  {
+                    text: "Lower Case",
+                    title: "Lower Case",
+                    icon: "lowercase",
+                    hotkey: "ctrl+alt+l",
+                    click: () => { this.profileStore.getHighlightedText('lower') }
+                  },
+                  {
+                    text: "Find & Replace",
+                    title: "find Replace",
+                    icon: "find_replace",
+                    hotkey: "ctrl+alt+h",
+                    click: () => { this.showFindReplaceModal = true; }
                   }
                 // )
               // }
@@ -391,6 +422,12 @@ export default {
                   window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
                 }, icon: "contact_support"
               }]),
+
+              ...(this.marvaScanAllowed ? [{
+                text: "Marva Scan", click: () => {
+                  this.marvaScanStore.openModal()
+                }, icon: "qr_code_scanner"
+              }] : []),
 
               { is: 'separator' },
               {
@@ -832,6 +869,16 @@ export default {
         }
       }
 
+      if (this.activeProfile.id && this.$route.name == 'Edit') {
+        menu.push(
+          {
+            text: this.profileOrStaging() + this.activeProfile.id,
+            class: "current-profile",
+
+          }
+        )
+      }
+
       if (this.activeProfile.id && this.$route.name == 'Edit' && config.returnUrls.displayLCOnlyFeatures && this.windowWidth > 1500) {
         let recordMenu = []
         recordMenu.push(
@@ -882,23 +929,35 @@ export default {
         }
 
         // Add Legacy Profiles option at the bottom
-        if (!config.returnUrls.isBibframeDotOrg) {
-          dancerMenuItems.push({
-            text: 'Legacy Profiles',
-            icon: !currentWorkspace ? 'check' : '',
-            click: () => {
-              window.localStorage.removeItem('marva-dancerWorkspace')
-              window.location.reload()
-            }
-          })
-        }
+        // We dont add the legacy profiles anymore after a period of transition
+        // if (!config.returnUrls.isBibframeDotOrg) {
+        //   dancerMenuItems.push({
+        //     text: 'Legacy Profiles',
+        //     icon: !currentWorkspace ? 'check' : '',
+        //     click: () => {
+        //       window.localStorage.removeItem('marva-dancerWorkspace')
+        //       window.location.reload()
+        //     }
+        //   })
+        // }
 
         // Find the current workspace name
-        let currentWorkspaceName = 'Legacy'
+        let currentWorkspaceName = ''
+        // if we are in staging try to find the staging workspace name and set it
+        if (config.returnUrls.env === 'staging') {
+          currentWorkspaceName = 'marva-stage'
+        }
+        if (config.returnUrls.isBibframeDotOrg){
+          currentWorkspaceName = 'marva-prod'
+        }
+
+        // if it stored in the local storage find it by name
         const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
         if (selectedWorkspace) {
           currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
         }
+
+
 
         menu.push({
           text: 'DCTap: ' + currentWorkspaceName,
@@ -1099,7 +1158,7 @@ export default {
 
   methods: {
 
-    profileOrStaging(){
+    profileOrStaging(){ // TODO: get this back on the nav bar
       if (this.isStaging()) {
         return  "STAGING: "
       }

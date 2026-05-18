@@ -107,7 +107,7 @@
       },
 
       bibFolioUrl(lccn) {
-        return `https://lcsg.catalog.lcap.loc.gov/inventory/view/32c88d0b-a4b5-49e0-90ef-941d7fe640b7?filters=staffSuppress.false&qindex=lccn&query=${encodeURIComponent(lccn)}&sort=title`
+        return `https://lcsg.catalog.lcap.loc.gov/inventory/view/?filters=staffSuppress.false&qindex=lccn&query=${encodeURIComponent(lccn)}&sort=title`
       },
 
       bibIdUrl(lccn) {

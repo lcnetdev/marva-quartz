@@ -87,10 +87,11 @@
           "subjects": "Subjects",
           "sees": "See Also",
           "genres": "Genre/Form",
+          "pubDate": "Publication Date"
 
         },
         panelDetailOrder: [
-            "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","establishDates","terminateDates",
+            "birthdates","deathdates", "pubDate", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","establishDates","terminateDates",
             "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
@@ -190,7 +191,11 @@
        *
        * @param classNum - number to add
        */
-      addClassNumber: async function(classNum){
+      addClassNumber: async function(classNum, idx){
+        // remove any paranthetical
+        if (classNum.match(/\(.*\)/)){
+          classNum = classNum.replace(/\(.*\)/, "")
+        }
         // 2025454279
         let profile = this.activeProfile
 
@@ -246,7 +251,7 @@
         try {
           this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
           // Give user some feedback
-          let button = this.$refs.addClass[0]
+          let button = this.$refs.addClass[idx]
           button.innerText = "check"
         } catch(err) {
           console.error("Couldn't add the class number: ", err)
@@ -281,6 +286,26 @@
         let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
 
         return looksLikeLccn
+      },
+
+      hasPubDate: function(data){
+        let dates = data.extra.pubdates
+
+        if (dates && dates.length > 0){
+          return dates[0]
+        }
+
+        return false
+      },
+
+      isSuppressed: function(data){
+        let suppressed = false
+
+        if (data.extra.status && data.extra.status == 'suppressed'){
+          suppressed = true
+        }
+
+        return suppressed
       },
 
       generateLabel: function(data){
@@ -1152,12 +1177,11 @@
                       Searching...
                     </option>
 
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
-                      <div :class="['option-text', {unusable: !checkUsable(r)}]">
-                        <span v-html="generateLabel(r)"></span>
-                        <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
-                        <span v-if="checkFromRda(r)" class="from-rda"> [RDA]</span>
-                      </div>
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : isSuppressed(r) ? 'background-color:yellow' : ''" class="complex-lookup-result">  <!-- this.isSuppressed(r) ? 'color:yellow' :  -->
+                      {{ generateLabel(r) }}
+                      {{ checkFromAuth(r) ? ' (Auth)' : '' }}
+                      {{ checkFromRda(r) ? ' [RDA]' : '' }}
+                      {{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}
                     </option>
 
                   </select>
@@ -1187,6 +1211,9 @@
                         <div v-if="activeContext.depreciated" style="background: pink;">
                           DEPRECATED AUTHORITY
                         </div>
+                        <div v-if="activeContext.extra && activeContext.extra.status && activeContext.extra.status == 'suppressed'" style="background: yellow;">
+                          SUPPRESSED
+                        </div>
                         <div v-if="activeContext.extra.collections && activeContext.extra.collections.includes('http://id.loc.gov/authorities/names/collection_NamesUndifferentiated')" style="background: pink;">
                           THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
                         </div>
@@ -1205,7 +1232,8 @@
 
                     <!-- Dates -->
                     <template v-if="(Object.keys(activeContext.extra).includes('birthdates') && activeContext.extra['birthdates'].length > 0)
-                    || (Object.keys(activeContext.extra).includes('deathdates') && activeContext.extra['deathdates'].length > 0)">
+                    || (Object.keys(activeContext.extra).includes('deathdates') && activeContext.extra['deathdates'].length > 0)
+                    || (Object.keys(activeContext.extra).includes('pubdates') && activeContext.extra['pubdates'].length > 0)">
 
                       <span class="dates-container" style="padding-bottom: 10px;">
                         <span v-if="activeContext.extra['birthdates'] && activeContext.extra['birthdates'].length > 0 " style="margin-right: 15px;">
@@ -1215,6 +1243,10 @@
                         <span v-if="activeContext.extra['deathdates'] && activeContext.extra['deathdates'].length > 0 ">
                           <span class="modal-context-data-title">Date of Death: </span>
                           <span>{{ activeContext.extra['deathdates'][0] }}</span>
+                        </span>
+                        <span v-if="activeContext.extra['pubdates'] && activeContext.extra['pubdates'].length > 0 ">
+                          <span class="modal-context-data-title">Publication Date: </span>
+                          <span>{{ activeContext.extra['pubdates'][0] }}</span>
                         </span>
                       </span>
                       <br>
@@ -1291,10 +1323,10 @@
                           <template v-if="key=='lcclasses'">
                             <span  class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                             <ul class="">
-                              <li class="" v-if="key=='lcclasses'" v-for="v in activeContext.extra['lcclasses']">
+                              <li class="" v-if="key=='lcclasses'" v-for="(v, idx) in activeContext.extra['lcclasses']">
                                   <template v-if="v.assigner">({{ v.assigner }}) </template>
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
-                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code)" ref="addClass">add</button>
+                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code, idx)" ref="addClass">add</button>
                                 <template v-if="v.label">
                                   <span v-if="v.label.split('--').length == 1">
                                     --{{ v.label.split("--").at(-1) }}
@@ -1311,13 +1343,13 @@
                             <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                                 this.labelMap[key] : key }}:</span>
                             <ul class="">
-                                <li class="" v-if="key == 'lcclasss'" v-for="v in activeContext.extra[key]">
+                                <li class="" v-if="key == 'lcclasss'" v-for="(v, idx) in activeContext.extra[key]">
                                     <template v-if="typeof v == 'string'">
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v"
                                             target="_blank">{{ v }}</a>
                                         <button class="material-icons see-search add-class"
                                             ref="addClass"
-                                            @click="addClassNumber(v)">add</button>
+                                            @click="addClassNumber(v, idx)">add</button>
                                     </template>
                                     <template v-else>
                                         {{ v }}
@@ -1515,10 +1547,6 @@
     overflow-x: none;
     overflow-y: auto;
     outline:none;
-  }
-
-  .complex-lookup-result{
-    text-indent: 2em hanging;
   }
 
   .complex-lookup-results{
@@ -1769,6 +1797,10 @@
 
 .note-data {
   columns: 1;
+}
+
+.pub-date {
+  font-style: italic;
 }
 
 </style>

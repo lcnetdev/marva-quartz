@@ -349,7 +349,7 @@ const utilsNetwork = {
         if (response.status == 404){
           return false
         }
-        if (bluecoreRequest.cbd || url.includes('.rdf') || url.includes('.xml') || url.includes('.html')){
+        if (bluecoreRequest.cbd || url.includes('.rdf') || url.includes('.xml') || url.includes('.html') || url.includes('.txt')){
           data =  await response.text()
         }else{
           data =  await response.json()
@@ -501,7 +501,7 @@ const utilsNetwork = {
       return result
     },
 
-    searchLccn: async function name(lccn) {
+    searchLccn: async function name(lccn, other=false) {
       if (this.subjectSearchActive){
         this.controllers["lccnSearchController"].abort()
         this.controllers["lccnSearchController"] = new AbortController()
@@ -513,7 +513,17 @@ const utilsNetwork = {
         url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
       }
 
-      url = url + lccn.trim() + "&blastdacache=" + Date.now()
+      url = url + lccn.trim() // 32026102
+
+      if (!other){
+        url = url + "?field=lccn"
+      } else if (other == 'oclc'){
+        url = url + "?field=oclcnum"
+      }
+
+      url = url + "&blastdacache=" + Date.now()
+
+      console.info("url: ", url)
 
       let result = await fetch(
         url,
@@ -2968,7 +2978,7 @@ const utilsNetwork = {
           'Content-type': 'application/xml', // Indicates the content
           ...getAuthHeaders()
         },
-        signal: AbortSignal.timeout(3000),  // add a timeout
+        signal: AbortSignal.timeout(10000),  // add a timeout
         body: xml // We send data in JSON format
       }
       // console.log(putMethod)
@@ -2977,15 +2987,29 @@ const utilsNetwork = {
       let saved = false
 
       await fetch(url, putMethod)
-        .then(response => response.text())
-        .then((responseText)=>{
-          // console.log(responseText)
+        .then(async (response) => {
+          const responseText = await response.text()
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status} ${response.statusText}${responseText ? ` — ${responseText}` : ''}`)
+          }
           saved = true
         })
-        // .then(data => console.log(data)) // Manipulate the data retrieved back, if we want to do something with it
         .catch((err) => {
           console.log(err, " => ", url)
-          alert("Error: Could not save the record!", err)
+          let reason
+          if (err && err.name === 'TimeoutError') {
+            reason = `Request timed out after 3s.`
+          } else if (err && err.name === 'AbortError') {
+            reason = `Request was aborted.`
+          } else if (err instanceof TypeError) {
+            // fetch throws TypeError for network failures / CORS / DNS / offline
+            reason = `Network error — could not reach the server. ${err.message}`
+          } else if (err && err.message) {
+            reason = err.message
+          } else {
+            reason = String(err)
+          }
+          alert(`Error: Could not save the record!\n\nURL: ${url}\nReason: ${reason}`)
           saved = false
         }) // Do something with the error
 
@@ -3493,8 +3517,7 @@ const utilsNetwork = {
     * @return {object|false} - the response from the service
     */
     scriptShifterRequestTrans: async function(lang,text,capitalize,t_dir){
-
-            let url = useConfigStore().returnUrls.scriptshifter + 'trans'
+      let url = useConfigStore().returnUrls.scriptshifter + 'trans'
 
       let r = await fetch(url, {
         method: 'POST',
@@ -3590,27 +3613,27 @@ const utilsNetwork = {
 
     },
 
-    sendErrorReportLog: function(log,filename,profileAsJson){
-
-      let url = useConfigStore().returnUrls.util + 'errorlog/'
-
-
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          ...getAuthHeaders()
-        },
-        body: JSON.stringify({
-          log: log,
-          filename:filename,
-          profile: profileAsJson
-        })
-      });
-
-
-    },
+    // sendErrorReportLog: function(log,filename,profileAsJson){
+    //
+    //   let url = useConfigStore().returnUrls.util + 'errorlog/'
+    //
+    //
+    //   fetch(url, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Accept': 'application/json',
+    //       'Content-Type': 'application/json',
+    //       ...getAuthHeaders()
+    //     },
+    //     body: JSON.stringify({
+    //       log: log,
+    //       filename:filename,
+    //       profile: profileAsJson
+    //     })
+    //   });
+    //
+    //
+    // },
 
 
 
@@ -4002,9 +4025,11 @@ const utilsNetwork = {
     async linkedDataLCSHContributorsExtract(data){
       // TODO: Implement extraction logic
       if (data){
-        console.log("linkedDataLCSHContributorsExtract data:",data)
+        // console.log("linkedDataLCSHContributorsExtract data:",data)
 
         for (let lccnUri of Object.keys(data)){
+
+          if (!data[lccnUri] || !data[lccnUri].results) continue
 
           let workUrls = data[lccnUri].results.map(work => work.uri.replace("http://","https://") + '.json');
 
@@ -4012,11 +4037,11 @@ const utilsNetwork = {
 
             try {
               let workResults = await Promise.all(workPromises);
-              console.log("workResults", workResults);
+              // console.log("workResults", workResults);
               // Now process each workResult
               for (let workData of workResults) {
                 // Process workData
-                console.log("Processing workData:", workData);
+                // console.log("Processing workData:", workData);
 
                 let lookup = {}
                 let lcshList = []
@@ -4107,7 +4132,7 @@ const utilsNetwork = {
 
                               if (g['@type'] && g['@type'].indexOf('http://www.loc.gov/mads/rdf/v1#ComplexSubject') > -1) {
 
-                                  console.log("Complex Subject:", g);
+                                  // console.log("Complex Subject:", g);
 
 
 
@@ -4116,7 +4141,7 @@ const utilsNetwork = {
                                       let components = g['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@list'];
                                       for (let component of components) {
                                           // now find this in the graph...
-                                          console.log("component:", component);
+                                          // console.log("component:", component);
                                           let userValueComponent = {
                                               "@guid": short.generate(),
                                               "@type": null,
@@ -4132,7 +4157,7 @@ const utilsNetwork = {
                                           }
                                           for (let g2 of workData) {
                                               if (g2['@id'] === component['@id']) {
-                                                  console.log("component g2:", g2);
+                                                  // console.log("component g2:", g2);
                                                   if (g2['@id']) {
                                                       userValueComponent['@id'] = g2['@id']
                                                   }
@@ -4150,7 +4175,7 @@ const utilsNetwork = {
                                                   }
                                               }
                                           }
-                                          console.log("userValueComponent:", userValueComponent);
+                                          // console.log("userValueComponent:", userValueComponent);
                                           userData['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#componentList'].push(userValueComponent);
                                       }
                                   }
@@ -4172,8 +4197,8 @@ const utilsNetwork = {
 
                 }
 
-                console.log("lcshList:", lcshList);
-                console.log("lookup:", lookup);
+                // console.log("lcshList:", lcshList);
+                // console.log("lookup:", lookup);
 
 
 
