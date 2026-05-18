@@ -96,9 +96,7 @@ export default {
                 for (let pt in this.profile.rt[rt].pt){
                     if (this.profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() === 'Notes about the Instance'.toLowerCase()){
                         let instanceNoteComponent = this.profile.rt[rt].pt[pt]
-                        console.info("instanceNoteComponent: ", instanceNoteComponent)
                         let instNoteCompUserValue = instanceNoteComponent.userValue
-                        console.info("instNoteCompUserValue: ", instNoteCompUserValue)
                         if (instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]){
                             let data = instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]
                             let label = data["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
@@ -196,7 +194,17 @@ export default {
             let provActComponent = this.profileStore.returnComponentByPropertyLabel('Provision activity')
             let proveUserValue = provActComponent.userValue
             // 008 date/EDTF
-            let zerozero8 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"][0]
+            let zerozero8 = false
+            if ( proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"]){
+                zerozero8 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"][0]
+            }
+
+            if (!zerozero8['@guid']){
+                zerozero8 = {
+                    '@guid': short.generate(),
+
+                }
+            }
             if (this.zerozero8Date){
                 this.profileStore.setValueLiteral(
                     provActComponent['@guid'], zerozero8['@guid'],
@@ -278,7 +286,7 @@ export default {
                             <li>Insert the "Copyright Year" into the "Copyright date," if provided</li>
                             <li>Update the "Note about the Instance," if appropriate</li>
                             <template v-if="copyrightAsPub">
-                                <li>Use the "Copyright Year" as the "Publication Year" and put [brackets] around 264 $c</li>
+                                <li>Use the "Copyright Year" as the "Publication Year" and put [brackets] around value</li>
                             </template>
                         </template>
                         <template v-if="ebookCip">
@@ -289,7 +297,7 @@ export default {
                     <br></br>
                     <div class="cip-form" v-if="updateDates">
                         <label for="pubYear">Publication Year: </label>
-                        <input type="text" name="pubYear" id="pubYear" v-model="zerozero8Date" autofocus />(default value taken from 008)
+                        <input type="text" name="pubYear" id="pubYear" v-model="zerozero8Date" autofocus />(default value taken from "Provision Activity")
                         <br>
                         <label for="copYear">Copyright Year: </label>
                         <input type="text" name="copYear" id="copYear" v-model="copyrightDate" />
