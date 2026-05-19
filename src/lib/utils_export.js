@@ -935,8 +935,12 @@ const utilsExport = {
 													// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
 													// if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
 													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://id.loc.gov/ontologies/bibframe/Topic'){
-														let cont = this.buildNoteType(bnodeLvl3, userValue[key1][0][key2][0], key3, xmlLog)
-														if (cont){ continue }
+														try {
+															let cont = this.buildNoteType(bnodeLvl3, userValue[key1][0][key2][0], key3, xmlLog)
+															if (cont){ continue }
+														} catch(err){
+															console.error("Error: ", err, " skipping")
+														}
 													}
 
                                                     for (let value3 of value2[key3]){
