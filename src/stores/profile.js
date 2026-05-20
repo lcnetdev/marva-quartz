@@ -2033,12 +2033,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      console.info("--------------------------\nsetValueLiteral")
-      console.info("\tcomponentGuid: ", componentGuid)
-      console.info("\tfieldGuid: ", fieldGuid)
-      console.info("\tpropertyPath: ", propertyPath)
-      console.info("\tvalue: ", value)
-      console.info("\tlang: ", lang)
+      // console.info("--------------------------\nsetValueLiteral")
+      // console.info("\tcomponentGuid: ", componentGuid)
+      // console.info("\tfieldGuid: ", fieldGuid)
+      // console.info("\tpropertyPath: ", propertyPath)
+      // console.info("\tvalue: ", value)
+      // console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
@@ -2125,7 +2125,6 @@ export const useProfileStore = defineStore('profile', {
 
             // now we can make a link to the parent of where the literal value should live
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
-            console.info("go bNode from 'returnGuidLocation' 2")
 
             // console.log("blankNode",JSON.stringify(blankNode,null,2))
             // this is a new node, so we want to overwrite the guid created in the build process
@@ -2162,7 +2161,6 @@ export const useProfileStore = defineStore('profile', {
 
             // get a link to it we'll edit it below
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
-            console.info("go bNode from 'returnGuidLocation' 3")
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
             // console.log("--------pt 4------------")
@@ -2196,7 +2194,6 @@ export const useProfileStore = defineStore('profile', {
             checkLiteralOrder = parent[lastProperty]
             // get a link to it we'll edit it below
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
-            console.info("go bNode from 'returnGuidLocation' 4")
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
           }
@@ -8579,29 +8576,19 @@ export const useProfileStore = defineStore('profile', {
     },
 
     undoChange: async function(){
-      console.info("undo")
       if (this.undoRecords.length < 1){
         alert("Nothing to undo. We can't go back anymore.")
         return
       }
       let profile = JSON.stringify(this.activeProfile)
 
-      // go back
-      let last = this.undoRecords.pop()
-
-      // something is being changed in the component that gets undone
-      // other component still work
-      console.info("profile: ", JSON.parse(profile))
-      console.info("load: ", last)
-      console.info("profile before: ", JSON.stringify(this.activeProfile))
-
       // clear the cache
       cachePt = {}
       cacheGuid = {}
+
+      // go back
+      let last = this.undoRecords.pop()
       this.activeProfile = JSON.parse(last)
-
-
-      console.info("profile after: ", JSON.stringify(this.activeProfile))
 
       // save the profile to redo
       if (this.redoRecords.length < this.undoRedoLimit){
