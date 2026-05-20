@@ -87,15 +87,22 @@
           "subjects": "Subjects",
           "sees": "See Also",
           "genres": "Genre/Form",
-          "pubDate": "Publication Date"
+          "pubDate": "Publication Date",
+          "vernacularMarcKeys": "Variant MARC Key",
+          "vernacularLabels": "Vernacular Labels",
+          "hasRelatedAuthoritys": "Has Related Authorities",
+          "hasEarlierEstablishedForms": "Earlier Established Forms",
+          "hasLaterEstablishedForms": "Later Established Forms",
+          "useFors": "Use For"
 
         },
         panelDetailOrder: [
-            "birthdates","deathdates", "pubDate", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","establishDates","terminateDates",
+            "birthdates","deathdates", "pubDate", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "hasEarlierEstablishedForms", "hasLaterEstablishedForms",
+            "contributors", "relateds","establishDates","terminateDates",
             "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
-            "collections", "genres", "subjects", "marcKeys", "rdftypes"
+            "collections", "genres", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "languages", "rdftypes", "hasRelatedAuthoritys", "useFors"
         ],
       }
     },
@@ -754,6 +761,7 @@
 
 
       selectNav: function(event){
+        console.info("??")
         if (event.target.selectedIndex == 0){
           // pop back up into the search field
           if (event.key==='ArrowUp'){
@@ -776,6 +784,7 @@
       },
 
       selectChange: async function(){
+        console.info("!!")
         let toLoad = null
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
@@ -802,22 +811,30 @@
         if (!toLoad){ return false }
 
         this.activeContext = {
-            "contextValue": true,
-            "source": [],
-            "type": (toLoad && toLoad.literal) ? "Literal Value" : null,
-            "variant": [],
-            "uri": (toLoad == null || toLoad.literal) ? null : toLoad.uri,
-            "title": (toLoad)  ? toLoad.label : "",
-            "contributor": [],
-            "date": null,
-            "genreForm": null,
-            "nodeMap": {},
-            "precoordinated" : false,
-            "literal": (toLoad && toLoad.literal) ? true : false,
-            "loading":true,
-            "extra": toLoad.extra ? toLoad.extra : {},
-            "gacs": toLoad.extra ? toLoad.extra.gacs : [],
-            "marcKey": (toLoad.extra && toLoad.extra.marcKeys) ? toLoad.extra.marcKeys[0] : ''
+          "contextValue": true,
+          "source": [],
+          "type": (toLoad && toLoad.literal) ? "Literal Value" : null,
+          "variant": [],
+          "uri": (toLoad == null || toLoad.literal) ? null : toLoad.uri,
+          "title": (toLoad)  ? toLoad.label : "",
+          "contributor": [],
+          "date": null,
+          "genreForm": null,
+          "nodeMap": {},
+          "precoordinated" : false,
+          "literal": (toLoad && toLoad.literal) ? true : false,
+          "loading":true,
+          "extra": toLoad.extra ? toLoad.extra : {},
+          "gacs": toLoad.extra ? toLoad.extra.gacs : [],
+          "marcKey": (toLoad.extra && toLoad.extra.marcKeys) ? toLoad.extra.marcKeys[0] : ''
+        }
+
+        // filter the Authorized NonLatin from the variants
+          if (this.activeContext && this.activeContext.extra && this.activeContext.extra['variantLabels'] && this.activeContext.extra['nonlatinLabels']){
+            console.info("filter")
+            console.info(">>", this.activeContext.extra['variantLabels'])
+            console.info(">>", this.activeContext.extra['nonlatinLabels'])
+            this.activeContext.extra['variantLabels'] = this.activeContext.extra['variantLabels'].filter(n => !this.activeContext.extra['nonlatinLabels'].includes(n))
           }
 
         if (toLoad && toLoad.literal){
@@ -1270,7 +1287,7 @@
                     <!-- Labels & Relationships -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
+                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'hasEarlierEstablishedForms', 'hasLaterEstablishedForms', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -1380,7 +1397,7 @@
                               <div>Extra Details</div>
                             </template>
                             <template v-for="key in panelDetailOrder">
-                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "rdftypes", "lcclasss"].includes(key)'>
+                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "lcclasss", "hasRelatedAuthoritys", "useFors"].includes(key)'>
                                 <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                                 <ul>
                                   <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
