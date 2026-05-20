@@ -8578,10 +8578,12 @@ export const useProfileStore = defineStore('profile', {
       // something is being changed in the component that gets undone
       // other component still work
       console.info("profile: ", JSON.parse(profile))
-      console.info("load: ", JSON.parse(last))
-      console.info("profile before: ", JSON.parse(JSON.stringify(this.activeProfile)))
+      console.info("load: ", last)
+      console.info("profile before: ", JSON.stringify(this.activeProfile))
 
       this.activeProfile = JSON.parse(last)
+
+      console.info("profile after: ", JSON.stringify(this.activeProfile))
 
       // save the profile to redo
       if (this.redoRecords.length < this.undoRedoLimit){
