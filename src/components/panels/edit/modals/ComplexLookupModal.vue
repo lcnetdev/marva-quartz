@@ -81,7 +81,6 @@
           "collections": "MADS Collections",
           "sources": "Sources",
           "marcKeys": "MARC Key",
-          "relateds": "Related",
           "contributors": "Contributors",
           "identifiers": "Identifiers",
           "subjects": "Subjects",
@@ -90,6 +89,7 @@
           "pubDate": "Publication Date",
           "vernacularMarcKeys": "Variant MARC Key",
           "vernacularLabels": "Vernacular Labels",
+          "relateds": "Related",
           "hasRelatedAuthoritys": "Has Related Authorities",
           "hasEarlierEstablishedForms": "Earlier Established Forms",
           "hasLaterEstablishedForms": "Later Established Forms",
@@ -102,7 +102,7 @@
             "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
-            "collections", "genres", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "languages", "rdftypes", "hasRelatedAuthoritys", "useFors"
+            "collections", "genres", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "useFors"
         ],
       }
     },
@@ -830,12 +830,16 @@
         }
 
         // filter the Authorized NonLatin from the variants
-          if (this.activeContext && this.activeContext.extra && this.activeContext.extra['variantLabels'] && this.activeContext.extra['nonlatinLabels']){
-            console.info("filter")
-            console.info(">>", this.activeContext.extra['variantLabels'])
-            console.info(">>", this.activeContext.extra['nonlatinLabels'])
-            this.activeContext.extra['variantLabels'] = this.activeContext.extra['variantLabels'].filter(n => !this.activeContext.extra['nonlatinLabels'].includes(n))
-          }
+        if (this.activeContext && this.activeContext.extra && this.activeContext.extra['variantLabels'] && this.activeContext.extra['nonlatinLabels']){
+          this.activeContext.extra['variantLabels'] = this.activeContext.extra['variantLabels'].filter(n => !this.activeContext.extra['nonlatinLabels'].includes(n))
+        }
+        // Filter earlier/later forms of name from releated
+        if (this.activeContext && this.activeContext.extra && this.activeContext.extra['relateds'] && this.activeContext.extra['hasEarlierEstablishedForms']){
+          this.activeContext.extra['relateds'] = this.activeContext.extra['relateds'].filter(n => !this.activeContext.extra['hasEarlierEstablishedForms'].includes(n))
+        }
+        if (this.activeContext && this.activeContext.extra && this.activeContext.extra['relateds'] && this.activeContext.extra['hasLaterEstablishedForms']){
+          this.activeContext.extra['relateds'] = this.activeContext.extra['relateds'].filter(n => !this.activeContext.extra['hasLaterEstablishedForms'].includes(n))
+        }
 
         if (toLoad && toLoad.literal){
           return false
@@ -1287,7 +1291,7 @@
                     <!-- Labels & Relationships -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'hasEarlierEstablishedForms', 'hasLaterEstablishedForms', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
+                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -1310,7 +1314,7 @@
                             </li>
                           </ul>
                         </template> -->
-                        <template v-else-if="key == 'sources'">
+                        <template v-else-if="['hasEarlierEstablishedForms', 'hasLaterEstablishedForms', 'sources'].includes(key)">
                           <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                           <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
