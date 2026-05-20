@@ -2033,12 +2033,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      // console.info("--------------------------\nsetValueLiteral")
-      // console.info("\tcomponentGuid: ", componentGuid)
-      // console.info("\tfieldGuid: ", fieldGuid)
-      // console.info("\tpropertyPath: ", propertyPath)
-      // console.info("\tvalue: ", )
-      // console.info("\tlang: ", lang)
+      console.info("--------------------------\nsetValueLiteral")
+      console.info("\tcomponentGuid: ", componentGuid)
+      console.info("\tfieldGuid: ", fieldGuid)
+      console.info("\tpropertyPath: ", propertyPath)
+      console.info("\tvalue: ", value)
+      console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
@@ -2104,6 +2104,7 @@ export const useProfileStore = defineStore('profile', {
           cacheGuid[fieldGuid] = blankNode
         }
 
+
         // console.log("--------pt 2------------")
         // console.log(JSON.stringify(pt,null,2))
 
@@ -2124,6 +2125,7 @@ export const useProfileStore = defineStore('profile', {
 
             // now we can make a link to the parent of where the literal value should live
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+            console.info("go bNode from 'returnGuidLocation' 2")
 
             // console.log("blankNode",JSON.stringify(blankNode,null,2))
             // this is a new node, so we want to overwrite the guid created in the build process
@@ -2160,6 +2162,7 @@ export const useProfileStore = defineStore('profile', {
 
             // get a link to it we'll edit it below
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
+            console.info("go bNode from 'returnGuidLocation' 3")
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
             // console.log("--------pt 4------------")
@@ -2193,6 +2196,7 @@ export const useProfileStore = defineStore('profile', {
             checkLiteralOrder = parent[lastProperty]
             // get a link to it we'll edit it below
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
+            console.info("go bNode from 'returnGuidLocation' 4")
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
           }
@@ -2347,6 +2351,18 @@ export const useProfileStore = defineStore('profile', {
 
         // they changed something
         this.dataChanged()
+
+        // this.saveState({
+        //   'type': 'literal',
+        //   'data': {
+        //     'compGuid': componentGuid,
+        //     'fieldGuid': fieldGuid,
+        //     'propPath': propertyPath,
+        //     'value': value,
+        //     'lang': lang,
+        //     'repeat': repeatedLiteral
+        //   }
+        // })
 
       }else{
         console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -3965,9 +3981,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     loadRecordFromBackend: async function(eid){
-
       this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
-
     },
 
     /**
@@ -8581,7 +8595,11 @@ export const useProfileStore = defineStore('profile', {
       console.info("load: ", last)
       console.info("profile before: ", JSON.stringify(this.activeProfile))
 
+      // clear the cache
+      cachePt = {}
+      cacheGuid = {}
       this.activeProfile = JSON.parse(last)
+
 
       console.info("profile after: ", JSON.stringify(this.activeProfile))
 
@@ -8617,6 +8635,9 @@ export const useProfileStore = defineStore('profile', {
         this.undoRecords.push(this.currentState)
       }
 
+      // clear the cache
+      cachePt = {}
+      cacheGuid = {}
       let last = this.redoRecords.pop()
       this.activeProfile = JSON.parse(last)
 
