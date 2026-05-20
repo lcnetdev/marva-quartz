@@ -2254,6 +2254,7 @@ const utilsExport = {
 		}else if (fourXXParts && fourXXParts.a && !add667){
 			pos29 = 'a'
 		}
+
 		let has667 = add667
 		// if there is a 667 in the extraMarcStatements then set it
 		for (let x of extraMarcStatements){
@@ -2270,9 +2271,9 @@ const utilsExport = {
 			}
 		}
 
-		// check again if they made a 400 in the extraMarcStatements and there is no 667 then set it to a
+		// check again if they made a 4XX in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
-			if ((x.tag == '400' || x.fieldTag == '400') && !has667){
+			if (( /4\d\d/.test(x.tag) || /4\d\d/.test(x.fieldTag) || /5\d\d/.test(x.tag) || /5\d\d/.test(x.fieldTag) ) && !has667){
 				pos29 = 'a'
 			}
 		}
