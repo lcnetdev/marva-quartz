@@ -8565,6 +8565,7 @@ export const useProfileStore = defineStore('profile', {
     },
 
     undoChange: async function(){
+      console.info("undo")
       if (this.undoRecords.length < 1){
         alert("Nothing to undo. We can't go back anymore.")
         return
@@ -8573,6 +8574,13 @@ export const useProfileStore = defineStore('profile', {
 
       // go back
       let last = this.undoRecords.pop()
+
+      // something is being changed in the component that gets undone
+      // other component still work
+      console.info("profile: ", JSON.parse(profile))
+      console.info("load: ", JSON.parse(last))
+      console.info("profile before: ", JSON.parse(JSON.stringify(this.activeProfile)))
+
       this.activeProfile = JSON.parse(last)
 
       // save the profile to redo
