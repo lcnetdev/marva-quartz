@@ -761,7 +761,6 @@
 
 
       selectNav: function(event){
-        console.info("??")
         if (event.target.selectedIndex == 0){
           // pop back up into the search field
           if (event.key==='ArrowUp'){
@@ -784,7 +783,6 @@
       },
 
       selectChange: async function(){
-        console.info("!!")
         let toLoad = null
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
