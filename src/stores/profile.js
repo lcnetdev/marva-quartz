@@ -2348,19 +2348,6 @@ export const useProfileStore = defineStore('profile', {
 
         // they changed something
         this.dataChanged()
-
-        // this.saveState({
-        //   'type': 'literal',
-        //   'data': {
-        //     'compGuid': componentGuid,
-        //     'fieldGuid': fieldGuid,
-        //     'propPath': propertyPath,
-        //     'value': value,
-        //     'lang': lang,
-        //     'repeat': repeatedLiteral
-        //   }
-        // })
-
       }else{
         console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
