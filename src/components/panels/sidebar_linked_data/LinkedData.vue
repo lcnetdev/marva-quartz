@@ -23,6 +23,7 @@
         loadingSellers: {},
         failedSellers: {},
         booksellerResults: [],
+        lastIsbndbIsbn: null,
 
       }
     },
@@ -155,8 +156,12 @@
 
       autoFireIsbndb(){
         // isbndb is not exposed as a button — it auto-fires whenever the panel loads,
-        // the profile changes, or the user picks a different ISBN
+        // the profile changes, or the user picks a different ISBN.
+        // Dedupe because mounted + activeProfile watcher + activeIsbn watcher
+        // (which fires twice as defaultIsbn → selectedIsbn settle) can all overlap on one load.
         if (!this.activeIsbn) return
+        if (this.lastIsbndbIsbn === this.activeIsbn) return
+        this.lastIsbndbIsbn = this.activeIsbn
         this.scrapeBooksellerData('isbndb')
       },
 
@@ -283,6 +288,7 @@
         this.failedSellers = {}
         this.booksellerResults = []
         this.linkedData.booksellerResults = []
+        this.lastIsbndbIsbn = null
         this.requestLinkedDataBuild()
         this.autoFireIsbndb()
       },
