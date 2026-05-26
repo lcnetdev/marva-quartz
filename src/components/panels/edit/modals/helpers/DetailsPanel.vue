@@ -31,15 +31,13 @@
             <div class="modal-context-data-title" v-if="contextData.rdftypes">
                 {{ contextData.rdftypes.includes('Hub') ? 'Hub' :
                     contextData.rdftypes[0] }}</div>
-            <template v-if="contextData.uri.includes('/resources/')">
-                <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="contextData.type!='Literal Value'" :href="rewriteURI(contextData.uri, true)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on BFDB</a>
-                <a class="edit-hub" v-if="contextData.uri.includes('/hubs/') && checkLcOnly()"  :href="editHub(contextData.uri)" target="_blank">Edit</a>
+            <template v-if="contextData && contextData.uri && contextData.uri.includes('/resources/')">
+                <a style="color:#2c3e50; float: none; border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="contextData.type!='Literal Value'" :href="rewriteURI(contextData.uri, true)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on BFDB</a>
+                <a class="edit-hub" v-if="contextData.uri.includes('/hubs/') && checkLcOnly()" :href="editHub(contextData.uri)" target="_blank">Edit</a>
                 <br>
             </template>
             <a style="color:#2c3e50" :href="rewriteURI(contextData.uri)" target="_blank"
-                v-if="contextData.literal != true">view
-                on id.loc.gov</a>
-
+                v-if="contextData.literal != true">view on id.loc.gov</a>
             <!-- Dates -->
             <template v-if="(Object.keys(contextData).includes('birthdates') && contextData['birthdates'].length > 0)
                 || (Object.keys(contextData).includes('deathdates') && contextData['deathdates'].length > 0)">
@@ -237,7 +235,7 @@
                         </template>
                         <template v-for="key in panelDetailOrder">
                             <template
-                                v-if='contextData[key] && contextData[key].length > 0 && ["notes", "collections", "subjects", "marcKeys", "lcclasss"].includes(key)'>
+                                v-if='contextData[key] && contextData[key].length > 0 && ["notes", "collections", "rdftypes", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "lcclasss", "hasRelatedAuthoritys", "useFors"].includes(key)'>
                                 <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                                     this.labelMap[key] : key }}:</div>
                                 <ul>
@@ -324,13 +322,21 @@ export default {
                 "sees": "See Also",
                 "countSubj": "Subject ff",
                 "countName": "Contributor to",
+                "vernacularMarcKeys": "Variant MARC Key",
+                "vernacularLabels": "Vernacular Labels",
+                "relateds": "Related",
+                "hasRelatedAuthoritys": "Has Related Authorities",
+                "hasEarlierEstablishedForms": "Earlier Established Forms",
+                "hasLaterEstablishedForms": "Later Established Forms",
+                "useFors": "Use For",
+                "rdftypes": "RDF Types"
             },
 
             panelDetailOrder: [
                 "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds", "birthdates", "deathdates", "birthplaces",
                 "locales", "activityfields", "occupations", "languages",
                 "sources", "sees", "lcclasses", "lcclasss", "identifiers", "broaders",
-                "collections", "subjects", "marcKeys"
+                "collections", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "useFors", "rdftypes"
             ],
         }
     },
