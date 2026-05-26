@@ -82,7 +82,7 @@
                             <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
                                 v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
                                 <span v-if="key != 'sees' && key != 'relateds'">{{ v }}</span>
-                                <div v-else-if="['relateds', 'hasEarlierEstablishedForms', 'hasLaterEstablishedForms'].includes(key)">
+                                <div v-else-if="['relateds'].includes(key)">
                                     {{ v }}<button class="material-icons see-search"
                                         @click="newSearch(v)">search</button>
                                 </div>
@@ -337,7 +337,7 @@ export default {
                 "birthdates", "deathdates", "birthplaces",
                 "locales", "activityfields", "occupations", "languages",
                 "sources", "sees", "lcclasses", "lcclasss", "identifiers", "broaders",
-                "collections", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "hasRelatedAuthoritys",
+                "collections", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys",
                 "useFors"
             ],
         }
