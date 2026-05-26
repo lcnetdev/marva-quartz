@@ -336,7 +336,7 @@ export default {
                 "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds", "birthdates", "deathdates", "birthplaces",
                 "locales", "activityfields", "occupations", "languages",
                 "sources", "sees", "lcclasses", "lcclasss", "identifiers", "broaders",
-                "collections", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "useFors", "rdftypes"
+                "collections", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "useFors"
             ],
         }
     },
