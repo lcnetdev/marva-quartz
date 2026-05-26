@@ -75,14 +75,14 @@
             <template v-for="key in panelDetailOrder">
                 <div v-if="contextData[key] && contextData[key].length > 0">
                     <template
-                        v-if="contextData[key] && contextData[key].length > 0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds'].includes(key)">
+                        v-if="contextData[key] && contextData[key].length > 0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'hasEarlierEstablishedForms', 'hasLaterEstablishedForms'].includes(key)">
                         <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                             this.labelMap[key] : key }}:</div>
                         <ul class="details-list">
                             <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
                                 v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
                                 <span v-if="key != 'sees' && key != 'relateds'">{{ v }}</span>
-                                <div v-else-if="key == 'relateds'">
+                                <div v-else-if="['relateds', 'hasEarlierEstablishedForms', 'hasLaterEstablishedForms'].includes(key)">
                                     {{ v }}<button class="material-icons see-search"
                                         @click="newSearch(v)">search</button>
                                 </div>
@@ -104,7 +104,8 @@
                             </li>
                         </ul>
                     </template>
-                    <template v-else-if="key == 'sources'">
+                    <!-- <template v-else-if="key == 'sources'"> -->
+                    <template v-else-if="['sources'].includes(key)">
                         <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                             this.labelMap[key] : key }}:</span>
                         <ul>
@@ -324,7 +325,6 @@ export default {
                 "countName": "Contributor to",
                 "vernacularMarcKeys": "Variant MARC Key",
                 "vernacularLabels": "Vernacular Labels",
-                "relateds": "Related",
                 "hasRelatedAuthoritys": "Has Related Authorities",
                 "hasEarlierEstablishedForms": "Earlier Established Forms",
                 "hasLaterEstablishedForms": "Later Established Forms",
@@ -333,10 +333,12 @@ export default {
             },
 
             panelDetailOrder: [
-                "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds", "birthdates", "deathdates", "birthplaces",
+                "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds", "hasEarlierEstablishedForms", "hasLaterEstablishedForms",
+                "birthdates", "deathdates", "birthplaces",
                 "locales", "activityfields", "occupations", "languages",
                 "sources", "sees", "lcclasses", "lcclasss", "identifiers", "broaders",
-                "collections", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "useFors"
+                "collections", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "hasRelatedAuthoritys",
+                "useFors"
             ],
         }
     },

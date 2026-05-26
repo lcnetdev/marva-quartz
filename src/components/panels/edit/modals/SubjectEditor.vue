@@ -1862,6 +1862,9 @@ export default {
         this.contextData.literal = true
       }
 
+      // remove duplicates from contextData.variantLabels
+      this.contextData.variantLabels = [...new Set(this.contextData.variantLabels)]
+
       this.contextRequestInProgress = false
     },
 
