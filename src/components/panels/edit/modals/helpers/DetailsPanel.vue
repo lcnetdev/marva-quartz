@@ -31,6 +31,11 @@
             <div class="modal-context-data-title" v-if="contextData.rdftypes">
                 {{ contextData.rdftypes.includes('Hub') ? 'Hub' :
                     contextData.rdftypes[0] }}</div>
+            <template v-if="contextData.uri.includes('/resources/')">
+                <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="contextData.type!='Literal Value'" :href="rewriteURI(contextData.uri, true)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on BFDB</a>
+                <a class="edit-hub" v-if="contextData.uri.includes('/hubs/') && checkLcOnly()"  :href="editHub(contextData.uri)" target="_blank">Edit</a>
+                <br>
+            </template>
             <a style="color:#2c3e50" :href="rewriteURI(contextData.uri)" target="_blank"
                 v-if="contextData.literal != true">view
                 on id.loc.gov</a>
@@ -383,6 +388,15 @@ export default {
 
             return pieces.at(-1)
         },
+        checkLcOnly: function(){
+            let config = useConfigStore()
+
+            return config.returnUrls.displayLCOnlyFeatures
+        },
+        editHub: function(uri){
+            let editUrl = "https://editor.id.loc.gov/bfe2/quartz/?action=loadhub&url=" + this.rewriteURI(uri) + ".decomposed.rdf&profile=lc:RT:bf2:HubBasic:Hub"
+            return editUrl
+        },
         rewriteURI: function (uri) {
             if (!uri) { return false }
             let returnUrls = useConfigStore().returnUrls
@@ -478,5 +492,10 @@ ul:has(.modal-context-data-li) {
 .not-usable {
     color: red;
 }
+
+.edit-hub {
+  margin-left: 5px;
+}
+
 
 </style>
