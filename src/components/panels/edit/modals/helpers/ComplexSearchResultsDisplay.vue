@@ -42,6 +42,16 @@
                 :searchMode="searchMode"
             />
             <SearchResultOption
+                searchType="subjectsChildren"
+                label="CYAC Simple"
+                index="searchResults.subjectsChildrenComplex.length + ix"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+                :searchMode="searchMode"
+            />
+            <SearchResultOption
                 searchType="names"
                 label="LCNAF"
                 index="(searchResults.names.length - ix) * - 1"
@@ -66,16 +76,6 @@
                 searchType="subjectsChildrenComplex"
                 label="CYAC Complex"
                 index="ix"
-                :searchResults="searchResults"
-                :pickLookup="pickLookup"
-                @selectContext="selectContext"
-                @emitLoadContext="loadContext"
-                :searchMode="searchMode"
-            />
-            <SearchResultOption
-                searchType="subjectsChildren"
-                label="CYAC Simple"
-                index="searchResults.subjectsChildrenComplex.length + ix"
                 :searchResults="searchResults"
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"

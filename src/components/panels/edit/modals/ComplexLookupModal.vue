@@ -921,6 +921,11 @@
 
       },
 
+      editHub: function(uri){
+        let editUrl = "https://editor.id.loc.gov/bfe2/quartz/?action=loadhub&url=" + this.rewriteURI(uri) + ".decomposed.rdf&profile=lc:RT:bf2:HubBasic:Hub"
+        return editUrl
+      },
+
       rewriteURI: function(uri, forBFDB=false){
         let returnUrls = useConfigStore().returnUrls
 
@@ -1238,6 +1243,7 @@
                         </div>
                         <template v-if="activeContext.uri.includes('/resources/')">
                           <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri, true)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on BFDB</a>
+                          <a class="edit-hub" v-if="activeContext.uri.includes('/hubs/') && checkLcOnly()"  :href="editHub(activeContext.uri)" target="_blank">Edit</a>
                           <br />
                         </template>
                         <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on ID</a>
@@ -1821,5 +1827,10 @@
 .pub-date {
   font-style: italic;
 }
+
+.edit-hub {
+  margin-left: 5px;
+}
+
 
 </style>
