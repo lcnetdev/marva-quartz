@@ -81,21 +81,28 @@
           "collections": "MADS Collections",
           "sources": "Sources",
           "marcKeys": "MARC Key",
-          "relateds": "Related",
           "contributors": "Contributors",
           "identifiers": "Identifiers",
           "subjects": "Subjects",
           "sees": "See Also",
           "genres": "Genre/Form",
-          "pubDate": "Publication Date"
+          "pubDate": "Publication Date",
+          "vernacularMarcKeys": "Variant MARC Key",
+          "vernacularLabels": "Vernacular Labels",
+          "relateds": "Related",
+          "hasRelatedAuthoritys": "Has Related Authorities",
+          "hasEarlierEstablishedForms": "Earlier Established Forms",
+          "hasLaterEstablishedForms": "Later Established Forms",
+          "useFors": "Use For"
 
         },
         panelDetailOrder: [
-            "birthdates","deathdates", "pubDate", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","establishDates","terminateDates",
+            "birthdates","deathdates", "pubDate", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "hasEarlierEstablishedForms", "hasLaterEstablishedForms",
+            "contributors", "relateds","establishDates","terminateDates",
             "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
-            "collections", "genres", "subjects", "marcKeys", "rdftypes"
+            "collections", "genres", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "useFors"
         ],
       }
     },
@@ -296,6 +303,16 @@
         }
 
         return false
+      },
+
+      isSuppressed: function(data){
+        let suppressed = false
+
+        if (data.extra.status && data.extra.status == 'suppressed'){
+          suppressed = true
+        }
+
+        return suppressed
       },
 
       generateLabel: function(data){
@@ -792,23 +809,35 @@
         if (!toLoad){ return false }
 
         this.activeContext = {
-            "contextValue": true,
-            "source": [],
-            "type": (toLoad && toLoad.literal) ? "Literal Value" : null,
-            "variant": [],
-            "uri": (toLoad == null || toLoad.literal) ? null : toLoad.uri,
-            "title": (toLoad)  ? toLoad.label : "",
-            "contributor": [],
-            "date": null,
-            "genreForm": null,
-            "nodeMap": {},
-            "precoordinated" : false,
-            "literal": (toLoad && toLoad.literal) ? true : false,
-            "loading":true,
-            "extra": toLoad.extra ? toLoad.extra : {},
-            "gacs": toLoad.extra ? toLoad.extra.gacs : [],
-            "marcKey": (toLoad.extra && toLoad.extra.marcKeys) ? toLoad.extra.marcKeys[0] : ''
-          }
+          "contextValue": true,
+          "source": [],
+          "type": (toLoad && toLoad.literal) ? "Literal Value" : null,
+          "variant": [],
+          "uri": (toLoad == null || toLoad.literal) ? null : toLoad.uri,
+          "title": (toLoad)  ? toLoad.label : "",
+          "contributor": [],
+          "date": null,
+          "genreForm": null,
+          "nodeMap": {},
+          "precoordinated" : false,
+          "literal": (toLoad && toLoad.literal) ? true : false,
+          "loading":true,
+          "extra": toLoad.extra ? toLoad.extra : {},
+          "gacs": toLoad.extra ? toLoad.extra.gacs : [],
+          "marcKey": (toLoad.extra && toLoad.extra.marcKeys) ? toLoad.extra.marcKeys[0] : ''
+        }
+
+        // filter the Authorized NonLatin from the variants
+        if (this.activeContext && this.activeContext.extra && this.activeContext.extra['variantLabels'] && this.activeContext.extra['nonlatinLabels']){
+          this.activeContext.extra['variantLabels'] = this.activeContext.extra['variantLabels'].filter(n => !this.activeContext.extra['nonlatinLabels'].includes(n))
+        }
+        // Filter earlier/later forms of name from releated
+        if (this.activeContext && this.activeContext.extra && this.activeContext.extra['relateds'] && this.activeContext.extra['hasEarlierEstablishedForms']){
+          this.activeContext.extra['relateds'] = this.activeContext.extra['relateds'].filter(n => !this.activeContext.extra['hasEarlierEstablishedForms'].includes(n))
+        }
+        if (this.activeContext && this.activeContext.extra && this.activeContext.extra['relateds'] && this.activeContext.extra['hasLaterEstablishedForms']){
+          this.activeContext.extra['relateds'] = this.activeContext.extra['relateds'].filter(n => !this.activeContext.extra['hasLaterEstablishedForms'].includes(n))
+        }
 
         if (toLoad && toLoad.literal){
           return false
@@ -890,6 +919,11 @@
 
         // this.displayCo/
 
+      },
+
+      editHub: function(uri){
+        let editUrl = "https://editor.id.loc.gov/bfe2/quartz/?action=loadhub&url=" + this.rewriteURI(uri) + ".decomposed.rdf&profile=lc:RT:bf2:HubBasic:Hub"
+        return editUrl
       },
 
       rewriteURI: function(uri, forBFDB=false){
@@ -1167,7 +1201,12 @@
                       Searching...
                     </option>
 
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">{{ generateLabel(r) }}{{ checkFromAuth(r) ? ' (Auth)' : '' }}{{ checkFromRda(r) ? ' [RDA]' : '' }}{{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}</option>
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : isSuppressed(r) ? 'background-color:yellow' : ''" class="complex-lookup-result">  <!-- this.isSuppressed(r) ? 'color:yellow' :  -->
+                      {{ generateLabel(r) }}
+                      {{ checkFromAuth(r) ? ' (Auth)' : '' }}
+                      {{ checkFromRda(r) ? ' [RDA]' : '' }}
+                      {{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}
+                    </option>
 
                   </select>
                   <br>
@@ -1196,11 +1235,15 @@
                         <div v-if="activeContext.depreciated" style="background: pink;">
                           DEPRECATED AUTHORITY
                         </div>
+                        <div v-if="activeContext.extra && activeContext.extra.status && activeContext.extra.status == 'suppressed'" style="background: yellow;">
+                          SUPPRESSED
+                        </div>
                         <div v-if="activeContext.extra.collections && activeContext.extra.collections.includes('http://id.loc.gov/authorities/names/collection_NamesUndifferentiated')" style="background: pink;">
                           THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
                         </div>
                         <template v-if="activeContext.uri.includes('/resources/')">
                           <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri, true)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on BFDB</a>
+                          <a class="edit-hub" v-if="activeContext.uri.includes('/hubs/') && checkLcOnly()"  :href="editHub(activeContext.uri)" target="_blank">Edit</a>
                           <br />
                         </template>
                         <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on ID</a>
@@ -1275,7 +1318,7 @@
                             </li>
                           </ul>
                         </template> -->
-                        <template v-else-if="key == 'sources'">
+                        <template v-else-if="['hasEarlierEstablishedForms', 'hasLaterEstablishedForms', 'sources'].includes(key)">
                           <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                           <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -1362,7 +1405,7 @@
                               <div>Extra Details</div>
                             </template>
                             <template v-for="key in panelDetailOrder">
-                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "rdftypes", "lcclasss"].includes(key)'>
+                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "lcclasss", "hasRelatedAuthoritys", "useFors"].includes(key)'>
                                 <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                                 <ul>
                                   <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -1784,5 +1827,10 @@
 .pub-date {
   font-style: italic;
 }
+
+.edit-hub {
+  margin-left: 5px;
+}
+
 
 </style>

@@ -2037,13 +2037,16 @@ export const useProfileStore = defineStore('profile', {
       console.info("--------------------------\nsetValueLiteral")
       // console.info("\tcomponentGuid: ", componentGuid)
       // console.info("\tfieldGuid: ", fieldGuid)
-      console.info("\tpropertyPath: ", propertyPath)
-      // console.info("\tvalue: ", )
+      // console.info("\tpropertyPath: ", propertyPath)
+      // console.info("\tvalue: ", value)
       // console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
       // from NAR, fieldGuid is null
+
+      // remove returns from value
+      value = value.replace(/[\n\r]+/g, '');
 
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
@@ -2104,6 +2107,7 @@ export const useProfileStore = defineStore('profile', {
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
           cacheGuid[fieldGuid] = blankNode
         }
+
 
         // console.log("--------pt 2------------")
         // console.log(JSON.stringify(pt,null,2))
@@ -2350,7 +2354,6 @@ export const useProfileStore = defineStore('profile', {
 
         // they changed something
         this.dataChanged()
-
       }else{
         console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
@@ -3968,9 +3971,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     loadRecordFromBackend: async function(eid){
-
       this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
-
     },
 
     /**
@@ -8574,6 +8575,10 @@ export const useProfileStore = defineStore('profile', {
       }
       let profile = JSON.stringify(this.activeProfile)
 
+      // clear the cache
+      cachePt = {}
+      cacheGuid = {}
+
       // go back
       let last = this.undoRecords.pop()
       this.activeProfile = JSON.parse(last)
@@ -8610,6 +8615,9 @@ export const useProfileStore = defineStore('profile', {
         this.undoRecords.push(this.currentState)
       }
 
+      // clear the cache
+      cachePt = {}
+      cacheGuid = {}
       let last = this.redoRecords.pop()
       this.activeProfile = JSON.parse(last)
 

@@ -935,8 +935,12 @@ const utilsExport = {
 													// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
 													// if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
 													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://id.loc.gov/ontologies/bibframe/Topic'){
-														let cont = this.buildNoteType(bnodeLvl3, userValue[key1][0][key2][0], key3, xmlLog)
-														if (cont){ continue }
+														try {
+															let cont = this.buildNoteType(bnodeLvl3, userValue[key1][0][key2][0], key3, xmlLog)
+															if (cont){ continue }
+														} catch(err){
+															console.error("Error: ", err, " skipping")
+														}
 													}
 
                                                     for (let value3 of value2[key3]){
@@ -2250,6 +2254,7 @@ const utilsExport = {
 		}else if (fourXXParts && fourXXParts.a && !add667){
 			pos29 = 'a'
 		}
+
 		let has667 = add667
 		// if there is a 667 in the extraMarcStatements then set it
 		for (let x of extraMarcStatements){
@@ -2266,9 +2271,9 @@ const utilsExport = {
 			}
 		}
 
-		// check again if they made a 400 in the extraMarcStatements and there is no 667 then set it to a
+		// check again if they made a 4XX in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
-			if ((x.tag == '400' || x.fieldTag == '400') && !has667){
+			if (( /4\d\d/.test(x.tag) || /4\d\d/.test(x.fieldTag) || /5\d\d/.test(x.tag) || /5\d\d/.test(x.fieldTag) ) && !has667){
 				pos29 = 'a'
 			}
 		}

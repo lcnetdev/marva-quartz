@@ -73,6 +73,10 @@ export default {
             } else {
                 this.initalHeight = this.initalHeight - 16
             }
+        },
+
+        showCipModal(newVal, oldVal){
+            console.info("something is happening")
         }
     },
 
@@ -85,6 +89,11 @@ export default {
         },
 
         finishCip: function () {
+            if (this.copyrightAsPub && this.copyrightDate == ''){
+                alert("There's no CopyRight Date.")
+                return null
+            }
+
             this.showCipModal = false
 
             // remove projected publication date
@@ -97,7 +106,8 @@ export default {
                     if (this.profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() === 'Notes about the Instance'.toLowerCase()){
                         let instanceNoteComponent = this.profile.rt[rt].pt[pt]
                         let instNoteCompUserValue = instanceNoteComponent.userValue
-                        if (instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]){
+                        console.info("instNoteCompUserValue: ", instNoteCompUserValue)
+                        if (instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"] && instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]){
                             let data = instNoteCompUserValue["http://id.loc.gov/ontologies/bibframe/note"][0]
                             let label = data["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
                             if (label == 'Description based on print version record and CIP data provided by publisher; resource not viewed.'){
@@ -244,6 +254,14 @@ export default {
             let zerozero8 = proveUserValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]["http://id.loc.gov/ontologies/bibframe/date"][0]
             this.zerozero8Date = zerozero8["http://id.loc.gov/ontologies/bibframe/date"]
         }
+        // Get CopyRight date
+        let copyRightComponent = this.profileStore.returnComponentByPropertyLabel('Copyright date')
+        let copyRightValue = copyRightComponent.userValue
+        if (copyRightValue["http://id.loc.gov/ontologies/bibframe/copyrightDate"] && copyRightValue["http://id.loc.gov/ontologies/bibframe/copyrightDate"][0]["http://id.loc.gov/ontologies/bibframe/copyrightDate"]){
+            let copyRightDate = copyRightValue["http://id.loc.gov/ontologies/bibframe/copyrightDate"][0]["http://id.loc.gov/ontologies/bibframe/copyrightDate"]
+            this.copyrightDate = copyRightDate
+        }
+
 
     }
 }

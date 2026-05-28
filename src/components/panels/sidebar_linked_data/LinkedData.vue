@@ -23,6 +23,7 @@
         loadingSellers: {},
         failedSellers: {},
         booksellerResults: [],
+        lastIsbndbIsbn: null,
 
       }
     },
@@ -65,7 +66,8 @@
           { group: 'CN', sellers: [
             { key: 'baidu_baike', label: 'Baidu Baike', url: isbn ? `https://baike.baidu.com/search?word=${isbn}` : null },
             { key: 'books_tw', label: 'Books TW', url: isbn ? `https://search.books.com.tw/search/query/key/${isbn}` : null },
-            { key: 'bookschina', label: 'Books China', url: isbn ? `https://www.bookschina.com/search/?keyword=${isbn}` : null },
+            // { key: 'bookschina', label: 'Books China', url: isbn ? `https://www.bookschina.com/search/?keyword=${isbn}` : null }, // not working anymore, leaving in case we revisit
+
           ]},
           { group: 'JP', sellers: [
             { key: 'amazon_jp', label: 'Amazon JP', url: isbn ? `https://www.amazon.co.jp/dp/${isbn}` : null },
@@ -150,6 +152,17 @@
         //     console.log("profileStore.linkedData", this.profileStore.linkedData)  
 
         //   }, 1000)
+      },
+
+      autoFireIsbndb(){
+        // isbndb is not exposed as a button — it auto-fires whenever the panel loads,
+        // the profile changes, or the user picks a different ISBN.
+        // Dedupe because mounted + activeProfile watcher + activeIsbn watcher
+        // (which fires twice as defaultIsbn → selectedIsbn settle) can all overlap on one load.
+        if (!this.activeIsbn) return
+        if (this.lastIsbndbIsbn === this.activeIsbn) return
+        this.lastIsbndbIsbn = this.activeIsbn
+        this.scrapeBooksellerData('isbndb')
       },
 
       addBooksellerItem(site, sectionKey, value){
@@ -275,10 +288,13 @@
         this.failedSellers = {}
         this.booksellerResults = []
         this.linkedData.booksellerResults = []
+        this.lastIsbndbIsbn = null
         this.requestLinkedDataBuild()
+        this.autoFireIsbndb()
       },
       activeIsbn() {
         this.failedSellers = {}
+        this.autoFireIsbndb()
       },
       defaultIsbn(newVal) {
         if (newVal && !this.selectedIsbn) {
@@ -290,6 +306,7 @@
     mounted() {
         if (this.defaultIsbn) { this.selectedIsbn = this.defaultIsbn }
         this.requestLinkedDataBuild()
+        this.autoFireIsbndb()
 
 
 
