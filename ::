@@ -1,0 +1,12 @@
+Add pref to use arrow keys to nav btwn compts
+
+Was the default, now a preference that is opt in. Only applies to
+literal fields. Lookups still use arrow keys to move between components.
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch pref-nav-with-arrows
+# Changes to be committed:
+#	modified:   src/components/panels/edit/fields/Literal.vue
+#	modified:   src/stores/preference.js
+#
