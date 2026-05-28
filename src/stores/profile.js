@@ -2033,16 +2033,19 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      // console.info("--------------------------\nsetValueLiteral")
-      // console.info("\tcomponentGuid: ", componentGuid)
-      // console.info("\tfieldGuid: ", fieldGuid)
-      // console.info("\tpropertyPath: ", propertyPath)
-      // console.info("\tvalue: ", value)
-      // console.info("\tlang: ", lang)
+      console.info("--------------------------\nsetValueLiteral")
+      console.info("\tcomponentGuid: ", componentGuid)
+      console.info("\tfieldGuid: ", fieldGuid)
+      console.info("\tpropertyPath: ", propertyPath)
+      console.info("\tvalue: ", value)
+      console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
       // from NAR, fieldGuid is null
+      // remove returns from value
+      value = value.replace(/[\n\r]+/g, '');
+      console.info("value: ", value)
 
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
