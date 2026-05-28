@@ -2044,6 +2044,9 @@ export const useProfileStore = defineStore('profile', {
 
       // from NAR, fieldGuid is null
 
+      // remove returns from value
+      value = value.replace(/[\n\r]+/g, '');
+
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
 
