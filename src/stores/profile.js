@@ -2899,12 +2899,22 @@ export const useProfileStore = defineStore('profile', {
           if (nodeMap && nodeMap.vernacularMarcKeys){
             for (let l of nodeMap.vernacularMarcKeys){
               // make sure there really is a non-latin label
-              if (l.indexOf("@") == -1){
+              if (l.indexOf("@") == -1 && l.indexOf("(bcp47)") == -1){
                 continue
               }
-              // the api returns it as "label@language"
-              let lLabel = l.split("@")[0]
-              let lLanguage = l.split("@")[1]
+
+              // the api returns it as "label@language" or (bcp47)language
+              let lLabel = ''
+              let lLanguage = ''
+
+              if (l.includes("@")){
+                lLabel = l.split("@")[0]
+                lLanguage = l.split("@")[1]
+              } else if (l.includes("bcp47")){
+                lLabel = l
+                lLanguage = l.split("(bcp47)")[1]
+              }
+
               // make sure there is a label field for it
               if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
                 blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
@@ -2918,6 +2928,7 @@ export const useProfileStore = defineStore('profile', {
                 }
               )
             }
+
           }
 
 
