@@ -493,7 +493,6 @@ export default {
             }
           }
 
-          console.info("extra: ", contextValue.extra)
           this.profileStore.setValueComplex(
             this.guid,
             null,
