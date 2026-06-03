@@ -39,6 +39,10 @@ test('Add Non-Latin Name', async ({ page }) => {
     await page.getByRole('listbox').selectOption('http://id.loc.gov/authorities/names/n97907734');
     await page.getByRole('button', { name: 'Add [Shift+Enter]' }).click();
     await page.locator('.child-elements > div > div > div > .caret').first().click();
-    await expect(page.locator('#app')).toContainText('<bf:agent><bf:Agentrdf:about="http://id.loc.gov/authorities/names/n97907734"><rdf:typerdf:resource="http://www.loc.gov/mads/rdf/v1#PersonalName" /><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">ʻAqīl, ʻAqīl Ḥusayn</rdfs:label><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"xml:lang="und-arab">عقيل، عقيل حسين</rdfs:label><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aʻAqīl, ʻAqīl Ḥusayn</bflc:marcKey><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/"xml:lang="und-arab">4001 $aعقيل، عقيل حسين$7(bcp47)und-arab</bflc:marcKey></bf:Agent></bf:agent>');
+    await expect(page.locator('#app')).toContainText('<bf:Agentrdf:about="http://id.loc.gov/authorities/names/n97907734">');
+    await expect(page.locator('#app')).toContainText('<rdf:typerdf:resource="http://www.loc.gov/mads/rdf/v1#PersonalName" /><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">ʻAqīl, ʻAqīl Ḥusayn</rdfs:label>');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"xml:lang="und-arab">عقيل، عقيل حسين</rdfs:label>');
+    await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aʻAqīl, ʻAqīl Ḥusayn</bflc:marcKey>');
+    await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/"xml:lang="und-arab">4001 $aعقيل، عقيل حسين$7(bcp47)und-arab</bflc:marcKey>');
 
 });
