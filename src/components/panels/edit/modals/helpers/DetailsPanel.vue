@@ -507,3 +507,14 @@ ul:has(.modal-context-data-li) {
 
 
 </style>
+
+<style scoped>
+    .simptip-position-bottom::before,
+    .simptip-position-bottom::after {
+        left: -30% !important;
+        text-wrap: auto;
+        word-break: keep-all;
+        width: 520px;
+        height: unset !important;
+    }
+</style>
