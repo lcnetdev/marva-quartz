@@ -1866,7 +1866,6 @@ export default {
       this.contextData.variantLabels = [...new Set(this.contextData.variantLabels)]
 
       // filter related, so it doesn't duplicate value from earlier/later, broader
-      console.info("this.contextData: ", this.contextData)
       this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
       this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
       this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
