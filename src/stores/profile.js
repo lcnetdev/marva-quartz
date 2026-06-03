@@ -4916,10 +4916,11 @@ export const useProfileStore = defineStore('profile', {
       *
       * @param {string} componentGuid - the guid of the component (the parent of all fields)
       * @param {object} structure - passed from the UI, the structure object
+      * @param {object} pp - propertyPath for the structure. There's some nested components with defaults that won't build correctly otherwise
       * @return {void}
       */
 
-  insertDefaultValuesComponent: async function(componentGuid, structure){
+  insertDefaultValuesComponent: async function(componentGuid, structure, pp=false){
     // console.log(componentGuid)
     // console.log("structure",structure)
 
@@ -5033,11 +5034,18 @@ export const useProfileStore = defineStore('profile', {
                         }
                       }
                       // if we're not working at the top level, just add the default values
-                      if (!isParentTop){
-                        userValue[p.propertyURI].push(value)
-                      //otherwise, make sure the propertyURI matches the baseURI
-                      } else if (isParentTop && p.propertyURI == baseURI){
-                        userValue[p.propertyURI].push(value)
+                      if (!pp){
+                        if (!isParentTop){
+                          userValue[p.propertyURI].push(value)
+                        //otherwise, make sure the propertyURI matches the baseURI
+                        } else if (isParentTop && p.propertyURI == baseURI){
+                          userValue[p.propertyURI].push(value)
+                        }
+                      } else {
+                        let existing = utilsProfile.returnValueFromPropertyPath(pt, pp) // don't overwrite existing data
+                        if (!existing && ["http://id.loc.gov/ontologies/bibframe/relationship", "http://id.loc.gov/ontologies/bibframe/status"].includes(p.propertyURI)){
+                          this.setValueSimple(componentGuid, null, pp, d.defaultURI, d.defaultLiteral)
+                        }
                       }
                     }
                   }

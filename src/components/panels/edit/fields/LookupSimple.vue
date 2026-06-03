@@ -5,12 +5,11 @@
 
 
     <template v-if="inlineModeShouldDisplay">
-
         <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel" :title="structure.propertyLabel" >{{profileStore.returnBfCodeLabel(structure)}}:</span>
         <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
         <Transition name="action" v-if="showActionButton && myGuid == activeField">
             <div :class="{'lookup-action':true, 'lookup-action-camm':preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')}" >
-              <action-button :type="'lookupSimple'" :structure="structure" :guid="guid" :small="true" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
+              <action-button :type="'lookupSimple'" :propertyPath="propertyPath" :structure="structure" :guid="guid" :small="true" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
 
@@ -132,8 +131,7 @@
 
           <Transition name="action">
             <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
-
-              <action-button :type="'lookupSimple'" :structure="structure" :guid="guid" wtf="wft" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
+              <action-button :type="'lookupSimple'" :structure="structure" :propertyPath="propertyPath" :guid="guid" wtf="wft" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
 

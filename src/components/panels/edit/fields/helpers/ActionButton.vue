@@ -573,15 +573,19 @@
       },
 
       insertDefaultValues: function(){
-        if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
-          return false
-        }
+        // if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
+        //   return false
+        // }
 
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
 
         if (defaults.length > 0){
-          this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+          if ( ['id_loc_gov_ontologies_bibframe_status__status', 'id_loc_gov_ontologies_bibframe_relationship__relationship'].includes(this.structure.id) &&  ["lc:RT:bf2:SeriesHub", "lc:RT:bf2:SeriesHubInput"].includes(this.structure.parentId)){
+            this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure, this.propertyPath)
+          } else {
+            this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+          }
         } else {
           // // look up one level & use the appropriate structure
           let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
@@ -698,9 +702,9 @@
       },
 
       hasDefaultValues: function(){
-        if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
-          return false
-        }
+        // if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
+        //   return false
+        // }
         // if the selected item has defaults
         if (this.structure.valueConstraint.defaults.length > 0){
           return true

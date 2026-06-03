@@ -1579,6 +1579,26 @@ export default {
                     }
                   } else if (vRt != 'lc:RT:bf2:SeriesHub') {
                     this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                  } else if (template.id == 'id_loc_gov_ontologies_bibframe_relationship__relationship') {
+                    let propertyPath = [
+                      {'level': 0, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relation'},
+                      {'level': 1, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relationship'},
+                    ]
+                    this.profileStore.insertDefaultValuesComponent(structure['@guid'], template, propertyPath)
+                  }
+                } else if (template.id == 'id_loc_gov_ontologies_bibframe_associatedResource__series_hub'){
+                  // need to go deeper for input transcripbed series status
+                  for (let vRt of template.valueConstraint.valueTemplateRefs) {
+                    for (let temp of this.profileStore.rtLookup[vRt].propertyTemplates) {
+                      if (temp.id == 'id_loc_gov_ontologies_bibframe_status__status'){
+                        let propertyPath = [
+                          {'level': 0, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relation'},
+                          {'level': 1, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/associatedResource'},
+                          {'level': 2, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/status'},
+                        ]
+                        this.profileStore.insertDefaultValuesComponent(structure['@guid'], temp, propertyPath)
+                      }
+                    }
                   }
                 }
               }
