@@ -579,9 +579,9 @@
 
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
-        console.info("defaults: ", defaults)
+        console.info("structure: ", this.structure)
 
-        if (defaults.length > 0){
+        if (defaults.length > 0 && !["lc:RT:bf2:SeriesHub", "lc:RT:bf2:SeriesHubInput"].includes(this.structure.parentId ) ){
           if ( ['id_loc_gov_ontologies_bibframe_status__status', 'id_loc_gov_ontologies_bibframe_relationship__relationship'].includes(this.structure.id) &&  ["lc:RT:bf2:SeriesHub", "lc:RT:bf2:SeriesHubInput"].includes(this.structure.parentId)){
             this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure, this.propertyPath)
           } else {
