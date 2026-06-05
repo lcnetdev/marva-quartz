@@ -592,18 +592,13 @@
           let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
           if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
             for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
-              console.info("vRt: ", vRt)
-              console.info("parentId: ", this.structure.parentId)
               if ( (vRt==this.structure.parentId && this.profileStore.rtLookup[vRt]) || vRt == "lc:RT:bf2:SeriesHub"){
                 for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
-                  console.info("pt: ", pt)
                   if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
                     let struct = this.profileStore.returnStructureByComponentGuid(this.guid)
                     // if (struct.parentId == this.structure.parentId){ // will this have unintended sideffects?
                     //   this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
                     // }
-                    console.info("adding defaults for ", struct)
-                    console.info("parentStructure: ", parentStructure)
                     if (vRt != "lc:RT:bf2:SeriesHub"){
                       this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
                     } else {
@@ -617,7 +612,6 @@
                     }
                   } else if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/associatedResource"){
                     for (let vRt of pt.valueConstraint.valueTemplateRefs){
-                      console.info("\t\tvRt: ", vRt)
                       for (let temp of this.profileStore.rtLookup[vRt].propertyTemplates){
                         if (temp.propertyURI == "http://id.loc.gov/ontologies/bibframe/status"){
                           let propertyPath = [
