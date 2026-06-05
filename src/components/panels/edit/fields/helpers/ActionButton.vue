@@ -613,8 +613,20 @@
                           {'level': 1, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relationship'},
                         ]
                         this.profileStore.insertDefaultValuesComponent(parentStructure['@guid'], pt, propertyPath)
-                      } else if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/associatedResource"){
-
+                      }
+                    }
+                  } else if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/associatedResource"){
+                    for (let vRt of pt.valueConstraint.valueTemplateRefs){
+                      console.info("\t\tvRt: ", vRt)
+                      for (let temp of this.profileStore.rtLookup[vRt].propertyTemplates){
+                        if (temp.propertyURI == "http://id.loc.gov/ontologies/bibframe/status"){
+                          let propertyPath = [
+                            {'level': 0, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relation'},
+                            {'level': 1, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/associatedResource'},
+                            {'level': 2, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/status'},
+                          ]
+                          this.profileStore.insertDefaultValuesComponent(parentStructure['@guid'], temp, propertyPath)
+                        }
                       }
                     }
                   }
