@@ -20,7 +20,6 @@ const utilsProfile = {
   returnGuidLocation: function(obj,guid){
     // use a pattern that looks at many possible levels down for a @guid
     let foundPos = objectScan(['*.**.@guid,*.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid.**.@guid'])(obj);
-
     for (let fp of foundPos){
       // eventuall pointer will point to the @guid value
       let pointer = obj
