@@ -2037,12 +2037,15 @@ export const useProfileStore = defineStore('profile', {
       // console.info("\tcomponentGuid: ", componentGuid)
       // console.info("\tfieldGuid: ", fieldGuid)
       // console.info("\tpropertyPath: ", propertyPath)
-      // console.info("\tvalue: ", )
+      // console.info("\tvalue: ", value)
       // console.info("\tlang: ", lang)
       //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
       //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
 
       // from NAR, fieldGuid is null
+
+      // remove returns from value
+      value = value.replace(/[\n\r]+/g, '');
 
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
@@ -2103,6 +2106,7 @@ export const useProfileStore = defineStore('profile', {
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
           cacheGuid[fieldGuid] = blankNode
         }
+
 
         // console.log("--------pt 2------------")
         // console.log(JSON.stringify(pt,null,2))
@@ -2347,7 +2351,6 @@ export const useProfileStore = defineStore('profile', {
 
         // they changed something
         this.dataChanged()
-
       }else{
         console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
@@ -2896,12 +2899,22 @@ export const useProfileStore = defineStore('profile', {
           if (nodeMap && nodeMap.vernacularMarcKeys){
             for (let l of nodeMap.vernacularMarcKeys){
               // make sure there really is a non-latin label
-              if (l.indexOf("@") == -1){
+              if (l.indexOf("@") == -1 && l.indexOf("(bcp47)") == -1){
                 continue
               }
-              // the api returns it as "label@language"
-              let lLabel = l.split("@")[0]
-              let lLanguage = l.split("@")[1]
+
+              // the api returns it as "label@language" or (bcp47)language
+              let lLabel = ''
+              let lLanguage = ''
+
+              if (l.includes("@")){
+                lLabel = l.split("@")[0]
+                lLanguage = l.split("@")[1]
+              } else if (l.includes("bcp47")){
+                lLabel = l
+                lLanguage = l.split("(bcp47)")[1]
+              }
+
               // make sure there is a label field for it
               if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
                 blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
@@ -2915,6 +2928,7 @@ export const useProfileStore = defineStore('profile', {
                 }
               )
             }
+
           }
 
 
@@ -3965,9 +3979,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     loadRecordFromBackend: async function(eid){
-
       this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
-
     },
 
     /**
@@ -4904,10 +4916,11 @@ export const useProfileStore = defineStore('profile', {
       *
       * @param {string} componentGuid - the guid of the component (the parent of all fields)
       * @param {object} structure - passed from the UI, the structure object
+      * @param {object} pp - propertyPath for the structure. There's some nested components with defaults that won't build correctly otherwise
       * @return {void}
       */
 
-  insertDefaultValuesComponent: async function(componentGuid, structure){
+  insertDefaultValuesComponent: async function(componentGuid, structure, pp=false){
     // console.log(componentGuid)
     // console.log("structure",structure)
 
@@ -5021,11 +5034,18 @@ export const useProfileStore = defineStore('profile', {
                         }
                       }
                       // if we're not working at the top level, just add the default values
-                      if (!isParentTop){
-                        userValue[p.propertyURI].push(value)
-                      //otherwise, make sure the propertyURI matches the baseURI
-                      } else if (isParentTop && p.propertyURI == baseURI){
-                        userValue[p.propertyURI].push(value)
+                      if (!pp){
+                        if (!isParentTop){
+                          userValue[p.propertyURI].push(value)
+                        //otherwise, make sure the propertyURI matches the baseURI
+                        } else if (isParentTop && p.propertyURI == baseURI){
+                          userValue[p.propertyURI].push(value)
+                        }
+                      } else {
+                        let existing = utilsProfile.returnValueFromPropertyPath(pt, pp) // don't overwrite existing data
+                        if (!existing && ["http://id.loc.gov/ontologies/bibframe/relationship", "http://id.loc.gov/ontologies/bibframe/status"].includes(p.propertyURI)){
+                          this.setValueSimple(componentGuid, null, pp, d.defaultURI, d.defaultLiteral)
+                        }
                       }
                     }
                   }
@@ -8571,6 +8591,10 @@ export const useProfileStore = defineStore('profile', {
       }
       let profile = JSON.stringify(this.activeProfile)
 
+      // clear the cache
+      cachePt = {}
+      cacheGuid = {}
+
       // go back
       let last = this.undoRecords.pop()
       this.activeProfile = JSON.parse(last)
@@ -8607,6 +8631,9 @@ export const useProfileStore = defineStore('profile', {
         this.undoRecords.push(this.currentState)
       }
 
+      // clear the cache
+      cachePt = {}
+      cacheGuid = {}
       let last = this.redoRecords.pop()
       this.activeProfile = JSON.parse(last)
 

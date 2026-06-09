@@ -643,7 +643,7 @@ const utilsParse = {
 
         // remove any default values since we will be populating from the record
         // ptk.valueConstraint.defaultsBackup = JSON.parse(JSON.stringify(ptk.valueConstraint.defaults))
-        ptk.valueConstraint.defaults=[]
+        // ptk.valueConstraint.defaults=[]
 
         let propertyURI = ptk.propertyURI
         let prefixURI = this.namespaceUri(propertyURI)

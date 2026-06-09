@@ -1862,6 +1862,14 @@ export default {
         this.contextData.literal = true
       }
 
+      // remove duplicates from contextData.variantLabels
+      this.contextData.variantLabels = [...new Set(this.contextData.variantLabels)]
+
+      // filter related, so it doesn't duplicate value from earlier/later, broader
+      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
+      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
+      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
+
       this.contextRequestInProgress = false
     },
 
