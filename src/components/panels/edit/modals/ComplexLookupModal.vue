@@ -231,15 +231,19 @@
           this.marcData["subfield_" + subfield] = value
         }
 
-        this.bcpCodes = await utilsNetwork.fetchBCP47Codes(targetName, this.associatedLang)
+        this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData["subfield_a"], this.associatedLang)
         console.info("codes: ", this.bcpCodes)
 
         for (let c of this.bcpSelection){
           this.marcData.dollar7 = "(bcp47)" + this.bcpCodes[c].bcp47code
         }
 
-        // console.info("target: ", variants[idx])
-        this.targetName = variants[idx]
+        this.targetName = ''
+        for (let sf of Object.keys(this.marcData)){
+          if (sf.startsWith('subfield_')){
+            this.targetName = this.targetName + " $" + sf.split("_")[1] + this.marcData[sf]
+          }
+        }
 
         // swap out left panel for form
         this.showEdit4xxPanel = true
@@ -269,14 +273,48 @@
         }
 
         let key = this.marcData.tag + this.marcData.indicators
+        let userInput = this.targetName
+        console.info("userInput: ", userInput)
+        console.info("this.marcData: ", this.marcData)
+
+        // split up the user input and use to populate the marcKey/Data
+        let subfields = userInput.match(/(\$[a-z0-9])/g)
+        for (let sub in subfields){
+          sub = Number(sub)
+          let sf = subfields[sub]
+          let end = false
+          if (sub < subfields.length-1){
+            end = subfields[sub+1]
+          }
+          let value
+          if (end){
+            value = userInput.substring(
+              userInput.indexOf(sf),
+              userInput.indexOf(end),
+            )
+          } else {
+            value = userInput.substring(
+              userInput.indexOf(sf)
+            )
+          }
+          let field = value.slice(1,2)
+          value = value.slice(2)
+          console.info("field: ", field)
+          console.info("value: ", value)
+          this.marcData["subfield_" + field] = value
+
+
+        }
+
         for (let sub of Object.keys(this.marcData)) {
           if (sub.startsWith("subfield_")){
-            if (sub == 'subfield_a'){
-              console.info("subfieldA: ", this.targetName)
-              key = key + " $" + sub.split("_")[1] + this.targetName
-            } else {
-              key = key + " $" + sub.split("_")[1] + this.marcData[sub]
-            }
+            key = key + " $" + sub.split("_")[1] + this.marcData[sub]
+            // if (sub == 'subfield_a'){
+            //   console.info("subfieldA: ", this.targetName)
+            //   key = key + " $" + sub.split("_")[1] + this.targetName
+            // } else {
+            //   key = key + " $" + sub.split("_")[1] + this.marcData[sub]
+            // }
           }
         }
         key = key + " $7" + this.marcData["dollar7"]
@@ -1337,7 +1375,7 @@
               <div class="authority-edit">
                 <form>
                   <h2>Update BCP47 Language</h2>
-                  Name: <input type="text" v-model="targetName" />
+                  Name: <input class="bcp-input" type="text" v-model="targetName" />
                   <table>
                     <thead>
                         <tr>
@@ -2024,6 +2062,10 @@ td {
 
 .active {
     background-color: rgb(131, 131, 255);
+}
+.bcp-input{
+  width: 80%;
+  font-size: 1.3em;
 }
 
 
