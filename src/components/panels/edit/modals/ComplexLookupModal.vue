@@ -104,6 +104,17 @@
             "identifiers","broaders",
             "collections", "genres", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "useFors"
         ],
+
+        // editing 4XX
+        showEdit4xxPanel: false,
+        marcDoc: {},
+        associatedLang: null,
+        targetName: '',
+        bcpCodes: {},
+        bcpSelection: [],
+        marcData: [],
+        newMarcKeys: [],
+        newMarcKey: ''
       }
     },
     computed: {
@@ -117,7 +128,7 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'isLatin']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -170,6 +181,11 @@
       modeSelect: async function(){
         this.activeComplexSearch = []
         this.doSearch()
+      },
+
+      targetName: function(){
+        console.info("name change?", this.marcData)
+        this.buildNewMarcKey()
       }
 
 
@@ -177,6 +193,103 @@
     },
 
     methods: {
+      edit4XX: async function(data, idx){
+        console.info("data: ", data)
+        let marcKey = data.extra.marcKeys[0]
+        let tag = marcKey.slice(0,3)
+        let indicators = marcKey.slice(3,5)
+
+        // get the MARCxml
+        let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
+        let parser = new DOMParser();
+        this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
+        this.associatedLang = this.xmlDoc.querySelectorAll('[tag="377"]');
+
+        if (this.associatedLang.length == 1){
+          this.associatedLang = this.associatedLang[0].textContent.trim()
+        }
+        console.info("associatedLang: ", this.associatedLang)
+
+
+        // get the initial bcp47 API results
+        let variants = data.extra.variantLabels
+        // this.targetName = variants[idx]
+
+        console.info("variants: ", variants)
+        console.info("target: ", this.targetName)
+
+        let targetTag = "4" + tag.slice(1,3)
+        this.marcData.tag = targetTag
+        this.marcData.indicators = indicators
+
+        let targetName = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
+
+        for (let child of targetName.children){
+
+          let subfield = child.getAttribute("code")
+          let value = child.innerHTML
+          this.marcData["subfield_" + subfield] = value
+        }
+
+        this.bcpCodes = await utilsNetwork.fetchBCP47Codes(targetName, this.associatedLang)
+        console.info("codes: ", this.bcpCodes)
+
+        for (let c of this.bcpSelection){
+          this.marcData.dollar7 = "(bcp47)" + this.bcpCodes[c].bcp47code
+        }
+
+        // console.info("target: ", variants[idx])
+        this.targetName = variants[idx]
+
+        // swap out left panel for form
+        this.showEdit4xxPanel = true
+
+      },
+
+      hideBCP: function(){
+        console.info('hide:', this.showEdit4xxPanel)
+        this.showEdit4xxPanel = false
+      },
+
+      buildNewMarcKey: function(idx=0){
+        console.info("build")
+        if (this.bcpSelection.includes(idx)){ // remove it
+          console.info("remove")
+          this.bcpSelection = this.bcpSelection.filter(item => item != idx)
+        } else { // add it
+          console.info("add")
+          this.bcpSelection.push(idx)
+        }
+
+        console.info("this.bcpCodes: ", this.bcpCodes)
+        console.info("this.bcpSelection: ", this.bcpSelection)
+        this.marcData.dollar7 = ''
+        for (let c of this.bcpSelection){
+          this.marcData.dollar7 = this.marcData.dollar7 + "(bcp47)" + this.bcpCodes[c].bcp47code
+        }
+
+        let key = this.marcData.tag + this.marcData.indicators
+        for (let sub of Object.keys(this.marcData)) {
+          if (sub.startsWith("subfield_")){
+            if (sub == 'subfield_a'){
+              console.info("subfieldA: ", this.targetName)
+              key = key + " $" + sub.split("_")[1] + this.targetName
+            } else {
+              key = key + " $" + sub.split("_")[1] + this.marcData[sub]
+            }
+          }
+        }
+        key = key + " $7" + this.marcData["dollar7"]
+
+        this.newMarcKey = key
+      },
+
+      fetchAuthXML: async function(lccn){
+        let r = await utilsNetwork.fetchAuthMarc(lccn)
+        return r
+      },
+
+
       sortResults: function(a,b){
          if (a.label.includes('Literal')){
           return -1
@@ -316,6 +429,7 @@
       },
 
       generateLabel: function(data){
+        console.info("data: ", data)
         let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
 
         if (label.includes("(USE ")){
@@ -330,6 +444,7 @@
         //   label = label.slice(0, start) + "<span class='highlight-search-string'>" + label.slice(start, end+1) + "</span>" + label.slice(end+1)
         // }
 
+        console.info("\t", label)
         return label
       },
       truncate: function(string){
@@ -828,9 +943,9 @@
         }
 
         // filter the Authorized NonLatin from the variants
-        if (this.activeContext && this.activeContext.extra && this.activeContext.extra['variantLabels'] && this.activeContext.extra['nonlatinLabels']){
-          this.activeContext.extra['variantLabels'] = this.activeContext.extra['variantLabels'].filter(n => !this.activeContext.extra['nonlatinLabels'].includes(n))
-        }
+        // if (this.activeContext && this.activeContext.extra && this.activeContext.extra['variantLabels'] && this.activeContext.extra['nonlatinLabels']){
+        //   this.activeContext.extra['variantLabels'] = this.activeContext.extra['variantLabels'].filter(n => !this.activeContext.extra['nonlatinLabels'].includes(n))
+        // }
         // Filter earlier/later forms of name from releated
         if (this.activeContext && this.activeContext.extra && this.activeContext.extra['relateds'] && this.activeContext.extra['hasEarlierEstablishedForms']){
           this.activeContext.extra['relateds'] = this.activeContext.extra['relateds'].filter(n => !this.activeContext.extra['hasEarlierEstablishedForms'].includes(n))
@@ -1130,92 +1245,132 @@
 			</div>
           <div class="complex-lookup-modal-container-parts">
 
-            <div class="complex-lookup-modal-search">
-              <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
-                <div class="toggle-btn-grp cssonly">
-                  <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/>
-                    <label onclick="" class="toggle-btn">{{opt.label}}</label>
+            <template v-if="!showEdit4xxPanel">
+              <div class="complex-lookup-modal-search">
+                <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
+                  <div class="toggle-btn-grp cssonly">
+                    <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/>
+                      <label onclick="" class="toggle-btn">{{opt.label}}</label>
+                    </div>
                   </div>
-				        </div>
 
-                <div style="height: 22px; min-height: 22px;">
-                  <div style="z-index: 100; float: left; margin-left: 10px;">
-                    Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
-                    Showing "<={{ offsetStep }}" results
-                    <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
-                    <button @click="adjustNumResults('up')">More</button>
+                  <div style="height: 22px; min-height: 22px;">
+                    <div style="z-index: 100; float: left; margin-left: 10px;">
+                      Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
+                      Showing "<={{ offsetStep }}" results
+                      <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
+                      <button @click="adjustNumResults('up')">More</button>
+                    </div>
+                    <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
+                      <span :style="`${this.preferenceStore.styleModalTextColor()}`">
+                        <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
+                          <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
+                        </a>
+                        <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
+                          <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
+                        </a>
+
+                        <span class="pagination-label" > {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last"}} </span>
+
+                        <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
+                          <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
+                        </a>
+                        <a href="#" title="last page" class="last" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="lastPage()">
+                          <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
+                        </a>
+                      </span>
+
+                    </div>
+                    <div v-else style="min-height: 27px;"></div>
                   </div>
-                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
-                    <span :style="`${this.preferenceStore.styleModalTextColor()}`">
-                      <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
-                      </a>
-                      <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
-                      </a>
 
-                      <span class="pagination-label" > {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last"}} </span>
+            <div id="container" v-if="modalSelectOptions.length >= 6">
+              <span v-if="activeComplexSearch && activeComplexSearch[0]">
 
-                      <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
-                      </a>
-                      <a href="#" title="last page" class="last" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="lastPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
-                      </a>
-                    </span>
+              </span>
+              <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
+              <label for="search-type" class="toggle-container">
+                <div>Left Anchored</div>
+                <div>Keyword</div>
+              </label>
+            </div>
 
-                  </div>
-                  <div v-else style="min-height: 27px;"></div>
+                </template>
+                <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
+                  <select v-model="modeSelect">
+                    <option  v-for="opt in modalSelectOptions">{{opt.label}}</option>
+                  </select>
+                </template>
+                <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" />
+                <button @click="forceSearch()">Search</button>
+
+                <!-- REMOVE v-if BEFORE PROD USAGE -->
+                <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
+
+                <hr style="margin-top: 5px;">
+                <div>
+                    <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
+                      <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
+                        No results found.
+                      </option>
+                      <option v-if="activeComplexSearchInProgress == true">
+                        Searching...
+                      </option>
+
+                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : isSuppressed(r) ? 'background-color:yellow' : ''" class="complex-lookup-result">  <!-- this.isSuppressed(r) ? 'color:yellow' :  -->
+                        {{ generateLabel(r) }}
+                        {{ checkFromAuth(r) ? ' (Auth)' : '' }}
+                        {{ checkFromRda(r) ? ' [RDA]' : '' }}
+                        {{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}
+                      </option>
+
+                    </select>
+                    <br>
+
                 </div>
 
-				  <div id="container" v-if="modalSelectOptions.length >= 6">
-            <span v-if="activeComplexSearch && activeComplexSearch[0]">
 
-            </span>
-            <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
-            <label for="search-type" class="toggle-container">
-              <div>Left Anchored</div>
-              <div>Keyword</div>
-            </label>
-				  </div>
-
-              </template>
-              <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
-                <select v-model="modeSelect">
-                  <option  v-for="opt in modalSelectOptions">{{opt.label}}</option>
-                </select>
-              </template>
-              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" />
-              <button @click="forceSearch()">Search</button>
-
-              <!-- REMOVE v-if BEFORE PROD USAGE -->
-              <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
-
-              <hr style="margin-top: 5px;">
-              <div>
-                  <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
-                    <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
-                      No results found.
-                    </option>
-                    <option v-if="activeComplexSearchInProgress == true">
-                      Searching...
-                    </option>
-
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : isSuppressed(r) ? 'background-color:yellow' : ''" class="complex-lookup-result">  <!-- this.isSuppressed(r) ? 'color:yellow' :  -->
-                      {{ generateLabel(r) }}
-                      {{ checkFromAuth(r) ? ' (Auth)' : '' }}
-                      {{ checkFromRda(r) ? ' [RDA]' : '' }}
-                      {{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}
-                    </option>
-
-                  </select>
-                  <br>
 
               </div>
+            </template>
+            <template v-else>
+              <div class="authority-edit">
+                <form>
+                  <h2>Update BCP47 Language</h2>
+                  Name: <input type="text" v-model="targetName" />
+                  <table>
+                    <thead>
+                        <tr>
+                            <th>BCP47</th>
+                            <th>Language</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(code, idx) of bcpCodes"  @click="buildNewMarcKey(idx)" :class="{ active: bcpSelection.includes(idx) }">
+                          <td>
+                            {{ code["bcp47code"] }}
+                          </td>
+                          <td>
+                            {{ code["name"] }}
+                          </td>
+                          <td>
+                            {{ code["score"] }}
+                          </td>
+                        </tr>
+                    </tbody>
+                  </table>
 
+                  New Value:<br></br>
+                  <span>{{ newMarcKey }}</span>
 
+                  <br>
+                  <button>Submit</button>
+                </form>
+                <button @click="hideBCP()">Cancel</button>
 
-            </div>
+              </div>
+            </template>
 
 
             <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
@@ -1247,6 +1402,9 @@
                           <br />
                         </template>
                         <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on ID</a>
+
+                        <br>
+                        <a v-if="activeContext.type!='Literal Value'" href="#" @click="fetchAuthXML(activeContext.uri.split('/').at(-1))" :style="`${this.preferenceStore.styleModalTextColor()}`">view MARCXML</a>
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
                       <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
@@ -1299,7 +1457,11 @@
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                              <span v-if="key !='sees' && key !='relateds'">{{v}}</span>
+                              <span v-if="key !='sees' && key !='relateds'">{{v}}
+                                <template v-if="key == 'variantLabels' && !isLatin(v)">
+                                  <button class="material-icons variant-edit" @click="edit4XX(activeContext, idx)">edit</button>
+                                </template>
+                              </span>
                               <div v-else-if="key == 'relateds'">
                                 {{v}}<button class="material-icons see-search" @click="searchValueLocal = v">search</button>
                               </div>
@@ -1830,6 +1992,38 @@
 
 .edit-hub {
   margin-left: 5px;
+}
+
+.variant-edit {
+  font-size: 12px;
+}
+
+/* BCP Stuff */
+table {
+    border-collapse: collapse;
+    border: 2px solid rgb(140 140 140);
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+th {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+th,
+td {
+    border: 1px solid rgb(160 160 160);
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.active {
+    background-color: rgb(131, 131, 255);
 }
 
 

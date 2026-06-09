@@ -4454,6 +4454,26 @@ const utilsNetwork = {
       return content
     },
 
+    async fetchAuthMarc(lccn){
+      let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml"
+      let marcXML = await this.fetchSimpleLookup(url)
+      return marcXML
+    },
+
+    async fetchBCP47Codes(string, hint=false){
+      let url = "https://preprod.id.loc.gov/controllers/xqapi-determine-bcp47.xqy?serialization=application/json&string=" + encodeURIComponent(string)
+      if (hint){
+        url = url + "&hint=" + hint
+      }
+      let resp = await this.fetchSimpleLookup(url)
+      console.info(resp)
+      if (resp.status != 200){
+        resp = [{"bcp47code":"th", "name":"Thai", "score":6}, {"bcp47code":"lo-thai", "name":"Lao", "score":0}, {"bcp47code":"lwl-thai", "name":"Eastern Lawa", "score":-1}, {"bcp47code":"kdt-thai", "name":"Kuy", "score":-1}, {"bcp47code":"tts-thai", "name":"Northeastern Thai", "score":-1}, {"bcp47code":"kxm-thai", "name":"Northern Khmer", "score":-1}, {"bcp47code":"sou-thai", "name":"Southern Thai", "score":-1}, {"bcp47code":"lcp-thai", "name":"Western Lawa", "score":-1}, {"bcp47code":"pi-thai", "name":"Pali", "score":-2}]
+      }
+
+      return resp
+    },
+
 
 }
 
