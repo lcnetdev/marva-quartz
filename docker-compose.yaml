@@ -28,5 +28,5 @@ services:
       MARVA_REDIRECT_BASE: "http://localhost/marva/"
       BLUECORE_STACK_KEYCLOAK_REDIRECT_URI: "http://localhost/marva/util/auth/callback"
       CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:8080}"
-      MARVA_UTIL_PATH: "" #TODO: will need to be configured with marva backend for additional Marva features
+      MARVA_UTIL_PATH: "https://bibframe.org"
     command: sh -lc "node middleware/marva-keycloak-middleware.js"

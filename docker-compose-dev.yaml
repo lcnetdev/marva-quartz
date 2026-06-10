@@ -7,11 +7,13 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+    env_file:
+      - ./.env
     environment:
       NODE_ENV: development
-      VITE_KEYCLOAK_AUTH_PATH: "http://localhost:8081/keycloak/"
-      VITE_BLUECORE_API_PATH: "http://localhost:3000/api/"
-      VITE_KEYCLOAK_MIDDLEWARE_BASE: "http://localhost:9401/marva/util/"
+      VITE_KEYCLOAK_AUTH_PATH: "${VITE_KEYCLOAK_AUTH_PATH:-http://localhost:8081/keycloak/}"
+      VITE_BLUECORE_API_PATH: "${VITE_BLUECORE_API_PATH:-http://localhost:3000/api/}"
+      VITE_KEYCLOAK_MIDDLEWARE_BASE: "${VITE_KEYCLOAK_MIDDLEWARE_BASE:-http://localhost:9401/marva/util/}"
     command: sh -lc "npm install && npm run dev-external -- --host"
     depends_on:
       - marva-keycloak-middleware
@@ -25,11 +27,13 @@ services:
       - "9401:9401"
     volumes:
       - .:/app
+    env_file:
+      - ./.env
     environment:
-      MARVA_MW_PORT: "9401"
-      KEYCLOAK_EXTERNAL_URL: "http://localhost:8081/keycloak"
-      KEYCLOAK_INTERNAL_URL: "http://keycloak:8081/keycloak"
-      MARVA_REDIRECT_BASE: "http://localhost:4444/marva/"
+      MARVA_MW_PORT: "${MARVA_MW_PORT:-9401}"
+      KEYCLOAK_EXTERNAL_URL: "${KEYCLOAK_EXTERNAL_URL:-http://localhost:8081/keycloak}"
+      KEYCLOAK_INTERNAL_URL: "${KEYCLOAK_INTERNAL_URL:-http://keycloak:8081/keycloak}"
+      MARVA_REDIRECT_BASE: "${MARVA_REDIRECT_BASE:-http://localhost:4444/marva/}"
       CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:4444}"
-      MARVA_UTIL_PATH: "" #TODO: will need to be configured with marva backend for additional Marva features
+      MARVA_UTIL_PATH: "${MARVA_UTIL_PATH:-https://bibframe.org}"
     command: sh -lc "node --watch middleware/marva-keycloak-middleware.js"
