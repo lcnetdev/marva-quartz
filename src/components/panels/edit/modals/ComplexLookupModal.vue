@@ -116,6 +116,7 @@
         newMarcKey: '',
         activeIndex: 0,
         xmlTarget: [],
+        refEval: false,
 
       }
     },
@@ -261,14 +262,17 @@
         if (this.marcData.some(d => {return d.bcpSelection.length == 0})){
           alert("A name is missing a language Selection. Add one before continuing.")
         }
+        this.marcData.refEval = this.refEval
 
         // let marc = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTarget)
         let marcXML = this.xmlDoc
         let updates = this.marcData
         let target = this.xmlTarget
 
+        let record = marcXML.getElementsByTagName('marcxml:record')[0]
         let targetNameXML = marcXML.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
-        console.info("targetNameXML: ", targetNameXML.children)
+        let index = [].indexOf.call(record.children, targetNameXML)
+        let nextBlock = record.children[index + 1]
 
         // Get the existing subfields
         let existingCodes = {}
@@ -277,29 +281,67 @@
           existingCodes[code] = child
         }
 
-        console.info("existing: ", existingCodes)
+        /**
+         * TODO:
+         * - remove 667? under what conditions? $a >Non-Latin script references not evaluated.?
+         * - flag for preferred?
+         * - additional names
+         * - deleted names
+         */
 
-        for (let update of updates){
+        if (updates.refEval){
+          let zeroZeroEight = marcXML.querySelectorAll('[tag="008"]')[0]
+          let currentValue = zeroZeroEight.innerHTML
+          let updatedValue = this.setCharAt(currentValue, 29, 'a')
+          zeroZeroEight.innerHTML = updatedValue
+        }
+
+        for (let [idx, update] of updates.entries()){
 
           let indicators = update.indicators.split("")
           targetNameXML.setAttribute("ind1", indicators[0])
           targetNameXML.setAttribute("ind2", indicators[1])
 
-          for (let key of Object.keys(update)){
-            if (key.includes('subfield_')){
-              let subfield = key.split("_")[1]
-              let value = update[key]
+          if (idx == 0){
+            for (let key of Object.keys(update)){
+              if (key.includes('subfield_')){
+                let subfield = key.split("_")[1]
+                let value = update[key]
 
-              let target = existingCodes[subfield]
-              if (target){                // if the subfield is existing update it
-                target.innerHTML = value
-              }else {                     // otherwise, create it
-                let newSubField = document.createElement('marcxml:subfield');
-                newSubField.setAttribute("code", subfield)
-                newSubField.innerHTML = value
-                targetNameXML.appendChild(newSubField)
+                // if we're looking at the first update
+                let target = existingCodes[subfield]
+                if (target){                // if the subfield is existing update it
+                  target.innerHTML = value
+                }else {                     // otherwise, create it
+                  let newSubField = document.createElement('marcxml:subfield');
+                  newSubField.setAttribute("code", subfield)
+                  newSubField.innerHTML = value.trim()
+                  targetNameXML.appendChild(newSubField)
+                }
+
               }
             }
+          } else { // it's something a new field for the top element
+            let newField = document.createElement('marcxml:datafield')
+            newField.setAttribute('tag', update.tag)
+            newField.setAttribute('ind1', indicators[0])
+            newField.setAttribute('ind2', indicators[1])
+
+            for (let key of Object.keys(update)){
+              if (key.includes('subfield_')){
+                let newSubField = document.createElement('marcxml:subfield');
+                let subfield = key.split("_")[1]
+                let value = update[key]
+
+                newSubField.setAttribute("code", subfield)
+                newSubField.innerHTML = value.trim()
+                newField.appendChild(newSubField)
+              }
+            }
+            // record.appendChild(newField)
+            // record.after(newField)
+            record.insertBefore(newField, nextBlock)
+
           }
         }
 
@@ -323,8 +365,13 @@
 
       buildNewMarcKey: function(){
         console.info("build: ", this.marcData[this.activeIndex])
-        if (!this.marcData[this.activeIndex]){
-          this.marcData[this.activeIndex] = {}
+
+        this.marcData[this.activeIndex] = { // reset to make deletions easier to handle
+          'tag': this.tag,
+          'indicators': this.indicators,
+          'bcpSelection': this.marcData[this.activeIndex].bcpSelection,
+          'marcKey': this.marcData[this.activeIndex].marcKey,
+          'displayName': this.marcData[this.activeIndex].displayName
         }
         this.marcData[this.activeIndex]['subfield_7'] = ''
         for (let c of this.marcData[this.activeIndex].bcpSelection){
@@ -337,15 +384,26 @@
 
         // split up the user input and use to populate the marcData
         // let subfields = userInput.match(/(\$[a-z0-9])/g)
-        let subfields = userInput.match(/.+?(?=\$|$|\n)/g)
+        let subfields = userInput.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+        let subTags = subfields.map((sf) => {return sf.slice(0,2)})
+        let existingSubfields = Object.keys(this.marcData[this.activeIndex]).filter(sub => sub.includes('subfield_'))
+        console.info("existingSubfields: ", existingSubfields)
+        console.info("subfields: ", subfields)
+        console.info("subTags: ", subTags)
         for (let sub of subfields){
           let field = sub.slice(1,2)
           let value = sub.slice(2)
-
           this.marcData[this.activeIndex]["subfield_" + field] = value
+
+          // if (sub != '$'){
+          //   this.marcData[this.activeIndex]["subfield_" + field] = value
+          // }
         }
 
+        console.info("this.marcData[this.activeIndex]: ", this.marcData[this.activeIndex])
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
+          console.info("sub: ", sub)
+
           if (sub.startsWith("subfield_") && sub != "subfield_7"){
             key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
           }
@@ -381,7 +439,9 @@
       },
 
       handleInput: function(event){
+        console.info("input: ", event.target.value)
         this.marcData[this.activeIndex].displayName = event.target.value
+        console.info("Display", this.marcData[this.activeIndex].displayName)
         this.buildNewMarcKey()
       },
 
@@ -1481,7 +1541,7 @@
 
                 <br><br><br>
                 <label for="refEval">References Evaluated?</label>
-                <input type="checkbox" id="refEval" name="refEval" value="false">
+                <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                 <br><br>
                 <button @click="submitEdit()">Submit</button>
                 <button @click="hideBCP()">Cancel</button>
