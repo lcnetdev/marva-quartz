@@ -8766,6 +8766,30 @@ export const useProfileStore = defineStore('profile', {
       return pp
     },
 
+    adjustAuthRecord: function(marcXML, updates, target){
+      console.info("adjusting")
+      console.info("\tmarcXML: ", marcXML)
+      console.info("\ttarget:  ", target)
+      console.info("\tupdates: ", updates)
+
+      let targetNameXML = marcXML.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+      console.info("targetNameXML: ", targetNameXML.children)
+      for (let update of updates){
+        for (let key of Object.keys(update)){
+          let subfield = key.split("_")[1]
+          let value = update[key]
+          console.info("\t", subfield, ": ", update[key])
+          for (let child in targetNameXML.children){
+            if (child.getAttribute("code") == subfield){
+              child.innerHTML = value
+            }
+          }
+        }
+      }
+
+      return marcXML
+    },
+
 
 
 

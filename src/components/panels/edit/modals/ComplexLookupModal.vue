@@ -109,13 +109,13 @@
         showEdit4xxPanel: false,
         marcDoc: {},
         associatedLang: null,
-        targetName: '',
         bcpCodes: {},
         bcpSelection: [0],
         marcData: [{}],
-        newMarcKeys: [{targetName: '', bcpSelection: []}],
+        newMarcKeys: [{displayName: '', bcpSelection: []}],
         newMarcKey: '',
         activeIndex: 0,
+        xmlTarget: [],
 
       }
     },
@@ -130,7 +130,7 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'isLatin']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'isLatin', 'adjustAuthRecord']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -184,83 +184,70 @@
         this.activeComplexSearch = []
         this.doSearch()
       },
-
-      // marcData: {
-      //   deep: true,
-      //   handler(newVal, oldVal){
-      //     console.info("new", newVal)
-      //     console.info("old", oldVal)
-      //     // this.buildNewMarcKey()
-      //   }
-      // },
-
-      'marcData[activeIndex].targetName': function(){
-        console.info("name change?", this.marcData)
-        this.buildNewMarcKey()
-      }
-
-
-
     },
 
     methods: {
+      setCharAt: function(str, index, chr) {
+          if(index > str.length-1) return str;
+          return str.substring(0,index) + chr + str.substring(index+1);
+      },
+
+      // initial 4XX
       edit4XX: async function(data, idx){
+        // Get MarcKey for 1XX
         let marcKey = data.extra.marcKeys[0]
         this.tag = marcKey.slice(0,3)
         this.indicators = marcKey.slice(3,5)
+         console.info("indicators: ", this.indicators)
+        if (this.tag != 430){
+          //ind 2 = 1
+          this.indicators = this.setCharAt(this.indicators, 1, '1')
+        }else{
+          //ind 1 = 1
+          this.indicators = this.setCharAt(this.indicators, 0, '1')
+        }
+        console.info("indicators: ", this.indicators)
 
         // get the MARCxml
         let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
-        let parser = new DOMParser();
+        let parser = new DOMParser()
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
-        this.associatedLang = this.xmlDoc.querySelectorAll('[tag="377"]');
+        this.associatedLang = this.xmlDoc.querySelectorAll('[tag="377"]')
 
         if (this.associatedLang.length == 1){
           this.associatedLang = this.associatedLang[0].textContent.trim()
         }
-
         let variants = data.extra.variantLabels
-
-        console.info("this.marcData: ", this.marcData)
-
         let targetTag = "4" + this.tag.slice(1,3)
+
         this.tag = targetTag
         this.marcData[0].tag = targetTag
         this.marcData[0].indicators = this.indicators
 
-        let targetName = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
-        this.marcData[0]["fullString"] = targetTag+ this.indicators
+        let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
+        this.xmlTarget = [targetTag, idx]
 
-
-        for (let child of targetName.children){
-          let subfield = child.getAttribute("code")
-          let value = child.innerHTML
+        for (let sub of targetNameXML.children){
+          let subfield = sub.getAttribute("code")
+          let value = sub.innerHTML
           this.marcData[0]["subfield_" + subfield] = value
-          this.marcData[0]["fullString"] = this.marcData[0]["fullString"] + " $" + subfield + value
         }
 
+        // BCP suggestions
         this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[0]["subfield_a"], this.associatedLang)
-
-        console.info("this.marcData: ", this.marcData)
-        console.info("this.activeIndex: ", this.activeIndex)
         this.marcData[this.activeIndex].bcpSelection = [0]
         for (let c of this.marcData[this.activeIndex].bcpSelection){
-          console.info("\t", c)
-          this.marcData[0].dollar7 = "(bcp47)" + this.bcpCodes[c].bcp47code
+          this.marcData[0]['subfield_7'] = "(bcp47)" + this.bcpCodes[c].bcp47code
         }
-        this.marcData[0]["fullString"] = this.marcData[0]["fullString"] + " $7" + this.marcData[0].dollar7
 
-        this.marcData[0].targetName = ''
+        this.marcData[0].displayName = ''
         for (let sf of Object.keys(this.marcData[0])){
           if (sf.startsWith('subfield_')){
-            this.marcData[0].targetName = this.marcData[0].targetName + " $" + sf.split("_")[1] + this.marcData[0][sf]
+            this.marcData[0].displayName = this.marcData[0].displayName + "$" + sf.split("_")[1] + this.marcData[0][sf]
           }
         }
 
-        console.info("this.marcData: ", this.marcData)
-
-        // create string for display/editing
-
+        this.buildNewMarcKey()
 
         // swap out left panel for form
         this.showEdit4xxPanel = true
@@ -270,11 +257,60 @@
       hideBCP: function(){
         this.showEdit4xxPanel = false
       },
+      submitEdit: function(){
+        if (this.marcData.some(d => {return d.bcpSelection.length == 0})){
+          alert("A name is missing a language Selection. Add one before continuing.")
+        }
+
+        // let marc = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTarget)
+        let marcXML = this.xmlDoc
+        let updates = this.marcData
+        let target = this.xmlTarget
+
+        let targetNameXML = marcXML.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+        console.info("targetNameXML: ", targetNameXML.children)
+
+        // Get the existing subfields
+        let existingCodes = {}
+        for (let child of targetNameXML.children){
+          let code = child.getAttribute("code")
+          existingCodes[code] = child
+        }
+
+        console.info("existing: ", existingCodes)
+
+        for (let update of updates){
+
+          let indicators = update.indicators.split("")
+          targetNameXML.setAttribute("ind1", indicators[0])
+          targetNameXML.setAttribute("ind2", indicators[1])
+
+          for (let key of Object.keys(update)){
+            if (key.includes('subfield_')){
+              let subfield = key.split("_")[1]
+              let value = update[key]
+
+              let target = existingCodes[subfield]
+              if (target){                // if the subfield is existing update it
+                target.innerHTML = value
+              }else {                     // otherwise, create it
+                let newSubField = document.createElement('marcxml:subfield');
+                newSubField.setAttribute("code", subfield)
+                newSubField.innerHTML = value
+                targetNameXML.appendChild(newSubField)
+              }
+            }
+          }
+        }
+
+        console.info("targetNameXML: ", targetNameXML)
+        console.info("targetNameXML: ", targetNameXML.children)
+
+        // console.info("marc: ", marc)
+      },
 
       addBcpCode: function(idx){
         // activeIndex
-        console.info("this.marcData: ", this.marcData)
-        console.info("this.activeIndex: ", this.activeIndex)
         if (!this.marcData[this.activeIndex].bcpSelection){
           this.marcData[this.activeIndex].bcpSelection = []
         }
@@ -286,71 +322,47 @@
       },
 
       buildNewMarcKey: function(){
-        console.info("active: ", this.activeIndex, "--", this.marcData[this.activeIndex])
+        console.info("build: ", this.marcData[this.activeIndex])
         if (!this.marcData[this.activeIndex]){
           this.marcData[this.activeIndex] = {}
         }
-        this.marcData[this.activeIndex].dollar7 = ''
+        this.marcData[this.activeIndex]['subfield_7'] = ''
         for (let c of this.marcData[this.activeIndex].bcpSelection){
-          this.marcData[this.activeIndex].dollar7 = this.marcData[this.activeIndex].dollar7 + "(bcp47)" + this.bcpCodes[c].bcp47code
+          this.marcData[this.activeIndex]['subfield_7'] = this.marcData[this.activeIndex]['subfield_7'] + " (bcp47)" + this.bcpCodes[c].bcp47code
         }
 
         let key = ''
-        let fullString = this.marcData[this.activeIndex].tag + this.marcData[this.activeIndex].indicators
-        console.info("fullString: ", fullString)
-        let userInput = this.marcData[this.activeIndex].targetName
-        console.info("userInput: ", userInput)
+        let marcKey = this.marcData[this.activeIndex].tag + this.marcData[this.activeIndex].indicators
+        let userInput = this.marcData[this.activeIndex].displayName
 
+        // split up the user input and use to populate the marcData
+        // let subfields = userInput.match(/(\$[a-z0-9])/g)
+        let subfields = userInput.match(/.+?(?=\$|$|\n)/g)
+        for (let sub of subfields){
+          let field = sub.slice(1,2)
+          let value = sub.slice(2)
 
-        // split up the user input and use to populate the marcKey/Data
-        let subfields = userInput.match(/(\$[a-z0-9])/g)
-        for (let sub in subfields){
-          sub = Number(sub)
-          let sf = subfields[sub]
-          let end = false
-          if (sub < subfields.length-1){
-            end = subfields[sub+1]
-          }
-
-          let value
-          if (end){
-            value = userInput.substring(
-              userInput.indexOf(sf),
-              userInput.indexOf(end),
-            )
-          } else {
-            value = userInput.substring(
-              userInput.indexOf(sf),
-            )
-          }
-
-          let field = value.slice(1,2)
-          value = value.slice(2)
           this.marcData[this.activeIndex]["subfield_" + field] = value
         }
 
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
-          if (sub.startsWith("subfield_")){
+          if (sub.startsWith("subfield_") && sub != "subfield_7"){
             key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
           }
         }
-        fullString = fullString + key + " $7" + this.marcData[this.activeIndex]["dollar7"]
+        marcKey = marcKey + key + " $7" + this.marcData[this.activeIndex]['subfield_7']
 
-        // this.marcData = key
-        this.marcData[this.activeIndex]['targetName'] = key
-        console.info(">>>>", this.marcData[this.activeIndex])
-        this.marcData[this.activeIndex]['targetName'] = key
-        this.marcData[this.activeIndex]['fullString'] = fullString
+        this.marcData[this.activeIndex]['displayName'] = key
+        this.marcData[this.activeIndex]['marcKey'] = marcKey
       },
 
       addBcpRow: function(){
         this.marcData.push({
           'tag': this.tag,
           'indicators': this.indicators,
-          'targetName': '',
           'bcpSelection': [0],
-          'fullString': '',
-          'targetName': '$a',
+          'marcKey': '',
+          'displayName': '$a',
         })
       },
       dupeBcpRow: function(idx){
@@ -359,8 +371,8 @@
         )
       },
       removeBcpRow: function(row){
-        console.info("remove: ", row, "--", this.marcData)
         this.marcData.splice(row, 1);
+        this.activeIndex = 0
       },
 
       fetchAuthXML: async function(lccn){
@@ -369,8 +381,7 @@
       },
 
       handleInput: function(event){
-        this.marcData[this.activeIndex].targetName = event.target.value
-        console.info("this.marcData[this.activeIndex].targetName: ", this.marcData[this.activeIndex].targetName)
+        this.marcData[this.activeIndex].displayName = event.target.value
         this.buildNewMarcKey()
       },
 
@@ -1428,13 +1439,14 @@
                   <!-- <div v-for="(row, index) in this.newMarcKeys" :key="index" class="advanced-row"> -->
                   <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
                     <!-- {{ row }} -->
-                    Name: <input class="bcp-input"
+                    {{ tag }}{{ indicators }}: <input class="bcp-input"
                       type="text"
-                      v-model="row.targetName"
+                      v-model="row.displayName"
                       @input="handleInput"
                       @click="activeIndex = index"
                       :class="{'active-bcp': this.activeIndex == index}"
                     />
+
                     <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
                     <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
                     <button v-if="index > 0" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
@@ -1465,10 +1477,13 @@
                   </table>
 
                   New Value:<br></br>
-                  <div v-for="row in marcData">{{ row.fullString }}</div>
+                  <div v-for="row in marcData">{{ row.marcKey }}</div>
 
                 <br><br><br>
-                <button>Submit</button>
+                <label for="refEval">References Evaluated?</label>
+                <input type="checkbox" id="refEval" name="refEval" value="false">
+                <br><br>
+                <button @click="submitEdit()">Submit</button>
                 <button @click="hideBCP()">Cancel</button>
 
               </div>
