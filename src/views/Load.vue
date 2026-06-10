@@ -409,7 +409,7 @@ import Nav from "@/components/panels/nav/Nav.vue";
 import utilsProfile from '@/lib/utils_profile';
 import utilsNetwork from '@/lib/utils_network';
 import utilsParse from '@/lib/utils_parse';
-import { isBluecoreUuidInput } from '@/lib/utils_bluecore';
+import { isBluecoreUuidInput, startBluecoreResourceAutoLoad } from '@/lib/utils_bluecore';
 import short from 'short-uuid'
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
@@ -1498,6 +1498,8 @@ export default {
       }
 
     }, 500)
+
+    startBluecoreResourceAutoLoad(this) // instantly load an instance passed via ?resource= (e.g. a Bluecore redirect)
 
     let intervalLoadProfile = window.setInterval(() => {
       if (this.$route && this.$route.query && this.$route.query.profile && this.startingPointsFiltered && this.startingPointsFiltered.length > 0) {
