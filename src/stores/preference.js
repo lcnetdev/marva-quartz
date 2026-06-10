@@ -1726,7 +1726,7 @@ export const usePreferenceStore = defineStore('preference', {
       // save current route path so we can redirect back after SSO
       // strip the base path since router.push will add it back
       let basePath = import.meta.env.BASE_URL || '/'
-      let currentPath = window.location.pathname + window.location.hash
+      let currentPath = window.location.pathname + window.location.search + window.location.hash //(incl. query like ?resource=)
       if (currentPath.startsWith(basePath)){
         currentPath = '/' + currentPath.slice(basePath.length)
       }
