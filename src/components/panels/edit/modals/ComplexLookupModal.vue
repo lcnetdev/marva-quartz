@@ -353,6 +353,11 @@
           'targetName': '$a',
         })
       },
+      dupeBcpRow: function(idx){
+        this.marcData.push(
+          JSON.parse(JSON.stringify(this.marcData[idx]))
+        )
+      },
       removeBcpRow: function(row){
         console.info("remove: ", row, "--", this.marcData)
         this.marcData.splice(row, 1);
@@ -1430,8 +1435,9 @@
                       @click="activeIndex = index"
                       :class="{'active-bcp': this.activeIndex == index}"
                     />
-                    <button @click="addBcpRow"    style="margin-left: 1em;">Add</button>
-                    <button v-if="index > 0" @click="removeBcpRow(index)" style="margin-left: 1em;">Remove</button>
+                    <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
+                    <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
+                    <button v-if="index > 0" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
 
                   </div>
 
@@ -2127,6 +2133,12 @@ td {
 .bcp-input{
   width: 80%;
   font-size: 1.3em;
+}
+.bcp-icon {
+  font-size: 14px;
+  height: 25px;
+  width: 25px;
+  margin-left: 5px;
 }
 .active-bcp{
   border: 5px solid #28cd28;
