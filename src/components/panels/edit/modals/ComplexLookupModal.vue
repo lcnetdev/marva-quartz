@@ -14,7 +14,6 @@
   import { AccordionList, AccordionItem } from "vue3-rich-accordion";
   import short from 'short-uuid'
 
-
   export default {
     components: {
       VueFinalModal,
@@ -117,6 +116,8 @@
         activeIndex: 0,
         xmlTarget: [],
         refEval: false,
+        originalMarc: null,
+        updatedRecord: null,
 
       }
     },
@@ -199,7 +200,6 @@
         let marcKey = data.extra.marcKeys[0]
         this.tag = marcKey.slice(0,3)
         this.indicators = marcKey.slice(3,5)
-         console.info("indicators: ", this.indicators)
         if (this.tag != 430){
           //ind 2 = 1
           this.indicators = this.setCharAt(this.indicators, 1, '1')
@@ -207,12 +207,12 @@
           //ind 1 = 1
           this.indicators = this.setCharAt(this.indicators, 0, '1')
         }
-        console.info("indicators: ", this.indicators)
 
         // get the MARCxml
         let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
         let parser = new DOMParser()
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
+        this.originalMarc = JSON.parse(JSON.stringify(marcXML))
         this.associatedLang = this.xmlDoc.querySelectorAll('[tag="377"]')
 
         if (this.associatedLang.length == 1){
@@ -264,91 +264,20 @@
         }
         this.marcData.refEval = this.refEval
 
-        // let marc = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTarget)
         let marcXML = this.xmlDoc
         let updates = this.marcData
         let target = this.xmlTarget
 
-        let record = marcXML.getElementsByTagName('marcxml:record')[0]
-        let targetNameXML = marcXML.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
-        let index = [].indexOf.call(record.children, targetNameXML)
-        let nextBlock = record.children[index + 1]
+        this.updatedRecord = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTarget)
 
-        // Get the existing subfields
-        let existingCodes = {}
-        for (let child of targetNameXML.children){
-          let code = child.getAttribute("code")
-          existingCodes[code] = child
-        }
+        console.info("updatedRecord: ", this.updatedRecord)
 
-        /**
-         * TODO:
-         * - remove 667? under what conditions? $a >Non-Latin script references not evaluated.?
-         * - flag for preferred?
-         * - additional names
-         * - deleted names
-         */
+        // let xmlExisting = this.originalMarc
+        let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord);
+        console.info("update: ", xmlUpdated)
+        // const diff = (oldVal, newVal) => newVal.split(oldVal).join('')
 
-        if (updates.refEval){
-          let zeroZeroEight = marcXML.querySelectorAll('[tag="008"]')[0]
-          let currentValue = zeroZeroEight.innerHTML
-          let updatedValue = this.setCharAt(currentValue, 29, 'a')
-          zeroZeroEight.innerHTML = updatedValue
-        }
 
-        for (let [idx, update] of updates.entries()){
-
-          let indicators = update.indicators.split("")
-          targetNameXML.setAttribute("ind1", indicators[0])
-          targetNameXML.setAttribute("ind2", indicators[1])
-
-          if (idx == 0){
-            for (let key of Object.keys(update)){
-              if (key.includes('subfield_')){
-                let subfield = key.split("_")[1]
-                let value = update[key]
-
-                // if we're looking at the first update
-                let target = existingCodes[subfield]
-                if (target){                // if the subfield is existing update it
-                  target.innerHTML = value
-                }else {                     // otherwise, create it
-                  let newSubField = document.createElement('marcxml:subfield');
-                  newSubField.setAttribute("code", subfield)
-                  newSubField.innerHTML = value.trim()
-                  targetNameXML.appendChild(newSubField)
-                }
-
-              }
-            }
-          } else { // it's something a new field for the top element
-            let newField = document.createElement('marcxml:datafield')
-            newField.setAttribute('tag', update.tag)
-            newField.setAttribute('ind1', indicators[0])
-            newField.setAttribute('ind2', indicators[1])
-
-            for (let key of Object.keys(update)){
-              if (key.includes('subfield_')){
-                let newSubField = document.createElement('marcxml:subfield');
-                let subfield = key.split("_")[1]
-                let value = update[key]
-
-                newSubField.setAttribute("code", subfield)
-                newSubField.innerHTML = value.trim()
-                newField.appendChild(newSubField)
-              }
-            }
-            // record.appendChild(newField)
-            // record.after(newField)
-            record.insertBefore(newField, nextBlock)
-
-          }
-        }
-
-        console.info("targetNameXML: ", targetNameXML)
-        console.info("targetNameXML: ", targetNameXML.children)
-
-        // console.info("marc: ", marc)
       },
 
       addBcpCode: function(idx){
@@ -364,8 +293,6 @@
       },
 
       buildNewMarcKey: function(){
-        console.info("build: ", this.marcData[this.activeIndex])
-
         this.marcData[this.activeIndex] = { // reset to make deletions easier to handle
           'tag': this.tag,
           'indicators': this.indicators,
@@ -387,9 +314,7 @@
         let subfields = userInput.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
         let subTags = subfields.map((sf) => {return sf.slice(0,2)})
         let existingSubfields = Object.keys(this.marcData[this.activeIndex]).filter(sub => sub.includes('subfield_'))
-        console.info("existingSubfields: ", existingSubfields)
-        console.info("subfields: ", subfields)
-        console.info("subTags: ", subTags)
+
         for (let sub of subfields){
           let field = sub.slice(1,2)
           let value = sub.slice(2)
@@ -400,10 +325,7 @@
           // }
         }
 
-        console.info("this.marcData[this.activeIndex]: ", this.marcData[this.activeIndex])
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
-          console.info("sub: ", sub)
-
           if (sub.startsWith("subfield_") && sub != "subfield_7"){
             key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
           }
@@ -439,12 +361,9 @@
       },
 
       handleInput: function(event){
-        console.info("input: ", event.target.value)
         this.marcData[this.activeIndex].displayName = event.target.value
-        console.info("Display", this.marcData[this.activeIndex].displayName)
         this.buildNewMarcKey()
       },
-
 
       sortResults: function(a,b){
          if (a.label.includes('Literal')){
@@ -585,7 +504,6 @@
       },
 
       generateLabel: function(data){
-        console.info("data: ", data)
         let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
 
         if (label.includes("(USE ")){
@@ -600,7 +518,6 @@
         //   label = label.slice(0, start) + "<span class='highlight-search-string'>" + label.slice(start, end+1) + "</span>" + label.slice(end+1)
         // }
 
-        console.info("\t", label)
         return label
       },
       truncate: function(string){
