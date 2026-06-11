@@ -2063,6 +2063,7 @@ export default {
     },
 
     selectContext: async function (pickPostion, update = true) {
+      console.info("select: ", )
       if (pickPostion != null) {
         this.pickPostion = pickPostion
         this.pickCurrent = pickPostion
@@ -2073,6 +2074,7 @@ export default {
       }
 
       if (this.pickLookup[this.pickPostion].complex) {
+        console.info("????")
         // if it is a complex authorized heading then just replace the whole things with it, sometimes
         let splitString = this.subjectString.split('--')
         let splitStringLower = this.subjectString.toLowerCase().split('--')
@@ -2082,6 +2084,7 @@ export default {
 
         if (this.searchStringPos > 0) { // we're looking at a subdivision and we've got a complex heading. Figure out if the pieces
           replacePos = [this.searchStringPos]
+          console.info("replacePos: ", replacePos)
           let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
 
           let looksLikeMatch = (set1, set2) => {
@@ -2090,7 +2093,8 @@ export default {
               return false
             } else {
               for (let idx in set1) {
-                if (set2[idx].includes(set1[idx])) {
+                console.info("\tChekcing ", set2, " includes ", set1[idx], " >> ", set2.includes(set1[idx]) )
+                if (set2[idx].replace('‑', '-').includes(set1[idx])) {
                   matches.push(true)
                 } else {
                   matches.push(false)
@@ -2116,19 +2120,29 @@ export default {
               }
             }
           } else if (splitStringLower.length == incomingPieces.length) {
+            console.info("splitStringLower: ", splitStringLower)
+            console.info("incomingPieces: ", incomingPieces)
             if (splitStringLower.at(-1) == incomingPieces.at(0)) {
               // we're appending, so we just want to replace the last piece of the current string
               replacePos.push(splitStringLower.length - 1)
+              console.info("shouldn't be here")
             } else if (looksLikeMatch(splitStringLower, incomingPieces)) {
+              console.info("should be here")
               replacePos = []
             } else { // same length, first and last don't match, and the arrays don't last.
               //should something happen?
+              console.info("else?", looksLikeMatch(splitStringLower, incomingPieces))
+              // World War, 1939-1945--Jews--Rescue
             }
 
           } else {
             replacePos = []
           }
+
+          console.info("After replacePos: ", replacePos)
         }
+
+
 
         if (splitStringLower.includes(this.pickLookup[this.pickPostion].label.replaceAll('-', '‑').toLowerCase())) {
           let idx = splitStringLower.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-', '‑').toLowerCase())
