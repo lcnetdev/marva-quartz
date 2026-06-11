@@ -2108,15 +2108,27 @@ export default {
 
           // Figure out how the select term fits into the existing term.
           if (splitStringLower.length != incomingPieces.length) {
-            for (let termIdx in incomingPieces) {
+            // if the incoming is bigger replace everything
+            if (splitStringLower.length < incomingPieces.length){
+              replacePos = []
+            } else {
+              for (let termIdx in incomingPieces) {
+                // World War, 1939-1945--Jews--Rescue
 
-              //check if the next piece is in the incoming
-              if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos + 1])) {
-                replacePos.push(this.searchStringPos + 1)
-              }
-              //check if the prev piece is in the incoming
-              else if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos - 1])) {
-                replacePos.unshift(this.searchStringPos - 1)
+                console.info("looking at ", incomingPieces[termIdx])
+                console.info("\t", splitStringLower[this.searchStringPos + 1])
+                console.info("\t", splitStringLower[this.searchStringPos - 1])
+
+                //check if the next piece is in the incoming
+                if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos + 1])) {
+                  console.info("+1")
+                  replacePos.push(this.searchStringPos + 1)
+                }
+                //check if the prev piece is in the incoming
+                else if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos - 1])) {
+                  console.info("-1")
+                  replacePos.unshift(this.searchStringPos - 1)
+                }
               }
             }
           } else if (splitStringLower.length == incomingPieces.length) {
@@ -2132,7 +2144,7 @@ export default {
             } else { // same length, first and last don't match, and the arrays don't last.
               //should something happen?
               console.info("else?", looksLikeMatch(splitStringLower, incomingPieces))
-              // World War, 1939-1945--Jews--Rescue
+              replacePos = []
             }
 
           } else {
@@ -2140,6 +2152,19 @@ export default {
           }
 
           console.info("After replacePos: ", replacePos)
+        } else {
+          console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
+          console.info("splitStringLower: ", splitStringLower)
+          console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
+          let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
+          for (let idx in splitStringLower){
+            if (incomingPieces.includes(splitStringLower[idx])){
+              replacePos.push(idx)
+            }
+            // if (this.pickLookup[this.pickPostion].complex){
+
+            // }
+          }
         }
 
 
