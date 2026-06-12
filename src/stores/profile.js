@@ -8766,6 +8766,30 @@ export const useProfileStore = defineStore('profile', {
       return pp
     },
 
+    compareAuthRecords: function(oldRec, newRec, target){
+
+      let diff = {}
+
+      let recordOld = oldRec.getElementsByTagName('marcxml:record')[0]
+      let targetNameOld = oldRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+
+      let recordNew = newRec.getElementsByTagName('marcxml:record')[0]
+      let targetNameNew = newRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+
+      let recordOldString = new XMLSerializer().serializeToString(targetNameOld);
+      let recordNewString = new XMLSerializer().serializeToString(targetNameNew);
+
+      // change to target name
+      diff = {
+        'old': [recordOldString],
+        'new': [recordNewString],
+      }
+
+      console.info("dif: ", diff)
+
+      return diff
+    },
+
     adjustAuthRecord: function(marcXML, updates, target){
       console.info("adjusting")
       console.info("\tmarcXML: ", marcXML)
@@ -8788,7 +8812,6 @@ export const useProfileStore = defineStore('profile', {
        * TODO:
        * - remove 667? under what conditions? $a >Non-Latin script references not evaluated.?
        * - flag for preferred?
-       * - additional names
        * - deleted names
        */
 
@@ -8801,54 +8824,59 @@ export const useProfileStore = defineStore('profile', {
 
       for (let [idx, update] of updates.entries()){
 
-        let indicators = update.indicators.split("")
-        targetNameXML.setAttribute("ind1", indicators[0])
-        targetNameXML.setAttribute("ind2", indicators[1])
+        if (update.delete){
+          record.removeChild(targetNameXML)
+        } else {
 
-        if (idx == 0){
-          for (let key of Object.keys(update)){
-            if (key.includes('subfield_')){
-              let subfield = key.split("_")[1]
-              let value = update[key]
+          let indicators = update.indicators.split("")
+          targetNameXML.setAttribute("ind1", indicators[0])
+          targetNameXML.setAttribute("ind2", indicators[1])
 
-              // if we're looking at the first update
-              let target = existingCodes[subfield]
-              if (target){                // if the subfield is existing update it
-                target.innerHTML = value
-              }else {                     // otherwise, create it
+          if (idx == 0){
+            for (let key of Object.keys(update)){
+              if (key.includes('subfield_')){
+                let subfield = key.split("_")[1]
+                let value = update[key]
+
+                // if we're looking at the first update
+                let target = existingCodes[subfield]
+                if (target){                // if the subfield is existing update it
+                  target.innerHTML = value
+                }else {                     // otherwise, create it
+                  let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                  newSubField.setAttribute("code", subfield)
+                  newSubField.innerHTML = value.trim()
+                  // targetNameXML.appendChild(newSubField)
+                  this.indentedAppend(targetNameXML, newSubField)
+                }
+
+              }
+            }
+          } else { // it's a new field for the top element
+            let newField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+            newField.setAttribute('tag', update.tag)
+            newField.setAttribute('ind1', indicators[0])
+            newField.setAttribute('ind2', indicators[1])
+
+            this.indentedAppend(record, newField, false, nextBlock)
+
+            for (let [idx, key] of Object.keys(update).entries()){
+              if (key.includes('subfield_')){
                 let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                let subfield = key.split("_")[1]
+                let value = update[key]
+
                 newSubField.setAttribute("code", subfield)
                 newSubField.innerHTML = value.trim()
-                // targetNameXML.appendChild(newSubField)
-                this.indentedAppend(targetNameXML, newSubField)
-              }
-
-            }
-          }
-        } else { // it's a new field for the top element
-          let newField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
-          newField.setAttribute('tag', update.tag)
-          newField.setAttribute('ind1', indicators[0])
-          newField.setAttribute('ind2', indicators[1])
-
-          this.indentedAppend(record, newField, false, nextBlock)
-
-          for (let [idx, key] of Object.keys(update).entries()){
-            if (key.includes('subfield_')){
-              let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
-              let subfield = key.split("_")[1]
-              let value = update[key]
-
-              newSubField.setAttribute("code", subfield)
-              newSubField.innerHTML = value.trim()
-              if (idx == Object.keys(update).length - 1){
-                this.indentedAppend(newField, newSubField, false, 'last')
-              } else {
-                this.indentedAppend(newField, newSubField, false)
+                if (idx == Object.keys(update).length - 1){
+                  this.indentedAppend(newField, newSubField, false, 'last')
+                } else {
+                  this.indentedAppend(newField, newSubField, false)
+                }
               }
             }
-          }
 
+          }
         }
       }
 

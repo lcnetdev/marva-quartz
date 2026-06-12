@@ -118,6 +118,7 @@
         refEval: false,
         originalMarc: null,
         updatedRecord: null,
+        diffRecord: [],
 
       }
     },
@@ -132,7 +133,7 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'isLatin', 'adjustAuthRecord']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'isLatin', 'adjustAuthRecord', 'compareAuthRecords']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -212,7 +213,7 @@
         let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
         let parser = new DOMParser()
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
-        this.originalMarc = JSON.parse(JSON.stringify(marcXML))
+        this.originalMarc = this.xmlDoc.cloneNode(true)
         this.associatedLang = this.xmlDoc.querySelectorAll('[tag="377"]')
 
         if (this.associatedLang.length == 1){
@@ -261,10 +262,11 @@
       submitEdit: function(){
         if (this.marcData.some(d => {return d.bcpSelection.length == 0})){
           alert("A name is missing a language Selection. Add one before continuing.")
+          return
         }
         this.marcData.refEval = this.refEval
 
-        let marcXML = this.xmlDoc
+        const marcXML = this.xmlDoc
         let updates = this.marcData
         let target = this.xmlTarget
 
@@ -276,6 +278,11 @@
         let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord);
         console.info("update: ", xmlUpdated)
         // const diff = (oldVal, newVal) => newVal.split(oldVal).join('')
+
+        console.info("marcXML: ", marcXML)
+        let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, target)
+        this.diffRecord = comparison
+        console.info("comparison: ", comparison)
 
 
       },
@@ -300,10 +307,6 @@
           'marcKey': this.marcData[this.activeIndex].marcKey,
           'displayName': this.marcData[this.activeIndex].displayName
         }
-        this.marcData[this.activeIndex]['subfield_7'] = ''
-        for (let c of this.marcData[this.activeIndex].bcpSelection){
-          this.marcData[this.activeIndex]['subfield_7'] = this.marcData[this.activeIndex]['subfield_7'] + " (bcp47)" + this.bcpCodes[c].bcp47code
-        }
 
         let key = ''
         let marcKey = this.marcData[this.activeIndex].tag + this.marcData[this.activeIndex].indicators
@@ -312,6 +315,12 @@
         // split up the user input and use to populate the marcData
         // let subfields = userInput.match(/(\$[a-z0-9])/g)
         let subfields = userInput.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+        if (!subfields){
+          subfields = ['']
+          this.marcData[this.activeIndex].delete = true
+        } else {
+          this.marcData[this.activeIndex].delete = false
+        }
         let subTags = subfields.map((sf) => {return sf.slice(0,2)})
         let existingSubfields = Object.keys(this.marcData[this.activeIndex]).filter(sub => sub.includes('subfield_'))
 
@@ -325,6 +334,11 @@
           // }
         }
 
+        this.marcData[this.activeIndex]['subfield_7'] = ''
+        for (let c of this.marcData[this.activeIndex].bcpSelection){
+          this.marcData[this.activeIndex]['subfield_7'] = this.marcData[this.activeIndex]['subfield_7'] + " (bcp47)" + this.bcpCodes[c].bcp47code
+        }
+
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
           if (sub.startsWith("subfield_") && sub != "subfield_7"){
             key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
@@ -334,6 +348,8 @@
 
         this.marcData[this.activeIndex]['displayName'] = key
         this.marcData[this.activeIndex]['marcKey'] = marcKey
+
+        console.info("this.marcData: ", this.marcData)
       },
 
       addBcpRow: function(){
@@ -1463,6 +1479,22 @@
                 <button @click="submitEdit()">Submit</button>
                 <button @click="hideBCP()">Cancel</button>
 
+
+                <div class="record-comp">
+                  <div class="old-data">
+                    Original
+<pre v-for="data in diffRecord.old" class="record-data">
+  {{ data }}
+</pre>
+                  </div>
+                  <div class="new-data">
+                    Updated
+<pre v-for="data in diffRecord.new" class="record-data">
+  {{ data}}
+</pre>
+                  </div>
+                </div>
+
               </div>
             </template>
 
@@ -2134,6 +2166,38 @@ td {
 }
 .active-bcp{
   border: 5px solid #28cd28;
+}
+
+.record-comp {
+  width: 100%;
+  height: 200px;
+  margin: auto;
+
+}
+
+.old-data {
+  width: 45%;
+  height: 200px;
+  float: left;
+}
+
+.new-data {
+  width: 45%;
+  margin-left: 5%;
+  height: 200px;
+  float: right;
+}
+
+.record-data {
+  background: whitesmoke;
+}
+
+pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
 
