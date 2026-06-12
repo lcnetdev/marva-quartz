@@ -8772,12 +8772,17 @@ export const useProfileStore = defineStore('profile', {
 
       let recordOld = oldRec.getElementsByTagName('marcxml:record')[0]
       let targetNameOld = oldRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+      let recordOldString = new XMLSerializer().serializeToString(targetNameOld);
 
       let recordNew = newRec.getElementsByTagName('marcxml:record')[0]
       let targetNameNew = newRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+      let recordNewString
 
-      let recordOldString = new XMLSerializer().serializeToString(targetNameOld);
-      let recordNewString = new XMLSerializer().serializeToString(targetNameNew);
+      try {
+        recordNewString = new XMLSerializer().serializeToString(targetNameNew);
+      } catch(err){
+        recordNewString = 'DELETED'
+      }
 
       // change to target name
       diff = {
@@ -8797,7 +8802,8 @@ export const useProfileStore = defineStore('profile', {
       console.info("\tupdates: ", updates)
 
       let record = marcXML.getElementsByTagName('marcxml:record')[0]
-      let targetNameXML = marcXML.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+      record = record.cloneNode(true)
+      let targetNameXML = record.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
       let index = [].indexOf.call(record.children, targetNameXML)
       let nextBlock = record.children[index + 1]
 
@@ -8832,16 +8838,36 @@ export const useProfileStore = defineStore('profile', {
           targetNameXML.setAttribute("ind1", indicators[0])
           targetNameXML.setAttribute("ind2", indicators[1])
 
+          // existingCodes not present in the update
+          let deleteCodes = Object.keys(existingCodes).map(code => {
+            if (!Object.keys(update).includes('subfield_' + code)){
+              return code
+            }
+          })
+
+          console.info("deleteCodes: ", deleteCodes)
+
           if (idx == 0){
             for (let key of Object.keys(update)){
               if (key.includes('subfield_')){
                 let subfield = key.split("_")[1]
                 let value = update[key]
 
+                console.info("existingCodes: ", existingCodes)
+                console.info("update: ", update)
+
                 // if we're looking at the first update
                 let target = existingCodes[subfield]
                 if (target){                // if the subfield is existing update it
                   target.innerHTML = value
+                  for (let code of deleteCodes){
+                    if (code){
+                      console.info("code: ", code)
+                      console.info("existingCodes: ", existingCodes)
+                      console.info("delete: ", existingCodes[code])
+                      targetNameXML.removeChild(existingCodes[code])
+                    }
+                  }
                 }else {                     // otherwise, create it
                   let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                   newSubField.setAttribute("code", subfield)
