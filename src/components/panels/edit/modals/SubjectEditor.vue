@@ -2121,7 +2121,7 @@ export default {
             // if the incoming is bigger replace everything
             if (splitStringLower.length < incomingPieces.length){
               replacePos = []
-            } else if (verified.length > 0){
+            } else if (verified.length > 0 && !looksLikeMatch(splitStringLower, incomingPieces)){
               replacePos = []
               // don't replace the parts that are
               for (let idx in this.components){
@@ -2148,7 +2148,7 @@ export default {
             if (splitStringLower.at(-1) == incomingPieces.at(0)) {
               // we're appending, so we just want to replace the last piece of the current string
               replacePos.push(splitStringLower.length - 1)
-            } else if (looksLikeMatch(splitStringLower, incomingPieces) && verified.length == 0 ) {
+            } else if (looksLikeMatch(splitStringLower, incomingPieces)) {
               replacePos = []
             } else if (looksLikeMatch(splitStringLower, incomingPieces) && verified.length > 0){
               replacePos = []
