@@ -8774,7 +8774,7 @@ export const useProfileStore = defineStore('profile', {
       let targetNameOld = oldRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
       let recordOldString = new XMLSerializer().serializeToString(targetNameOld);
 
-      let recordNew = newRec.getElementsByTagName('marcxml:record')[0]
+      let recordNew = newRec
       let targetNameNew = newRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
       let recordNewString
 
@@ -8788,6 +8788,22 @@ export const useProfileStore = defineStore('profile', {
       diff = {
         'old': [recordOldString],
         'new': [recordNewString],
+      }
+
+      console.info("recordNew: ", recordNew)
+
+      // look at the children and see what's new
+      let childrenOriginal =  [].slice.call(recordOld.children)
+      let childrenNew = [].slice.call(recordNew.children)
+      if (childrenOriginal.length != childrenNew.length){
+        console.info('original: ', childrenOriginal)
+        for (let newChild of childrenNew){
+          if (!childrenOriginal.includes(newChild)){
+            console.info("diff: ", newChild)
+          }
+        }
+      } else {
+        console.info("same")
       }
 
       console.info("dif: ", diff)
