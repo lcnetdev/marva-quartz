@@ -1925,12 +1925,13 @@ const utilsNetwork = {
 
           // console.log("Yeeth")
           // console.log("resultsNames",resultsNames)
+          // console.log("resultsNamesSubdivision",resultsNamesSubdivision)
           // console.log("resultsSubjectsSimple",resultsSubjectsSimple)
-          // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision)
           // console.log("resultsSubjectsComplex",resultsSubjectsComplex)
           // console.log("resultsHierarchicalGeographic",resultsHierarchicalGeographic)
-          // console.log("resultsWorksAnchored",resultsWorksAnchored)
           // console.log("resultsHubsAnchored",resultsHubsAnchored)
+          // console.log("resultsExactName",resultsExactName)
+          // console.log("resultsExactSubject",resultsExactSubject)
 
           // first see if we matched the whole thing
           // console.log("resultsSubjectsComplex",resultsSubjectsComplex)
@@ -1944,7 +1945,11 @@ const utilsNetwork = {
                 result.hit = r
                 // console.log("r",r)
                 foundHeading=true
-                break
+                // if it's not a subdivision stop looking, otherwise keep looking
+                if (!r.extra.collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")){
+                  break
+                }
+
               }
             }
             if (foundHeading){ break }
