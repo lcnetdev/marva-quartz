@@ -336,7 +336,7 @@
 
         this.marcData[this.activeIndex]['subfield_7'] = ''
         for (let c of this.marcData[this.activeIndex].bcpSelection){
-          this.marcData[this.activeIndex]['subfield_7'] = this.marcData[this.activeIndex]['subfield_7'] + " (bcp47)" + this.bcpCodes[c].bcp47code
+          this.marcData[this.activeIndex]['subfield_7'] = this.marcData[this.activeIndex]['subfield_7'] + " $7 (bcp47)" + this.bcpCodes[c].bcp47code
         }
 
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
@@ -344,7 +344,7 @@
             key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
           }
         }
-        marcKey = marcKey + key + " $7" + this.marcData[this.activeIndex]['subfield_7']
+        marcKey = marcKey + key + this.marcData[this.activeIndex]['subfield_7']
 
         this.marcData[this.activeIndex]['displayName'] = key
         this.marcData[this.activeIndex]['marcKey'] = marcKey
