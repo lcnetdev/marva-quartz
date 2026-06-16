@@ -227,7 +227,7 @@
         this.marcData[0].indicators = this.indicators
 
         let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
-        this.xmlTarget = [targetTag, idx]
+        this.xmlTarget = [targetTag, idx, targetNameXML.children[0].innerHTML]
 
         for (let sub of targetNameXML.children){
           let subfield = sub.getAttribute("code")
@@ -280,7 +280,7 @@
         // const diff = (oldVal, newVal) => newVal.split(oldVal).join('')
 
         console.info("marcXML: ", marcXML)
-        let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, target)
+        let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, target, updates)
         this.diffRecord = comparison
         console.info("comparison: ", comparison)
 
@@ -1446,28 +1446,30 @@
 
                   </div>
 
-                  <table>
-                    <thead>
-                        <tr>
-                            <th>BCP47</th>
-                            <th>Language</th>
-                            <th>Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(code, idx) of bcpCodes"  @click="addBcpCode(idx); buildNewMarcKey()" :class="{ active: marcData[activeIndex].bcpSelection.includes(idx) }">
-                          <td>
-                            {{ code["bcp47code"] }}
-                          </td>
-                          <td>
-                            {{ code["name"] }}
-                          </td>
-                          <td>
-                            {{ code["score"] }}
-                          </td>
-                        </tr>
-                    </tbody>
-                  </table>
+                  <div class="bcp-selection-table">
+                    <table>
+                      <thead>
+                          <tr>
+                              <th>BCP47</th>
+                              <th>Language</th>
+                              <th>Score</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr v-for="(code, idx) of bcpCodes"  @click="addBcpCode(idx); buildNewMarcKey()" :class="{ active: marcData[activeIndex].bcpSelection.includes(idx) }">
+                            <td>
+                              {{ code["bcp47code"] }}
+                            </td>
+                            <td>
+                              {{ code["name"] }}
+                            </td>
+                            <td>
+                              {{ code["score"] }}
+                            </td>
+                          </tr>
+                      </tbody>
+                    </table>
+                  </div>
 
                   New Value:<br></br>
                   <div v-for="row in marcData">{{ row.marcKey }}</div>
@@ -2128,6 +2130,13 @@
 .authority-edit {
   padding: 8px;
 }
+.bcp-selection-table {
+  height: 250px;
+  overflow: scroll;
+  display: block;
+}
+
+
 table {
     border-collapse: collapse;
     border: 2px solid rgb(140 140 140);
@@ -2176,16 +2185,16 @@ td {
 }
 
 .old-data {
-  width: 45%;
-  height: 200px;
-  float: left;
+  /* width: 45%; */
+  height: 100px;
+  /* float: left; */
 }
 
 .new-data {
-  width: 45%;
-  margin-left: 5%;
+  /* width: 45%; */
+  /* margin-left: 5%; */
   height: 200px;
-  float: right;
+  /* float: right; */
 }
 
 .record-data {
@@ -2193,11 +2202,14 @@ td {
 }
 
 pre {
-    white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    /* white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;      */
+
+    overflow: scroll;
+    margin-bottom: 5px;
 }
 
 

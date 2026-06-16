@@ -8766,7 +8766,10 @@ export const useProfileStore = defineStore('profile', {
       return pp
     },
 
-    compareAuthRecords: function(oldRec, newRec, target){
+    compareAuthRecords: function(oldRec, newRec, target, updates){
+      console.info("target: ", target)
+      let hasDeletions = updates.some(u => u.delete)
+      console.info("hasDeletions: ", hasDeletions)
 
       let diff = {}
 
@@ -8778,11 +8781,20 @@ export const useProfileStore = defineStore('profile', {
       let targetNameNew = newRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
       let recordNewString
 
+
       try {
         recordNewString = new XMLSerializer().serializeToString(targetNameNew);
+        if (!recordNewString.includes(target[2])){
+          if (hasDeletions){
+            recordNewString = 'DELETED'
+          }
+        }
       } catch(err){
-        recordNewString = 'DELETED'
+        if (hasDeletions){
+          recordNewString = 'DELETED'
+        }
       }
+
 
       // change to target name
       diff = {
@@ -8800,7 +8812,7 @@ export const useProfileStore = defineStore('profile', {
       childrenNew = childrenNew.map(rec => new XMLSerializer().serializeToString(rec))
 
       let newPieces = []
-      if (childrenOriginal.length != childrenNew.length){
+      // if (childrenOriginal.length != childrenNew.length){
         for (let nc of childrenNew){
           if (!childrenOriginal.includes(nc)){
             if (!diff.new.includes(nc)){
@@ -8808,13 +8820,18 @@ export const useProfileStore = defineStore('profile', {
             }
           }
         }
-      }
+      // }
 
 
 
       console.info("dif: ", diff)
 
       return diff
+    },
+
+    setCharAt: function(str, index, chr) {
+      if(index > str.length-1) return str;
+      return str.substring(0,index) + chr + str.substring(index+1);
     },
 
     adjustAuthRecord: function(marcXML, updates, target){
@@ -8853,6 +8870,7 @@ export const useProfileStore = defineStore('profile', {
       for (let [idx, update] of updates.entries()){
 
         if (update.delete){
+          console.info("delete: ", targetNameXML)
           record.removeChild(targetNameXML)
         } else {
 
@@ -8928,6 +8946,7 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      console.info("adjusted record: ", record)
       return record
     },
 
