@@ -8795,16 +8795,22 @@ export const useProfileStore = defineStore('profile', {
       // look at the children and see what's new
       let childrenOriginal =  [].slice.call(recordOld.children)
       let childrenNew = [].slice.call(recordNew.children)
+
+      childrenOriginal = childrenOriginal.map(rec => new XMLSerializer().serializeToString(rec))
+      childrenNew = childrenNew.map(rec => new XMLSerializer().serializeToString(rec))
+
+      let newPieces = []
       if (childrenOriginal.length != childrenNew.length){
-        console.info('original: ', childrenOriginal)
-        for (let newChild of childrenNew){
-          if (!childrenOriginal.includes(newChild)){
-            console.info("diff: ", newChild)
+        for (let nc of childrenNew){
+          if (!childrenOriginal.includes(nc)){
+            if (!diff.new.includes(nc)){
+              diff.new.push(nc)
+            }
           }
         }
-      } else {
-        console.info("same")
       }
+
+
 
       console.info("dif: ", diff)
 
