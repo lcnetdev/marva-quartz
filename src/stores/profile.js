@@ -8909,11 +8909,21 @@ export const useProfileStore = defineStore('profile', {
                     }
                   }
                 }else {                     // otherwise, create it
-                  let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
-                  newSubField.setAttribute("code", subfield)
-                  newSubField.innerHTML = value.trim()
-                  // targetNameXML.appendChild(newSubField)
-                  this.indentedAppend(targetNameXML, newSubField)
+                  if (typeof value == 'string'){
+                    let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                    newSubField.setAttribute("code", subfield)
+                    newSubField.innerHTML = value.trim()
+                    // targetNameXML.appendChild(newSubField)
+                    this.indentedAppend(targetNameXML, newSubField)
+                  } else {
+                    for (let bcp of value){
+                      let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                      newSubField.setAttribute("code", subfield)
+                      newSubField.innerHTML = bcp.trim()
+                      // targetNameXML.appendChild(newSubField)
+                      this.indentedAppend(targetNameXML, newSubField)
+                    }
+                  }
                 }
 
               }
@@ -8932,13 +8942,31 @@ export const useProfileStore = defineStore('profile', {
                 let subfield = key.split("_")[1]
                 let value = update[key]
 
-                newSubField.setAttribute("code", subfield)
-                newSubField.innerHTML = value.trim()
-                if (idx == Object.keys(update).length - 1){
-                  this.indentedAppend(newField, newSubField, false, 'last')
-                } else {
-                  this.indentedAppend(newField, newSubField, false)
-                }
+
+                if (typeof value == 'string'){
+                    newSubField.setAttribute("code", subfield)
+                    newSubField.innerHTML = value.trim()
+                    // targetNameXML.appendChild(newSubField)
+                    if (idx == Object.keys(update).length - 1){
+                      this.indentedAppend(newField, newSubField, false, 'last')
+                    } else {
+                      this.indentedAppend(newField, newSubField, false)
+                    }
+                  } else {
+                    for (let i in value){
+                      let bcp = value[i]
+                      let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                      newSubField.setAttribute("code", subfield)
+                      newSubField.innerHTML = bcp.trim()
+                      // targetNameXML.appendChild(newSubField)
+                      if (i == value.length - 1){
+                        console.info(idx, ": ", update)
+                        this.indentedAppend(newField, newSubField, false, 'last')
+                      } else {
+                        this.indentedAppend(newField, newSubField, false)
+                      }
+                    }
+                  }
               }
             }
 
@@ -8975,7 +9003,7 @@ export const useProfileStore = defineStore('profile', {
           parent.appendChild(child)
           parent.appendChild(document.createTextNode("\n" + indent))
         } else {
-          console.info("new: ", child, "--", parent)
+          console.info("new: ", child, "--", parent, "--", next)
           parent.appendChild(document.createTextNode("\n" + indent))
           parent.appendChild(child)
           if (next && next == 'last'){
