@@ -116,6 +116,8 @@
         updatedRecord: null,
         diffRecord: [],
         oneXXdollarD: false,
+        validating: false,
+        validationResult: {},
 
       }
     },
@@ -192,8 +194,23 @@
           return str.substring(0,index) + chr + str.substring(index+1);
       },
 
+      resetBcp: function(){
+        this.showEdit4xxPanel =  false
+        this.associatedLang =  null
+        this.bcpCodes =  {}
+        this.marcData =  [{}]
+        this.activeIndex =  0
+        this.xmlTarget =  []
+        this.refEval =  false
+        this.originalMarc =  null
+        this.updatedRecord =  null
+        this.diffRecord =  []
+        this.oneXXdollarD =  false
+      },
+
       // initial 4XX
       edit4XX: async function(data, idx){
+        this.resetBcp()
         // Get MarcKey for 1XX
         let marcKey = data.extra.marcKeys[0]
         this.tag = marcKey.slice(0,3)
@@ -263,7 +280,7 @@
       hideBCP: function(){
         this.showEdit4xxPanel = false
       },
-      submitEdit: function(){
+      submitEdit: async function(){
         if (this.marcData.some(d => {return d.bcpSelection.length == 0})){
           alert("A name is missing a language Selection. Add one before continuing.")
           return
@@ -281,6 +298,16 @@
         console.info("updatedRecord: ", this.updatedRecord)
 
         let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord)
+
+        // validate the update
+        this.validating = true
+        this.validationResult = await utilsNetwork.validateNar(xmlUpdated)
+        this.validating = false
+
+        if (this.validationResult.validation[0].level == 'ERROR'){
+          return
+        }
+
         console.info("update: ", xmlUpdated)
         console.info("marcXML: ", marcXML)
         let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, target, updates)
@@ -341,7 +368,11 @@
           }
         }
 
-        marcKey = marcKey + key + this.marcData[this.activeIndex]['subfield_7'].join(" $7 ")
+        if (this.marcData[this.activeIndex]['subfield_7'].length > 1){
+          marcKey = marcKey + key + this.marcData[this.activeIndex]['subfield_7'].join(" $7 ")
+        } else {
+          marcKey = marcKey + key + " $7 " + this.marcData[this.activeIndex]['subfield_7']
+        }
 
         this.marcData[this.activeIndex]['displayName'] = key
         this.marcData[this.activeIndex]['marcKey'] = marcKey
@@ -1475,8 +1506,18 @@
                     </table>
                   </div>
 
-                  New Value:<br></br>
-                  <div v-for="row in marcData">{{ row.marcKey }}</div>
+                  New Value(s):<br></br>
+                  <div v-for="row in marcData" class="new-marc-data">{{ row.marcKey }}</div>
+
+                  <template v-if="validationResult.validation">
+                    <br>
+                    <div v-if="validationResult.validation[0].level == 'ERROR'" class="validation-error">
+                      Validation Error: {{ validationResult.validation[0].message }}
+                    </div>
+                    <div v-else class="validation-success">
+                      Validation: {{ validationResult.validation[0].message }}
+                    </div>
+                  </template>
 
                 <br><br><br>
                 <label for="refEval">References Evaluated?</label>
@@ -2216,5 +2257,33 @@ pre {
     margin-bottom: 5px;
 }
 
+.new-marc-data{
+  width: fit-content;
+  padding: 5px;
+  border-radius: 25px;
+  background-color: whitesmoke;
+  margin-bottom: 5px;
+}
+
+.validation-error,
+.validation-success {
+  list-style: none;
+  width: fit-content;
+  margin-bottom: 5px;
+  padding: .75rem 1.25rem;
+  border-radius: 25px;
+}
+
+.validation-error{
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.validation-success{
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
 
 </style>
