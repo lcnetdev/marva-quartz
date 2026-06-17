@@ -268,17 +268,19 @@
           alert("A name is missing a language Selection. Add one before continuing.")
           return
         }
-        this.marcData.refEval = this.refEval
+        this.marcData[this.activeIndex].refEval = this.refEval
 
         const marcXML = this.xmlDoc
         let updates = this.marcData
         let target = this.xmlTarget
 
+        console.info("this.marcData: ", this.marcData)
+
         this.updatedRecord = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTarget)
 
         console.info("updatedRecord: ", this.updatedRecord)
 
-        let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord);
+        let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord)
         console.info("update: ", xmlUpdated)
         console.info("marcXML: ", marcXML)
         let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, target, updates)
@@ -363,7 +365,7 @@
       },
 
       addDateFromOneXX: function(){
-        this.marcData[this.activeIndex].displayName += " $d " + this.oneXXdollarD
+        this.marcData[this.activeIndex].displayName += "$d" + this.oneXXdollarD
         this.buildNewMarcKey()
       },
 

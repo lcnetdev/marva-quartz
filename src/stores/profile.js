@@ -8826,8 +8826,8 @@ export const useProfileStore = defineStore('profile', {
     adjustAuthRecord: function(marcXML, updates, target){
       console.info("adjusting")
       console.info("\tmarcXML: ", marcXML)
-      console.info("\ttarget:  ", target)
-      console.info("\tupdates: ", updates)
+      console.info("\ttarget:  ", JSON.stringify(target))
+      console.info("\tupdates: ", JSON.stringify(updates))
 
       let record = marcXML.getElementsByTagName('marcxml:record')[0]
       record = record.cloneNode(true)
@@ -8849,14 +8849,16 @@ export const useProfileStore = defineStore('profile', {
        * - flag for preferred?
        */
 
-      if (updates.refEval){
-        let zeroZeroEight = marcXML.querySelectorAll('[tag="008"]')[0]
-        let currentValue = zeroZeroEight.innerHTML
-        let updatedValue = this.setCharAt(currentValue, 29, 'a')
-        zeroZeroEight.innerHTML = updatedValue
-      }
 
       for (let [idx, update] of updates.entries()){
+        if (update.refEval){
+          console.info("UPDATE 008")
+          let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
+          let currentValue = zeroZeroEight.innerHTML
+          let updatedValue = this.setCharAt(currentValue, 29, 'a')
+          zeroZeroEight.innerHTML = updatedValue
+          console.info("008>>>", zeroZeroEight)
+        }
         if (update.delete){
           console.info("delete: ", targetNameXML)
           record.removeChild(targetNameXML)
