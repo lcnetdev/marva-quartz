@@ -106,19 +106,16 @@
 
         // editing 4XX
         showEdit4xxPanel: false,
-        marcDoc: {},
         associatedLang: null,
         bcpCodes: {},
-        bcpSelection: [0],
         marcData: [{}],
-        newMarcKeys: [{displayName: '', bcpSelection: []}],
-        newMarcKey: '',
         activeIndex: 0,
         xmlTarget: [],
         refEval: false,
         originalMarc: null,
         updatedRecord: null,
         diffRecord: [],
+        oneXXdollarD: false,
 
       }
     },
@@ -229,6 +226,13 @@
         let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
         this.xmlTarget = [targetTag, idx, targetNameXML.children[0].innerHTML]
 
+        // get the $d for the 1XX
+        for (let child of targetNameXML.children){
+          if (child.getAttribute('code') == 'd'){
+            this.oneXXdollarD = child.innerHTML
+          }
+        }
+
         for (let sub of targetNameXML.children){
           let subfield = sub.getAttribute("code")
           let value = sub.innerHTML
@@ -274,17 +278,12 @@
 
         console.info("updatedRecord: ", this.updatedRecord)
 
-        // let xmlExisting = this.originalMarc
         let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord);
         console.info("update: ", xmlUpdated)
-        // const diff = (oldVal, newVal) => newVal.split(oldVal).join('')
-
         console.info("marcXML: ", marcXML)
         let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, target, updates)
         this.diffRecord = comparison
         console.info("comparison: ", comparison)
-
-
       },
 
       addBcpCode: function(idx){
@@ -313,7 +312,6 @@
         let userInput = this.marcData[this.activeIndex].displayName
 
         // split up the user input and use to populate the marcData
-        // let subfields = userInput.match(/(\$[a-z0-9])/g)
         let subfields = userInput.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
         if (!subfields){
           subfields = ['']
@@ -321,17 +319,11 @@
         } else {
           this.marcData[this.activeIndex].delete = false
         }
-        let subTags = subfields.map((sf) => {return sf.slice(0,2)})
-        let existingSubfields = Object.keys(this.marcData[this.activeIndex]).filter(sub => sub.includes('subfield_'))
 
         for (let sub of subfields){
           let field = sub.slice(1,2)
           let value = sub.slice(2)
           this.marcData[this.activeIndex]["subfield_" + field] = value
-
-          // if (sub != '$'){
-          //   this.marcData[this.activeIndex]["subfield_" + field] = value
-          // }
         }
 
         // this.marcData[this.activeIndex]['subfield_7'] = ''
@@ -348,8 +340,6 @@
         }
 
         marcKey = marcKey + key + this.marcData[this.activeIndex]['subfield_7'].join(" $7 ")
-
-
 
         this.marcData[this.activeIndex]['displayName'] = key
         this.marcData[this.activeIndex]['marcKey'] = marcKey
@@ -371,6 +361,12 @@
           JSON.parse(JSON.stringify(this.marcData[idx]))
         )
       },
+
+      addDateFromOneXX: function(){
+        this.marcData[this.activeIndex].displayName += " $d " + this.oneXXdollarD
+        this.buildNewMarcKey()
+      },
+
       removeBcpRow: function(row){
         this.marcData.splice(row, 1);
         this.activeIndex = 0
@@ -387,15 +383,15 @@
       },
 
       sortResults: function(a,b){
-         if (a.label.includes('Literal')){
-          return -1
-         } else if (a.label > b.label){
-          return 1
-         } else if(a.label < b.label){
-          return -1
-         } else {
-          return 0
-         }
+        if (a.label.includes('Literal')){
+        return -1
+        } else if (a.label > b.label){
+        return 1
+        } else if(a.label < b.label){
+        return -1
+        } else {
+        return 0
+        }
       },
       checkLcOnly: function(){
         let config = useConfigStore()
@@ -1447,6 +1443,7 @@
 
                     <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
                     <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
+                    <button @click="addDateFromOneXX()" class="material-icons bcp-icon">date_range</button>
                     <button v-if="index > 0" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
 
                   </div>
@@ -2169,7 +2166,7 @@ td {
     background-color: rgb(131, 131, 255);
 }
 .bcp-input{
-  width: 80%;
+  width: 75%;
   font-size: 1.3em;
 }
 .bcp-icon {

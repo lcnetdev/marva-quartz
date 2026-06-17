@@ -8767,9 +8767,7 @@ export const useProfileStore = defineStore('profile', {
     },
 
     compareAuthRecords: function(oldRec, newRec, target, updates){
-      console.info("target: ", target)
       let hasDeletions = updates.some(u => u.delete)
-      console.info("hasDeletions: ", hasDeletions)
 
       let diff = {}
 
@@ -8795,14 +8793,11 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-
       // change to target name
       diff = {
         'old': [recordOldString],
         'new': [recordNewString],
       }
-
-      console.info("recordNew: ", recordNew)
 
       // look at the children and see what's new
       let childrenOriginal =  [].slice.call(recordOld.children)
@@ -8812,19 +8807,13 @@ export const useProfileStore = defineStore('profile', {
       childrenNew = childrenNew.map(rec => new XMLSerializer().serializeToString(rec))
 
       let newPieces = []
-      // if (childrenOriginal.length != childrenNew.length){
-        for (let nc of childrenNew){
-          if (!childrenOriginal.includes(nc)){
-            if (!diff.new.includes(nc)){
-              diff.new.push(nc)
-            }
+      for (let nc of childrenNew){
+        if (!childrenOriginal.includes(nc)){
+          if (!diff.new.includes(nc)){
+            diff.new.push(nc)
           }
         }
-      // }
-
-
-
-      console.info("dif: ", diff)
+      }
 
       return diff
     },
@@ -8848,6 +8837,7 @@ export const useProfileStore = defineStore('profile', {
 
       // Get the existing subfields
       let existingCodes = {}
+      // for (let child of targetNameXML.children){
       for (let child of targetNameXML.children){
         let code = child.getAttribute("code")
         existingCodes[code] = child
@@ -8857,7 +8847,6 @@ export const useProfileStore = defineStore('profile', {
        * TODO:
        * - remove 667? under what conditions? $a >Non-Latin script references not evaluated.?
        * - flag for preferred?
-       * - deleted names
        */
 
       if (updates.refEval){
@@ -8868,12 +8857,10 @@ export const useProfileStore = defineStore('profile', {
       }
 
       for (let [idx, update] of updates.entries()){
-
         if (update.delete){
           console.info("delete: ", targetNameXML)
           record.removeChild(targetNameXML)
         } else {
-
           let indicators = update.indicators.split("")
           targetNameXML.setAttribute("ind1", indicators[0])
           targetNameXML.setAttribute("ind2", indicators[1])
@@ -8893,19 +8880,17 @@ export const useProfileStore = defineStore('profile', {
                 let subfield = key.split("_")[1]
                 let value = update[key]
 
-                console.info("existingCodes: ", existingCodes)
-                console.info("update: ", update)
-
                 // if we're looking at the first update
                 let target = existingCodes[subfield]
                 if (target){                // if the subfield is existing update it
                   target.innerHTML = value
+                  console.info("\t\tsetting Value: ", value)
                   for (let code of deleteCodes){
                     if (code){
-                      console.info("code: ", code)
-                      console.info("existingCodes: ", existingCodes)
-                      console.info("delete: ", existingCodes[code])
                       targetNameXML.removeChild(existingCodes[code])
+                      console.info("\t\tDeleting: ", code)
+                      console.info("\t\t existingCodes[code]: ", existingCodes[code])
+                      console.info("\t\t targetNameXML: ", targetNameXML)
                     }
                   }
                 }else {                     // otherwise, create it
