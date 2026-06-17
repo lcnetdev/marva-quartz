@@ -243,9 +243,13 @@
         let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
         this.xmlTarget = [targetTag, idx, targetNameXML.children[0].innerHTML]
 
-        // get the $d for the 1XX
+        let marc667List = this.xmlDoc.querySelectorAll('[tag="667"]')
+        console.info("marc667List: ", marc667List)
+
+        // get the $d for the 1XX, as long as there is no $t
+        let childFields = [].slice.call(targetNameXML.children).map(field => field.getAttribute('code'))
         for (let child of targetNameXML.children){
-          if (child.getAttribute('code') == 'd'){
+          if (child.getAttribute('code') == 'd' && !childFields.includes('t')){
             this.oneXXdollarD = child.innerHTML
           }
         }
@@ -1476,7 +1480,7 @@
 
                     <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
                     <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
-                    <button @click="addDateFromOneXX()" class="material-icons bcp-icon">date_range</button>
+                    <button @click="addDateFromOneXX()" class="material-icons bcp-icon" v-if="oneXXdollarD">date_range</button>
                     <button v-if="index > 0" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
 
                   </div>
@@ -1506,38 +1510,40 @@
                     </table>
                   </div>
 
-                  New Value(s):<br></br>
-                  <div v-for="row in marcData" class="new-marc-data">{{ row.marcKey }}</div>
+                  <div class="new-value-container">
+                    New Value(s):<br></br>
+                    <div v-for="row in marcData" class="new-marc-data">{{ row.marcKey }}</div>
 
-                  <template v-if="validationResult.validation">
-                    <br>
-                    <div v-if="validationResult.validation[0].level == 'ERROR'" class="validation-error">
-                      Validation Error: {{ validationResult.validation[0].message }}
-                    </div>
-                    <div v-else class="validation-success">
-                      Validation: {{ validationResult.validation[0].message }}
-                    </div>
-                  </template>
+                    <template v-if="validationResult.validation">
+                      <div v-if="validationResult.validation[0].level == 'ERROR'" class="validation-error">
+                        Validation Error: {{ validationResult.validation[0].message }}
+                      </div>
+                      <div v-else class="validation-success">
+                        Validation: {{ validationResult.validation[0].message }}
+                      </div>
+                    </template>
+                  </div>
 
-                <br><br><br>
-                <label for="refEval">References Evaluated?</label>
-                <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
-                <br><br>
-                <button @click="submitEdit()">Submit</button>
-                <button @click="hideBCP()">Cancel</button>
+                <div class="button-container">
+                  <label for="refEval">References Evaluated?</label>
+                  <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
+                  <br><br>
+                  <button @click="submitEdit()">Submit</button>
+                  <button @click="hideBCP()">Cancel</button>
+                </div>
 
 
                 <div class="record-comp">
                   <div class="old-data">
                     Original
 <pre v-for="data in diffRecord.old" class="record-data">
-  {{ data }}
+  {{ data.replace('xmlns:marcxml="http://www.loc.gov/MARC21/slim"', "") }}
 </pre>
                   </div>
                   <div class="new-data">
                     Updated
 <pre v-for="data in diffRecord.new" class="record-data">
-  {{ data}}
+  {{ data.replace('xmlns:marcxml="http://www.loc.gov/MARC21/slim"', "")  }}
 </pre>
                   </div>
                 </div>
@@ -2223,10 +2229,8 @@ td {
 }
 
 .record-comp {
-  width: 100%;
+  /* max-width: 80%; */
   height: 200px;
-  margin: auto;
-
 }
 
 .old-data {
@@ -2255,9 +2259,12 @@ pre {
 
     overflow: scroll;
     margin-bottom: 5px;
+    /* max-width: 80%; */
+    line-height: 20px;
 }
 
 .new-marc-data{
+
   width: fit-content;
   padding: 5px;
   border-radius: 25px;
@@ -2284,6 +2291,13 @@ pre {
   color: #155724;
   background-color: #d4edda;
   border-color: #c3e6cb;
+}
+
+.button-container,
+.new-value-container {
+  margin-top: 5px;
+  background-color: rgb(201, 199, 199);
+  padding: 5px;
 }
 
 </style>
