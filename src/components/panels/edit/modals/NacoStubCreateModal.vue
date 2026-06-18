@@ -97,6 +97,10 @@
 
         validating: false,
         validationResult: null,
+
+        tagMap: { // Map between tag and expected indicators
+          '053': '#0',
+        }
       }
     },
     computed: {
@@ -1823,6 +1827,13 @@
           }
         },
 
+        setIndicators: function(row){
+          let tag = row.fieldTag
+          if (tag.length == 3 && this.tagMap[tag]){
+            row.indicators = this.tagMap[tag]
+          }
+        },
+
     },
 
 
@@ -2242,6 +2253,7 @@
                       v-model="row.fieldTag"
                       maxlength="3"
                       placeholder="TAG"
+                      @input="setIndicators(row)"
                       :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.fieldTag.length != 3}]"
                       :style="`margin-right: 1em; width: 50px; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                     />
