@@ -243,8 +243,15 @@
         let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
         this.xmlTarget = [targetTag, idx, targetNameXML.children[0].innerHTML]
 
+        // Get the 667s, do these need adjustment?
         let marc667List = this.xmlDoc.querySelectorAll('[tag="667"]')
-        console.info("marc667List: ", marc667List)
+        let target667 = false
+        for (let sixSixSeven of marc667List){
+          if (sixSixSeven.innerHTML.includes('Non-Latin script references not evaluated.')){
+            target667 = sixSixSeven
+          }
+        }
+        console.info("target667: ", target667)
 
         // get the $d for the 1XX, as long as there is no $t
         let childFields = [].slice.call(targetNameXML.children).map(field => field.getAttribute('code'))
@@ -400,7 +407,7 @@
       },
 
       addDateFromOneXX: function(){
-        this.marcData[this.activeIndex].displayName += "$d" + this.oneXXdollarD
+        this.marcData[this.activeIndex].displayName += ", $d" + this.oneXXdollarD
         this.buildNewMarcKey()
       },
 
@@ -1581,9 +1588,6 @@
                           <br />
                         </template>
                         <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on ID</a>
-
-                        <br>
-                        <a v-if="activeContext.type!='Literal Value'" href="#" @click="fetchAuthXML(activeContext.uri.split('/').at(-1))" :style="`${this.preferenceStore.styleModalTextColor()}`">view MARCXML</a>
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
                       <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
