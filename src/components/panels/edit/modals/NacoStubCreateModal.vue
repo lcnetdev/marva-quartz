@@ -785,15 +785,10 @@
               let isHyphenated = /[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)
               let isSpacedCompound = !isHyphenated && /[A-Za-zÀ-ž]+ [A-Za-zÀ-ž]+,/.test(dollarKey.a)
 
-              console.info("isHyphenated: ", isHyphenated)
-              console.info("isSpacedCompound: ", isSpacedCompound)
-
               if (isHyphenated || isSpacedCompound){
                let separator = isHyphenated ? '-' : ' '
-               console.info("\t separator: ", separator)
                if (dollarKey.a.split(',')[0]){
                 let compoundParts = dollarKey.a.split(',')[0].split(separator)
-                console.info("\t compoundParts: ", compoundParts)
                 if (compoundParts.length == 2){
                   let trailingSeparator = isHyphenated ? separator : ''
                   let newDollarA = `${compoundParts[1]}, ${dollarKey.a.split(',')[1].trim()} ${compoundParts[0]}${trailingSeparator}`
@@ -809,7 +804,6 @@
                   compound4xx.fieldTag = compound4xx.fieldTag.join('');
                   let subfields = ""
                   for (let key in compound4xx){
-                    console.info("key: ", key)
                     if (key.length==1){
                       if (key == 'd'){
                         subfields = subfields.trim() + ', $'+key+' '+compound4xx[key] + ' '
@@ -818,7 +812,6 @@
                       }
                     }
                   }
-                  console.info("\tsubfields: ", subfields)
                   compound4xx.preview = `${compound4xx.fieldTag} ${compound4xx.indicators.replace(/\s/g,'#')} ${subfields}`
                   this.hyphenated4xx = compound4xx
                   this.buildHyphenated4xx = true
