@@ -97,6 +97,10 @@
 
         validating: false,
         validationResult: null,
+
+        tagMap: { // Map between tag and expected indicators
+          '053': '#0',
+        }
       }
     },
     computed: {
@@ -777,8 +781,9 @@
 
             if (dollarKey.a){
               // Check for compound last names: hyphenated ("Jacobsen-Smith, Alejandro") or spaced ("Jacobsen Smith, Alejandro")
+              // Aguirre Rodríguez, Julio, $d 1966-
               let isHyphenated = /[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)
-              let isSpacedCompound = !isHyphenated && /[A-Z][a-z]+ [A-Z][a-z]+,/.test(dollarKey.a)
+              let isSpacedCompound = !isHyphenated && /[A-Za-zÀ-ž]+ [A-Za-zÀ-ž]+,/.test(dollarKey.a)
 
               if (isHyphenated || isSpacedCompound){
                let separator = isHyphenated ? '-' : ' '
@@ -800,7 +805,11 @@
                   let subfields = ""
                   for (let key in compound4xx){
                     if (key.length==1){
-                      subfields = subfields + '$'+key+' '+compound4xx[key] + ' '
+                      if (key == 'd'){
+                        subfields = subfields.trim() + ', $'+key+' '+compound4xx[key] + ' '
+                      } else {
+                        subfields = subfields + '$'+key+' '+compound4xx[key] + ' '
+                      }
                     }
                   }
                   compound4xx.preview = `${compound4xx.fieldTag} ${compound4xx.indicators.replace(/\s/g,'#')} ${subfields}`
@@ -1811,6 +1820,13 @@
           }
         },
 
+        setIndicators: function(row){
+          let tag = row.fieldTag
+          if (tag.length == 3 && this.tagMap[tag]){
+            row.indicators = this.tagMap[tag]
+          }
+        },
+
     },
 
 
@@ -2230,6 +2246,7 @@
                       v-model="row.fieldTag"
                       maxlength="3"
                       placeholder="TAG"
+                      @input="setIndicators(row)"
                       :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.fieldTag.length != 3}]"
                       :style="`margin-right: 1em; width: 50px; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                     />
