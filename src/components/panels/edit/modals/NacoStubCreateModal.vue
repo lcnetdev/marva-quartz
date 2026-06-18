@@ -782,7 +782,7 @@
             if (dollarKey.a){
               // Check for compound last names: hyphenated ("Jacobsen-Smith, Alejandro") or spaced ("Jacobsen Smith, Alejandro")
               // Aguirre Rodríguez, Julio, $d 1966-
-              let isHyphenated = /[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)
+              let isHyphenated = /[A-Za-zÀ-ž]+\-[A-Za-zÀ-ž]+/.test(dollarKey.a)
               let isSpacedCompound = !isHyphenated && /[A-Za-zÀ-ž]+ [A-Za-zÀ-ž]+,/.test(dollarKey.a)
 
               if (isHyphenated || isSpacedCompound){
