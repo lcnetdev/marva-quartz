@@ -108,7 +108,7 @@
         showEdit4xxPanel: false,
         associatedLang: null,
         bcpCodes: {},
-        marcData: [{}],
+        marcData: {},
         activeIndex: 0,
         xmlTarget: [],
         refEval: false,
@@ -186,6 +186,10 @@
         this.activeComplexSearch = []
         this.doSearch()
       },
+
+      activeIndex: async function(){
+        await this.getBcpSuggestions()
+      }
     },
 
     methods: {
@@ -198,7 +202,7 @@
         this.showEdit4xxPanel =  false
         this.associatedLang =  null
         this.bcpCodes =  {}
-        this.marcData =  [{}]
+        this.marcData =  {}
         this.activeIndex =  0
         this.xmlTarget =  []
         this.refEval =  false
@@ -209,8 +213,10 @@
       },
 
       // initial 4XX
-      edit4XX: async function(data, idx){
+      edit4XX: async function(data){
         this.resetBcp()
+        console.info("data: ", data)
+
         // Get MarcKey for 1XX
         let marcKey = data.extra.marcKeys[0]
         this.tag = marcKey.slice(0,3)
@@ -230,6 +236,15 @@
         this.originalMarc = this.xmlDoc.cloneNode(true)
         this.associatedLang = this.xmlDoc.querySelectorAll('[tag="377"]')
 
+        // get the $d for the 1XX, as long as there is no $t
+        let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
+        let childFields = [].slice.call(oneXX.children).map(field => field.getAttribute('code'))
+        for (let child of oneXX.children){
+          if (child.getAttribute('code') == 'd' && !childFields.includes('t')){
+            this.oneXXdollarD = child.innerHTML
+          }
+        }
+
         if (this.associatedLang.length == 1){
           this.associatedLang = this.associatedLang[0].textContent.trim()
         }
@@ -237,22 +252,46 @@
         let targetTag = "4" + this.tag.slice(1,3)
 
         this.tag = targetTag
-        this.marcData[0].tag = targetTag
-        this.marcData[0].indicators = this.indicators
 
-        let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
-        let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
-        this.xmlTarget = [targetTag, idx, targetNameXML.children[0].innerHTML]
+        for (let varIdx in variants){
+          let variant = variants[varIdx]
+          if (!this.isLatin(variant)){
+            let localMarc = {}
+            // if (!localMarc) { this.marcData[varIdx] = {}}
+            localMarc.tag = targetTag
+            localMarc.indicators = this.indicators
+            localMarc.bcpSelection = []
 
-        let hasBcp = false
-        for (let child of targetNameXML.children){
-          if (child.getAttribute('code') == '7' && child.innerHTML.includes('bcp47')){
-            hasBcp = true
-            this.marcData[0]["hasBCP"] = true //child.innerHTML
+            let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[varIdx]
+            this.xmlTarget = [targetTag, varIdx, targetNameXML.children[0].innerHTML]
+
+            let hasBcp = false
+            for (let child of targetNameXML.children){
+              if (child.getAttribute('code') == '7' && child.innerHTML.includes('bcp47')){
+                hasBcp = true
+                localMarc["hasBCP"] = true //child.innerHTML
+              }
+            }
+
+            for (let sub of targetNameXML.children){
+              let subfield = sub.getAttribute("code")
+              let value = sub.innerHTML
+              localMarc["subfield_" + subfield] = value
+            }
+
+            localMarc.displayName = ''
+            for (let sf of Object.keys(localMarc)){
+              if (sf.startsWith('subfield_')){
+                localMarc.displayName = localMarc.displayName + "$" + sf.split("_")[1] + localMarc[sf]
+              }
+            }
+            localMarc.idx = varIdx
+            this.marcData[varIdx] = localMarc
+            this.activeIndex = varIdx
+            this.buildNewMarcKey()
           }
         }
 
-        console.info("BCP? this.marcData: ", JSON.parse(JSON.stringify(this.marcData)))
 
         // Get the 667s, do these need adjustment?
         let marc667List = this.xmlDoc.querySelectorAll('[tag="667"]')
@@ -262,37 +301,6 @@
             target667 = sixSixSeven
           }
         }
-        console.info("target667: ", target667)
-
-        // get the $d for the 1XX, as long as there is no $t
-        let childFields = [].slice.call(oneXX.children).map(field => field.getAttribute('code'))
-        for (let child of oneXX.children){
-          if (child.getAttribute('code') == 'd' && !childFields.includes('t')){
-            this.oneXXdollarD = child.innerHTML
-          }
-        }
-
-        for (let sub of targetNameXML.children){
-          let subfield = sub.getAttribute("code")
-          let value = sub.innerHTML
-          this.marcData[0]["subfield_" + subfield] = value
-        }
-
-        // BCP suggestions
-        this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[0]["subfield_a"], this.associatedLang)
-        this.marcData[this.activeIndex].bcpSelection = [0]
-        for (let c of this.marcData[this.activeIndex].bcpSelection){
-          this.marcData[0]['subfield_7'] = "(bcp47)" + this.bcpCodes[c].bcp47code
-        }
-
-        this.marcData[0].displayName = ''
-        for (let sf of Object.keys(this.marcData[0])){
-          if (sf.startsWith('subfield_')){
-            this.marcData[0].displayName = this.marcData[0].displayName + "$" + sf.split("_")[1] + this.marcData[0][sf]
-          }
-        }
-
-        this.buildNewMarcKey()
 
         // swap out left panel for form
         this.showEdit4xxPanel = true
@@ -303,6 +311,7 @@
         this.showEdit4xxPanel = false
       },
       submitEdit: async function(){
+        return
         if (this.marcData.some(d => {return d.bcpSelection.length == 0})){
           alert("A name is missing a language Selection. Add one before continuing.")
           return
@@ -337,12 +346,20 @@
         console.info("comparison: ", comparison)
       },
 
-      addBcpCode: function(idx){
-        // activeIndex
+      getBcpSuggestions: async function(){
+        this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
         if (!this.marcData[this.activeIndex].bcpSelection){
           this.marcData[this.activeIndex].bcpSelection = []
         }
-        if (this.marcData[this.activeIndex].bcpSelection.includes(idx)){ // remove it
+      },
+
+      addBcpCode: function(idx){
+        console.info("add BCP to ", this.marcData[this.activeIndex], "--", this.activeIndex)
+        console.info("\t", idx)
+        if (!this.marcData[this.activeIndex].bcpSelection){
+          this.marcData[this.activeIndex].bcpSelection = []
+        }
+        if (this.marcData[this.activeIndex].bcpSelection && this.marcData[this.activeIndex].bcpSelection.includes(idx)){ // remove it
           this.marcData[this.activeIndex].bcpSelection = this.marcData[this.activeIndex].bcpSelection.filter(item => item != idx)
         } else {
           this.marcData[this.activeIndex].bcpSelection.push(idx)
@@ -350,7 +367,9 @@
       },
 
       buildNewMarcKey: function(){
-        this.marcData[this.activeIndex] = { // reset to make deletions easier to handle
+        console.info("BUILD: ", this.marcData[this.activeIndex])
+        // reset to make deletions easier to handle
+        this.marcData[this.activeIndex] = {
           'tag': this.tag,
           'indicators': this.indicators,
           'bcpSelection': this.marcData[this.activeIndex].bcpSelection,
@@ -358,6 +377,7 @@
           'displayName': this.marcData[this.activeIndex].displayName,
           'hasBCP': this.marcData[this.activeIndex].hasBCP,
         }
+
 
         let key = ''
         let marcKey = this.marcData[this.activeIndex].tag + this.marcData[this.activeIndex].indicators
@@ -373,32 +393,55 @@
         }
 
         for (let sub of subfields){
+          console.info("sub: ", sub)
           let field = sub.slice(1,2)
           let value = sub.slice(2)
           this.marcData[this.activeIndex]["subfield_" + field] = value
         }
 
-        // this.marcData[this.activeIndex]['subfield_7'] = ''
-        this.marcData[this.activeIndex]['subfield_7'] = []
-        for (let c of this.marcData[this.activeIndex].bcpSelection){
-          //this.marcData[this.activeIndex]['subfield_7'] = this.marcData[this.activeIndex]['subfield_7'] + "(bcp47)" + this.bcpCodes[c].bcp47code
-          this.marcData[this.activeIndex]['subfield_7'].push("(bcp47)" + this.bcpCodes[c].bcp47code)
+        // this.marcData[this.activeIndex]['subfield_7'] = []
+        // for (let c of this.marcData[this.activeIndex].bcpSelection){
+        //   this.marcData[this.activeIndex]['subfield_7'].push("(bcp47)" + this.bcpCodes[c].bcp47code)
+        // }
+
+
+        this.marcData[this.activeIndex]['subfield_7'] = ''
+        if (this.marcData[this.activeIndex].bcpSelection.length > 0){
+          for (let c of this.marcData[this.activeIndex].bcpSelection){
+            this.marcData[this.activeIndex]['subfield_7'] = this.marcData[this.activeIndex]['subfield_7'] + "$7(bcp47)" + this.bcpCodes[c].bcp47code
+          }
         }
+        // else if (this.marcData[this.activeIndex]['subfield_7'] != undefined) {
+        //   console.info("else: ", this.marcData[this.activeIndex])
+        //   this.marcData[this.activeIndex]['subfield_7'] = "$7" + this.marcData[this.activeIndex]['subfield_7']
+        // }
+        //$7test
 
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
           if (sub.startsWith("subfield_") && sub != "subfield_7"){
             key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
+          } else if (sub == "subfield_7" && this.marcData[this.activeIndex][sub] != ""){
+            key =  key + this.marcData[this.activeIndex][sub]
+
+
+            // if (this.marcData[this.activeIndex][sub].length > 0){
+            //   for (let val of this.marcData[this.activeIndex][sub]){
+            //     key =  key + "$" + sub.split("_")[1] + val
+            //   }
+            // } else if (this.marcData[this.activeIndex].displayName.includes('$7')) {
+            //   key =  key + "$" + sub.split("_")[1]
+            // }
           }
         }
 
-        if (this.marcData[this.activeIndex]['subfield_7'].length > 1){
-          marcKey = marcKey + key + this.marcData[this.activeIndex]['subfield_7'].join(" $7 ")
-        } else {
-          marcKey = marcKey + key + " $7 " + this.marcData[this.activeIndex]['subfield_7']
-        }
+        // if (this.marcData[this.activeIndex]['subfield_7'].length > 1){
+        //   marcKey = marcKey + key + this.marcData[this.activeIndex]['subfield_7'].join(" $7 ")
+        // } else {
+        //   marcKey = marcKey + key + " $7 " + this.marcData[this.activeIndex]['subfield_7']
+        // }
 
         this.marcData[this.activeIndex]['displayName'] = key
-        this.marcData[this.activeIndex]['marcKey'] = marcKey
+        // this.marcData[this.activeIndex]['marcKey'] = marcKey + key
 
         console.info("this.marcData: ", this.marcData)
       },
@@ -418,8 +461,8 @@
         )
       },
 
-      addDateFromOneXX: function(){
-        this.marcData[this.activeIndex].displayName += ", $d" + this.oneXXdollarD
+      addDateFromOneXX: function(idx){
+        this.marcData[idx].displayName += ", $d" + this.oneXXdollarD
         this.buildNewMarcKey()
       },
 
@@ -434,6 +477,7 @@
       },
 
       handleInput: function(event){
+        console.info("handleInput: ", event.target.value)
         this.marcData[this.activeIndex].displayName = event.target.value
         this.buildNewMarcKey()
       },
@@ -1499,8 +1543,8 @@
 
                     <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
                     <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
-                    <button @click="addDateFromOneXX()" class="material-icons bcp-icon" v-if="oneXXdollarD">date_range</button>
-                    <button v-if="index > 0" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
+                    <button @click="addDateFromOneXX(index)" class="material-icons bcp-icon" v-if="oneXXdollarD">date_range</button>
+                    <!-- <button v-if="index > 0" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button> -->
 
                   </div>
 
@@ -1514,7 +1558,7 @@
                           </tr>
                       </thead>
                       <tbody>
-                          <tr v-for="(code, idx) of bcpCodes"  @click="addBcpCode(idx); buildNewMarcKey()" :class="{ active: marcData[activeIndex].bcpSelection.includes(idx) }">
+                          <tr v-for="(code, idx) of bcpCodes"  @click="addBcpCode(idx); buildNewMarcKey()" :class="{ active: marcData[activeIndex].bcpSelection && marcData[activeIndex].bcpSelection.includes(idx) }">
                             <td>
                               {{ code["bcp47code"] }}
                             </td>
@@ -1530,8 +1574,8 @@
                   </div>
 
                   <div class="new-value-container">
-                    New Value(s):<br></br>
-                    <div v-for="row in marcData" class="new-marc-data">{{ row.marcKey }}</div>
+                    <!-- New Value(s):<br></br>
+                    <div v-for="row in marcData" class="new-marc-data">{{ row.marcKey }}</div> -->
 
                     <template v-if="validationResult.validation">
                       <div v-if="validationResult.validation[0].level == 'ERROR'" class="validation-error">
@@ -1649,13 +1693,14 @@
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
                         <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
-                          <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                          <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:
+
+                            <button v-if="key == 'variantLabels'" class="material-icons variant-edit" @click="edit4XX(activeContext)">edit</button>
+
+                          </div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
                               <span v-if="key !='sees' && key !='relateds'">{{v}}
-                                <template v-if="key == 'variantLabels' && !isLatin(v)">
-                                  <button class="material-icons variant-edit" @click="edit4XX(activeContext, idx)">edit</button>
-                                </template>
                               </span>
                               <div v-else-if="key == 'relateds'">
                                 {{v}}<button class="material-icons see-search" @click="searchValueLocal = v">search</button>
@@ -2252,6 +2297,7 @@ td {
 .old-data {
   /* width: 45%; */
   height: 100px;
+  max-width: 45%;
   /* float: left; */
   overflow: scroll;
 }
@@ -2260,6 +2306,7 @@ td {
   /* width: 45%; */
   /* margin-left: 5%; */
   height: 200px;
+  max-width: 45%;
   /* float: right; */
   overflow: scroll;
 }
