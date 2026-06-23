@@ -105,6 +105,7 @@ export const useProfileStore = defineStore('profile', {
     savedNARModalData:{},
     savedHubModalData:{},
 
+    showCipModal: false,
     showMarvaLogModal: false,
     marvaLogResults: [],
     marvaLogSearchValue: '',
@@ -2033,7 +2034,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      // console.info("--------------------------\nsetValueLiteral")
+      console.info("--------------------------\nsetValueLiteral")
       // console.info("\tcomponentGuid: ", componentGuid)
       // console.info("\tfieldGuid: ", fieldGuid)
       // console.info("\tpropertyPath: ", propertyPath)
@@ -2202,6 +2203,8 @@ export const useProfileStore = defineStore('profile', {
           }
           // console.log("currentValueCount",currentValueCount)
         }
+
+        console.info("\t\tblankNode: ", blankNode)
 
         if (!blankNode[lastProperty]){
           console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
