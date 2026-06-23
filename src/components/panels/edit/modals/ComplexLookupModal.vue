@@ -372,16 +372,15 @@
       },
 
       addBcpCode: function(idx){
-        console.info("add BCP to ", this.marcData[this.activeIndex], "--", this.activeIndex)
-        console.info("\t", idx)
-        if (!this.marcData[this.activeIndex].bcpSelection){
-          this.marcData[this.activeIndex].bcpSelection = []
-        }
         if (this.marcData[this.activeIndex].bcpSelection && this.marcData[this.activeIndex].bcpSelection.includes(idx)){ // remove it
           this.marcData[this.activeIndex].bcpSelection = this.marcData[this.activeIndex].bcpSelection.filter(item => item != idx)
+          this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName.replace("$7(bcp47)" + this.bcpCodes[idx].bcp47code, '')
         } else {
           this.marcData[this.activeIndex].bcpSelection.push(idx)
+          this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName + "$7(bcp47)" + this.bcpCodes[idx].bcp47code
         }
+
+        console.info("displayName: ", this.marcData[this.activeIndex].displayName)
       },
 
       buildNewMarcKey: function(){
@@ -414,49 +413,27 @@
           console.info("sub: ", sub)
           let field = sub.slice(1,2)
           let value = sub.slice(2)
-          this.marcData[this.activeIndex]["subfield_" + field] = value
-        }
-
-        // this.marcData[this.activeIndex]['subfield_7'] = []
-        // for (let c of this.marcData[this.activeIndex].bcpSelection){
-        //   this.marcData[this.activeIndex]['subfield_7'].push("(bcp47)" + this.bcpCodes[c].bcp47code)
-        // }
-
-
-        this.marcData[this.activeIndex]['subfield_7'] = ''
-        if (this.marcData[this.activeIndex].bcpSelection.length > 0){
-          for (let c of this.marcData[this.activeIndex].bcpSelection){
-            this.marcData[this.activeIndex]['subfield_7'] = this.marcData[this.activeIndex]['subfield_7'] + "$7(bcp47)" + this.bcpCodes[c].bcp47code
+          if (field != '7'){
+            this.marcData[this.activeIndex]["subfield_" + field] = value
+          } else {
+            if (!this.marcData[this.activeIndex]["subfield_7"]){
+              this.marcData[this.activeIndex]["subfield_7"] = [value]
+            } else {
+              this.marcData[this.activeIndex]["subfield_7"].push(value)
+            }
           }
+
         }
-        // else if (this.marcData[this.activeIndex]['subfield_7'] != undefined) {
-        //   console.info("else: ", this.marcData[this.activeIndex])
-        //   this.marcData[this.activeIndex]['subfield_7'] = "$7" + this.marcData[this.activeIndex]['subfield_7']
-        // }
-        //$7test
 
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
-          if (sub.startsWith("subfield_") && sub != "subfield_7"){
+          if (sub.startsWith("subfield_") && sub != 'subfield_7'){
             key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
-          } else if (sub == "subfield_7" && this.marcData[this.activeIndex][sub] != ""){
-            key =  key + this.marcData[this.activeIndex][sub]
-
-
-            // if (this.marcData[this.activeIndex][sub].length > 0){
-            //   for (let val of this.marcData[this.activeIndex][sub]){
-            //     key =  key + "$" + sub.split("_")[1] + val
-            //   }
-            // } else if (this.marcData[this.activeIndex].displayName.includes('$7')) {
-            //   key =  key + "$" + sub.split("_")[1]
-            // }
+          } else if (sub == 'subfield_7'){
+            for (let sub7 of this.marcData[this.activeIndex][sub]){
+              key = key + "$7" + sub7
+            }
           }
         }
-
-        // if (this.marcData[this.activeIndex]['subfield_7'].length > 1){
-        //   marcKey = marcKey + key + this.marcData[this.activeIndex]['subfield_7'].join(" $7 ")
-        // } else {
-        //   marcKey = marcKey + key + " $7 " + this.marcData[this.activeIndex]['subfield_7']
-        // }
 
         this.marcData[this.activeIndex]['displayName'] = key
         // this.marcData[this.activeIndex]['marcKey'] = marcKey + key
