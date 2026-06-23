@@ -212,6 +212,24 @@
         this.oneXXdollarD =  false
       },
 
+
+      updateIndicator: function(index){
+        let target = this.marcData[index]
+        if (!target.pref){
+          target.pref = true
+        } else {
+          target.pref = !target.pref
+        }
+        let val = target.pref ? '1' : ' '
+        if (this.tag != 430){
+          //ind 2 = 1
+          target.indicators = this.setCharAt(target.indicators, 1, val)
+        }else{
+          //ind 1 = 1
+          target.indicators = this.setCharAt(target.indicators, 0, val)
+        }
+      },
+
       // initial 4XX
       edit4XX: async function(data){
         this.resetBcp()
@@ -221,13 +239,13 @@
         let marcKey = data.extra.marcKeys[0]
         this.tag = marcKey.slice(0,3)
         this.indicators = marcKey.slice(3,5)
-        if (this.tag != 430){
-          //ind 2 = 1
-          this.indicators = this.setCharAt(this.indicators, 1, '1')
-        }else{
-          //ind 1 = 1
-          this.indicators = this.setCharAt(this.indicators, 0, '1')
-        }
+        // if (this.tag != 430){
+        //   //ind 2 = 1
+        //   this.indicators = this.setCharAt(this.indicators, 1, '?')
+        // }else{
+        //   //ind 1 = 1
+        //   this.indicators = this.setCharAt(this.indicators, 0, '?')
+        // }
 
         // get the MARCxml
         let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
@@ -1533,7 +1551,10 @@
                   <!-- <div v-for="(row, index) in this.newMarcKeys" :key="index" class="advanced-row"> -->
                   <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
                     <!-- {{ row }} -->
-                    {{ tag }}{{ indicators }}: <input class="bcp-input"
+                    <label :for="index + '_pref'">Pref?</label>
+                    <input type="checkbox" :id="index + '_pref'" :name="index + '_pref'" value="false" @click="updateIndicator(index)">
+
+                    {{ tag }}{{ row.indicators }}: <input class="bcp-input"
                       type="text"
                       v-model="row.displayName"
                       @input="handleInput"
