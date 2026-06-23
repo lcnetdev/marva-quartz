@@ -8840,17 +8840,21 @@ export const useProfileStore = defineStore('profile', {
       // for (let child of targetNameXML.children){
       for (let child of targetNameXML.children){
         let code = child.getAttribute("code")
-        existingCodes[code] = child
+        if (existingCodes[code]){
+          existingCodes[code].push(child)
+        } else {
+          existingCodes[code] = [child]
+        }
       }
 
       /**
        * TODO:
        * - remove 667? under what conditions? $a >Non-Latin script references not evaluated.?
-       * - flag for preferred?
        */
 
 
       for (let [idx, update] of updates.entries()){
+        console.info("\t\tupdate: ", update)
         if (update.refEval){
           console.info("UPDATE 008")
           let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
@@ -8874,6 +8878,14 @@ export const useProfileStore = defineStore('profile', {
             }
           })
 
+          if (update.hasBCP){
+            // delete existing $7
+            for (let existing7 of existingCodes['7']){
+              targetNameXML.removeChild(existing7)
+            }
+            delete existingCodes['7']
+          }
+
           console.info("deleteCodes: ", deleteCodes)
 
           if (idx == 0){
@@ -8882,17 +8894,26 @@ export const useProfileStore = defineStore('profile', {
                 let subfield = key.split("_")[1]
                 let value = update[key]
 
+                console.info("existingCodes: ", existingCodes)
+
                 // if we're looking at the first update
-                let target = existingCodes[subfield]
-                if (target){                // if the subfield is existing update it
-                  target.innerHTML = value
-                  console.info("\t\tsetting Value: ", value)
-                  for (let code of deleteCodes){
-                    if (code){
-                      targetNameXML.removeChild(existingCodes[code])
-                      console.info("\t\tDeleting: ", code)
-                      console.info("\t\t existingCodes[code]: ", existingCodes[code])
-                      console.info("\t\t targetNameXML: ", targetNameXML)
+                let targets = existingCodes[subfield]
+
+                if (targets){                // if the subfield is existing update it
+                  for (let target of targets){
+                    target.innerHTML = value
+                    console.info("\t\tsetting Value: ", value)
+                    for (let code of deleteCodes){
+                      if (code){
+                        for (let element of existingCodes[code]){
+                          console.info("\t\tDeleting: ", code)
+                          console.info("\t\t element: ", element)
+                          console.info("\t\t targetNameXML: ", targetNameXML)
+                          if (targetNameXML.contains(element)){
+                            targetNameXML.removeChild(element)
+                          }
+                        }
+                      }
                     }
                   }
                 }else {                     // otherwise, create it
@@ -8903,6 +8924,7 @@ export const useProfileStore = defineStore('profile', {
                     // targetNameXML.appendChild(newSubField)
                     this.indentedAppend(targetNameXML, newSubField)
                   } else {
+                    console.info("working on BCPs")
                     for (let bcp of value){
                       let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                       newSubField.setAttribute("code", subfield)

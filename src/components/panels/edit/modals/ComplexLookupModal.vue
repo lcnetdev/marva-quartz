@@ -241,7 +241,18 @@
         this.marcData[0].indicators = this.indicators
 
         let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[idx]
+        let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
         this.xmlTarget = [targetTag, idx, targetNameXML.children[0].innerHTML]
+
+        let hasBcp = false
+        for (let child of targetNameXML.children){
+          if (child.getAttribute('code') == '7' && child.innerHTML.includes('bcp47')){
+            hasBcp = true
+            this.marcData[0]["hasBCP"] = true //child.innerHTML
+          }
+        }
+
+        console.info("BCP? this.marcData: ", JSON.parse(JSON.stringify(this.marcData)))
 
         // Get the 667s, do these need adjustment?
         let marc667List = this.xmlDoc.querySelectorAll('[tag="667"]')
@@ -254,8 +265,8 @@
         console.info("target667: ", target667)
 
         // get the $d for the 1XX, as long as there is no $t
-        let childFields = [].slice.call(targetNameXML.children).map(field => field.getAttribute('code'))
-        for (let child of targetNameXML.children){
+        let childFields = [].slice.call(oneXX.children).map(field => field.getAttribute('code'))
+        for (let child of oneXX.children){
           if (child.getAttribute('code') == 'd' && !childFields.includes('t')){
             this.oneXXdollarD = child.innerHTML
           }
@@ -302,7 +313,7 @@
         let updates = this.marcData
         let target = this.xmlTarget
 
-        console.info("this.marcData: ", this.marcData)
+        console.info("this.marcData: ", JSON.parse(JSON.stringify(this.marcData)))
 
         this.updatedRecord = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTarget)
 
@@ -344,7 +355,8 @@
           'indicators': this.indicators,
           'bcpSelection': this.marcData[this.activeIndex].bcpSelection,
           'marcKey': this.marcData[this.activeIndex].marcKey,
-          'displayName': this.marcData[this.activeIndex].displayName
+          'displayName': this.marcData[this.activeIndex].displayName,
+          'hasBCP': this.marcData[this.activeIndex].hasBCP,
         }
 
         let key = ''
@@ -2241,6 +2253,7 @@ td {
   /* width: 45%; */
   height: 100px;
   /* float: left; */
+  overflow: scroll;
 }
 
 .new-data {
@@ -2248,6 +2261,7 @@ td {
   /* margin-left: 5%; */
   height: 200px;
   /* float: right; */
+  overflow: scroll;
 }
 
 .record-data {
