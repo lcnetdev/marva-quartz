@@ -445,15 +445,13 @@
 
       addBcpRow: function(){
         let lastItem = Object.keys(this.marcData).at(-1)
-        console.info("marcData: ", this.marcData)
-        console.info("lastItem: ", typeof lastItem)
         // Index for new fields will start with ##
         let newIdx = false
         if (!lastItem.startsWith("##")){
           newIdx = "##" + (Number(lastItem) + 1)
         } else {
           let temp = lastItem.replace("##", "")
-          newIdx = "##" + (Number(lastItem) + 1)
+          newIdx = "##" + (Number(temp) + 1)
         }
         console.info("newIdx: ", newIdx)
         this.marcData[newIdx] = {
@@ -466,9 +464,18 @@
         }
       },
       dupeBcpRow: function(idx){
-        this.marcData.push(
-          JSON.parse(JSON.stringify(this.marcData[idx]))
-        )
+        let newIdx = false
+        if (!idx.startsWith("##")){
+          newIdx = "##" + (Number(idx) + 1)
+        } else {
+          let temp = idx.replace("##", "")
+          newIdx = "##" + (Number(temp) + 1)
+        }
+
+        this.marcData[newIdx] = JSON.parse(JSON.stringify(this.marcData[idx]))
+        this.marcData[newIdx].newRow = true
+        this.activeIndex = newIdx
+
       },
 
       addDateFromOneXX: function(idx){
@@ -1541,24 +1548,26 @@
                   <h2>Update BCP47 Language</h2>
                   <!-- <input class="bcp-input" type="text" v-model="targetName" /> -->
                   <!-- <div v-for="(row, index) in this.newMarcKeys" :key="index" class="advanced-row"> -->
-                  <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
-                    <!-- {{ row }} -->
-                    <label :for="index + '_pref'">Pref?</label>
-                    <input type="checkbox" :id="index + '_pref'" :name="index + '_pref'" value="false" @click="activeIndex = index; updateIndicator(index)">
 
-                    {{ tag }}{{ row.indicators }}: <input class="bcp-input"
-                      type="text"
-                      v-model="row.displayName"
-                      @input="handleInput"
-                      @click="activeIndex = index"
-                      :class="{'active-bcp': this.activeIndex == index}"
-                    />
+                    <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
+                      <template v-if="typeof row === 'object'">
 
-                    <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
-                    <button @click="addDateFromOneXX(index)" class="material-icons bcp-icon" v-if="oneXXdollarD">date_range</button>
-                    <button v-if="row.newRow" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
+                        <label :for="index + '_pref'">Pref?</label>
+                        <input type="checkbox" :id="index + '_pref'" :name="index + '_pref'" value="false" @click="activeIndex = index; updateIndicator(index)">
 
-                  </div>
+                        {{ tag }}{{ row.indicators }}: <input class="bcp-input"
+                          type="text"
+                          v-model="row.displayName"
+                          @input="handleInput"
+                          @click="activeIndex = index"
+                          :class="{'active-bcp': this.activeIndex == index}"
+                        />
+
+                        <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
+                        <button @click="addDateFromOneXX(index)" class="material-icons bcp-icon" v-if="oneXXdollarD">date_range</button>
+                        <button v-if="row.newRow" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
+                      </template>
+                    </div>
                   Add Variant: <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
 
                   <div class="bcp-selection-table">

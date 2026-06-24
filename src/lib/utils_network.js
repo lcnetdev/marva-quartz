@@ -4461,7 +4461,8 @@ const utilsNetwork = {
     },
 
     async fetchBCP47Codes(string, hint=false){
-      let url = "https://preprod-8288.id.loc.gov/controllers/xqapi-determine-bcp47.xqy?serialization=application/json&string=" + encodeURIComponent(string)
+      // 8288
+      let url = "https://preprod-8080.id.loc.gov/controllers/xqapi-determine-bcp47.xqy?serialization=application/json&string=" + encodeURIComponent(string)
       if (hint){
         url = url + "&hint=" + hint
       }
