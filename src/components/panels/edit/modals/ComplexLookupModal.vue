@@ -110,7 +110,7 @@
         bcpCodes: {},
         marcData: {},
         activeIndex: 0,
-        xmlTarget: [],
+        xmlTargets: [],
         refEval: false,
         originalMarc: null,
         updatedRecord: null,
@@ -204,7 +204,7 @@
         this.bcpCodes =  {}
         this.marcData =  {}
         this.activeIndex =  0
-        this.xmlTarget =  []
+        this.xmlTargets =  []
         this.refEval =  false
         this.originalMarc =  null
         this.updatedRecord =  null
@@ -238,14 +238,7 @@
         // Get MarcKey for 1XX
         let marcKey = data.extra.marcKeys[0]
         this.tag = marcKey.slice(0,3)
-        this.indicators = marcKey.slice(3,5)
-        // if (this.tag != 430){
-        //   //ind 2 = 1
-        //   this.indicators = this.setCharAt(this.indicators, 1, '?')
-        // }else{
-        //   //ind 1 = 1
-        //   this.indicators = this.setCharAt(this.indicators, 0, '?')
-        // }
+        this.indicators = marcKey.slice(3,5) //TODO parse this from the marcXML
 
         // get the MARCxml
         let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
@@ -281,7 +274,8 @@
             localMarc.bcpSelection = []
 
             let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[varIdx]
-            this.xmlTarget = [targetTag, varIdx, targetNameXML.children[0].innerHTML]
+            this.xmlTargets.push([targetTag, varIdx, targetNameXML.children[0].innerHTML])
+            // for additions add a fake target with an varIdx that will match that update
 
             let hasBcp = false
             for (let child of targetNameXML.children){
@@ -329,20 +323,27 @@
         this.showEdit4xxPanel = false
       },
       submitEdit: async function(){
-        return
-        if (this.marcData.some(d => {return d.bcpSelection.length == 0})){
-          alert("A name is missing a language Selection. Add one before continuing.")
-          return
-        }
-        this.marcData[this.activeIndex].refEval = this.refEval
+        // return
+        // if (this.marcData.some(d => {return d.bcpSelection.length == 0})){
+        //   alert("A name is missing a language Selection. Add one before continuing.")
+        //   return
+        // }
+        this.marcData.refEval = this.refEval
 
         const marcXML = this.xmlDoc
         let updates = this.marcData
-        let target = this.xmlTarget
+
+        // add a target for any additions
+        for (let idx in updates){
+          if (idx.startsWith("##")){
+            this.xmlTargets.push([this.tag, idx, updates[idx]['subfield_a']])
+          }
+        }
+        let targets = this.xmlTargets
 
         console.info("this.marcData: ", JSON.parse(JSON.stringify(this.marcData)))
 
-        this.updatedRecord = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTarget)
+        this.updatedRecord = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
 
         console.info("updatedRecord: ", this.updatedRecord)
 
@@ -359,12 +360,13 @@
 
         console.info("update: ", xmlUpdated)
         console.info("marcXML: ", marcXML)
-        let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, target, updates)
+        let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, targets, updates)
         this.diffRecord = comparison
         console.info("comparison: ", comparison)
       },
 
       getBcpSuggestions: async function(){
+        // to do update this.associatedLang, using lib/ISO...
         this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
         if (!this.marcData[this.activeIndex].bcpSelection){
           this.marcData[this.activeIndex].bcpSelection = []
@@ -388,7 +390,7 @@
         // reset to make deletions easier to handle
         this.marcData[this.activeIndex] = {
           'tag': this.tag,
-          'indicators': this.indicators,
+          'indicators': this.marcData[this.activeIndex].indicators,
           'bcpSelection': this.marcData[this.activeIndex].bcpSelection,
           'marcKey': this.marcData[this.activeIndex].marcKey,
           'displayName': this.marcData[this.activeIndex].displayName,
@@ -442,13 +444,26 @@
       },
 
       addBcpRow: function(){
-        this.marcData.push({
+        let lastItem = Object.keys(this.marcData).at(-1)
+        console.info("marcData: ", this.marcData)
+        console.info("lastItem: ", typeof lastItem)
+        // Index for new fields will start with ##
+        let newIdx = false
+        if (!lastItem.startsWith("##")){
+          newIdx = "##" + (Number(lastItem) + 1)
+        } else {
+          let temp = lastItem.replace("##", "")
+          newIdx = "##" + (Number(lastItem) + 1)
+        }
+        console.info("newIdx: ", newIdx)
+        this.marcData[newIdx] = {
           'tag': this.tag,
           'indicators': this.indicators,
-          'bcpSelection': [0],
+          'bcpSelection': [],
           'marcKey': '',
           'displayName': '$a',
-        })
+          'newRow': true
+        }
       },
       dupeBcpRow: function(idx){
         this.marcData.push(
@@ -462,8 +477,8 @@
       },
 
       removeBcpRow: function(row){
-        this.marcData.splice(row, 1);
-        this.activeIndex = 0
+        this.activeIndex = Object.keys(this.marcData).at(0)
+        delete this.marcData[row]
       },
 
       fetchAuthXML: async function(lccn){
@@ -1529,7 +1544,7 @@
                   <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
                     <!-- {{ row }} -->
                     <label :for="index + '_pref'">Pref?</label>
-                    <input type="checkbox" :id="index + '_pref'" :name="index + '_pref'" value="false" @click="updateIndicator(index)">
+                    <input type="checkbox" :id="index + '_pref'" :name="index + '_pref'" value="false" @click="activeIndex = index; updateIndicator(index)">
 
                     {{ tag }}{{ row.indicators }}: <input class="bcp-input"
                       type="text"
@@ -1539,12 +1554,12 @@
                       :class="{'active-bcp': this.activeIndex == index}"
                     />
 
-                    <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
                     <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
                     <button @click="addDateFromOneXX(index)" class="material-icons bcp-icon" v-if="oneXXdollarD">date_range</button>
-                    <!-- <button v-if="index > 0" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button> -->
+                    <button v-if="row.newRow" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
 
                   </div>
+                  Add Variant: <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
 
                   <div class="bcp-selection-table">
                     <table>
@@ -1573,7 +1588,7 @@
 
                   <div class="new-value-container">
                     <!-- New Value(s):<br></br>
-                    <div v-for="row in marcData" class="new-marc-data">{{ row.marcKey }}</div> -->
+                    <div v-for="row in marcData" class="new-marc-data">{{ row }}</div> -->
 
                     <template v-if="validationResult.validation">
                       <div v-if="validationResult.validation[0].level == 'ERROR'" class="validation-error">
@@ -1598,13 +1613,13 @@
                   <div class="old-data">
                     Original
 <pre v-for="data in diffRecord.old" class="record-data">
-  {{ data.replace('xmlns:marcxml="http://www.loc.gov/MARC21/slim"', "") }}
+  {{ data }}
 </pre>
                   </div>
                   <div class="new-data">
                     Updated
 <pre v-for="data in diffRecord.new" class="record-data">
-  {{ data.replace('xmlns:marcxml="http://www.loc.gov/MARC21/slim"', "")  }}
+  {{ data  }}
 </pre>
                   </div>
                 </div>
@@ -1694,6 +1709,7 @@
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:
 
                             <button v-if="key == 'variantLabels'" class="material-icons variant-edit" @click="edit4XX(activeContext)">edit</button>
+                            <!-- TODO: make this stricter. should also check that  the are non-Latin forms -->
 
                           </div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
@@ -2236,12 +2252,18 @@
   font-size: 12px;
 }
 
+/*************/
+/*************/
 /* BCP Stuff */
+/*************/
+/*************/
+
 .authority-edit {
   padding: 8px;
+  overflow: scroll;
 }
 .bcp-selection-table {
-  height: 250px;
+  max-height: 250px;
   overflow: scroll;
   display: block;
 }

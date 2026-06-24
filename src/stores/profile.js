@@ -8766,37 +8766,52 @@ export const useProfileStore = defineStore('profile', {
       return pp
     },
 
-    compareAuthRecords: function(oldRec, newRec, target, updates){
-      let hasDeletions = updates.some(u => u.delete)
+    compareAuthRecords: function(oldRec, newRec, targets, updates){ // TODO: adjust for targetS
+      console.info("comparison: ", updates)
+      let hasDeletions = false
+      for (let idx in updates){
+        let update = updates[idx]
+        if (Object.keys(update).includes('delete')){
+          hasDeletions = true
+          break
+        }
+      }
 
-      let diff = {}
+      let diff = {
+        'old': [],
+        'new': [],
+      }
 
       let recordOld = oldRec.getElementsByTagName('marcxml:record')[0]
-      let targetNameOld = oldRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
-      let recordOldString = new XMLSerializer().serializeToString(targetNameOld);
-
       let recordNew = newRec
-      let targetNameNew = newRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
-      let recordNewString
 
+      for (let target of targets){
+        let targetNameOld = oldRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+        let recordOldString = new XMLSerializer().serializeToString(targetNameOld);
 
-      try {
-        recordNewString = new XMLSerializer().serializeToString(targetNameNew);
-        if (!recordNewString.includes(target[2])){
+        let targetNameNew = newRec.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+        let recordNewString
+
+        try {
+          recordNewString = new XMLSerializer().serializeToString(targetNameNew);
+          if (!recordNewString.includes(target[2])){
+            if (hasDeletions){
+              recordNewString = 'DELETED'
+            }
+          }
+        } catch(err){
           if (hasDeletions){
             recordNewString = 'DELETED'
           }
         }
-      } catch(err){
-        if (hasDeletions){
-          recordNewString = 'DELETED'
-        }
-      }
 
-      // change to target name
-      diff = {
-        'old': [recordOldString],
-        'new': [recordNewString],
+        // change to target name
+        diff.old.push(recordOldString)
+        diff.new.push(recordNewString)
+        // diff = {
+        //   'old': [recordOldString],
+        //   'new': [recordNewString],
+        // }
       }
 
       // look at the children and see what's new
@@ -8823,164 +8838,198 @@ export const useProfileStore = defineStore('profile', {
       return str.substring(0,index) + chr + str.substring(index+1);
     },
 
-    adjustAuthRecord: function(marcXML, updates, target){
+    adjustAuthRecord: function(marcXML, updates, targets){
       console.info("adjusting")
       console.info("\tmarcXML: ", marcXML)
-      console.info("\ttarget:  ", JSON.stringify(target))
+      console.info("\ttarget:  ", JSON.stringify(targets))
       console.info("\tupdates: ", JSON.stringify(updates))
+
+
 
       let record = marcXML.getElementsByTagName('marcxml:record')[0]
       record = record.cloneNode(true)
-      let targetNameXML = record.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
-      let index = [].indexOf.call(record.children, targetNameXML)
-      let nextBlock = record.children[index + 1]
 
-      // Get the existing subfields
-      let existingCodes = {}
-      // for (let child of targetNameXML.children){
-      for (let child of targetNameXML.children){
-        let code = child.getAttribute("code")
-        if (existingCodes[code]){
-          existingCodes[code].push(child)
-        } else {
-          existingCodes[code] = [child]
-        }
+      if (updates.refEval){
+        console.info("UPDATE 008")
+        let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
+        let currentValue = zeroZeroEight.innerHTML
+        let updatedValue = this.setCharAt(currentValue, 29, 'a')
+        zeroZeroEight.innerHTML = updatedValue
+        console.info("008>>>", zeroZeroEight)
       }
 
-      /**
-       * TODO:
-       * - remove 667? under what conditions? $a >Non-Latin script references not evaluated.?
-       */
+      for (let target of targets){
+        let targetNameXML = record.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
+        let index = [].indexOf.call(record.children, targetNameXML)
+        let nextBlock = record.children[index + 1]
 
-
-      for (let [idx, update] of updates.entries()){
-        console.info("\t\tupdate: ", update)
-        if (update.refEval){
-          console.info("UPDATE 008")
-          let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
-          let currentValue = zeroZeroEight.innerHTML
-          let updatedValue = this.setCharAt(currentValue, 29, 'a')
-          zeroZeroEight.innerHTML = updatedValue
-          console.info("008>>>", zeroZeroEight)
-        }
-        if (update.delete){
-          console.info("delete: ", targetNameXML)
-          record.removeChild(targetNameXML)
-        } else {
-          let indicators = update.indicators.split("")
-          targetNameXML.setAttribute("ind1", indicators[0])
-          targetNameXML.setAttribute("ind2", indicators[1])
-
-          // existingCodes not present in the update
-          let deleteCodes = Object.keys(existingCodes).map(code => {
-            if (!Object.keys(update).includes('subfield_' + code)){
-              return code
-            }
-          })
-
-          if (update.hasBCP){
-            // delete existing $7
-            for (let existing7 of existingCodes['7']){
-              targetNameXML.removeChild(existing7)
-            }
-            delete existingCodes['7']
+        if (!targetNameXML){
+          console.info("updates: ", updates)
+          console.info("Object.keys(updates): ", Object.keys(updates))
+          targetNameXML = {'children': []}
+          for (let idx of Object.keys(updates)){
+            console.info("idx: ", idx)
+            if (idx.startsWith("##")){ break }
+            targetNameXML = record.querySelectorAll('[tag="' + target[0] +'"]')[idx]
+            index = [].indexOf.call(record.children, targetNameXML)
+            nextBlock = record.children[index + 1]
           }
+        }
 
-          console.info("deleteCodes: ", deleteCodes)
+        console.info("record: ", record)
+        console.info("blocks: ", record.querySelectorAll('[tag="' + target[0] +'"]'))
+        console.info("target: ", target)
+        console.info("targetNameXML: ", targetNameXML)
 
-          if (idx == 0){
-            for (let key of Object.keys(update)){
-              if (key.includes('subfield_')){
-                let subfield = key.split("_")[1]
-                let value = update[key]
+        // Get the existing subfields
+        let existingCodes = {}
+        // for (let child of targetNameXML.children){
+        for (let child of targetNameXML.children){
+          let code = child.getAttribute("code")
+          if (existingCodes[code]){
+            existingCodes[code].push(child)
+          } else {
+            existingCodes[code] = [child]
+          }
+        }
 
-                console.info("existingCodes: ", existingCodes)
+        /**
+         * TODO:
+         * - remove 667? under what conditions? $a >Non-Latin script references not evaluated.?
+         */
 
-                // if we're looking at the first update
-                let targets = existingCodes[subfield]
+        // for additions add a fake target with an idx that will match that update
+        let idx = target[1]
+        let update = updates[idx]
 
-                if (targets){                // if the subfield is existing update it
-                  for (let target of targets){
-                    target.innerHTML = value
-                    console.info("\t\tsetting Value: ", value)
-                    for (let code of deleteCodes){
-                      if (code){
-                        for (let element of existingCodes[code]){
-                          console.info("\t\tDeleting: ", code)
-                          console.info("\t\t element: ", element)
-                          console.info("\t\t targetNameXML: ", targetNameXML)
-                          if (targetNameXML.contains(element)){
-                            targetNameXML.removeChild(element)
+          console.info("\t\tidx: ", idx)
+          console.info("\t\t\tupdate: ", update)
+          if (Object.keys(update).includes('delete') && update.delete){
+            console.info("delete: ", targetNameXML)
+            record.removeChild(targetNameXML)
+          } else {
+            let indicators = update.indicators.split("")
+            console.info("\t\t", indicators)
+
+            if (!String(target[1]).startsWith("##")){
+              targetNameXML.setAttribute("ind1", indicators[0])
+              targetNameXML.setAttribute("ind2", indicators[1])
+
+              // existingCodes not present in the update
+              let deleteCodes = Object.keys(existingCodes).map(code => {
+                if (!Object.keys(update).includes('subfield_' + code)){
+                  return code
+                }
+              })
+
+              if (update.hasBCP){
+                // delete existing $7
+                for (let existing7 of existingCodes['7']){
+                  targetNameXML.removeChild(existing7)
+                }
+                delete existingCodes['7']
+              }
+
+              console.info("deleteCodes: ", deleteCodes)
+
+              for (let key of Object.keys(update)){
+                if (key.includes('subfield_')){
+                  let subfield = key.split("_")[1]
+                  let value = update[key]
+
+                  console.info("existingCodes: ", existingCodes)
+
+                  // if we're looking at the first update
+                  let targets = existingCodes[subfield]
+
+                  if (targets){                // if the subfield is existing update it
+                    for (let target of targets){
+                      target.innerHTML = value
+                      console.info("\t\tsetting Value: ", value)
+                      for (let code of deleteCodes){
+                        if (code){
+                          for (let element of existingCodes[code]){
+                            console.info("\t\tDeleting: ", code)
+                            console.info("\t\t element: ", element)
+                            console.info("\t\t targetNameXML: ", targetNameXML)
+                            if (targetNameXML.contains(element)){
+                              targetNameXML.removeChild(element)
+                            }
                           }
                         }
                       }
                     }
-                  }
-                }else {                     // otherwise, create it
-                  if (typeof value == 'string'){
-                    let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
-                    newSubField.setAttribute("code", subfield)
-                    newSubField.innerHTML = value.trim()
-                    // targetNameXML.appendChild(newSubField)
-                    this.indentedAppend(targetNameXML, newSubField)
-                  } else {
-                    console.info("working on BCPs")
-                    for (let bcp of value){
+                  }else {                     // otherwise, create it
+                    if (typeof value == 'string'){
                       let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                       newSubField.setAttribute("code", subfield)
-                      newSubField.innerHTML = bcp.trim()
+                      newSubField.innerHTML = value.trim()
                       // targetNameXML.appendChild(newSubField)
                       this.indentedAppend(targetNameXML, newSubField)
+                    } else {
+                      console.info("working on BCPs")
+                      for (let bcp of value){
+                        let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                        newSubField.setAttribute("code", subfield)
+                        newSubField.innerHTML = bcp.trim()
+                        // targetNameXML.appendChild(newSubField)
+                        this.indentedAppend(targetNameXML, newSubField)
+                      }
                     }
                   }
+
                 }
-
               }
-            }
-          } else { // it's a new field for the top element
-            let newField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
-            newField.setAttribute('tag', update.tag)
-            newField.setAttribute('ind1', indicators[0])
-            newField.setAttribute('ind2', indicators[1])
+            } else { // it's a new field for the top element
+              console.info("else")
+              let newField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+              newField.setAttribute('tag', update.tag)
+              newField.setAttribute('ind1', indicators[0])
+              newField.setAttribute('ind2', indicators[1])
 
-            this.indentedAppend(record, newField, false, nextBlock)
+              this.indentedAppend(record, newField, false, nextBlock)
 
-            for (let [idx, key] of Object.keys(update).entries()){
-              if (key.includes('subfield_')){
-                let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
-                let subfield = key.split("_")[1]
-                let value = update[key]
+              console.info("::::::nextBlock: ", nextBlock)
+              console.info("newField: ", newField)
+              console.info("record: ", record)
+
+              for (let [idx, key] of Object.keys(update).entries()){
+                if (key.includes('subfield_')){
+                  let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                  let subfield = key.split("_")[1]
+                  let value = update[key]
 
 
-                if (typeof value == 'string'){
-                    newSubField.setAttribute("code", subfield)
-                    newSubField.innerHTML = value.trim()
-                    // targetNameXML.appendChild(newSubField)
-                    if (idx == Object.keys(update).length - 1){
-                      this.indentedAppend(newField, newSubField, false, 'last')
-                    } else {
-                      this.indentedAppend(newField, newSubField, false)
-                    }
-                  } else {
-                    for (let i in value){
-                      let bcp = value[i]
-                      let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                  if (typeof value == 'string'){
                       newSubField.setAttribute("code", subfield)
-                      newSubField.innerHTML = bcp.trim()
+                      newSubField.innerHTML = value.trim()
                       // targetNameXML.appendChild(newSubField)
-                      if (i == value.length - 1){
-                        console.info(idx, ": ", update)
+                      if (idx == Object.keys(update).length - 1){
                         this.indentedAppend(newField, newSubField, false, 'last')
                       } else {
                         this.indentedAppend(newField, newSubField, false)
                       }
+                    } else {
+                      for (let i in value){
+                        let bcp = value[i]
+                        let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+                        newSubField.setAttribute("code", subfield)
+                        newSubField.innerHTML = bcp.trim()
+                        // targetNameXML.appendChild(newSubField)
+                        if (i == value.length - 1){
+                          console.info(idx, ": ", update)
+                          this.indentedAppend(newField, newSubField, false, 'last')
+                        } else {
+                          this.indentedAppend(newField, newSubField, false)
+                        }
+                      }
                     }
-                  }
+                }
               }
-            }
 
+            }
           }
-        }
+        // }
       }
 
       console.info("adjusted record: ", record)
