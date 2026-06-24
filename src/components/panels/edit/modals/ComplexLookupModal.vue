@@ -215,6 +215,7 @@
 
       updateIndicator: function(index){
         let target = this.marcData[index]
+        console.info("target: ", target)
         if (!target.pref){
           target.pref = true
         } else {
@@ -274,6 +275,10 @@
             localMarc.bcpSelection = []
 
             let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[varIdx]
+
+            console.info("\t name: ", targetNameXML.children[0].innerHTML)
+            console.info("\t : ", )
+
             this.xmlTargets.push([targetTag, varIdx, targetNameXML.children[0].innerHTML])
             // for additions add a fake target with an varIdx that will match that update
 
@@ -282,13 +287,27 @@
               if (child.getAttribute('code') == '7' && child.innerHTML.includes('bcp47')){
                 hasBcp = true
                 localMarc["hasBCP"] = true //child.innerHTML
+                console.info("\t\thasBCP")
               }
             }
 
             for (let sub of targetNameXML.children){
               let subfield = sub.getAttribute("code")
               let value = sub.innerHTML
-              localMarc["subfield_" + subfield] = value
+              if (subfield != '7'){
+                localMarc["subfield_" + subfield] = value
+              } else {
+                if (value == '(dpecou)Preferred variant'){
+                  continue
+                }
+                if (localMarc["subfield_7"]){
+                  localMarc["subfield_7"].push(value)
+                } else {
+                  localMarc["subfield_7"] = [value]
+                }
+              }
+
+              console.info("\t\t\t ", subfield,": ", value)
             }
 
             localMarc.displayName = ''
@@ -301,6 +320,10 @@
             this.marcData[varIdx] = localMarc
             this.activeIndex = varIdx
             this.buildNewMarcKey()
+
+            if(localMarc["hasBCP"]){
+              this.updateIndicator(varIdx)
+            }
           }
         }
 
@@ -367,7 +390,9 @@
 
       getBcpSuggestions: async function(){
         // to do update this.associatedLang, using lib/ISO...
-        this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
+        if (this.marcData[this.activeIndex]){
+          this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
+        }
         if (!this.marcData[this.activeIndex].bcpSelection){
           this.marcData[this.activeIndex].bcpSelection = []
         }
@@ -1551,9 +1576,8 @@
 
                     <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
                       <template v-if="typeof row === 'object'">
-
                         <label :for="index + '_pref'">Pref?</label>
-                        <input type="checkbox" :id="index + '_pref'" :name="index + '_pref'" value="false" @click="activeIndex = index; updateIndicator(index)">
+                        <input type="checkbox" :id="index + '_pref'" :name="index + '_pref'" value="row.pref" :checked="row.pref" @click="activeIndex = index; updateIndicator(index)">
 
                         {{ tag }}{{ row.indicators }}: <input class="bcp-input"
                           type="text"
