@@ -351,12 +351,38 @@
       hideBCP: function(){
         this.showEdit4xxPanel = false
       },
+
+      checkPrefLabels: function(){
+        // check that everthing with a pref=true has a BCP code & that to names
+        // with the same BCP code aren't preferred
+        console.info("CHECKING")
+        console.info(this.marcData)
+        let pref47 = {}
+        let checks = []
+
+        for (let key of Object.keys(this.marcData)){
+          let value = this.marcData[key]
+          console.info("\t", key,": ", value)
+          if (value.pref){
+            if (!Object.keys(value).includes("subfield_7") || value["subfield_7"].length == 0){
+              checks.push("A name has been marked as preferred, without having a BCP code added to it. Name: " + value.displayName)
+            } else {
+              for(let bcp of value["subfield_7"]){
+                if (pref47[bcp] == 1){
+                  checks.push("Multiple preferred forms have the same BCPcode: " + bcp)
+                }
+                pref47[bcp] = pref47[bcp] ? pref47[bcp] + 1 : 1;
+
+              }
+            }
+          }
+        }
+        return checks
+      },
+
       submitEdit: async function(){
-        // return
-        // if (this.marcData.some(d => {return d.bcpSelection.length == 0})){
-        //   alert("A name is missing a language Selection. Add one before continuing.")
-        //   return
-        // }
+        let prefChecks = this.checkPrefLabels()
+
         this.marcData.refEval = this.refEval
 
         const marcXML = this.xmlDoc
@@ -381,9 +407,20 @@
         // validate the update
         this.validating = true
         this.validationResult = await utilsNetwork.validateNar(xmlUpdated)
+        console.info("this.validationResult: ", this.validationResult)
+        if (prefChecks.length > 0 ){
+          for (let mess of prefChecks){
+            this.validationResult.validation.push({
+              level: 'ERROR',
+              message: mess,
+            })
+          }
+        }
+        console.info(">>>>", this.validationResult)
         this.validating = false
 
-        if (this.validationResult.validation[0].level == 'ERROR'){
+        if (this.validationResult.validation.some(item => item.level == 'ERROR')){
+          this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
           return
         }
 
@@ -426,6 +463,7 @@
           'marcKey': this.marcData[this.activeIndex].marcKey,
           'displayName': this.marcData[this.activeIndex].displayName,
           'hasBCP': this.marcData[this.activeIndex].hasBCP,
+          'pref': this.marcData[this.activeIndex].pref,
         }
 
 
@@ -1630,12 +1668,16 @@
                     <div v-for="row in marcData" class="new-marc-data">{{ row }}</div> -->
 
                     <template v-if="validationResult.validation">
-                      <div v-if="validationResult.validation[0].level == 'ERROR'" class="validation-error">
+                      <h2>Validation:</h2>
+                      <span v-for="val in validationResult.validation">
+                        <div :class="'validation-'+val.level">{{ val.message }}</div>
+                      </span>
+                      <!-- <div v-if="validationResult.validation[0].level == 'ERROR'" class="validation-error">
                         Validation Error: {{ validationResult.validation[0].message }}
                       </div>
                       <div v-else class="validation-success">
                         Validation: {{ validationResult.validation[0].message }}
-                      </div>
+                      </div> -->
                     </template>
                   </div>
 
@@ -2396,8 +2438,8 @@ pre {
   margin-bottom: 5px;
 }
 
-.validation-error,
-.validation-success {
+.validation-ERROR,
+.validation-SUCCESS {
   list-style: none;
   width: fit-content;
   margin-bottom: 5px;
@@ -2405,13 +2447,13 @@ pre {
   border-radius: 25px;
 }
 
-.validation-error{
+.validation-ERROR{
   color: #721c24;
   background-color: #f8d7da;
   border-color: #f5c6cb;
 }
 
-.validation-success{
+.validation-SUCCESS{
   color: #155724;
   background-color: #d4edda;
   border-color: #c3e6cb;

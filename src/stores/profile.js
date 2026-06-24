@@ -8865,8 +8865,7 @@ export const useProfileStore = defineStore('profile', {
             target667 = sixSixSeven
           }
         }
-
-        record.removeChild(target667)
+        if (target667){ record.removeChild(target667) }
       }
 
       for (let target of targets){
