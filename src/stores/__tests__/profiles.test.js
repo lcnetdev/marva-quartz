@@ -140,7 +140,8 @@ describe('methods', () => {
       expect(update).toContain('<marcxml:subfield code=\"d\">1835-1910</marcxml:subfield>')
       expect(update).toContain('<marcxml:subfield code=\"7\">(bcp47)he</marcxml:subfield>')
       expect(update).toContain('<marcxml:controlfield tag="008">790418n| azannaabn          |a aaa      </marcxml:controlfield>')
-    });
+
+      expect(update).not.toContain('<marcxml:datafield ind1=" " ind2=" " tag="667"><marcxml:subfield code="a">Machine-derived non-Latin script reference project.')});
 
     it('Update NAR delete $d', async () => {
       let marcXML = twainXml

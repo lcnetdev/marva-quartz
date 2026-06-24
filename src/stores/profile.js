@@ -8856,6 +8856,17 @@ export const useProfileStore = defineStore('profile', {
         let updatedValue = this.setCharAt(currentValue, 29, 'a')
         zeroZeroEight.innerHTML = updatedValue
         console.info("008>>>", zeroZeroEight)
+
+        // Get the 667s, remove "...not evaluated..."
+        let marc667List = record.querySelectorAll('[tag="667"]')
+        let target667 = false
+        for (let sixSixSeven of marc667List){
+          if (sixSixSeven.innerHTML.includes('Non-Latin script references not evaluated.')){
+            target667 = sixSixSeven
+          }
+        }
+
+        record.removeChild(target667)
       }
 
       for (let target of targets){
@@ -8892,11 +8903,6 @@ export const useProfileStore = defineStore('profile', {
             existingCodes[code] = [child]
           }
         }
-
-        /**
-         * TODO:
-         * - remove 667? under what conditions? $a >Non-Latin script references not evaluated.?
-         */
 
         // for additions add a fake target with an idx that will match that update
         let idx = target[1]

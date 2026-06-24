@@ -327,16 +327,6 @@
           }
         }
 
-
-        // Get the 667s, do these need adjustment?
-        let marc667List = this.xmlDoc.querySelectorAll('[tag="667"]')
-        let target667 = false
-        for (let sixSixSeven of marc667List){
-          if (sixSixSeven.innerHTML.includes('Non-Latin script references not evaluated.')){
-            target667 = sixSixSeven
-          }
-        }
-
         // swap out left panel for form
         this.showEdit4xxPanel = true
 
