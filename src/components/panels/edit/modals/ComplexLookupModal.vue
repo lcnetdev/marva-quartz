@@ -193,6 +193,22 @@
     },
 
     methods: {
+      showBCPButton: function(key, data){
+        console.info("data: ", data)
+        let show = false
+
+        for(let variant of data.variantLabels){
+          if (!this.isLatin(variant)){
+            show = true
+            break
+          }
+        }
+
+        if (!this.checkLcOnly()){ show = false }
+        if (key != 'variantLabels'){ show = false}
+
+        return show
+      },
       setCharAt: function(str, index, chr) {
           if(index > str.length-1) return str;
           return str.substring(0,index) + chr + str.substring(index+1);
@@ -1731,7 +1747,7 @@
                         <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:
 
-                            <button v-if="key == 'variantLabels'" class="material-icons variant-edit" @click="edit4XX(activeContext)">edit</button>
+                            <button v-if="showBCPButton(key, activeContext.extra)" class="material-icons variant-edit" @click="edit4XX(activeContext)">edit</button>
                             <!-- TODO: make this stricter. should also check that  the are non-Latin forms -->
 
                           </div>
