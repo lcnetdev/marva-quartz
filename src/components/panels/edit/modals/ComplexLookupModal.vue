@@ -1,12 +1,14 @@
 <script>
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
+  import utilsParse from '@/lib/utils_parse';
 
   import { useConfigStore } from '@/stores/config'
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
 
   import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
+  import CopyCat from "@/views/CopyCat.vue"
 
 
   import utilsNetwork from '@/lib/utils_network';
@@ -119,6 +121,12 @@
         validating: false,
         validationResult: {},
 
+        formattedMarc: '',
+        finalMarc: '',
+        submitting: false,
+        showMarcPreview: false,
+        validationErrors: false,
+
       }
     },
     computed: {
@@ -226,6 +234,13 @@
         this.updatedRecord =  null
         this.diffRecord =  []
         this.oneXXdollarD =  false
+
+        this.formattedMarc = ''
+        this.finalMarc = ''
+        this.submitting = false
+        this.showMarcPreview = false
+        this.validationErrors = false
+
       },
 
 
@@ -351,6 +366,9 @@
       hideBCP: function(){
         this.showEdit4xxPanel = false
       },
+      hidePreview: function(){
+        this.showMarcPreview = false
+      },
 
       checkPrefLabels: function(){
         // check that everthing with a pref=true has a BCP code & that to names
@@ -381,6 +399,11 @@
       },
 
       submitEdit: async function(){
+        console.info("Submitting")
+      },
+
+      previewMarc: async function(){
+        this.submitting = true
         let prefChecks = this.checkPrefLabels()
 
         this.marcData.refEval = this.refEval
@@ -396,11 +419,12 @@
         }
         let targets = this.xmlTargets
 
-        console.info("this.marcData: ", JSON.parse(JSON.stringify(this.marcData)))
+        let results = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
+        this.updatedRecord = results[0]
+        let parsedRecord = results[1]
 
-        this.updatedRecord = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
-
-        console.info("updatedRecord: ", this.updatedRecord)
+        console.info("this.updatedRecord: ", this.updatedRecord )
+        console.info("parsedRecord: ", parsedRecord)
 
         let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord)
 
@@ -416,19 +440,28 @@
             })
           }
         }
-        console.info(">>>>", this.validationResult)
         this.validating = false
-
+        this.validationErrors = false
         if (this.validationResult.validation.some(item => item.level == 'ERROR')){
+          this.validationErrors = true
           this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
-          return
+          // return
         }
 
-        console.info("update: ", xmlUpdated)
-        console.info("marcXML: ", marcXML)
         let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, targets, updates)
         this.diffRecord = comparison
-        console.info("comparison: ", comparison)
+
+
+        let marcString = xmlUpdated.replace(/ xmlns:.*=".*"/g, "")
+        console.info("marcString: ", marcString)
+
+        this.finalMarc = marcString
+        this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
+        console.info("formatted: ", this.formattedMarc)
+
+        this.submitting = false
+        this.showMarcPreview = true
+
       },
 
       getBcpSuggestions: async function(){
@@ -1611,6 +1644,31 @@
 
               </div>
             </template>
+            <!-- MARC Preview Panel -->
+            <template v-else-if="showMarcPreview">
+              <div class="marc-container">
+
+                <template v-if="validationResult.validation">
+                  <h2>Validation:</h2>
+                  <span v-for="val in validationResult.validation">
+                    <div :class="'validation-'+val.level">{{ val.message }}</div>
+                  </span>
+                </template>
+
+                <div class="marc-preview-container">
+                  <h2>MARC Preview</h2>
+                  <div v-html="formattedMarc.result" class="marc-preview"></div>
+                </div>
+
+                <div class="button-container">
+                  <button @click="submitEdit()" v-if="!validationErrors">Submit</button>
+                  <button @click="hidePreview()">Cancel</button>
+                </div>
+
+
+              </div>
+            </template>
+            <!-- BCP Panel -->
             <template v-else>
               <div class="authority-edit">
 
@@ -1667,25 +1725,14 @@
                     <!-- New Value(s):<br></br>
                     <div v-for="row in marcData" class="new-marc-data">{{ row }}</div> -->
 
-                    <template v-if="validationResult.validation">
-                      <h2>Validation:</h2>
-                      <span v-for="val in validationResult.validation">
-                        <div :class="'validation-'+val.level">{{ val.message }}</div>
-                      </span>
-                      <!-- <div v-if="validationResult.validation[0].level == 'ERROR'" class="validation-error">
-                        Validation Error: {{ validationResult.validation[0].message }}
-                      </div>
-                      <div v-else class="validation-success">
-                        Validation: {{ validationResult.validation[0].message }}
-                      </div> -->
-                    </template>
+
                   </div>
 
                 <div class="button-container">
                   <label for="refEval">References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                   <br><br>
-                  <button @click="submitEdit()">Submit</button>
+                  <button @click="previewMarc()">Preview</button>
                   <button @click="hideBCP()">Cancel</button>
                 </div>
 
@@ -2465,5 +2512,22 @@ pre {
   background-color: rgb(201, 199, 199);
   padding: 5px;
 }
+
+.marc-preview-container {
+  height: 80%;
+  overflow: scroll;
+  padding: 10px;
+  font-family: monospace;
+}
+
+div.marc.record {
+  font-family: monospace;
+}
+
+span.indicators {
+    white-space: pre;
+}
+
+
 
 </style>

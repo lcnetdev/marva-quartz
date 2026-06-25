@@ -4475,6 +4475,31 @@ const utilsNetwork = {
       return resp
     },
 
+    async formatMarc(xml, sType, tType){
+      if (!xml){
+        return ""
+      }
+
+      let url = useConfigStore().returnUrls.util + 'marcformat'
+
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify({
+          mrc: xml,
+          sourceType: sType,
+          targetType: tType,
+        })
+      });
+      const content = await rawResponse.json();
+
+      return content
+    },
+
 
 }
 

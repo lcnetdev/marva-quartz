@@ -2604,6 +2604,59 @@ const utilsParse = {
 
   },
 
+  htmlify: function(marcBlob){
+    console.info("html: ", marcBlob)
+    let formattedMarcRecord = ["<div class='marc record'>"];
+    for (let [idx, line] of marcBlob.split("\n").entries()){
+      if (idx == 0){
+        let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
+        formattedMarcRecord.push(leader);
+      } else {
+        let tag = String(line.slice(0,3))
+        let value = null;                 // fixed fields?
+        let indicators = null;
+        let subfields = [];               // subfields
+        let subfieldsSplit = []
+        if (line == ""){ continue }
+        if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
+          value = line.slice(7)
+        } else {
+          let tmpIndicators = line.slice(4, 6)
+
+          indicators = [" ", " "]
+          indicators[0] = tmpIndicators.slice(0, tmpIndicators.length / 2)
+          indicators[1] = tmpIndicators.slice(tmpIndicators.length / 2, tmpIndicators.length)
+          let subfieldGroups = line.slice(7).replaceAll(/\$([a-z0-9]{1})/g, "-#-#-$1").split("-#-#-")
+
+          for (let sub of subfieldGroups){
+            if (sub != ""){
+              let field = "$" + sub.at(0)
+              let value = sub.slice(1)
+
+              subfields.push([field, value])
+            }
+          }
+        }
+
+        if (value) {
+          tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+          value = " <span class='marc value'>" + value + '</span>';
+          formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
+        } else {
+          subfields = subfields.map((subfield) =>
+            "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
+          );
+          indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
+          tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+          formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
+        }
+
+      }
+    }
+    formattedMarcRecord.push('</div>');
+    return formattedMarcRecord.join('\r\n');
+  },
+
 
 
 }
