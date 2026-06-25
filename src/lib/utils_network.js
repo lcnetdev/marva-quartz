@@ -3033,6 +3033,7 @@ const utilsNetwork = {
          let response = await fetch(url, { headers: getAuthHeaders() });
 
          let data =  await response.text()
+         console.info("data: ", data)
 
          return  data;
 

@@ -10,7 +10,7 @@
   import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
   import CopyCat from "@/views/CopyCat.vue"
 
-
+  import isoLangLib from "@/lib/iso_lang.json"
   import utilsNetwork from '@/lib/utils_network';
 
   import { AccordionList, AccordionItem } from "vue3-rich-accordion";
@@ -277,7 +277,15 @@
         let parser = new DOMParser()
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
         this.originalMarc = this.xmlDoc.cloneNode(true)
-        this.associatedLang = this.xmlDoc.querySelectorAll('[tag="377"]')
+        this.associatedLang = data.extra.languages[0]//this.xmlDoc.querySelectorAll('[tag="377"]')
+        for (let lang of isoLangLib.iso639_1){
+          let l = lang.name
+          let code = lang.code
+          if (l.toLowerCase() == this.associatedLang.toLowerCase()){
+            this.associatedLang = code
+          }
+        }
+
 
         // get the $d for the 1XX, as long as there is no $t
         let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
@@ -371,7 +379,7 @@
       },
 
       checkPrefLabels: function(){
-        // check that everthing with a pref=true has a BCP code & that to names
+        // check that everthing with a pref=true has a BCP code & that two names
         // with the same BCP code aren't preferred
         console.info("CHECKING")
         console.info(this.marcData)
@@ -404,6 +412,7 @@
 
       previewMarc: async function(){
         this.submitting = true
+        this.showMarcPreview = true
         let prefChecks = this.checkPrefLabels()
 
         this.marcData.refEval = this.refEval
@@ -460,8 +469,6 @@
         console.info("formatted: ", this.formattedMarc)
 
         this.submitting = false
-        this.showMarcPreview = true
-
       },
 
       getBcpSuggestions: async function(){
@@ -1657,7 +1664,8 @@
 
                 <div class="marc-preview-container">
                   <h2>MARC Preview</h2>
-                  <div v-html="formattedMarc.result" class="marc-preview"></div>
+                  <div v-html="formattedMarc.result" class="marc-preview" v-if="!submitting"></div>
+                  <div v-else>Loading...</div>
                 </div>
 
                 <div class="button-container">
@@ -1678,10 +1686,11 @@
 
                     <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
                       <template v-if="typeof row === 'object'">
-                        <label :for="index + '_pref'">Pref?</label>
-                        <input type="checkbox" :id="index + '_pref'" :name="index + '_pref'" value="row.pref" :checked="row.pref" @click="activeIndex = index; updateIndicator(index)">
+                        <input type="checkbox" class="prefCheck" :id="index + '_pref'" :name="index + '_pref'" value="row.pref" :checked="row.pref" @click="activeIndex = index; updateIndicator(index)">
+                        <label :for="index + '_pref'">Pref</label>
 
-                        {{ tag }}{{ row.indicators }}: <input class="bcp-input"
+
+                        <span class="tag-ind">{{ tag }}{{ row.indicators }}</span>: <input class="bcp-input"
                           type="text"
                           v-model="row.displayName"
                           @input="handleInput"
@@ -2423,8 +2432,15 @@ td {
 .active {
     background-color: rgb(131, 131, 255);
 }
+
+.advanced-row {
+  width: 45w;
+  display: flex;
+  flex-flow: row;
+}
 .bcp-input{
   width: 75%;
+  max-width: 50vw;
   font-size: 1.3em;
 }
 .bcp-icon {
@@ -2477,8 +2493,8 @@ pre {
 }
 
 .new-marc-data{
-
   width: fit-content;
+  max-width: 50vw;
   padding: 5px;
   border-radius: 25px;
   background-color: whitesmoke;
@@ -2506,6 +2522,9 @@ pre {
   border-color: #c3e6cb;
 }
 
+.marc-container {
+  height: 90vh;
+}
 .button-container,
 .new-value-container {
   margin-top: 5px;
@@ -2514,7 +2533,7 @@ pre {
 }
 
 .marc-preview-container {
-  height: 80%;
+  height: 85vh;
   overflow: scroll;
   padding: 10px;
   font-family: monospace;
@@ -2526,6 +2545,38 @@ div.marc.record {
 
 span.indicators {
     white-space: pre;
+}
+
+.prefCheck {
+  visibility: hidden;
+}
+
+.tag-ind {
+  height: 20px;
+  margin-top: 5px;
+}
+
+input.prefCheck[type=checkbox]+label {
+  background-color: #ccc;
+  font-style: italic;
+  padding: 1px 15px 1px 15px;
+  border-radius: 25px;
+  height: 20px;
+  margin-top: 5px;
+
+}
+
+input.prefCheck[type=checkbox]:checked+label {
+  background-color: #28cd28;
+  font-style: normal;
+  padding: 1px 15px 1px 15px;
+  border-radius: 25px;
+  height: 20px;
+  margin-top: 5px;
+}
+
+.authority-edit {
+  height: 100vh;
 }
 
 
