@@ -211,10 +211,16 @@
 
         setLanguageFromQuickSelect(langStr, v){
 
-          console.log(langStr,v)
-
           this.profileStore.setValueLiteral(this.literalLangInfo.componentGuid,v['@guid'],this.literalLangInfo.propertyPath,v.value,langStr)
 
+          // update the reactive store state so the modal reflects the new value
+          for (let sValue of this.literalLangInfo.values){
+            if (sValue['@guid'] == v['@guid']){
+              sValue['@language'] = langStr
+            }
+          }
+
+          this.lastUsedLangScript = langStr
 
         },
 
