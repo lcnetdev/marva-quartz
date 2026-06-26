@@ -112,7 +112,7 @@
                                         <div class="yoshino-subject-row">
                                             <div class="yoshino-subject-info">
                                                 <span class="yoshino-subject-label">{{ subj }}</span>
-                                                <span class="yoshino-subject-source" v-if="results.subjectSources[subj]">{{ results.subjectSources[subj] }}</span>
+                                                <span class="yoshino-subject-source" v-if="subjectSourceLabel(subj)">{{ subjectSourceLabel(subj) }}</span>
                                                 <a v-if="results.subjectSourceMap[subj]"
                                                    :href="'https://preprod.id.loc.gov/resources/works/' + results.subjectSourceMap[subj]"
                                                    target="_blank"
@@ -121,7 +121,7 @@
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
-                                                    :class="(results.subjectUncontrolledMap[subj] || (results.subjectSources[subj] && !results.subjectSources[subj].endsWith('Subject Headings'))) ? 'yoshino-insert-btn yoshino-insert-btn-uncontrolled' : 'yoshino-insert-btn'">{{ results.subjectUncontrolledMap[subj] ? 'Insert Uncontrolled' : (results.subjectSources[subj] && !results.subjectSources[subj].endsWith('Subject Headings')) ? 'Insert non-LC' : 'Insert' }}</button>
+                                                    :class="insertButtonClass(subj)">{{ insertButtonLabel(subj) }}</button>
                                             <span v-else class="yoshino-inserted-label">Inserted</span>
                                         </div>
                                     </li>
@@ -137,7 +137,7 @@
                                         <div class="yoshino-subject-row">
                                             <div class="yoshino-subject-info">
                                                 <span class="yoshino-subject-label">{{ subj }}</span>
-                                                <span class="yoshino-subject-source" v-if="results.subjectSources[subj]">{{ results.subjectSources[subj] }}</span>
+                                                <span class="yoshino-subject-source" v-if="subjectSourceLabel(subj)">{{ subjectSourceLabel(subj) }}</span>
                                                 <a v-if="results.subjectSourceMap[subj]"
                                                    :href="'https://preprod.id.loc.gov/resources/works/' + results.subjectSourceMap[subj]"
                                                    target="_blank"
@@ -146,7 +146,7 @@
                                             </div>
                                             <button v-if="!insertedSubjects.has(subj)"
                                                     @click="insertSubject(subj)"
-                                                    :class="(results.subjectUncontrolledMap[subj] || (results.subjectSources[subj] && !results.subjectSources[subj].endsWith('Subject Headings'))) ? 'yoshino-insert-btn yoshino-insert-btn-uncontrolled' : 'yoshino-insert-btn'">{{ results.subjectUncontrolledMap[subj] ? 'Insert Uncontrolled' : (results.subjectSources[subj] && !results.subjectSources[subj].endsWith('Subject Headings')) ? 'Insert non-LC' : 'Insert' }}</button>
+                                                    :class="insertButtonClass(subj)">{{ insertButtonLabel(subj) }}</button>
                                             <span v-else class="yoshino-inserted-label">Inserted</span>
                                         </div>
                                     </li>
@@ -516,6 +516,14 @@
         background-color: #bf360c;
     }
 
+    .yoshino-insert-btn-nar {
+        background-color: #6a1b9a;
+    }
+
+    .yoshino-insert-btn-nar:hover {
+        background-color: #4a148c;
+    }
+
     .yoshino-inserted {
         background-color: #e8f5e9;
     }
@@ -831,6 +839,46 @@
             this.insertedSubjects.add(label)
             // Force reactivity for the Set
             this.insertedSubjects = new Set(this.insertedSubjects)
+        },
+
+        // A name authority record (NAR) used as a subject (e.g. a Person/Org/Place heading).
+        // These carry a name-authority URI rather than a subject-thesaurus source, so detect them
+        // by the URI pattern (/rwo/agents/ or /authorities/names/) instead of the source label.
+        isNarSubject: function(subj) {
+            const uri = this.results?.subjectUriMap?.[subj] || ''
+            return uri.includes('/rwo/agents/') || uri.includes('/authorities/names/')
+        },
+
+        // A subject that is NOT a Library of Congress subject heading. LC subject sources end with
+        // "Subject Headings" (e.g. "Library of Congress Subject Headings", "LC Subject Headings"),
+        // but Medical Subject Headings (MeSH) also matches that suffix while not being LC, so it is
+        // treated as non-LC explicitly.
+        isNonLcSubject: function(subj) {
+            const source = this.results?.subjectSources?.[subj]
+            if (!source) return false
+            if (source.includes('Medical Subject Headings')) return true
+            return !source.endsWith('Subject Headings')
+        },
+
+        // Source text shown beside each subject. NAR subjects have no bf:Source, so their raw value
+        // is the "Unknown" fallback — show a meaningful label for them instead.
+        subjectSourceLabel: function(subj) {
+            if (this.isNarSubject(subj)) return 'Name authority record'
+            return this.results?.subjectSources?.[subj] || ''
+        },
+
+        insertButtonLabel: function(subj) {
+            if (this.results?.subjectUncontrolledMap?.[subj]) return 'Insert Uncontrolled'
+            if (this.isNarSubject(subj)) return 'Insert NAR Subject'
+            if (this.isNonLcSubject(subj)) return 'Insert non-LC'
+            return 'Insert'
+        },
+
+        insertButtonClass: function(subj) {
+            if (this.results?.subjectUncontrolledMap?.[subj]) return 'yoshino-insert-btn yoshino-insert-btn-uncontrolled'
+            if (this.isNarSubject(subj)) return 'yoshino-insert-btn yoshino-insert-btn-nar'
+            if (this.isNonLcSubject(subj)) return 'yoshino-insert-btn yoshino-insert-btn-uncontrolled'
+            return 'yoshino-insert-btn'
         },
 
         classificationLabel(type) {

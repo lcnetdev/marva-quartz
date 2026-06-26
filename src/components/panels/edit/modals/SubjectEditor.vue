@@ -2073,6 +2073,20 @@ export default {
       }
 
       if (this.pickLookup[this.pickPostion].complex) {
+        let searchString = this.subjectString
+        let verified = []
+        for (let idx in this.components){
+          let comp = this.components[idx]
+          if (comp.uri){
+            searchString = searchString.replace("--" + comp.label, '')
+            verified.push(idx)
+          }
+        }
+        // if everything is verified,
+        if (verified.length == this.components.length){
+          verified = []
+        }
+
         // if it is a complex authorized heading then just replace the whole things with it, sometimes
         let splitString = this.subjectString.split('--')
         let splitStringLower = this.subjectString.toLowerCase().split('--')
@@ -2090,7 +2104,7 @@ export default {
               return false
             } else {
               for (let idx in set1) {
-                if (set2[idx].includes(set1[idx])) {
+                if (set2[idx].replace('‑', '-').includes(set1[idx])) {
                   matches.push(true)
                 } else {
                   matches.push(false)
@@ -2102,17 +2116,32 @@ export default {
 
           }
 
-          // Figure out how the select term fits into the existing term.
+          // Figure out how the select term fits into the verified term.
           if (splitStringLower.length != incomingPieces.length) {
-            for (let termIdx in incomingPieces) {
-
-              //check if the next piece is in the incoming
-              if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos + 1])) {
-                replacePos.push(this.searchStringPos + 1)
+            // if the incoming is bigger replace everything
+            if (splitStringLower.length < incomingPieces.length){
+              replacePos = []
+            } else if (verified.length > 0 && !looksLikeMatch(splitStringLower, incomingPieces)){
+              replacePos = []
+              // don't replace the parts that are
+              for (let idx in this.components){
+                let comp = this.components[idx]
+                if (!comp.uri){
+                  replacePos.push(Number(idx))
+                }
               }
-              //check if the prev piece is in the incoming
-              else if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos - 1])) {
-                replacePos.unshift(this.searchStringPos - 1)
+            } else {
+              for (let termIdx in incomingPieces) {
+                // World War, 1939-1945--Jews--Rescue--Moldova
+
+                //check if the next piece is in the incoming
+                if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos + 1])) {
+                  replacePos.push(this.searchStringPos + 1)
+                }
+                //check if the prev piece is in the incoming
+                else if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos - 1])) {
+                  replacePos.unshift(this.searchStringPos - 1)
+                }
               }
             }
           } else if (splitStringLower.length == incomingPieces.length) {
@@ -2121,14 +2150,45 @@ export default {
               replacePos.push(splitStringLower.length - 1)
             } else if (looksLikeMatch(splitStringLower, incomingPieces)) {
               replacePos = []
+            } else if (looksLikeMatch(splitStringLower, incomingPieces) && verified.length > 0){
+              replacePos = []
+              for (let idx in this.components){
+                let comp = this.components[idx]
+                if (!comp.uri){
+                  replacePos.push(Number(idx))
+                }
+              }
             } else { // same length, first and last don't match, and the arrays don't last.
               //should something happen?
+              replacePos = []
             }
 
           } else {
             replacePos = []
           }
+        } else { // position 0
+          if (verified.length > 0){
+            replacePos = []
+            // don't replace the parts that are verified
+            for (let idx in this.components){
+              let comp = this.components[idx]
+              if (!comp.uri){
+                replacePos.push(Number(idx))
+              }
+              }
+          } else if (verified.length == 0 && this.components[0].uri){ //first position is selected and verified
+            replacePos = [0]
+          } else {
+            let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
+            for (let idx in splitStringLower){
+              if (incomingPieces.includes(splitStringLower[idx])){
+                replacePos.push(idx)
+              }
+            }
+          }
         }
+
+
 
         if (splitStringLower.includes(this.pickLookup[this.pickPostion].label.replaceAll('-', '‑').toLowerCase())) {
           let idx = splitStringLower.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-', '‑').toLowerCase())
@@ -2573,7 +2633,13 @@ export default {
             // it is not empty
             // it dose not end with "-" so it the '--' typing doesn't trigger
             if (c.label.trim() != '' && !c.label.endsWith('-')) {
-              this.searchApis(c.label, event.target.value, this)
+              let searchString = event.target.value
+              for (let comp of this.components){
+                if (comp.uri){
+                  searchString = searchString.replace("--" + comp.label, '')
+                }
+              }
+              this.searchApis(c.label, searchString, this)
 
               // BUT if it ends with a number and - then it is a name with open life dates
               // so do look that one up

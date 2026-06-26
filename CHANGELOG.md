@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.6.3] - 2025-06-26
+### Added
+- Buttons for `Create NAR/Hub` when looking for a hub
+
+### Fixed
+- Sometimes after posting a record and then opening a unposted record, the `Post` button would be "green," this shouldn't happen anymore
+
 ## [1.6.2] - 2025-04-28
 ### Update
 - Copycat has a MARC comparison view. The comparison is shown after selecting a profile to load with and provides a chance for the cataloger to backout. Comparison can also be envoked from a "Compare" button if an existing record is found.

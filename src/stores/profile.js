@@ -3979,6 +3979,10 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     loadRecordFromBackend: async function(eid){
+      // loading a fresh record into the editor, clear the "posted" UI flag so the
+      // post button doesn't stay green from a previously posted record
+      this.activeProfilePosted = false
+      this.activeProfilePostedTimestamp = false
       this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
     },
 
