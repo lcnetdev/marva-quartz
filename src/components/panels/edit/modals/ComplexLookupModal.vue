@@ -126,6 +126,7 @@
         submitting: false,
         showMarcPreview: false,
         validationErrors: false,
+        MARClccn: false,
 
       }
     },
@@ -202,7 +203,6 @@
 
     methods: {
       showBCPButton: function(key, data){
-        console.info("data: ", data)
         let show = false
 
         for(let variant of data.variantLabels){
@@ -246,7 +246,6 @@
 
       updateIndicator: function(index){
         let target = this.marcData[index]
-        console.info("target: ", target)
         if (!target.pref){
           target.pref = true
         } else {
@@ -267,10 +266,12 @@
         this.resetBcp()
         console.info("data: ", data)
 
+        this.MARClccn = data.uri.split("/").at(-1)
+
         // Get MarcKey for 1XX
         let marcKey = data.extra.marcKeys[0]
         this.tag = marcKey.slice(0,3)
-        this.indicators = marcKey.slice(3,5) //TODO parse this from the marcXML
+        this.indicators = marcKey.slice(3,5)
 
         // get the MARCxml
         let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
@@ -315,28 +316,25 @@
 
             let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[varIdx]
 
-            console.info("\t name: ", targetNameXML.children[0].innerHTML)
-            console.info("\t : ", )
+            try {
+            let ind1 = targetNameXML.getAttribute('ind1')
+            let ind2 = targetNameXML.getAttribute('ind2')
+            localMarc.indicators = ind1 + ind2
+            } catch {}
 
             this.xmlTargets.push([targetTag, varIdx, targetNameXML.children[0].innerHTML])
             // for additions add a fake target with an varIdx that will match that update
 
-            let hasBcp = false
-            for (let child of targetNameXML.children){
-              if (child.getAttribute('code') == '7' && child.innerHTML.includes('bcp47')){
-                hasBcp = true
-                localMarc["hasBCP"] = true //child.innerHTML
-                console.info("\t\thasBCP")
-              }
-            }
-
             for (let sub of targetNameXML.children){
               let subfield = sub.getAttribute("code")
               let value = sub.innerHTML
+              // localMarc.indicators = sub
+
               if (subfield != '7'){
                 localMarc["subfield_" + subfield] = value
               } else {
                 if (value == '(dpecou)Preferred variant'){
+                  localMarc["hasBCP"] = true
                   continue
                 }
                 if (localMarc["subfield_7"]){
@@ -345,8 +343,6 @@
                   localMarc["subfield_7"] = [value]
                 }
               }
-
-              console.info("\t\t\t ", subfield,": ", value)
             }
 
             localMarc.displayName = ''
@@ -375,20 +371,18 @@
         this.showEdit4xxPanel = false
       },
       hidePreview: function(){
+        delete this.marcData['refEval']
         this.showMarcPreview = false
       },
 
       checkPrefLabels: function(){
         // check that everthing with a pref=true has a BCP code & that two names
         // with the same BCP code aren't preferred
-        console.info("CHECKING")
-        console.info(this.marcData)
         let pref47 = {}
         let checks = []
 
         for (let key of Object.keys(this.marcData)){
           let value = this.marcData[key]
-          console.info("\t", key,": ", value)
           if (value.pref){
             if (!Object.keys(value).includes("subfield_7") || value["subfield_7"].length == 0){
               checks.push("A name has been marked as preferred, without having a BCP code added to it. Name: " + value.displayName)
@@ -408,6 +402,11 @@
 
       submitEdit: async function(){
         console.info("Submitting")
+        return
+
+        this.postStatus='posting'
+        let results = await this.profileStore.postNacoStub(this.finalMarc, this.MARClccn)
+        this.postStatus='posted'
       },
 
       previewMarc: async function(){
@@ -432,15 +431,11 @@
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
 
-        console.info("this.updatedRecord: ", this.updatedRecord )
-        console.info("parsedRecord: ", parsedRecord)
-
         let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord)
 
         // validate the update
         this.validating = true
         this.validationResult = await utilsNetwork.validateNar(xmlUpdated)
-        console.info("this.validationResult: ", this.validationResult)
         if (prefChecks.length > 0 ){
           for (let mess of prefChecks){
             this.validationResult.validation.push({
@@ -457,16 +452,13 @@
           // return
         }
 
-        let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, targets, updates)
-        this.diffRecord = comparison
+        // let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, targets, updates)
+        // this.diffRecord = comparison
 
 
         let marcString = xmlUpdated.replace(/ xmlns:.*=".*"/g, "")
-        console.info("marcString: ", marcString)
-
         this.finalMarc = marcString
         this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
-        console.info("formatted: ", this.formattedMarc)
 
         this.submitting = false
       },
@@ -489,12 +481,9 @@
           this.marcData[this.activeIndex].bcpSelection.push(idx)
           this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName + "$7(bcp47)" + this.bcpCodes[idx].bcp47code
         }
-
-        console.info("displayName: ", this.marcData[this.activeIndex].displayName)
       },
 
       buildNewMarcKey: function(){
-        console.info("BUILD: ", this.marcData[this.activeIndex])
         // reset to make deletions easier to handle
         this.marcData[this.activeIndex] = {
           'tag': this.tag,
@@ -504,6 +493,7 @@
           'displayName': this.marcData[this.activeIndex].displayName,
           'hasBCP': this.marcData[this.activeIndex].hasBCP,
           'pref': this.marcData[this.activeIndex].pref,
+          'newRow': this.marcData[this.activeIndex].newRow,
         }
 
 
@@ -521,7 +511,6 @@
         }
 
         for (let sub of subfields){
-          console.info("sub: ", sub)
           let field = sub.slice(1,2)
           let value = sub.slice(2)
           if (field != '7'){
@@ -548,8 +537,6 @@
 
         this.marcData[this.activeIndex]['displayName'] = key
         // this.marcData[this.activeIndex]['marcKey'] = marcKey + key
-
-        console.info("this.marcData: ", this.marcData)
       },
 
       addBcpRow: function(){
@@ -563,6 +550,9 @@
           newIdx = "##" + (Number(temp) + 1)
         }
         console.info("newIdx: ", newIdx)
+        console.info("\t lastItem: ", lastItem)
+        console.info("\t Data: ", this.marcData)
+
         this.marcData[newIdx] = {
           'tag': this.tag,
           'indicators': this.indicators,
@@ -580,6 +570,7 @@
           let temp = idx.replace("##", "")
           newIdx = "##" + (Number(temp) + 1)
         }
+        console.info("dupe newIdx: ", newIdx)
 
         this.marcData[newIdx] = JSON.parse(JSON.stringify(this.marcData[idx]))
         this.marcData[newIdx].newRow = true
@@ -595,6 +586,15 @@
       removeBcpRow: function(row){
         this.activeIndex = Object.keys(this.marcData).at(0)
         delete this.marcData[row]
+        let idx = false
+        for (let i in this.xmlTargets){
+          let t = this.xmlTargets[i]
+          if (t[1] == row){
+            idx = i
+          }
+        }
+        this.xmlTargets.splice(idx, 1)
+
       },
 
       fetchAuthXML: async function(lccn){
@@ -603,7 +603,6 @@
       },
 
       handleInput: function(event){
-        console.info("handleInput: ", event.target.value)
         this.marcData[this.activeIndex].displayName = event.target.value
         this.buildNewMarcKey()
       },

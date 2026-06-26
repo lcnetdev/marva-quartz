@@ -6755,7 +6755,7 @@ export const useProfileStore = defineStore('profile', {
       return NARData
     },
 
-    async postNacoStub(xml,lccn){
+    async postNacoStub(xml,lccn, update=false){
 
       let pubResuts
 
@@ -6770,7 +6770,9 @@ export const useProfileStore = defineStore('profile', {
       console.log('pubResuts')
       console.log(pubResuts)
 
-      if (pubResuts && pubResuts.status === 'published'){
+      if (update && ['published', true].includes(pubResuts && pubResuts.status)){
+        this.logEvent('UPDATED_NAR', { metadata: [lccn] })
+      } else if (pubResuts && pubResuts.status === 'published'){
         this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
       }else if (pubResuts && pubResuts.status === true){
         this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
@@ -8766,8 +8768,7 @@ export const useProfileStore = defineStore('profile', {
       return pp
     },
 
-    compareAuthRecords: function(oldRec, newRec, targets, updates){ // TODO: adjust for targetS
-      console.info("comparison: ", updates)
+    compareAuthRecords: function(oldRec, newRec, targets, updates){
       let hasDeletions = false
       for (let idx in updates){
         let update = updates[idx]
@@ -8850,12 +8851,10 @@ export const useProfileStore = defineStore('profile', {
       record = record.cloneNode(true)
 
       if (updates.refEval){
-        console.info("UPDATE 008")
         let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
         let currentValue = zeroZeroEight.innerHTML
         let updatedValue = this.setCharAt(currentValue, 29, 'a')
         zeroZeroEight.innerHTML = updatedValue
-        console.info("008>>>", zeroZeroEight)
 
         // Get the 667s, remove "...not evaluated..."
         let marc667List = record.querySelectorAll('[tag="667"]')
@@ -8874,22 +8873,14 @@ export const useProfileStore = defineStore('profile', {
         let nextBlock = record.children[index + 1]
 
         if (!targetNameXML){
-          console.info("updates: ", updates)
-          console.info("Object.keys(updates): ", Object.keys(updates))
           targetNameXML = {'children': []}
           for (let idx of Object.keys(updates)){
-            console.info("idx: ", idx)
             if (idx.startsWith("##")){ break }
             targetNameXML = record.querySelectorAll('[tag="' + target[0] +'"]')[idx]
             index = [].indexOf.call(record.children, targetNameXML)
             nextBlock = record.children[index + 1]
           }
         }
-
-        console.info("record: ", record)
-        console.info("blocks: ", record.querySelectorAll('[tag="' + target[0] +'"]'))
-        console.info("target: ", target)
-        console.info("targetNameXML: ", targetNameXML)
 
         // Get the existing subfields
         let existingCodes = {}
@@ -8906,16 +8897,10 @@ export const useProfileStore = defineStore('profile', {
         // for additions add a fake target with an idx that will match that update
         let idx = target[1]
         let update = updates[idx]
-
-          console.info("\t\tidx: ", idx)
-          console.info("\t\t\tupdate: ", update)
           if (Object.keys(update).includes('delete') && update.delete){
-            console.info("delete: ", targetNameXML)
             record.removeChild(targetNameXML)
           } else {
             let indicators = update.indicators.split("")
-            console.info("\t\t", indicators)
-
             if (!String(target[1]).startsWith("##")){
               targetNameXML.setAttribute("ind1", indicators[0])
               targetNameXML.setAttribute("ind2", indicators[1])
@@ -8935,14 +8920,10 @@ export const useProfileStore = defineStore('profile', {
                 delete existingCodes['7']
               }
 
-              console.info("deleteCodes: ", deleteCodes)
-
               for (let key of Object.keys(update)){
                 if (key.includes('subfield_')){
                   let subfield = key.split("_")[1]
                   let value = update[key]
-
-                  console.info("existingCodes: ", existingCodes)
 
                   // if we're looking at the first update
                   let targets = existingCodes[subfield]
@@ -8950,13 +8931,9 @@ export const useProfileStore = defineStore('profile', {
                   if (targets){                // if the subfield is existing update it
                     for (let target of targets){
                       target.innerHTML = value
-                      console.info("\t\tsetting Value: ", value)
                       for (let code of deleteCodes){
                         if (code){
                           for (let element of existingCodes[code]){
-                            console.info("\t\tDeleting: ", code)
-                            console.info("\t\t element: ", element)
-                            console.info("\t\t targetNameXML: ", targetNameXML)
                             if (targetNameXML.contains(element)){
                               targetNameXML.removeChild(element)
                             }
@@ -8972,7 +8949,6 @@ export const useProfileStore = defineStore('profile', {
                       // targetNameXML.appendChild(newSubField)
                       this.indentedAppend(targetNameXML, newSubField)
                     } else {
-                      console.info("working on BCPs")
                       for (let bcp of value){
                         let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                         newSubField.setAttribute("code", subfield)
@@ -8986,17 +8962,11 @@ export const useProfileStore = defineStore('profile', {
                 }
               }
             } else { // it's a new field for the top element
-              console.info("else")
               let newField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
               newField.setAttribute('tag', update.tag)
               newField.setAttribute('ind1', indicators[0])
               newField.setAttribute('ind2', indicators[1])
-
               this.indentedAppend(record, newField, false, nextBlock)
-
-              console.info("::::::nextBlock: ", nextBlock)
-              console.info("newField: ", newField)
-              console.info("record: ", record)
 
               for (let [idx, key] of Object.keys(update).entries()){
                 if (key.includes('subfield_')){
@@ -9022,7 +8992,6 @@ export const useProfileStore = defineStore('profile', {
                         newSubField.innerHTML = bcp.trim()
                         // targetNameXML.appendChild(newSubField)
                         if (i == value.length - 1){
-                          console.info(idx, ": ", update)
                           this.indentedAppend(newField, newSubField, false, 'last')
                         } else {
                           this.indentedAppend(newField, newSubField, false)
@@ -9064,10 +9033,6 @@ export const useProfileStore = defineStore('profile', {
             subfieldData.push(...[code, value])
           }
 
-          console.info("indicators: ")
-          console.info("\t 1: '", ind1, "'")
-          console.info("\t 2: '", ind2, "'")
-
           if (subfields.length == 0){
             record.fields.push([tag, field.innerHTML])
           } else {
@@ -9093,19 +9058,16 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (next && next != 'last') {
-        console.info("next: ", child, "--", parent)
           parent.insertBefore(document.createTextNode(""), next)
           parent.insertBefore(child, next)
           // child.appendChild(document.createTextNode("\n" + indent))
           child.after(document.createTextNode("\n" + indent.slice(0,-2)))
       } else {
         if(existing){
-          console.info("existing: ", child, "--", parent)
           parent.appendChild(document.createTextNode(indent))
           parent.appendChild(child)
           parent.appendChild(document.createTextNode("\n" + indent))
         } else {
-          console.info("new: ", child, "--", parent, "--", next)
           parent.appendChild(document.createTextNode("\n" + indent))
           parent.appendChild(child)
           if (next && next == 'last'){
