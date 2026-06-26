@@ -141,7 +141,7 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'isLatin', 'adjustAuthRecord', 'compareAuthRecords']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'isLatin', 'adjustAuthRecord', 'compareAuthRecords', 'postNacoStub']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -317,9 +317,10 @@
             let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[varIdx]
 
             try {
-            let ind1 = targetNameXML.getAttribute('ind1')
-            let ind2 = targetNameXML.getAttribute('ind2')
-            localMarc.indicators = ind1 + ind2
+              let ind1 = targetNameXML.getAttribute('ind1')
+              let ind2 = targetNameXML.getAttribute('ind2')
+              localMarc.indicators = ind1 + ind2
+              console.info("localMarc: ", localMarc)
             } catch {}
 
             this.xmlTargets.push([targetTag, varIdx, targetNameXML.children[0].innerHTML])
@@ -362,6 +363,7 @@
           }
         }
 
+        this.activeIndex = false
         // swap out left panel for form
         this.showEdit4xxPanel = true
 
@@ -402,11 +404,17 @@
 
       submitEdit: async function(){
         console.info("Submitting")
-        return
+        // console.info(this.finalMarc)
+        this.finalMarc = this.finalMarc.replace(/(?:\r\n|\r|\n)/g, '');
+        this.finalMarc = this.finalMarc.replace(/> *</g, '><');
 
+        this.finalMarc = this.finalMarc.replace('<marcxml:record>', '<marcxml:record xmlns:marcxml="http://www.loc.gov/MARC21/slim">');
+        // console.info(this.finalMarc)
         this.postStatus='posting'
-        let results = await this.profileStore.postNacoStub(this.finalMarc, this.MARClccn)
+        let results = await this.postNacoStub(this.finalMarc, this.MARClccn)
         this.postStatus='posted'
+
+        console.info("results: ", results)
       },
 
       previewMarc: async function(){
@@ -464,7 +472,7 @@
       },
 
       getBcpSuggestions: async function(){
-        // to do update this.associatedLang, using lib/ISO...
+        if (!this.activeIndex){ return }
         if (this.marcData[this.activeIndex]){
           this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
         }
@@ -1732,8 +1740,6 @@
                   <div class="new-value-container">
                     <!-- New Value(s):<br></br>
                     <div v-for="row in marcData" class="new-marc-data">{{ row }}</div> -->
-
-
                   </div>
 
                 <div class="button-container">
@@ -1743,23 +1749,6 @@
                   <button @click="previewMarc()">Preview</button>
                   <button @click="hideBCP()">Cancel</button>
                 </div>
-
-
-                <div class="record-comp">
-                  <div class="old-data">
-                    Original
-<pre v-for="data in diffRecord.old" class="record-data">
-  {{ data }}
-</pre>
-                  </div>
-                  <div class="new-data">
-                    Updated
-<pre v-for="data in diffRecord.new" class="record-data">
-  {{ data  }}
-</pre>
-                  </div>
-                </div>
-
               </div>
             </template>
 
@@ -2553,6 +2542,8 @@ span.indicators {
 .tag-ind {
   height: 20px;
   margin-top: 5px;
+  white-space: pre;
+  font-family: monospace;
 }
 
 input.prefCheck[type=checkbox]+label {

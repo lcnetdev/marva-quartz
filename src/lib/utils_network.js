@@ -3301,8 +3301,6 @@ const utilsNetwork = {
 
 
     let url = useConfigStore().returnUrls.publishNar
-    console.info("publish NAR: ", url)
-    return
 
     let uuid = translator.toUUID(translator.new())
 
