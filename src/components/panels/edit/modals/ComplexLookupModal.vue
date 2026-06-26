@@ -117,11 +117,11 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
-      ...mapWritableState(useProfileStore, ['lastComplexLookupString','showNacoStubCreateModal', 'activeNARStubComponent', 'activeProfile', 'setValueLiteral']),
+      ...mapWritableState(useProfileStore, ['lastComplexLookupString','showNacoStubCreateModal', 'activeNARStubComponent', 'activeProfile', 'setValueLiteral', 'activeHubStubData', 'activeHubStubComponent', 'showHubStubCreateModal']),
 
 
 
@@ -884,13 +884,44 @@
         }
       },
 
+      displayHubButton(){
+        if (this.modeSelect.includes('Hubs')){
+          return true
+        }
+
+        return false
+      },
+
       displayProvisonalNAR(){
-
-
         if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/names')>-1){
           return true
         }
+        if (this.modeSelect.includes('Hubs')){
+          return true
+        }
+
         return false
+      },
+
+
+      loadHubStubModal(){
+        // console.log(this.guid)
+        let info = this.returnLccInfo(this.guid)
+        console.log("info",info)
+        this.activeHubStubData = info
+        this.activeHubStubComponent = {
+          type: this.type,
+          guid: this.guid,
+          fieldGuid: this.fieldGuid,
+          structure: this.structure,
+          type: this.type,
+          propertyPath:this.propertyPath
+        }
+
+        this.$emit('hideComplexModal')
+
+        this.showHubStubCreateModal = true
+
       },
 
       loadNacoStubModal(){
@@ -1190,6 +1221,7 @@
 
               <!-- REMOVE v-if BEFORE PROD USAGE -->
               <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
+              <button @click="loadHubStubModal" style="float: right;" v-if="displayHubButton() == true">Create Hub</button>
 
               <hr style="margin-top: 5px;">
               <div>
