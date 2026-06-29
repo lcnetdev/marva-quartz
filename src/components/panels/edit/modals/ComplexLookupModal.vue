@@ -410,6 +410,8 @@
 
         this.finalMarc = this.finalMarc.replace('<marcxml:record>', '<marcxml:record xmlns:marcxml="http://www.loc.gov/MARC21/slim">');
         // console.info(this.finalMarc)
+
+        return
         this.postStatus='posting'
         let results = await this.postNacoStub(this.finalMarc, this.MARClccn)
         this.postStatus='posted'
@@ -454,6 +456,7 @@
         }
         this.validating = false
         this.validationErrors = false
+        console.info(">>>>>", this.validationResult)
         if (this.validationResult.validation.some(item => item.level == 'ERROR')){
           this.validationErrors = true
           this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
@@ -467,6 +470,8 @@
         let marcString = xmlUpdated.replace(/ xmlns:.*=".*"/g, "")
         this.finalMarc = marcString
         this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
+
+        console.info("####: ", this.marcData)
 
         this.submitting = false
       },
@@ -2461,7 +2466,7 @@ td {
   font-size: 1.3em;
 }
 .bcp-icon {
-  font-size: 14px;
+  font-size: 16px;
   height: 25px;
   width: 25px;
   margin-left: 5px;

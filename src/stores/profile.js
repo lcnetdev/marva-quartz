@@ -8871,7 +8871,10 @@ export const useProfileStore = defineStore('profile', {
         if (target667){ record.removeChild(target667) }
       }
 
+      let forDeletion = []
+
       for (let target of targets){
+        console.info("\ttarget: ", target)
         let targetNameXML = record.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
         let index = [].indexOf.call(record.children, targetNameXML)
         let nextBlock = record.children[index + 1]
@@ -8889,6 +8892,7 @@ export const useProfileStore = defineStore('profile', {
         // Get the existing subfields
         let existingCodes = {}
         // for (let child of targetNameXML.children){
+        console.info("\ttargetNameXML: ", targetNameXML)
         for (let child of targetNameXML.children){
           let code = child.getAttribute("code")
           if (existingCodes[code]){
@@ -8902,7 +8906,8 @@ export const useProfileStore = defineStore('profile', {
         let idx = target[1]
         let update = updates[idx]
           if (Object.keys(update).includes('delete') && update.delete){
-            record.removeChild(targetNameXML)
+            console.info("deleting: ", targetNameXML )
+            forDeletion.push(targetNameXML)
           } else {
             let indicators = update.indicators.split("")
             if (!String(target[1]).startsWith("##")){
@@ -9009,6 +9014,12 @@ export const useProfileStore = defineStore('profile', {
           }
         // }
       }
+
+      // make deletions
+      for (let del of forDeletion){
+        record.removeChild(del)
+      }
+
       let parsedRecord = this.parseMarcXml(record)
       return [record, parsedRecord]
     },
