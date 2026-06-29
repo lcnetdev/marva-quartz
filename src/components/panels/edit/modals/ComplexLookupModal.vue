@@ -282,7 +282,7 @@
         for (let lang of isoLangLib.iso639_1){
           let l = lang.name
           let code = lang.code
-          if (l.toLowerCase() == this.associatedLang.toLowerCase()){
+          if (this.associatedLang && l.toLowerCase() == this.associatedLang.toLowerCase()){
             this.associatedLang = code
           }
         }
@@ -297,7 +297,7 @@
           }
         }
 
-        if (this.associatedLang.length == 1){
+        if (this.associatedLang && this.associatedLang.length == 1){
           this.associatedLang = this.associatedLang[0].textContent.trim()
         }
         let variants = data.extra.variantLabels

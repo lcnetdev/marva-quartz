@@ -8854,6 +8854,7 @@ export const useProfileStore = defineStore('profile', {
       let record = marcXML.getElementsByTagName('marcxml:record')[0]
       record = record.cloneNode(true)
 
+      // update 008 and 667 if non-latin references have been evaluated
       if (updates.refEval){
         let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
         let currentValue = zeroZeroEight.innerHTML
@@ -8870,6 +8871,14 @@ export const useProfileStore = defineStore('profile', {
         }
         if (target667){ record.removeChild(target667) }
       }
+
+      // 040?
+      let marc040 = record.querySelectorAll('[tag="040"]')[0]
+      console.info("040: ", marc040)
+      let new040D = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+      new040D.setAttribute("code", 'd')
+      new040D.innerHTML = 'DLC-MRC'
+      marc040.appendChild(new040D)
 
       let forDeletion = []
 
