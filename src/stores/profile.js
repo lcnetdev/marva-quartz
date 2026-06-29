@@ -8811,8 +8811,8 @@ export const useProfileStore = defineStore('profile', {
         }
 
         // change to target name
-        diff.old.push(recordOldString)
-        diff.new.push(recordNewString)
+        // diff.old.push(recordOldString)
+        // diff.new.push(recordNewString)
         // diff = {
         //   'old': [recordOldString],
         //   'new': [recordNewString],
@@ -8831,10 +8831,10 @@ export const useProfileStore = defineStore('profile', {
         if (!childrenOriginal.includes(nc)){
           if (!diff.new.includes(nc)){
             diff.new.push(nc)
+            console.info("\tnew: ", nc)
           }
         }
       }
-
       return diff
     },
 

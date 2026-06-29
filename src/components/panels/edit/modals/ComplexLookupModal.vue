@@ -411,12 +411,18 @@
         this.finalMarc = this.finalMarc.replace('<marcxml:record>', '<marcxml:record xmlns:marcxml="http://www.loc.gov/MARC21/slim">');
         // console.info(this.finalMarc)
 
-        return
         this.postStatus='posting'
-        let results = await this.postNacoStub(this.finalMarc, this.MARClccn)
+        // let results = await this.postNacoStub(this.finalMarc, this.MARClccn)
+        // console.info("results: ", results)
         this.postStatus='posted'
 
-        console.info("results: ", results)
+        // Reset and redo search to refresh everything
+        this.showMarcPreview = false
+        this.showEdit4xxPanel = false
+        this.activeContext = null
+        this.activeComplexSearch = []
+        this.resetBcp()
+        this.doSearch()
       },
 
       previewMarc: async function(){
@@ -465,13 +471,11 @@
 
         // let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, targets, updates)
         // this.diffRecord = comparison
-
+        // console.info("diff: ", comparison)
 
         let marcString = xmlUpdated.replace(/ xmlns:.*=".*"/g, "")
         this.finalMarc = marcString
         this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
-
-        console.info("####: ", this.marcData)
 
         this.submitting = false
       },
