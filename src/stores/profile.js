@@ -8865,7 +8865,9 @@ export const useProfileStore = defineStore('profile', {
         let marc667List = record.querySelectorAll('[tag="667"]')
         let target667 = false
         for (let sixSixSeven of marc667List){
-          if (sixSixSeven.innerHTML.includes('Non-Latin script references not evaluated.')){
+          if (sixSixSeven.innerHTML.toLowerCase().includes('non-latin script references not evaluated')){
+            target667 = sixSixSeven
+          } else if (sixSixSeven.innerHTML.toLowerCase().includes('non-latin script reference not evaluated')){
             target667 = sixSixSeven
           }
         }
