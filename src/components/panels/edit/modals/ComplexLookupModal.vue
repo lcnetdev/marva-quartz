@@ -476,6 +476,7 @@
         let marcString = xmlUpdated.replace(/ xmlns:.*=".*"/g, "")
         this.finalMarc = marcString
         this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
+        console.info("formattedMarc: ", this.formattedMarc)
 
         this.submitting = false
       },
@@ -1514,6 +1515,13 @@
         }
         this.doSearch()
       },
+
+      openFolioRecord: function(){
+        let lccn = this.activeContext.uri.split("/").at(-1)
+        let url = `https://lcsg.catalog.lcap.loc.gov/marc-authorities/authorities/?authRefType=Authorized&query=${lccn}&segment=search`
+        window.open(url, '_blank');
+      },
+
     },
 
     updated: function(event){
@@ -1786,6 +1794,9 @@
                   <br><br>
                   <button @click="previewMarc()">Preview</button>
                   <button @click="hideBCP()">Cancel</button>
+
+                  <!-- open in FOLIO -->
+                  <button class="folio-button" @click="openFolioRecord()">FOLIO</button>
                 </div>
               </div>
             </template>
@@ -2607,6 +2618,9 @@ input.prefCheck[type=checkbox]:checked+label {
   height: 100vh;
 }
 
+.folio-button {
+  float: right;
+}
 
 
 </style>
