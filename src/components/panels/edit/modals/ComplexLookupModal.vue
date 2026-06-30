@@ -949,19 +949,12 @@
 
 
       inputKeydown: function(event){
-        if (event.key==='ArrowDown'){
+        if (event.key === 'ArrowDown'){
           this.$refs.selectOptions.focus()
           try {
             this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
           } catch {}
           this.selectChange()
-          return true
-        }
-
-        if (event.key === 'Tab'){
-          try {
-            this.activeIndex = Number(this.activeIndex) + 1
-          } catch {}
           return true
         }
 
@@ -1778,6 +1771,7 @@
                           @input="handleInput"
                           @click="activeIndex = index"
                           @keydown="inputKeydown($event)"
+                          @focus="this.activeIndex = index"
                           :class="{'active-bcp': this.activeIndex == index}"
                         />
 
