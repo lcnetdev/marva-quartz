@@ -499,7 +499,10 @@
         }
         let currentSelection = this.marcData[this.activeIndex].subfield_7
         let bcpList = currentSelection.map(i => i.replace('(bcp47)', ''))
-        if (this.marcData[this.activeIndex].bcpSelection == []){
+
+        console.info("this.marcData[this.activeIndex]: ", this.marcData[this.activeIndex])
+
+        if (this.marcData[this.activeIndex].bcpSelection.length == 0){
           for (let [idx, item] of Object.entries(this.bcpCodes)){
             let code = item.bcp47code
             if (bcpList.includes(code)){
@@ -1737,7 +1740,7 @@
                   <h2>MARC Preview</h2>
                   <div v-html="formattedMarc.result" class="marc-preview" v-if="!submitting"></div>
                   <div v-else>Loading...</div>
-                  <pre class="marc-backup-display" v-if="!formattedMarc">
+                  <pre class="marc-backup-display" v-if="!formattedMarc && typeof this.updatedRecord == 'string'">
                     {{ this.updatedRecord }}
                   </pre>
                 </div>

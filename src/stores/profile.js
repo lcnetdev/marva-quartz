@@ -8879,7 +8879,7 @@ export const useProfileStore = defineStore('profile', {
       console.info("040: ", marc040)
       let new040D = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
       new040D.setAttribute("code", 'd')
-      new040D.innerHTML = 'DLC-MRC'
+      new040D.innerHTML = 'DLC'
       marc040.appendChild(new040D)
 
       let forDeletion = []
