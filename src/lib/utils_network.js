@@ -4487,7 +4487,7 @@ const utilsNetwork = {
         return ""
       }
 
-      let url = useConfigStore().returnUrls.util + 'marcformat'
+      let url = useConfigStore().returnUrls.util + 'bad' //'marcformat'
 
       const rawResponse = await fetch(url, {
         method: 'POST',
@@ -4502,8 +4502,9 @@ const utilsNetwork = {
           targetType: tType,
         })
       });
-      const content = await rawResponse.json();
 
+      if (rawResponse.status == 404) { return false}
+      const content = await rawResponse.json();
       return content
     },
 

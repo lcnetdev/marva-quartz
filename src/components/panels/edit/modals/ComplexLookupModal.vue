@@ -478,6 +478,14 @@
         this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
         console.info("formattedMarc: ", this.formattedMarc)
 
+        if (!this.formattedMarc){
+          this.updatedRecord = parsedRecord.leader + "\n"
+          for (let field of parsedRecord.fields){
+            this.updatedRecord = this.updatedRecord + field.join(" ") + "\n"
+          }
+        }
+        console.info("updatedRecord: ", this.updatedRecord)
+
         this.submitting = false
       },
 
@@ -1719,6 +1727,9 @@
                   <h2>MARC Preview</h2>
                   <div v-html="formattedMarc.result" class="marc-preview" v-if="!submitting"></div>
                   <div v-else>Loading...</div>
+                  <pre class="marc-backup-display" v-if="!formattedMarc">
+                    {{ this.updatedRecord }}
+                  </pre>
                 </div>
 
                 <div class="button-container">
@@ -2620,6 +2631,10 @@ input.prefCheck[type=checkbox]:checked+label {
 
 .folio-button {
   float: right;
+}
+
+.marc-backup-display {
+  width: 50vw;
 }
 
 
