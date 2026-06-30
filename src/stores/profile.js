@@ -8874,9 +8874,8 @@ export const useProfileStore = defineStore('profile', {
         if (target667){ record.removeChild(target667) }
       }
 
-      // 040?
+      // 040
       let marc040 = record.querySelectorAll('[tag="040"]')[0]
-      console.info("040: ", marc040)
       let new040D = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
       new040D.setAttribute("code", 'd')
       new040D.innerHTML = 'DLC'

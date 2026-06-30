@@ -494,15 +494,13 @@
         if (this.marcData[this.activeIndex]){
           this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
         }
-        if (!this.marcData[this.activeIndex].bcpSelection){
+        if (this.marcData[this.activeIndex] && !this.marcData[this.activeIndex].bcpSelection){
           this.marcData[this.activeIndex].bcpSelection = []
         }
-        let currentSelection = this.marcData[this.activeIndex].subfield_7
-        let bcpList = currentSelection.map(i => i.replace('(bcp47)', ''))
-
-        console.info("this.marcData[this.activeIndex]: ", this.marcData[this.activeIndex])
 
         if (this.marcData[this.activeIndex].bcpSelection.length == 0){
+          let currentSelection = this.marcData[this.activeIndex].subfield_7
+          let bcpList = currentSelection ? currentSelection.map(i => i.replace('(bcp47)', '')) : []
           for (let [idx, item] of Object.entries(this.bcpCodes)){
             let code = item.bcp47code
             if (bcpList.includes(code)){
@@ -957,6 +955,13 @@
             this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
           } catch {}
           this.selectChange()
+          return true
+        }
+
+        if (event.key === 'Tab'){
+          try {
+            this.activeIndex = Number(this.activeIndex) + 1
+          } catch {}
           return true
         }
 
@@ -1772,6 +1777,7 @@
                           v-model="row.displayName"
                           @input="handleInput"
                           @click="activeIndex = index"
+                          @keydown="inputKeydown($event)"
                           :class="{'active-bcp': this.activeIndex == index}"
                         />
 
