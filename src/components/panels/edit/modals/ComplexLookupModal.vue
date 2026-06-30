@@ -497,6 +497,16 @@
         if (!this.marcData[this.activeIndex].bcpSelection){
           this.marcData[this.activeIndex].bcpSelection = []
         }
+        let currentSelection = this.marcData[this.activeIndex].subfield_7
+        let bcpList = currentSelection.map(i => i.replace('(bcp47)', ''))
+        if (this.marcData[this.activeIndex].bcpSelection == []){
+          for (let [idx, item] of Object.entries(this.bcpCodes)){
+            let code = item.bcp47code
+            if (bcpList.includes(code)){
+              this.marcData[this.activeIndex].bcpSelection.push(Number(idx))
+            }
+          }
+        }
       },
 
       addBcpCode: function(idx){
