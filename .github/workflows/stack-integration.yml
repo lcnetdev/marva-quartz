@@ -1,0 +1,54 @@
+name: Stack Integration Tests
+
+# Trigger the bluecore-stack integration test suite against THIS PR's branch and
+# wait for the result, so it shows up as a check on the PR. The bluecore-stack
+# workflow builds marva from "marva_ref" and runs the full suite.
+#
+# Auth is via an org GitHub App. Requires:
+#   - vars.STACK_DISPATCH_APP_ID             -> the App's App ID
+#   - secrets.STACK_DISPATCH_APP_PRIVATE_KEY -> the App's private key (.pem contents)
+# The App must be installed on blue-core-lod/bluecore-stack with
+# Actions: Read & write.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Cancel superseded runs when new commits are pushed to the same PR.
+concurrency:
+  group: stack-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stack-integration:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      # Mint a short-lived installation token scoped to bluecore-stack.
+      - name: Mint bluecore-stack token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.STACK_DISPATCH_APP_ID }}
+          private-key: ${{ secrets.STACK_DISPATCH_APP_PRIVATE_KEY }}
+          owner: blue-core-lod
+          repositories: bluecore-stack
+
+      # Dispatch the bluecore-stack integration workflow and wait for its result.
+      # Uses RUN_NAME for the remote run (passed via the "run_name"
+      # input, which bluecore-stack echoes into its top-level run-name:) so the
+      # action correlates THIS exact run by name.
+      - name: Trigger bluecore-stack integration tests and wait
+        uses: aurelien-baudet/workflow-dispatch@v4
+        env:
+          RUN_NAME: api-integration-${{ github.run_id }}-${{ github.run_attempt }}
+        with:
+          repo: blue-core-lod/bluecore-stack
+          workflow: bluecore-integration-test.yml
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
+          run-name: ${{ env.RUN_NAME }}
+          wait-for-completion: true
+          wait-for-completion-timeout: 45m
+          wait-for-completion-interval: 30s
+          display-workflow-run-url: true
+          inputs: '{ "marva_ref": "${{ github.head_ref }}", "run_name": "${{ env.RUN_NAME }}" }'
