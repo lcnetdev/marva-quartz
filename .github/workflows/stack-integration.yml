@@ -2,7 +2,7 @@ name: Stack Integration Tests
 
 # Trigger the bluecore-stack integration test suite against THIS PR's branch and
 # wait for the result, so it shows up as a check on the PR. The bluecore-stack
-# workflow builds marva from "marva_ref" and runs the full suite.
+# workflow builds marva (+ middleware) from "marva_ref" and runs the full suite.
 #
 # Auth is via an org GitHub App. Requires:
 #   - vars.STACK_DISPATCH_APP_ID             -> the App's App ID
@@ -33,22 +33,73 @@ jobs:
           owner: blue-core-lod
           repositories: bluecore-stack
 
-      # Dispatch the bluecore-stack integration workflow and wait for its result.
-      # Uses RUN_NAME for the remote run (passed via the "run_name"
-      # input, which bluecore-stack echoes into its top-level run-name:) so the
-      # action correlates THIS exact run by name.
-      - name: Trigger bluecore-stack integration tests and wait
+      # Dispatch the bluecore-stack integration workflow but DON'T wait here, so
+      # this step returns in seconds with the run's URL/id. RUN_NAME is echoed by
+      # bluecore-stack into its top-level run-name:, letting the action correlate
+      # THIS exact run by name.
+      - name: Trigger bluecore-stack integration tests
+        id: dispatch
         uses: aurelien-baudet/workflow-dispatch@v4
         env:
-          RUN_NAME: api-integration-${{ github.run_id }}-${{ github.run_attempt }}
+          RUN_NAME: marva-integration-${{ github.run_id }}-${{ github.run_attempt }}
         with:
           repo: blue-core-lod/bluecore-stack
           workflow: bluecore-integration-test.yml
           ref: main
           token: ${{ steps.app-token.outputs.token }}
           run-name: ${{ env.RUN_NAME }}
-          wait-for-completion: true
-          wait-for-completion-timeout: 45m
-          wait-for-completion-interval: 30s
+          wait-for-completion: false
           display-workflow-run-url: true
+          display-workflow-run-url-interval: 15s
+          display-workflow-run-url-timeout: 5m
           inputs: '{ "marva_ref": "${{ github.head_ref }}", "run_name": "${{ env.RUN_NAME }}" }'
+
+      # Surface the link as soon as the run is identified in the job summary and
+      # as a top-of-run notice annotation.
+      - name: Link to bluecore-stack run
+        if: ${{ steps.dispatch.outputs.workflow-url }}
+        env:
+          RUN_URL: ${{ steps.dispatch.outputs.workflow-url }}
+        shell: bash
+        run: |
+          {
+            echo "### bluecore-stack integration run"
+            echo ""
+            echo "Following: ${RUN_URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=bluecore-stack integration run::${RUN_URL}"
+
+      # Now block on that exact run id until it finishes, mirroring its result.
+      - name: Wait for bluecore-stack run to complete
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO: blue-core-lod/bluecore-stack
+          RUN_URL: ${{ steps.dispatch.outputs.workflow-url }}
+          POLL_INTERVAL: 30      # seconds between status checks
+          MAX_POLLS: 90          # 90 * 30s = 45m
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The action sets workflow-url but not reliably workflow-id when not
+          # waiting, so derive the run id from the URL's last path segment.
+          RUN_ID="${RUN_URL##*/}"
+          if [ -z "${RUN_URL}" ] || ! [[ "${RUN_ID}" =~ ^[0-9]+$ ]]; then
+            echo "::error::Could not derive a bluecore-stack run id from '${RUN_URL}'"
+            exit 1
+          fi
+          for i in $(seq 1 "$MAX_POLLS"); do
+            read -r status conclusion < <(gh run view "$RUN_ID" --repo "$REPO" \
+              --json status,conclusion --jq '"\(.status) \(.conclusion)"')
+            echo "[$i/$MAX_POLLS] status=$status conclusion=$conclusion"
+            if [ "$status" = "completed" ]; then
+              if [ "$conclusion" = "success" ]; then
+                echo "Integration tests passed: ${RUN_URL}"
+                exit 0
+              fi
+              echo "::error::Integration tests concluded '$conclusion': ${RUN_URL}"
+              exit 1
+            fi
+            sleep "$POLL_INTERVAL"
+          done
+          echo "::error::Timed out after $((MAX_POLLS * POLL_INTERVAL))s waiting for ${RUN_URL}"
+          exit 1
