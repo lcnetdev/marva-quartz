@@ -263,6 +263,8 @@
 
       // initial 4XX
       edit4XX: async function(data){
+        //TODO: read existing 008/29 and set refEval based on that
+
         this.resetBcp()
         console.info("data: ", data)
 
@@ -305,7 +307,12 @@
 
         this.tag = targetTag
 
+        // TODO: look at hte 008/29 of the existing MARC and flip refEval if needed
+        let zero08 = this.xmlDoc.querySelectorAll('[tag="008"]')[0]
+
+
         for (let varIdx in variants){
+          console.info("idx: ", varIdx)
           let variant = variants[varIdx]
           if (!this.isLatin(variant)){
             let localMarc = {}
@@ -323,6 +330,7 @@
               console.info("localMarc: ", localMarc)
             } catch {}
 
+            console.info("\tadd target: ", [targetTag, varIdx, targetNameXML.children[0].innerHTML])
             this.xmlTargets.push([targetTag, varIdx, targetNameXML.children[0].innerHTML])
             // for additions add a fake target with an varIdx that will match that update
 
@@ -375,6 +383,7 @@
       hidePreview: function(){
         delete this.marcData['refEval']
         this.showMarcPreview = false
+
       },
 
       checkPrefLabels: function(){
@@ -438,10 +447,17 @@
         // add a target for any additions
         for (let idx in updates){
           if (idx.startsWith("##")){
-            this.xmlTargets.push([this.tag, idx, updates[idx]['subfield_a']])
+            let t = [this.tag, idx, updates[idx]['subfield_a']]
+            if (!JSON.stringify(this.xmlTargets).includes(JSON.stringify(t))){
+              console.info("adding target: ", t)
+              this.xmlTargets.push(t)
+            } else {
+              console.info("duplicate target")
+            }
           }
         }
         let targets = this.xmlTargets
+        console.info("targets: ", targets)
 
         let results = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
@@ -630,8 +646,9 @@
             idx = i
           }
         }
-        this.xmlTargets.splice(idx, 1)
-
+        if (idx){
+          this.xmlTargets.splice(idx, 1)
+        }
       },
 
       fetchAuthXML: async function(lccn){
