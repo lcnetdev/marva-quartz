@@ -307,9 +307,11 @@
 
         this.tag = targetTag
 
-        // TODO: look at hte 008/29 of the existing MARC and flip refEval if needed
         let zero08 = this.xmlDoc.querySelectorAll('[tag="008"]')[0]
-
+        let pos29 = zero08.innerHTML.charAt(29)
+        if (pos29 == 'a'){
+          this.refEval = true
+        }
 
         for (let varIdx in variants){
           console.info("idx: ", varIdx)
@@ -1924,7 +1926,6 @@
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:
 
                             <button v-if="showBCPButton(key, activeContext.extra)" class="material-icons variant-edit" @click="edit4XX(activeContext)">edit</button>
-                            <!-- TODO: make this stricter. should also check that  the are non-Latin forms -->
 
                           </div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
@@ -2656,7 +2657,7 @@ input.prefCheck[type=checkbox]:checked+label {
 }
 
 .authority-edit {
-  height: 100vh;
+  height: 95vh;
 }
 
 .folio-button {

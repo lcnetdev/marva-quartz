@@ -8862,16 +8862,15 @@ export const useProfileStore = defineStore('profile', {
         zeroZeroEight.innerHTML = updatedValue
 
         // Get the 667s, remove "...not evaluated..."
+        // remove
         let marc667List = record.querySelectorAll('[tag="667"]')
-        let target667 = false
+        let target667s = []
         for (let sixSixSeven of marc667List){
-          if (sixSixSeven.innerHTML.toLowerCase().includes('non-latin script references not evaluated')){
-            target667 = sixSixSeven
-          } else if (sixSixSeven.innerHTML.toLowerCase().includes('non-latin script reference not evaluated')){
-            target667 = sixSixSeven
+          if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)){
+            target667s.push(sixSixSeven)
           }
         }
-        if (target667){ record.removeChild(target667) }
+        target667s.map(item => record.removeChild(item))
       }
 
       // 040
@@ -8883,6 +8882,8 @@ export const useProfileStore = defineStore('profile', {
 
       let forDeletion = []
 
+      let langEval = []
+      let langUneval = []
       for (let target of targets){
         console.info("\ttarget: ", target)
         let targetNameXML = record.querySelectorAll('[tag="' + target[0] +'"]')[target[1]]
@@ -8901,8 +8902,8 @@ export const useProfileStore = defineStore('profile', {
 
         // Get the existing subfields
         let existingCodes = {}
-        // for (let child of targetNameXML.children){
-        console.info("\ttargetNameXML: ", targetNameXML)
+        let evaluated = false
+        console.info("\t\ttargetNameXML: ", targetNameXML)
         for (let child of targetNameXML.children){
           let code = child.getAttribute("code")
           if (existingCodes[code]){
@@ -8915,6 +8916,16 @@ export const useProfileStore = defineStore('profile', {
         // for additions add a fake target with an idx that will match that update
         let idx = target[1]
         let update = updates[idx]
+
+        console.info("update: ", update)
+        if (update['subfield_7']){
+          evaluated = true
+          langEval.push(...update['subfield_7'])
+        } else {
+          langUneval.push(update['subfield_a'])
+        }
+
+
           if (Object.keys(update).includes('delete') && update.delete){
             console.info("deleting: ", targetNameXML )
             forDeletion.push(targetNameXML)
@@ -9029,6 +9040,9 @@ export const useProfileStore = defineStore('profile', {
       for (let del of forDeletion){
         record.removeChild(del)
       }
+
+      console.info("langEval: ", langEval)
+      console.info("langUneval: ", langUneval)
 
       let parsedRecord = this.parseMarcXml(record)
       return [record, parsedRecord]
