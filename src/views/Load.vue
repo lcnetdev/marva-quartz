@@ -489,6 +489,10 @@ export default {
       for (let k in this.startingPoints) {
         if (this.startingPoints[k].work && this.startingPoints[k].instance) {
           points.push(this.startingPoints[k])
+        } else if (this.startingPoints[k].name == 'Related WorkExpression'){
+          this.startingPoints[k].instance = this.startingPoints[k].work
+          console.info("this.startingPoints[k]: ", this.startingPoints[k])
+          points.push(this.startingPoints[k])
         }
       }
 
@@ -825,6 +829,7 @@ export default {
     },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
+      console.info("useInstanceProfile: ", useInstanceProfile)
       console.log("useInstanceProfile", useInstanceProfile)
       let useLoadUrl = ''
       let marva001 = null
@@ -994,6 +999,8 @@ export default {
 
         useProfile.newResource = true
         this.activeProfile = useProfile
+
+        console.info("active: ", this.activeProfile)
 
         // prime this for ad hoc mode
         for (let rt in this.activeProfile.rt) {
@@ -1372,6 +1379,8 @@ export default {
           }
         }
       }
+
+      console.info("active: ", this.activeProfile)
 
       this.loadingRecord = false
       if (multiTestFlag) {

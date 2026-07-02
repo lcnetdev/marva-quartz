@@ -672,7 +672,9 @@ export const useProfileStore = defineStore('profile', {
       let profileData;
       try{
         let response = await fetch(profilesURL);
+        console.info("response: ", response)
         profileData =  await response.json()
+        console.info("profileData: ", profileData)
       }catch(err){
         console.log("Error Downloading profiles from:", config.returnUrls.profiles)
 
@@ -948,7 +950,7 @@ export const useProfileStore = defineStore('profile', {
 
       // -------- end HACKKCKCKCKCK
       profileData.forEach((p)=>{
-
+        console.info("p: ", p.name, "--", p)
 
           // build the first level profiles
           if (p.json && p.json.Profile){
@@ -964,10 +966,13 @@ export const useProfileStore = defineStore('profile', {
               if (p.json.Profile.resourceTemplates){
 
                   p.json.Profile.resourceTemplates.forEach((rt)=>{
+                    // console.info("\t rt: ", rt)
+
                       this.profiles[p.json.Profile.id].rtOrder.push(rt.id)
                       this.profiles[p.json.Profile.id].rt[rt.id] = {ptOrder:[],pt:{}}
                       if (rt.propertyTemplates){
                           rt.propertyTemplates.forEach((pt)=>{
+                            // console.info("\t\t pt: ", pt)
                               pt.parent = p.json.Profile.id + rt.id + p.id
                               pt.parentId = rt.id
                               pt.userValue =  {'@root':pt.propertyURI}
@@ -3564,6 +3569,7 @@ export const useProfileStore = defineStore('profile', {
       // try to extract lccn and instanceId from the record XML if available
       if (!lccn || !instanceId){
         try {
+            console.info("buildXML: ", this.activeProfile)
           let xml = await utilsExport.buildXML(this.activeProfile)
           if (xml && xml.xlmStringBasic){
             let parser = new DOMParser()
