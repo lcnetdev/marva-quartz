@@ -83,7 +83,6 @@ export const usePreferenceStore = defineStore('preference', {
       opac: true,
       xml:false,
       marc: false,
-      linkedData: false,
 
 
     },
@@ -1901,8 +1900,7 @@ export const usePreferenceStore = defineStore('preference', {
                             "dualEdit": true,
                             "opac": false,
                             "xml": false,
-                            "marc": true,
-                            "linkedData": false
+                            "marc": true
                         },
                         "percents": {
                             "edit-main-splitpane-opac": null,
@@ -1924,8 +1922,7 @@ export const usePreferenceStore = defineStore('preference', {
                             "dualEdit": true,
                             "opac": false,
                             "xml": true,
-                            "marc": true,
-                            "linkedData": false
+                            "marc": true
                         },
                         "percents": {
                             "edit-main-splitpane-opac": null,

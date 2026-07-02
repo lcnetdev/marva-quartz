@@ -50,7 +50,6 @@
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 import { useConfigStore } from '@/stores/config'
-import { useMarvaScanStore } from '@/stores/marvaScan'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 import VueFileToolbarMenu from 'vue-file-toolbar-menu'
@@ -104,13 +103,13 @@ export default {
   },
   computed: {
 
-    ...mapStores(useProfileStore, usePreferenceStore, useMarvaScanStore),
+    ...mapStores(useProfileStore, usePreferenceStore),
 
     ...mapState(useProfileStore, ['profilesLoaded', 'activeProfile', 'rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
     ...mapState(useConfigStore, ['layouts']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal', 'showFindReplaceModal']),
-    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal']),
+    ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal']),
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
 
 
@@ -130,32 +129,6 @@ export default {
     },
     panelTitleMARCEdit() {
       return (this.panelDisplay.marc) ? 'done' : ''
-    },
-    panelTitleLinkedData() {
-      return (this.panelDisplay.linkedData) ? 'done' : ''
-    },
-
-    yoshinoAllowed() {
-      return this.preferenceStore.featureFlags.includes('subject-suggest')
-    },
-
-    marvaScanAllowed() {
-      return this.preferenceStore.featureFlags.includes('marva-scan')
-    },
-
-    yoshinoHasSummary() {
-      if (!this.activeProfile || !this.activeProfile.rtOrder) return false
-      for (let rt of this.activeProfile.rtOrder) {
-        if (rt.indexOf(':Work') === -1) continue
-        for (let ptId of this.activeProfile.rt[rt].ptOrder) {
-          let pt = this.activeProfile.rt[rt].pt[ptId]
-          if (pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/summary' &&
-              pt.userValue?.['http://id.loc.gov/ontologies/bibframe/summary']?.[0]?.['http://www.w3.org/2000/01/rdf-schema#label']?.[0]?.['http://www.w3.org/2000/01/rdf-schema#label']) {
-            return true
-          }
-        }
-      }
-      return false
     },
 
     userName() {
@@ -413,22 +386,6 @@ export default {
                   this.showAutoDeweyModal = true
                 }, icon: "smart_toy"
               },
-              ...(this.yoshinoAllowed ? [{
-                text: "Subject Finder", click: () => {
-                  this.showYoshinoSubjectsModal = true
-                }, icon: "radar"
-              }] : [{
-                text: "Req Subject Finder Access", click: () => {
-                  window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
-                }, icon: "contact_support"
-              }]),
-
-              ...(this.marvaScanAllowed ? [{
-                text: "Marva Scan", click: () => {
-                  this.marvaScanStore.openModal()
-                }, icon: "qr_code_scanner"
-              }] : []),
-
               { is: 'separator' },
               {
                 text: "Non-Latin Literals",
@@ -509,9 +466,6 @@ export default {
 
               { text: 'Preview XML', click: () => this.preferenceStore.togglePanel('xml'), icon: this.panelTitleXMLEdit, class: "nav-view-xml" },
               { text: 'Preview MARC', click: () => this.preferenceStore.togglePanel('marc'), icon: this.panelTitleMARCEdit },
-              { text: 'Linked Data', click: () => this.preferenceStore.togglePanel('linkedData'), icon: this.panelTitleLinkedData },
-
-
 
               { is: 'separator' },
 

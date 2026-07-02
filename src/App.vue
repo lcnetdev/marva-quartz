@@ -23,8 +23,6 @@ import FolioSyncModal from "@/components/panels/nav/FolioSyncModal.vue";
 
 import ShelfListingModal from "@/components/panels/edit/modals/ShelfListing.vue";
 import AutoDeweyModal from "./components/panels/edit/modals/AutoDeweyModal.vue";
-import YoshinoSubjectsModal from "./components/panels/edit/modals/YoshinoSubjectsModal.vue";
-import MarvaScanModal from "./components/panels/edit/modals/MarvaScanModal.vue";
 import UpdateAvailableModal from "@/components/general/UpdateAvailableModal.vue";
 
 
@@ -32,7 +30,6 @@ import UpdateAvailableModal from "@/components/general/UpdateAvailableModal.vue"
 import { useConfigStore } from '@/stores/config'
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
-import { useMarvaScanStore } from '@/stores/marvaScan'
 
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
@@ -51,8 +48,6 @@ export default {
     DiacriticsConfigModal,
     UpdateAvailableModal,
     AutoDeweyModal,
-    YoshinoSubjectsModal,
-    MarvaScanModal,
     TextMacroModal,
     NonLatinBulkModal,
     NonLatinAgentModal,
@@ -73,11 +68,10 @@ export default {
     // other computed properties
     // ...
     // gives access to this.counterStore and this.userStore
-    ...mapStores(useConfigStore, useProfileStore, usePreferenceStore, useMarvaScanStore),
+    ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection', 'isTestEnv']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal', 'showFolioSyncModal']),
-    ...mapWritableState(useMarvaScanStore, { showMarvaScanModal: 'showModal' }),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal', 'showMarvaLogModal', 'showUserDirectoryModal', 'showFolioSyncModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode','ssoSessionExpired']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showLoginModalSSO','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
@@ -228,14 +222,6 @@ export default {
 
   <template v-if="showAutoDeweyModal==true">
     <AutoDeweyModal v-model="showAutoDeweyModal"  />
-  </template>
-
-  <template v-if="showYoshinoSubjectsModal==true">
-    <YoshinoSubjectsModal v-model="showYoshinoSubjectsModal"  />
-  </template>
-
-  <template v-if="showMarvaScanModal==true">
-    <MarvaScanModal v-model="showMarvaScanModal" />
   </template>
 
   <template v-if="showMarvaLogModal==true">

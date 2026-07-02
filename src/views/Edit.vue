@@ -68,14 +68,6 @@
           <Marc/>
 
         </pane>
-        <pane v-if="panelDisplay.linkedData"
-          :class="{'edit-main-splitpane-marc': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar'), 'edit-layout-linked-data':  createLayoutMode}"
-          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
-        >
-          <LinkedData/>
-
-        </pane>
-
 
 
       </splitpanes>
@@ -119,13 +111,12 @@
   import Xml from "@/components/panels/sidebar_preview_xml/Xml.vue";
   import Marc from "@/components/panels/sidebar_preview_marc/Marc.vue";
 
-   import LinkedData from "@/components/panels/sidebar_linked_data/LinkedData.vue";
   import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
 
 
   export default {
-    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang, LinkedData },
+    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang },
 
 
     data() {
@@ -289,16 +280,12 @@
 
         const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
         if (answer) {
-          this.profileStore.yoshinoResults = null
-          this.profileStore.yoshinoInsertedSubjects = []
           next()
         } else {
           next(false)
         }
 
       }else{
-        this.profileStore.yoshinoResults = null
-        this.profileStore.yoshinoInsertedSubjects = []
         next()
       }
 
