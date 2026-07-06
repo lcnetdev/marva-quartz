@@ -476,9 +476,12 @@ const utilsProfile = {
 
     let useProfile = null
 
-
+    console.info("profiles: ", useProfileStore().profiles)
+    console.info("\t>>>>: ", useProfileStore().profiles[meta.profile])
     if (useProfileStore().profiles[meta.profile]){
+      console.info("setting userProfile")
       useProfile = JSON.parse(JSON.stringify(useProfileStore().profiles[meta.profile]))
+      console.info("useProfile: ", useProfile)
     }else{
       alert('Cannot find that profile:',meta.profile)
     }
@@ -531,10 +534,12 @@ const utilsProfile = {
     useProfile.user = meta.user
     useProfile.status = meta.status
 
-
+    console.info("useProfile: ", JSON.parse(JSON.stringify(useProfile)))
     let transformResults  = await utilsParse.transformRts(useProfile)
 
     transformResults = this.reorderRTOrder(transformResults)
+
+    console.info("transformResults: ", transformResults)
 
 
     return transformResults

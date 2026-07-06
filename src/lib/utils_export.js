@@ -1703,7 +1703,7 @@ const utilsExport = {
 		datasetDescriptionEl.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:lclocal`, this.namespace.lclocal)
 		let el
 
-
+		console.info("xmlVoidDataRtsUsed: ", xmlVoidDataRtsUsed)
 		for (let x of xmlVoidDataRtsUsed){
 			el = document.createElementNS(this.namespace.lclocal, 'lclocal:rtsused')
 			el.innerHTML = escapeHTML(x)

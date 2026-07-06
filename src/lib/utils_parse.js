@@ -445,6 +445,7 @@ const utilsParse = {
   },
 
   transformRts: async function(profile){
+    console.info("transformRts: ", JSON.parse(JSON.stringify(profile)))
     let toDeleteNoData = []
 
     // before we start processing make sure we have enough instance rts for the number needed
@@ -483,6 +484,8 @@ const utilsParse = {
       }else if (pkey.endsWith(':Hub')){
         tle = "bf:Hub"
         isHub=true
+      } else if (pkey.endsWith(':RelatedWorkExpression')){
+        tle = "bf:Work"
       }else{
         rtsToRemove.push(pkey)
         // don't mess with anything other than top level entities in the profile, remove them from the profile
