@@ -516,7 +516,10 @@ const utilsExport = {
 		Hub:{}
 	}
 
+	console.info("tleLookup: ", tleLookup)
+
 		for (let rt of profile.rtOrder){
+			console.info("\t\t rt: ", rt, "--", profile.rt[rt])
 			xmlLog.push(`Processing rt: ${rt}`)
 
 			if (profile.rt[rt].noData){
@@ -544,6 +547,10 @@ const utilsExport = {
 				tleArray = tleItem
 				rootEl = document.createElementNS(this.namespace.bf,"bf:Hub");
 				rootElName = "Hub"
+			} else if (rt.includes(':RelatedWorkExpression')){
+				tleArray = tleWork
+				rootEl = document.createElementNS(this.namespace.bf,"bf:Work");
+				rootElName = "Work"
 			}else{
 				// don't mess with anything that is not a top level entitiy in the profile, there can be other referenced RTs that we don't want to export they are just used in the main RT
 				xmlLog.push(`Dunno what this part is, skipping ${rt}`)
@@ -577,6 +584,7 @@ const utilsExport = {
 
 
 			xmlLog.push(`Looping through the PTs`)
+			console.info("going through PTs")
 
 			for (let pt of profile.rt[rt].ptOrder){
         		// extract the pt, this is the individual component like a <mainTitle>
@@ -803,7 +811,7 @@ const utilsExport = {
 					// make sure if its an instance it has a localid
 				}
 
-
+				console.info("userValue: ", userValue)
 				// does it even have any userValues?
 				if (this.hasUserValue(userValue)){
 					// keep track of what resource teplates we used in this record
@@ -1318,6 +1326,7 @@ const utilsExport = {
 					// if (rootElName ==='Item'){
 					// }
 				}else{
+					console.info("no UserValue")
 					xmlLog.push(`Skpping it because hasUserValue == false`)
 				}
 			}

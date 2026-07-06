@@ -469,6 +469,8 @@ const utilsProfile = {
     let xml = await utilsNetwork.loadSavedRecord(recordId)
     let meta = this.returnMetaFromSavedXML(xml)
 
+    console.info("\tmeta: ", meta)
+
     utilsParse.parseXml(meta.xml)
     // alert(parseBfdb.hasItem)
 
@@ -622,16 +624,20 @@ const utilsProfile = {
 
 
   returnMetaFromSavedXML: function(xml){
-
       let parser = new DOMParser();
       xml = parser.parseFromString(xml, "text/xml");
       let voidData = xml.getElementsByTagName('void:DatasetDescription')[0]
+
+      console.info("meta: ", xml)
+      console.info("voidData: ", voidData)
 
       let rts = []
 
       for (let rt of voidData.getElementsByTagName('lclocal:rtsused')){
           rts.push(rt.innerHTML)
       }
+
+      console.info("rts: ", rts)
 
       let eid = null
       for (let el of voidData.getElementsByTagName('lclocal:eid')){

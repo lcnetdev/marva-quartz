@@ -733,6 +733,9 @@ export const useProfileStore = defineStore('profile', {
               }
           )
       }
+
+      console.info("buildProfiles: ", startingPointData)
+
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK, striping RDA fields for some things for the new editor
       for (let p of profileData){
@@ -3985,6 +3988,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     loadRecordFromBackend: async function(eid){
+      console.info("loadFromBackend")
       // loading a fresh record into the editor, clear the "posted" UI flag so the
       // post button doesn't stay green from a previously posted record
       this.activeProfilePosted = false
