@@ -2,6 +2,7 @@
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
   import utilsParse from '@/lib/utils_parse';
+  import utilsMisc from '@/lib/utils_misc';
 
   import { useConfigStore } from '@/stores/config'
   import { mapStores, mapState, mapWritableState } from 'pinia'
@@ -127,6 +128,7 @@
         showMarcPreview: false,
         validationErrors: false,
         MARClccn: false,
+        note667: "",
 
       }
     },
@@ -314,7 +316,6 @@
         }
 
         for (let varIdx in variants){
-          console.info("idx: ", varIdx)
           let variant = variants[varIdx]
           if (!this.isLatin(variant)){
             let localMarc = {}
@@ -322,6 +323,7 @@
             localMarc.tag = targetTag
             localMarc.indicators = this.indicators
             localMarc.bcpSelection = []
+            localMarc.script = []
 
             let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[varIdx]
 
@@ -442,6 +444,7 @@
         let prefChecks = this.checkPrefLabels()
 
         this.marcData.refEval = this.refEval
+        this.marcData['note667'] = this.note667
 
         const marcXML = this.xmlDoc
         let updates = this.marcData
@@ -533,16 +536,28 @@
           this.marcData[this.activeIndex].bcpSelection = this.marcData[this.activeIndex].bcpSelection.filter(item => item != idx)
           this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName.replace("$7(bcp47)" + this.bcpCodes[idx].bcp47code, '')
           // remove script
-          // this.marcData[this.activeIndex].script = this.marcData[this.activeIndex].script.filter(item => item != this.bcpCodes[idx].script)
+          if (this.bcpCodes[idx].bcp47code.includes("-")){
+            // this.marcData[this.activeIndex].script = this.marcData[this.activeIndex].script.filter(item => item != this.bcpCodes[idx].script)
+            let lang = this.bcpCodes[idx].bcp47code.split("-")[0]
+            let script = this.bcpCodes[idx].bcp47code.split("-")[1]
+            this.marcData[this.activeIndex].scripts = this.marcData[this.activeIndex].scripts.filter(item => JSON.stringify(item) != JSON.stringify({'lang': lang, 'script': script}))
+          }
         } else {
           this.marcData[this.activeIndex].bcpSelection.push(idx)
           this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName + "$7(bcp47)" + this.bcpCodes[idx].bcp47code
           // add script
-          // this.marcData[this.activeIndex].bcpSelection.push( this.bcpCodes[idx].script )
+          if (this.bcpCodes[idx].bcp47code.includes("-")){
+            // this.marcData[this.activeIndex].script.push( this.bcpCodes[idx].script )
+            let lang = this.bcpCodes[idx].bcp47code.split("-")[0]
+            let script = this.bcpCodes[idx].bcp47code.split("-")[1]
+            this.marcData[this.activeIndex].scripts.push({'lang': lang, 'script': script})
+          }
         }
+        this.build667Note()
       },
 
       build667Note: function(){
+        console.info("build 667: ", this.marcData)
         /**
          * Cyrillic script and Arabic script references evaluated.
          * .... Other non-Latin script references not evaluated.
@@ -550,12 +565,33 @@
          */
         let note = ""
 
-        let regexGreekSymbol = /\p{Script_Extensions=Greek}/u;
-        regexGreekSymbol.test('π');
-        let codePoint = 'טבןַ, מרק'.codePointAt(0)
+        let evaluated = {}
+        for (let idx of Object.keys(this.marcData)){
+          let item = this.marcData[idx]
+          let scripts = item.scripts
+          let lang
+          let script
 
+          if (scripts.length > 0){
+            for (let s of scripts){
+              lang = utilsMisc.getLangScriptName(s.lang, 'lang')
+              script = utilsMisc.getLangScriptName(s.script, 'script')
+              if (Object.keys(evaluated).includes(script)){
+                evaluated[script].push(lang)
+              } else {
+                evaluated[script] = [lang]
+              }
+            }
+          }
+        }
 
-        return note
+        console.info("evaluated: ", evaluated)
+
+        for (let script of Object.keys(evaluated)){
+          note = note + script + " script evaluated for " + evaluated[script].join(', ') + ". "
+        }
+
+        this.note667 = note
       },
 
       buildNewMarcKey: function(){
@@ -569,7 +605,7 @@
           'hasBCP': this.marcData[this.activeIndex].hasBCP,
           'pref': this.marcData[this.activeIndex].pref,
           'newRow': this.marcData[this.activeIndex].newRow,
-          'scripts': this.marcData[this.activeIndex].scripts,
+          'scripts': this.marcData[this.activeIndex].scripts ? this.marcData[this.activeIndex].scripts : [],
         }
 
 
@@ -1769,9 +1805,9 @@
               <div class="marc-container">
 
                 <template v-if="validationResult.validation">
-                  <h2>Validation:</h2>
+                  <h2 class='validation-header'>Validation:</h2>
                   <span v-for="val in validationResult.validation">
-                    <div :class="'validation-'+val.level">{{ val.message }}</div>
+                    <span :class="'validation-'+val.level">{{ val.message }}</span>
                   </span>
                 </template>
 
@@ -1849,7 +1885,7 @@
                   </div>
 
                   <div class="new-value-container">
-                    <!-- Note: {{ marcData }} -->
+                    667 Note: <input type=text v v-model='note667' class="eval-note" />
                   </div>
 
                 <div class="button-container">
@@ -2637,6 +2673,7 @@ pre {
   overflow: scroll;
   padding: 10px;
   font-family: monospace;
+  margin-top: 10px;
 }
 
 div.marc.record {
@@ -2685,8 +2722,16 @@ input.prefCheck[type=checkbox]:checked+label {
   float: right;
 }
 
+.eval-note{
+  width: 40vw;
+}
+
 .marc-backup-display {
   width: 50vw;
+}
+
+.validation-header {
+  margin-bottom: 10px;
 }
 
 

@@ -8855,6 +8855,7 @@ export const useProfileStore = defineStore('profile', {
       record = record.cloneNode(true)
 
       // update 008 and 667 if non-latin references have been evaluated
+      let marc667List = record.querySelectorAll('[tag="667"]')
       if (updates.refEval){
         let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
         let currentValue = zeroZeroEight.innerHTML
@@ -8863,7 +8864,6 @@ export const useProfileStore = defineStore('profile', {
 
         // Get the 667s, remove "...not evaluated..."
         // remove
-        let marc667List = record.querySelectorAll('[tag="667"]')
         let target667s = []
         for (let sixSixSeven of marc667List){
           if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)){
@@ -8871,6 +8871,20 @@ export const useProfileStore = defineStore('profile', {
           }
         }
         target667s.map(item => record.removeChild(item))
+      }
+
+
+      // add new 667
+      if (updates['note667'] && updates['note667'] != ''){
+        let new667 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+        new667.setAttribute('tag', '667')
+        new667.setAttribute('ind1', " ")
+        new667.setAttribute('ind2', " ")
+        let new667A = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+        new667A.setAttribute("code", 'a')
+        new667A.innerHTML = updates['note667']
+        new667.appendChild(new667A)
+        this.indentedAppend(record, new667, false, marc667List[marc667List.length - 1])
       }
 
       // 040
