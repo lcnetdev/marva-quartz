@@ -532,10 +532,30 @@
         if (this.marcData[this.activeIndex].bcpSelection && this.marcData[this.activeIndex].bcpSelection.includes(idx)){ // remove it
           this.marcData[this.activeIndex].bcpSelection = this.marcData[this.activeIndex].bcpSelection.filter(item => item != idx)
           this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName.replace("$7(bcp47)" + this.bcpCodes[idx].bcp47code, '')
+          // remove script
+          // this.marcData[this.activeIndex].script = this.marcData[this.activeIndex].script.filter(item => item != this.bcpCodes[idx].script)
         } else {
           this.marcData[this.activeIndex].bcpSelection.push(idx)
           this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName + "$7(bcp47)" + this.bcpCodes[idx].bcp47code
+          // add script
+          // this.marcData[this.activeIndex].bcpSelection.push( this.bcpCodes[idx].script )
         }
+      },
+
+      build667Note: function(){
+        /**
+         * Cyrillic script and Arabic script references evaluated.
+         * .... Other non-Latin script references not evaluated.
+         * <Script> evaluated for [<Languages>].
+         */
+        let note = ""
+
+        let regexGreekSymbol = /\p{Script_Extensions=Greek}/u;
+        regexGreekSymbol.test('π');
+        let codePoint = 'טבןַ, מרק'.codePointAt(0)
+
+
+        return note
       },
 
       buildNewMarcKey: function(){
@@ -549,6 +569,7 @@
           'hasBCP': this.marcData[this.activeIndex].hasBCP,
           'pref': this.marcData[this.activeIndex].pref,
           'newRow': this.marcData[this.activeIndex].newRow,
+          'scripts': this.marcData[this.activeIndex].scripts,
         }
 
 
@@ -614,7 +635,8 @@
           'bcpSelection': [],
           'marcKey': '',
           'displayName': '$a',
-          'newRow': true
+          'newRow': true,
+          'scripts': [],
         }
       },
       dupeBcpRow: function(idx){
@@ -1827,8 +1849,7 @@
                   </div>
 
                   <div class="new-value-container">
-                    <!-- New Value(s):<br></br>
-                    <div v-for="row in marcData" class="new-marc-data">{{ row }}</div> -->
+                    <!-- Note: {{ marcData }} -->
                   </div>
 
                 <div class="button-container">
