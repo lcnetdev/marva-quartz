@@ -2232,11 +2232,6 @@
 
 }
 
-.subfield-7 > .subfield {
-  direction: ltr;
-  unicode-bidi: embed;
-}
-
 
 </style>
 
@@ -2763,6 +2758,11 @@ input.prefCheck[type=checkbox]:checked+label {
 
 .validation-header {
   margin-bottom: 10px;
+}
+
+:deep() .subfield-7 > .subfield {
+  direction: ltr;
+  unicode-bidi: embed;
 }
 
 </style>
