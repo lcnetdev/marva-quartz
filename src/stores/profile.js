@@ -8984,6 +8984,8 @@ export const useProfileStore = defineStore('profile', {
                   let targets = existingCodes[subfield]
 
                   if (targets){                // if the subfield is existing update it
+                    console.info("\n\nexisting: ", )
+                    console.info("\t\t", value)
                     for (let target of targets){
                       target.innerHTML = value
                       for (let code of deleteCodes){

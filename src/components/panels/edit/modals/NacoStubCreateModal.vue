@@ -2220,8 +2220,8 @@
 
                   <div class="selectable" style="font-family: monospace; padding: 0.2em;" v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
 
-                    <input type="checkbox" v-model="add667" id="add-667"/>
-                    <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label>
+                    <!-- <input type="checkbox" v-model="add667" id="add-667"/>
+                    <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label> -->
 
                   </div>
 

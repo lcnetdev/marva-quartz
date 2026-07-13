@@ -452,6 +452,8 @@
         const marcXML = this.xmlDoc
         let updates = this.marcData
 
+        console.info("\t\t\tupdates: ", updates)
+
         // add a target for any additions
         for (let idx in updates){
           if (idx.startsWith("##")){
@@ -472,6 +474,8 @@
         let parsedRecord = results[1]
 
         let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord)
+
+        console.info("xmlUpdated: ", xmlUpdated)
 
         // validate the update
         this.validating = true
@@ -660,7 +664,10 @@
             key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
           } else if (sub == 'subfield_7'){
             for (let sub7 of this.marcData[this.activeIndex][sub]){
-              key = key + "$7" + sub7
+              let val = "$7" + sub7
+              console.info("key: ", key)
+              console.info("sub7: ", sub7)
+              key = `${key}\u200E${val}`
             }
           }
         }
@@ -2225,6 +2232,11 @@
 
 }
 
+.subfield-7 > .subfield {
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
 
 </style>
 
@@ -2752,6 +2764,5 @@ input.prefCheck[type=checkbox]:checked+label {
 .validation-header {
   margin-bottom: 10px;
 }
-
 
 </style>
