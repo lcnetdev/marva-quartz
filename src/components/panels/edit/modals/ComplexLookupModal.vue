@@ -207,10 +207,12 @@
       showBCPButton: function(key, data){
         let show = false
 
-        for(let variant of data.variantLabels){
-          if (!this.isLatin(variant)){
-            show = true
-            break
+        if (data.variantLabels){
+          for(let variant of data.variantLabels){
+            if (!this.isLatin(variant)){
+              show = true
+              break
+            }
           }
         }
 
