@@ -242,6 +242,7 @@
         this.submitting = false
         this.showMarcPreview = false
         this.validationErrors = false
+        this.note667 = ''
 
       },
 
@@ -265,7 +266,7 @@
 
       // initial 4XX
       edit4XX: async function(data){
-        //TODO: read existing 008/29 and set refEval based on that
+        //TODO: set the 667 based on existing values
 
         this.resetBcp()
         console.info("data: ", data)
@@ -444,7 +445,7 @@
         let prefChecks = this.checkPrefLabels()
 
         this.marcData.refEval = this.refEval
-        this.marcData['note667'] = this.note667
+        // this.marcData['note667'] = this.note667
 
         const marcXML = this.xmlDoc
         let updates = this.marcData
@@ -535,28 +536,15 @@
         if (this.marcData[this.activeIndex].bcpSelection && this.marcData[this.activeIndex].bcpSelection.includes(idx)){ // remove it
           this.marcData[this.activeIndex].bcpSelection = this.marcData[this.activeIndex].bcpSelection.filter(item => item != idx)
           this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName.replace("$7(bcp47)" + this.bcpCodes[idx].bcp47code, '')
-          // remove script
-          if (this.bcpCodes[idx].bcp47code.includes("-")){
-            // this.marcData[this.activeIndex].script = this.marcData[this.activeIndex].script.filter(item => item != this.bcpCodes[idx].script)
-            let lang = this.bcpCodes[idx].bcp47code.split("-")[0]
-            let script = this.bcpCodes[idx].bcp47code.split("-")[1]
-            this.marcData[this.activeIndex].scripts = this.marcData[this.activeIndex].scripts.filter(item => JSON.stringify(item) != JSON.stringify({'lang': lang, 'script': script}))
-          }
         } else {
           this.marcData[this.activeIndex].bcpSelection.push(idx)
           this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName + "$7(bcp47)" + this.bcpCodes[idx].bcp47code
-          // add script
-          if (this.bcpCodes[idx].bcp47code.includes("-")){
-            // this.marcData[this.activeIndex].script.push( this.bcpCodes[idx].script )
-            let lang = this.bcpCodes[idx].bcp47code.split("-")[0]
-            let script = this.bcpCodes[idx].bcp47code.split("-")[1]
-            this.marcData[this.activeIndex].scripts.push({'lang': lang, 'script': script})
-          }
         }
         this.build667Note()
       },
 
       build667Note: function(){
+        return
         console.info("build 667: ", this.marcData)
         /**
          * Cyrillic script and Arabic script references evaluated.
@@ -572,8 +560,9 @@
           let lang
           let script
 
-          if (scripts.length > 0){
+          if (scripts && scripts.length > 0){
             for (let s of scripts){
+
               lang = utilsMisc.getLangScriptName(s.lang, 'lang')
               script = utilsMisc.getLangScriptName(s.script, 'script')
               if (Object.keys(evaluated).includes(script)){
@@ -588,7 +577,10 @@
         console.info("evaluated: ", evaluated)
 
         for (let script of Object.keys(evaluated)){
-          note = note + script + " script evaluated for " + evaluated[script].join(', ') + ". "
+          let langList = evaluated[script]
+          langList = [...new Set(langList)]
+          langList = langList.filter(lang => lang)
+          note = note + script + " script evaluated for " + langList.join(', ') + ". "
         }
 
         this.note667 = note
@@ -622,19 +614,43 @@
           this.marcData[this.activeIndex].delete = false
         }
 
+        console.info('subfields: ', subfields)
+
+        // empty out the scripts, so they are always uptodate
+        this.marcData[this.activeIndex].scripts = []
+
         for (let sub of subfields){
           let field = sub.slice(1,2)
           let value = sub.slice(2)
           if (field != '7'){
             this.marcData[this.activeIndex]["subfield_" + field] = value
           } else {
+            console.info("value: ", value)
             if (!this.marcData[this.activeIndex]["subfield_7"]){
               this.marcData[this.activeIndex]["subfield_7"] = [value]
             } else {
               this.marcData[this.activeIndex]["subfield_7"].push(value)
             }
-          }
 
+            // track script information added manually
+            let scriptInfo = value.replace('(bcp47)', '')
+            if (scriptInfo.includes("-")){
+              let lang = scriptInfo.split("-")[0]
+              let script = scriptInfo.split("-")[1]
+              if (this.marcData[this.activeIndex].scripts){
+                this.marcData[this.activeIndex].scripts.push({'lang': lang, 'script': script})
+              } else {
+                this.marcData[this.activeIndex].scripts = [{'lang': lang, 'script': script}]
+              }
+            } else {
+              let lang = scriptInfo
+              let fullLang = utilsMisc.getLangScriptName(lang, 'lang')
+              try {
+                let script = utilsMisc.getLangScriptName(fullLang, 'langScript')
+                this.marcData[this.activeIndex].scripts.push({'lang': lang, 'script': script})
+              } catch {}
+            }
+          }
         }
 
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
@@ -648,6 +664,7 @@
         }
 
         this.marcData[this.activeIndex]['displayName'] = key
+        this.build667Note()
         // this.marcData[this.activeIndex]['marcKey'] = marcKey + key
       },
 
@@ -1884,9 +1901,9 @@
                     </table>
                   </div>
 
-                  <div class="new-value-container">
-                    667 Note: <input type=text v v-model='note667' class="eval-note" />
-                  </div>
+                  <!-- <div class="new-value-container">
+                    667 Note: <textarea type=text v v-model='note667' class="eval-note" />
+                  </div> -->
 
                 <div class="button-container">
                   <label for="refEval">References Evaluated?</label>

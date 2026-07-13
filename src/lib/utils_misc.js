@@ -156,10 +156,16 @@ const utilsMisc = {
     } else if (type == "script"){
       source = iso['iso15924']
       targetKey = 'alpha_4'
+    } else if (type == "langScript"){
+      source = iso['langScriptMap']
+      targetKey = 'lang'
     }
 
     for (let item of source){
       if (item[targetKey] && item[targetKey].toLowerCase() == target.toLowerCase()){
+        if (type == "langScript"){
+          return item.code
+        }
         return item.name
       }
     }

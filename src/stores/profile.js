@@ -8854,8 +8854,33 @@ export const useProfileStore = defineStore('profile', {
       let record = marcXML.getElementsByTagName('marcxml:record')[0]
       record = record.cloneNode(true)
 
-      // update 008 and 667 if non-latin references have been evaluated
       let marc667List = record.querySelectorAll('[tag="667"]')
+
+      // add new 667
+      // if (updates['note667'] && updates['note667'] != ''){
+      //   let new667 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+      //   new667.setAttribute('tag', '667')
+      //   new667.setAttribute('ind1', " ")
+      //   new667.setAttribute('ind2', " ")
+      //   let new667A = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+      //   new667A.setAttribute("code", 'a')
+      //   new667A.innerHTML = updates['note667']
+      //   new667.appendChild(new667A)
+      //   this.indentedAppend(record, new667, false, marc667List[marc667List.length - 1])
+      // }
+
+      // add test note
+      let testNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+      testNote.setAttribute('tag', '667')
+      testNote.setAttribute('ind1', " ")
+      testNote.setAttribute('ind2', " ")
+      let testNoteA = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+      testNoteA.setAttribute("code", 'a')
+      testNoteA.innerHTML = "Preferred non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
+      testNote.appendChild(testNoteA)
+      this.indentedAppend(record, testNote, false, marc667List[marc667List.length - 1])
+
+      // update 008 and 667 if non-latin references have been evaluated
       if (updates.refEval){
         let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
         let currentValue = zeroZeroEight.innerHTML
@@ -8871,20 +8896,6 @@ export const useProfileStore = defineStore('profile', {
           }
         }
         target667s.map(item => record.removeChild(item))
-      }
-
-
-      // add new 667
-      if (updates['note667'] && updates['note667'] != ''){
-        let new667 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
-        new667.setAttribute('tag', '667')
-        new667.setAttribute('ind1', " ")
-        new667.setAttribute('ind2', " ")
-        let new667A = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
-        new667A.setAttribute("code", 'a')
-        new667A.innerHTML = updates['note667']
-        new667.appendChild(new667A)
-        this.indentedAppend(record, new667, false, marc667List[marc667List.length - 1])
       }
 
       // 040
@@ -9111,6 +9122,9 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (next && next != 'last') {
+        console.info("parent: ", parent)
+        console.info("next: ", next)
+
           parent.insertBefore(document.createTextNode(""), next)
           parent.insertBefore(child, next)
           // child.appendChild(document.createTextNode("\n" + indent))
