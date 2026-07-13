@@ -2247,6 +2247,8 @@ const utilsExport = {
 		let month2Digits = dateValue.slice(4,6)
 		let day2Digits = dateValue.slice(6,8)
 
+		console.info("add667: ", add667)
+
 		let pos29 = "n"
 		// did they make a 4xx
 		if (fourXXParts && fourXXParts.a && add667){
@@ -2256,20 +2258,20 @@ const utilsExport = {
 		}
 
 		let has667 = add667
-		// if there is a 667 in the extraMarcStatements then set it
-		for (let x of extraMarcStatements){
-			if (x.tag == '667' || x.fieldTag == '667'){
-				pos29 = 'b'
-				has667 = true
-			}
-			if (/5[0-9]{2}/.test(x.fieldTag) && pos29 == "n"){ // treat 5XX like 4XX
-				if (add667){
-					pos29 = 'b'
-				} else if (!add667){
-					pos29 = 'a'
-				}
-			}
-		}
+		// // if there is a 667 in the extraMarcStatements then set it
+		// for (let x of extraMarcStatements){
+		// 	if (x.tag == '667' || x.fieldTag == '667'){
+		// 		pos29 = 'b'
+		// 		has667 = true
+		// 	}
+		// 	if (/5[0-9]{2}/.test(x.fieldTag) && pos29 == "n"){ // treat 5XX like 4XX
+		// 		if (add667){
+		// 			pos29 = 'b'
+		// 		} else if (!add667){
+		// 			pos29 = 'a'
+		// 		}
+		// 	}
+		// }
 
 		// check again if they made a 4XX in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){

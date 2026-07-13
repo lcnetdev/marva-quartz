@@ -385,14 +385,14 @@
               this.extraMarcStatements.push(f670)
             }
 
-            if (this.add667){
-              let f667 = {
-                fieldTag: '667',
-                indicators: '##',
-                value: `$a Non-Latin script references not evaluated.`
-              }
-              this.extraMarcStatements.push(f667)
-            }
+            // if (this.add667){
+            //   let f667 = {
+            //     fieldTag: '667',
+            //     indicators: '##',
+            //     value: `$a Non-Latin script references not evaluated.`
+            //   }
+            //   this.extraMarcStatements.push(f667)
+            // }
 
             // console.log("extraMarcStatements",this.extraMarcStatements)
             // is there a 046 field already?
@@ -956,33 +956,33 @@
             }
 
 
-            if (this.fourXXParts && this.fourXXParts.a){
-              if (this.profileStore.isLatin(this.fourXXParts.a) === false){
-                this.add667 = true
+            // if (this.fourXXParts && this.fourXXParts.a){
+            //   if (this.profileStore.isLatin(this.fourXXParts.a) === false){
+            //     this.add667 = true
 
-                // if there isn't a 667 field already in advenced mode
-                if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && this.extraMarcStatements.length > 0){
-                  let found667 = false
-                  for (let field of this.extraMarcStatements){
-                    if (field.fieldTag == '667'){
-                      found667 = true
-                      break
-                    }
-                  }
-                  if (!found667){
-                    this.extraMarcStatements.push({
-                      fieldTag: '667',
-                      indicators: '##',
-                      value: "$a Non-Latin script references not evaluated."
-                    })
-                  }
-                }
+            //     // if there isn't a 667 field already in advenced mode
+            //     if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && this.extraMarcStatements.length > 0){
+            //       let found667 = false
+            //       for (let field of this.extraMarcStatements){
+            //         if (field.fieldTag == '667'){
+            //           found667 = true
+            //           break
+            //         }
+            //       }
+            //       if (!found667){
+            //         this.extraMarcStatements.push({
+            //           fieldTag: '667',
+            //           indicators: '##',
+            //           value: "$a Non-Latin script references not evaluated."
+            //         })
+            //       }
+            //     }
 
-              }else if (this.profileStore.isLatin(this.fourXXParts.a) === true){
-                this.add667 = false
-              }
+            //   }else if (this.profileStore.isLatin(this.fourXXParts.a) === true){
+            //     this.add667 = false
+            //   }
 
-            }
+            // }
 
 
 
