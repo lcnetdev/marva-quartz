@@ -117,6 +117,13 @@
 
 
       disableAddButton() {
+        console.info("disable:")
+        console.info("\t this.oneXXErrors: ", this.oneXXErrors)
+        console.info("\t this.fourXXErrors: ", this.fourXXErrors)
+        console.info("\t this.mainTitle: ", this.mainTitle)
+        console.info("\t this.goodIndicators(): ", this.goodIndicators())
+        console.info("\t this.goodTags(): ", this.goodTags())
+        console.info("\t this.validationResult: ", this.validationResult)
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
         }
