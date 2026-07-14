@@ -1695,19 +1695,26 @@ export const usePreferenceStore = defineStore('preference', {
         // Populate catInitals from SSO claims
         this.catInitals = payload.name || payload.email || 'SSO User'
         window.localStorage.setItem('marva-catInitals', this.catInitals)
-        // Restore catCode from localStorage only, never from JWT
-        let storedCatCode = window.localStorage.getItem('marva-catCode')
-        if (storedCatCode && storedCatCode.trim() != ''){
-          this.catCode = storedCatCode
-          // One-time SSO migration: prompt users to confirm their catId on first SSO login
-          // Only check before the cutoff date (March 12 2026)
-          if (Date.now() < new Date('2026-03-12').getTime() && !window.localStorage.getItem('marva-SSOFirstTimeChecked')){
-            window.localStorage.setItem('marva-SSOFirstTimeChecked', 'true')
+        if (payload.guest) {
+          // Anonymous guest token (PUBLIC_GUEST_MODE, e.g. bibframe.org demo):
+          // auto-assign a cataloging code from the guest id — never prompt.
+          this.catCode = 'G' + String(payload.username || '').replace(/^guest-/, '')
+          window.localStorage.setItem('marva-catCode', this.catCode)
+        } else {
+          // Restore catCode from localStorage only, never from JWT
+          let storedCatCode = window.localStorage.getItem('marva-catCode')
+          if (storedCatCode && storedCatCode.trim() != ''){
+            this.catCode = storedCatCode
+            // One-time SSO migration: prompt users to confirm their catId on first SSO login
+            // Only check before the cutoff date (March 12 2026)
+            if (Date.now() < new Date('2026-03-12').getTime() && !window.localStorage.getItem('marva-SSOFirstTimeChecked')){
+              window.localStorage.setItem('marva-SSOFirstTimeChecked', 'true')
+              this.showLoginModalSSO = true
+            }
+          } else {
+            this.catCode = null
             this.showLoginModalSSO = true
           }
-        } else {
-          this.catCode = null
-          this.showLoginModalSSO = true
         }
         console.log('SSO: User authenticated as', this.catInitals, '| ssoUser set:', !!this.ssoUser)
         return true
