@@ -2218,15 +2218,6 @@ const utilsExport = {
 	},
 
 	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
-		console.info("createStub: ")
-		console.info("\t oneXXParts: ", oneXXParts)
-		console.info("\t fourXXParts: ", fourXXParts)
-		console.info("\t mainTitle: ", mainTitle)
-		console.info("\t lccn: ", lccn)
-		console.info("\t instanceUri: ", instanceUri)
-		console.info("\t zero46: ", zero46)
-		console.info("\t extraMarcStatements: ", extraMarcStatements)
-
 		let marcTxt = ''
 		marcTxt = marcTxt + " 111111111122222222223333333333\n"
 		marcTxt = marcTxt + "       0123456789012345678901234567890123456789\n"
@@ -2382,8 +2373,6 @@ const utilsExport = {
 
 
 		if (zero46 && Object.keys(zero46).length > 0){
-			console.info("building 046?", zero46)
-
 			let good = false
 			let field046 = document.createElementNS(marcNamespace,"marcxml:datafield");
 			field046.setAttribute( 'tag', '046')
@@ -2443,8 +2432,6 @@ const utilsExport = {
 				subfieldsValues.push(`$t ${zero46.t}`)
 				good = true
 			}
-
-			console.info("good: ", good)
 
 			if (good){
 				let field0462 = document.createElementNS(marcNamespace,"marcxml:subfield");
