@@ -3026,8 +3026,6 @@ const utilsNetwork = {
     * @return {void} -
     */
     loadSavedRecord: async function(id) {
-      console.info("loadSavedRecord: ", id)
-
        let url = useConfigStore().returnUrls.ldpjs +'ldp/' + id
 
        // let options = {}
@@ -3037,11 +3035,7 @@ const utilsNetwork = {
        // console.log('options:',options)
        try{
          let response = await fetch(url, { headers: getAuthHeaders() });
-
          let data =  await response.text()
-
-         console.info("data: ", data)
-
          return  data;
 
        }catch(err){
