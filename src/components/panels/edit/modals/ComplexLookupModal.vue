@@ -1639,8 +1639,9 @@
       },
 
       openFolioRecord: function(){
+        let config = useConfigStore()
         let lccn = this.activeContext.uri.split("/").at(-1)
-        let url = `https://lcsg.catalog.lcap.loc.gov/marc-authorities/authorities/?authRefType=Authorized&query=${lccn}&segment=search`
+        let url = config.returnUrls.folioBase + `/marc-authorities/authorities/?authRefType=Authorized&query=${lccn}&segment=search`
         window.open(url, '_blank');
       },
 
