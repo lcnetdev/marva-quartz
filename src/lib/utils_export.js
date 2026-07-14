@@ -472,7 +472,6 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
-	console.info("buildXML: ", profile)
     // keep track of the proces for later
 	// let debugHistory = []
 	let xmlLog = []
@@ -516,10 +515,7 @@ const utilsExport = {
 		Hub:{}
 	}
 
-	console.info("tleLookup: ", tleLookup)
-
 		for (let rt of profile.rtOrder){
-			console.info("\t\t rt: ", rt, "--", profile.rt[rt])
 			xmlLog.push(`Processing rt: ${rt}`)
 
 			if (profile.rt[rt].noData){
@@ -582,9 +578,7 @@ const utilsExport = {
 				rootEl.appendChild(type)
 			}
 
-
 			xmlLog.push(`Looping through the PTs`)
-			console.info("going through PTs")
 
 			for (let pt of profile.rt[rt].ptOrder){
         		// extract the pt, this is the individual component like a <mainTitle>
@@ -811,7 +805,6 @@ const utilsExport = {
 					// make sure if its an instance it has a localid
 				}
 
-				console.info("userValue: ", userValue)
 				// does it even have any userValues?
 				if (this.hasUserValue(userValue)){
 					// keep track of what resource teplates we used in this record
@@ -1326,7 +1319,6 @@ const utilsExport = {
 					// if (rootElName ==='Item'){
 					// }
 				}else{
-					console.info("no UserValue")
 					xmlLog.push(`Skpping it because hasUserValue == false`)
 				}
 			}
@@ -1703,7 +1695,6 @@ const utilsExport = {
 		datasetDescriptionEl.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:lclocal`, this.namespace.lclocal)
 		let el
 
-		console.info("xmlVoidDataRtsUsed: ", xmlVoidDataRtsUsed)
 		for (let x of xmlVoidDataRtsUsed){
 			el = document.createElementNS(this.namespace.lclocal, 'lclocal:rtsused')
 			el.innerHTML = escapeHTML(x)
