@@ -543,6 +543,10 @@ const utilsExport = {
 				tleArray = tleItem
 				rootEl = document.createElementNS(this.namespace.bf,"bf:Hub");
 				rootElName = "Hub"
+			} else if (rt.includes(':RelatedWorkExpression')){
+				tleArray = tleWork
+				rootEl = document.createElementNS(this.namespace.bf,"bf:Work");
+				rootElName = "Work"
 			}else{
 				// don't mess with anything that is not a top level entitiy in the profile, there can be other referenced RTs that we don't want to export they are just used in the main RT
 				xmlLog.push(`Dunno what this part is, skipping ${rt}`)
@@ -573,7 +577,6 @@ const utilsExport = {
 				xmlLog.push(`Setting URI for this resource rdf:resource to: ${profile.rt[rt]['@type']}`)
 				rootEl.appendChild(type)
 			}
-
 
 			xmlLog.push(`Looping through the PTs`)
 
@@ -801,7 +804,6 @@ const utilsExport = {
 					xmlLog.push(['Set adminData to:', JSON.parse(JSON.stringify(adminData)) ])
 					// make sure if its an instance it has a localid
 				}
-
 
 				// does it even have any userValues?
 				if (this.hasUserValue(userValue)){
@@ -1692,7 +1694,6 @@ const utilsExport = {
 		datasetDescriptionEl.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:void`, this.namespace.void)
 		datasetDescriptionEl.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:lclocal`, this.namespace.lclocal)
 		let el
-
 
 		for (let x of xmlVoidDataRtsUsed){
 			el = document.createElementNS(this.namespace.lclocal, 'lclocal:rtsused')

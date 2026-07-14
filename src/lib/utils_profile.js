@@ -468,12 +468,10 @@ const utilsProfile = {
   loadRecordFromBackend: async function(recordId){
     let xml = await utilsNetwork.loadSavedRecord(recordId)
     let meta = this.returnMetaFromSavedXML(xml)
-
     utilsParse.parseXml(meta.xml)
     // alert(parseBfdb.hasItem)
 
     let useProfile = null
-
 
     if (useProfileStore().profiles[meta.profile]){
       useProfile = JSON.parse(JSON.stringify(useProfileStore().profiles[meta.profile]))
@@ -529,12 +527,8 @@ const utilsProfile = {
     useProfile.user = meta.user
     useProfile.status = meta.status
 
-
     let transformResults  = await utilsParse.transformRts(useProfile)
-
     transformResults = this.reorderRTOrder(transformResults)
-
-
     return transformResults
 
 
@@ -622,7 +616,6 @@ const utilsProfile = {
 
 
   returnMetaFromSavedXML: function(xml){
-
       let parser = new DOMParser();
       xml = parser.parseFromString(xml, "text/xml");
       let voidData = xml.getElementsByTagName('void:DatasetDescription')[0]
