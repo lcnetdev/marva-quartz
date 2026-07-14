@@ -743,8 +743,10 @@
       },
 
       handleInput: function(event){
+        console.info("input: ", event)
         this.marcData[this.activeIndex].displayName = event.target.value
         this.buildNewMarcKey()
+        // TODO: maintain cursor position
       },
 
       sortResults: function(a,b){
