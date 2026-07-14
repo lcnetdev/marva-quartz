@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.6.4] - 2025-07-17
+### Update
+- Adjust NAR creation
+  - Don't create empty fields
+  - stricter indicator check
+  - Don't allow post if field data or subfield are empty
+
 ## [1.6.3] - 2025-06-26
 ### Added
 - Buttons for `Create NAR/Hub` when looking for a hub
