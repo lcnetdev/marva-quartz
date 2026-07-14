@@ -468,20 +468,13 @@ const utilsProfile = {
   loadRecordFromBackend: async function(recordId){
     let xml = await utilsNetwork.loadSavedRecord(recordId)
     let meta = this.returnMetaFromSavedXML(xml)
-
-    console.info("\tmeta: ", meta)
-
     utilsParse.parseXml(meta.xml)
     // alert(parseBfdb.hasItem)
 
     let useProfile = null
 
-    console.info("profiles: ", useProfileStore().profiles)
-    console.info("\t>>>>: ", useProfileStore().profiles[meta.profile])
     if (useProfileStore().profiles[meta.profile]){
-      console.info("setting userProfile")
       useProfile = JSON.parse(JSON.stringify(useProfileStore().profiles[meta.profile]))
-      console.info("useProfile: ", useProfile)
     }else{
       alert('Cannot find that profile:',meta.profile)
     }
@@ -534,14 +527,8 @@ const utilsProfile = {
     useProfile.user = meta.user
     useProfile.status = meta.status
 
-    console.info("useProfile: ", JSON.parse(JSON.stringify(useProfile)))
     let transformResults  = await utilsParse.transformRts(useProfile)
-
     transformResults = this.reorderRTOrder(transformResults)
-
-    console.info("transformResults: ", transformResults)
-
-
     return transformResults
 
 
@@ -633,16 +620,11 @@ const utilsProfile = {
       xml = parser.parseFromString(xml, "text/xml");
       let voidData = xml.getElementsByTagName('void:DatasetDescription')[0]
 
-      console.info("meta: ", xml)
-      console.info("voidData: ", voidData)
-
       let rts = []
 
       for (let rt of voidData.getElementsByTagName('lclocal:rtsused')){
           rts.push(rt.innerHTML)
       }
-
-      console.info("rts: ", rts)
 
       let eid = null
       for (let el of voidData.getElementsByTagName('lclocal:eid')){

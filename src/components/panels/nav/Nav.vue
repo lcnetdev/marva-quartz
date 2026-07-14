@@ -869,8 +869,6 @@ export default {
         }
       }
 
-      console.info("active: ", this.activeProfile)
-
       if (this.activeProfile.id && this.$route.name == 'Edit') {
         menu.push(
           {
