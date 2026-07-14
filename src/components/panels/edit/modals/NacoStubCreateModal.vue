@@ -142,6 +142,10 @@
           return true
         }
 
+        if (this.validationResult && ['Empty subfields.', 'Empty datafields.'].includes(this.validationResult.validation[0].message)){
+          return true
+        }
+
         return false
       }
 
@@ -224,9 +228,9 @@
         return good
       },
 
-      // Check that the advanced marc entry have indicators
+      // Check that the advanced marc entry have indicators and they are valid
       goodIndicators: function(){
-        let good = this.extraMarcStatements.every((row) => row.indicators.length == 2)
+        let good = this.extraMarcStatements.every((row) => row.indicators.length == 2 && /[0-9# ]{2}/.test(row.indicators))
         return good
       },
 
@@ -2136,7 +2140,7 @@
                   <template v-else>
                     <div>
                           <span class="material-icons not-unique-icon">cancel</span>
-                          <span class="not-unique-text">Indicators Missing</span><span data-tooltip="Add missing indicator in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                          <span class="not-unique-text">Indicators Missing or Invalid</span><span data-tooltip="Add missing indicator in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                         </div>
                   </template>
 
@@ -2258,7 +2262,7 @@
                       maxlength="2"
                       placeholder="IND"
                       :style="`margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
-                      :class="['extra-marc-ind', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.indicators.length != 2}]"
+                      :class="['extra-marc-ind', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.indicators.length != 2 || !/[0-9# ]{2}/.test(row.indicators)}]"
                     />
 
                     <textarea
