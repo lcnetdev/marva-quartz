@@ -66,7 +66,7 @@
           "notes": "Notes",
           "nonlatinLabels": "Non-Latin Authoritative Labels",
           "variantLabels": "Variants",
-          "varianttitles": "Varants Titles",
+          "varianttitles": "Variant Titles",
           "birthdates": "Date of Birth",
           "deathdates": "Date of Death",
           "establishDates":"Established",
@@ -130,6 +130,7 @@
         MARClccn: false,
         note667: "",
         postStatus: "",
+        authLccn: false,
 
       }
     },
@@ -216,9 +217,17 @@
             }
           }
         }
+        if (data.varianttitles){
+          for(let variant of data.varianttitles){
+            if (!this.isLatin(variant)){
+              show = true
+              break
+            }
+          }
+        }
 
         if (!this.checkLcOnly()){ show = false }
-        if (key != 'variantLabels'){ show = false}
+        if (key != 'variantLabels' && key != 'varianttitles'){ show = false}
 
         return show
       },
@@ -246,6 +255,8 @@
         this.showMarcPreview = false
         this.validationErrors = false
         this.note667 = ''
+        this.authLccn = false
+        this.postStatus = ""
 
       },
 
@@ -282,7 +293,17 @@
         this.indicators = marcKey.slice(3,5)
 
         // get the MARCxml
-        let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
+        let marcXML = false
+        if (data.type != 'Hub'){
+          marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
+        } else {
+          let idents = data.extra.identifiers
+          idents = idents.map(id => id.replaceAll(" ", ""))
+          console.info("idents: ", idents) // bible
+          let authId = [...new Set(idents)].filter(item => item.startsWith('n'))
+          this.authLccn = authId
+          marcXML = await this.fetchAuthXML(authId)
+        }
         let parser = new DOMParser()
         console.info("marcXML: ", marcXML)
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
@@ -323,12 +344,21 @@
         }
 
         let vars = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')
+        console.info("data: ", data)
+        console.info("vars: ", vars)
         for (let varIdx in Array.from(vars)){
           let variant = Array.from(vars[varIdx].children).map((item) => {
-            if(item.getAttribute('code') == 'a'){
+            console.info("\t item: ", item)
+            if(data.type != 'Hub' && item.getAttribute('code') == 'a'){
+              console.info("a: ", item.textContent)
+              return item.textContent
+            } else if (data.type == 'Hub' && ['a', 't'].includes(item.getAttribute('code'))){
+              console.info("t: ", item.textContent)
               return item.textContent
             }
-          })[0]
+          })
+          variant = variant.join(" ")
+          console.info("variant: ", variant)
           if (variant && !this.isLatin(variant)){
             let localMarc = {}
             // if (!localMarc) { this.marcData[varIdx] = {}}
@@ -1027,7 +1057,7 @@
           })
 
         console.info("searchPayload: ", searchPayload)
-        // searchPayload.url[0] = searchPayload.url[0].replace("preprod.", "preprod-8299.")
+        searchPayload.url[0] = searchPayload.url[0].replace("preprod.", "preprod-8299.")
 
         // wrapping this in setTimeout might not be needed anymore
         this.searchTimeout = window.setTimeout(async ()=>{
@@ -1675,9 +1705,17 @@
       },
 
       openFolioRecord: function(){
+        console.info("FOLIO")
+        console.info("\t data: ", this.data)
         let config = useConfigStore()
-        let lccn = this.activeContext.uri.split("/").at(-1)
+        let lccn
+        if (this.authLccn){
+          lccn = this.authLccn
+        } else {
+          lccn = this.activeContext.uri.split("/").at(-1)
+        }
         let url = config.returnUrls.folioBase + `/marc-authorities/authorities/?authRefType=Authorized&query=${lccn}&segment=search`
+        console.info("url: ", url)
         window.open(url, '_blank');
       },
 

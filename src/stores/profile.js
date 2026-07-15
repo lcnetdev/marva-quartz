@@ -3074,6 +3074,10 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
+      console.info("setSubject: ")
+      console.info("\t componentGuid: ", componentGuid)
+      console.info("\t subjectComponents: ", subjectComponents)
+      console.info("\t propertyPath: ", propertyPath)
         // we're just going to overwrite the whole userValue with the constructed headings
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
@@ -8868,6 +8872,15 @@ export const useProfileStore = defineStore('profile', {
       //   new667.appendChild(new667A)
       //   this.indentedAppend(record, new667, false, marc667List[marc667List.length - 1])
       // }
+
+      // removing existing 667 test notes
+      for (let field of marc667List){
+        Array.from(field.children).map(f => {
+          if (f.getAttribute('code') == 'a' && f.textContent == "Preferred non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."){
+            record.removeChild(field)
+          }
+        })
+      }
 
       // add test note
       let testNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
