@@ -2374,7 +2374,7 @@ const utilsExport = {
 
 
 		if (zero46 && Object.keys(zero46).length > 0){
-
+			let good = false
 			let field046 = document.createElementNS(marcNamespace,"marcxml:datafield");
 			field046.setAttribute( 'tag', '046')
 			field046.setAttribute( 'ind1', ' ')
@@ -2386,6 +2386,7 @@ const utilsExport = {
 				field046f.innerHTML = zero46.f
 				field046.appendChild(field046f)
 				subfieldsValues.push(`$f ${zero46.f}`)
+				good = true
 
 			}
 			if (zero46.g && zero46.g.length > 0){
@@ -2394,6 +2395,7 @@ const utilsExport = {
 				field046g.innerHTML = zero46.g
 				field046.appendChild(field046g)
 				subfieldsValues.push(`$g ${zero46.g}`)
+				good = true
 			}
 
 			if (zero46.q){
@@ -2402,6 +2404,7 @@ const utilsExport = {
 				field046q.innerHTML = zero46.q
 				field046.appendChild(field046q)
 				subfieldsValues.push(`$q ${zero46.q}`)
+				good = true
 
 			}
 			if (zero46.r && zero46.r.length > 0){
@@ -2410,6 +2413,7 @@ const utilsExport = {
 				field046r.innerHTML = zero46.r
 				field046.appendChild(field046r)
 				subfieldsValues.push(`$r ${zero46.r}`)
+				good = true
 			}
 
 			if (zero46.s){
@@ -2418,6 +2422,7 @@ const utilsExport = {
 				field046s.innerHTML = zero46.s
 				field046.appendChild(field046s)
 				subfieldsValues.push(`$q ${zero46.s}`)
+				good = true
 
 			}
 			if (zero46.t && zero46.t.length > 0){
@@ -2426,18 +2431,20 @@ const utilsExport = {
 				field046t.innerHTML = zero46.t
 				field046.appendChild(field046t)
 				subfieldsValues.push(`$t ${zero46.t}`)
+				good = true
 			}
 
-			let field0462 = document.createElementNS(marcNamespace,"marcxml:subfield");
-			field0462.setAttribute( 'code', '2')
-			field0462.innerHTML = 'edtf'
-			subfieldsValues.push(`$2 edtf`)
-			field046.appendChild(field0462)
-			rootEl.appendChild(field046)
+			if (good){
+				let field0462 = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field0462.setAttribute( 'code', '2')
+				field0462.innerHTML = 'edtf'
+				subfieldsValues.push(`$2 edtf`)
+				field046.appendChild(field0462)
+				rootEl.appendChild(field046)
 
 
-			marcTextArray.push({txt: this.buildMarcTxtLine('046',' ',' ',subfieldsValues), field: '046', fieldInt: 46})
-
+				marcTextArray.push({txt: this.buildMarcTxtLine('046',' ',' ',subfieldsValues), field: '046', fieldInt: 46})
+			}
 
 		}
 
@@ -2610,6 +2617,7 @@ const utilsExport = {
 
 		if (extraMarcStatements && extraMarcStatements.length > 0){
 			for (let x of extraMarcStatements){
+				let hasValue = false
 				if (x.fieldTag && x.fieldTag.trim() != ''){
 					let field = document.createElementNS(marcNamespace,"marcxml:datafield");
 					field.setAttribute( 'tag', x.fieldTag)
@@ -2624,11 +2632,13 @@ const utilsExport = {
 							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ')
 							field.appendChild(subfield)
 							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
-
+							hasValue = true
 						}
 					}
-					rootEl.appendChild(field)
-					marcTextArray.push({txt: this.buildMarcTxtLine(x.fieldTag, x.indicators.charAt(0), x.indicators.charAt(1), useSubfieldsValues), field: x.fieldTag, fieldInt: parseInt(x.fieldTag)})
+					if (hasValue){
+						rootEl.appendChild(field)
+						marcTextArray.push({txt: this.buildMarcTxtLine(x.fieldTag, x.indicators.charAt(0), x.indicators.charAt(1), useSubfieldsValues), field: x.fieldTag, fieldInt: parseInt(x.fieldTag)})
+					}
 				}
 			}
 		}
