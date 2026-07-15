@@ -129,6 +129,7 @@
         validationErrors: false,
         MARClccn: false,
         note667: "",
+        postStatus: "",
 
       }
     },
@@ -283,6 +284,7 @@
         // get the MARCxml
         let marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
         let parser = new DOMParser()
+        console.info("marcXML: ", marcXML)
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
         this.originalMarc = this.xmlDoc.cloneNode(true)
         this.associatedLang = data.extra.languages[0]//this.xmlDoc.querySelectorAll('[tag="377"]')
@@ -294,9 +296,11 @@
           }
         }
 
-
+        console.info("xml: ", this.xmlDoc)
+        console.info("tag: ", this.tag)
         // get the $d for the 1XX, as long as there is no $t
         let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
+        console.info("oneXX: ", oneXX)
         let childFields = [].slice.call(oneXX.children).map(field => field.getAttribute('code'))
         for (let child of oneXX.children){
           if (child.getAttribute('code') == 'd' && !childFields.includes('t')){
@@ -318,9 +322,14 @@
           this.refEval = true
         }
 
-        for (let varIdx in variants){
-          let variant = variants[varIdx]
-          if (!this.isLatin(variant)){
+        let vars = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')
+        for (let varIdx in Array.from(vars)){
+          let variant = Array.from(vars[varIdx].children).map((item) => {
+            if(item.getAttribute('code') == 'a'){
+              return item.textContent
+            }
+          })[0]
+          if (variant && !this.isLatin(variant)){
             let localMarc = {}
             // if (!localMarc) { this.marcData[varIdx] = {}}
             localMarc.tag = targetTag
@@ -334,10 +343,23 @@
               let ind1 = targetNameXML.getAttribute('ind1')
               let ind2 = targetNameXML.getAttribute('ind2')
               localMarc.indicators = ind1 + ind2
+
+              if (this.tag != 430 && ind2 == 1){
+                localMarc.pref = true
+              }else if (this.tag == 430 && ind1 == 1){
+                localMarc.pref = true
+              }
+
               console.info("localMarc: ", localMarc)
             } catch {}
 
-            console.info("\tadd target: ", [targetTag, varIdx, targetNameXML.children[0].innerHTML])
+            console.info("\t targetTag: ", targetTag)
+            console.info("\t varIdx: ", varIdx)
+            console.info("\t available: ", this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]'))
+            console.info("\t variants: ", variants)
+            console.info("\t targetNameXML: ", targetNameXML)
+
+            console.info("\t\tadd target: ", [targetTag, varIdx, targetNameXML.children[0].innerHTML])
             this.xmlTargets.push([targetTag, varIdx, targetNameXML.children[0].innerHTML])
             // for additions add a fake target with an varIdx that will match that update
 
@@ -349,10 +371,12 @@
               if (subfield != '7'){
                 localMarc["subfield_" + subfield] = value
               } else {
+
                 if (value == '(dpecou)Preferred variant'){
                   localMarc["hasBCP"] = true
                   continue
                 }
+
                 if (localMarc["subfield_7"]){
                   localMarc["subfield_7"].push(value)
                 } else {
@@ -425,18 +449,18 @@
         this.finalMarc = this.finalMarc.replace(/> *</g, '><');
 
         this.finalMarc = this.finalMarc.replace('<marcxml:record>', '<marcxml:record xmlns:marcxml="http://www.loc.gov/MARC21/slim">');
-        // console.info(this.finalMarc)
+        console.info(this.finalMarc)
 
         this.postStatus='posting'
-        // let results = await this.postNacoStub(this.finalMarc, this.MARClccn)
-        // console.info("results: ", results)
-        this.postStatus='posted'
+        let results = await this.postNacoStub(this.finalMarc, this.MARClccn)
+        console.info("results: ", results)
 
         // Reset and redo search to refresh everything
         this.showMarcPreview = false
         this.showEdit4xxPanel = false
         this.activeContext = null
         this.activeComplexSearch = []
+        this.postStatus='posted'
         this.resetBcp()
         this.doSearch()
       },
@@ -518,6 +542,7 @@
       },
 
       getBcpSuggestions: async function(){
+        console.info("getSuggestion: ", this.marcData[this.activeIndex])
         if (!this.activeIndex){ return }
         if (this.marcData[this.activeIndex]){
           this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
@@ -743,10 +768,15 @@
       },
 
       handleInput: function(event){
-        console.info("input: ", event)
+        let el = document.getElementsByClassName("active-bcp")[0]
+        const startPos = el.selectionStart
         this.marcData[this.activeIndex].displayName = event.target.value
         this.buildNewMarcKey()
-        // TODO: maintain cursor position
+
+        window.setTimeout(async ()=>{
+          console.info("current: ", el.selectionStart)
+          el.setSelectionRange(startPos+1, startPos+1)
+        }, 1)
       },
 
       sortResults: function(a,b){
@@ -994,6 +1024,9 @@
               )
             }
           })
+
+        console.info("searchPayload: ", searchPayload)
+        // searchPayload.url[0] = searchPayload.url[0].replace("preprod.", "preprod-8299.")
 
         // wrapping this in setTimeout might not be needed anymore
         this.searchTimeout = window.setTimeout(async ()=>{
@@ -1833,12 +1866,18 @@
             <template v-else-if="showMarcPreview">
               <div class="marc-container">
 
-                <template v-if="validationResult.validation">
+                <template v-if="validationResult.validation && postStatus != 'posting'">
                   <h2 class='validation-header'>Validation:</h2>
                   <span v-for="val in validationResult.validation">
                     <span :class="'validation-'+val.level">{{ val.message }}</span>
                   </span>
                 </template>
+                <template v-else-if="postStatus == 'posting'">
+                  <h2 class='validation-header' >Submitting</h2>
+                    <span class="validation-INFO">Submitting</span>
+                </template>
+
+                <!-- this.postStatus='posting' -->
 
                 <div class="marc-preview-container">
                   <h2>MARC Preview</h2>
@@ -2666,6 +2705,7 @@ pre {
   margin-bottom: 5px;
 }
 
+.validation-INFO,
 .validation-ERROR,
 .validation-SUCCESS {
   list-style: none;
@@ -2685,6 +2725,12 @@ pre {
   color: #155724;
   background-color: #d4edda;
   border-color: #c3e6cb;
+}
+
+.validation-INFO{
+  color: #ffffff;
+  background-color: #5bc0de;
+  border-color: #46b8da;
 }
 
 .marc-container {

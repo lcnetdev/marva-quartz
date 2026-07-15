@@ -3309,6 +3309,8 @@ const utilsNetwork = {
 
     let uuid = translator.toUUID(translator.new())
 
+    console.info("publishing: ", JSON.stringify({marcxml:xml}))
+
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -4462,14 +4464,15 @@ const utilsNetwork = {
     },
 
     async fetchAuthMarc(lccn){
-      let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml"
+      let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
       let marcXML = await this.fetchSimpleLookup(url)
+      console.info("auth: ", marcXML)
       return marcXML
     },
 
     async fetchBCP47Codes(string, hint=false){
       // 8288
-      let url = "https://preprod-8080.id.loc.gov/controllers/xqapi-determine-bcp47.xqy?serialization=application/json&string=" + encodeURIComponent(string)
+      let url = "https://preprod-8080.id.loc.gov/controllers/xqapi-determine-bcp47.xqy?serialization=application/json&string=" + encodeURIComponent(string) + "&includelatn=false"
       if (hint){
         url = url + "&hint=" + hint
       }
