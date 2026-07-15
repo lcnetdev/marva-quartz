@@ -2979,6 +2979,8 @@ export default {
         this.components = newComponents
       }
 
+      console.info("components: ", this.components)
+
       this.$emit('subjectAdded', this.components)
     },
 
