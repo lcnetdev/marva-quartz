@@ -744,6 +744,7 @@
 
       addDateFromOneXX: function(idx){
         this.marcData[idx].displayName += ", $d" + this.oneXXdollarD
+        this.activeIndex = idx
         this.buildNewMarcKey()
       },
 
@@ -1921,7 +1922,7 @@
                         />
 
                         <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
-                        <button @click="addDateFromOneXX(index)" class="material-icons bcp-icon" v-if="oneXXdollarD">date_range</button>
+                        <button @click="addDateFromOneXX(index)" class="material-icons bcp-icon" v-if="oneXXdollarD && !row['subfield_d']">date_range</button>
                         <button v-if="row.newRow" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
                       </template>
                     </div>
