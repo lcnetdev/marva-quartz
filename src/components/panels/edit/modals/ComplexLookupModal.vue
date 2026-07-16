@@ -1057,7 +1057,7 @@
           })
 
         console.info("searchPayload: ", searchPayload)
-        searchPayload.url[0] = searchPayload.url[0].replace("preprod.", "preprod-8299.")
+        // searchPayload.url[0] = searchPayload.url[0].replace("preprod.", "preprod-8299.")
 
         // wrapping this in setTimeout might not be needed anymore
         this.searchTimeout = window.setTimeout(async ()=>{

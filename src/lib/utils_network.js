@@ -4464,7 +4464,7 @@ const utilsNetwork = {
     },
 
     async fetchAuthMarc(lccn){
-      let url = "https://preprod-8299.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
+      let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
       let marcXML = await this.fetchSimpleLookup(url)
       console.info("auth: ", marcXML)
       return marcXML
