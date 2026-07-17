@@ -838,6 +838,7 @@ export default {
         // 'madsrdf:GenreForm': { label: 'Genre ($v)', value: 'madsrdf:GenreForm', selected: false },
         'madsrdf:Geographic': { label: 'Geographic ($z)', value: 'madsrdf:Geographic', selected: false },
         'madsrdf:Temporal': { label: 'Chronological ($y)', value: 'madsrdf:Temporal', selected: false },
+        'madsrdf:FamilyName': { label: 'Family Name ($a)', value: 'madsrdf:FamilyName', selected: false },
       },
 
       labelMap: {
@@ -2574,12 +2575,9 @@ export default {
       if (allHaveURI && allHaveType) {
         this.okayToAdd = true
       }
-      if (allHaveURI && !allHaveType && this.components.length == 1) {
+      if (allHaveURI && !allHaveType && this.components.length > 1) {
         this.okayToAdd = true
       }
-
-
-
     },
 
     subjectStringChanged: async function (event) {

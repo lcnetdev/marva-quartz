@@ -2489,6 +2489,7 @@ const utilsExport = {
 			fieldName4xx.setAttribute( 'tag', fourXXParts.fieldTag)
 			fieldName4xx.setAttribute( 'ind1', fourXXParts.indicators.charAt(0))
 			fieldName4xx.setAttribute( 'ind2', fourXXParts.indicators.charAt(1))
+
 			for (let key of Object.keys(fourXXParts)){
 				// only add the subfields
 				if (key.length == 1){
