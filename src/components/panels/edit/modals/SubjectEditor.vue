@@ -154,6 +154,11 @@
                       :style="`${this.preferenceStore.styleModalTextColor()}`">
                       {{ type.label }}</li>
                   </ol>
+
+                  <template v-if="showTypes">
+                    <input id="provisionalCheck" type="checkbox" v-model="provisionalHeading">
+                    <label for="provisionalCheck"  style="word-wrap:break-word">Provisional</label>
+                  </template>
                 </div>
                 <div style="flex:1">
 
@@ -838,7 +843,7 @@ export default {
         // 'madsrdf:GenreForm': { label: 'Genre ($v)', value: 'madsrdf:GenreForm', selected: false },
         'madsrdf:Geographic': { label: 'Geographic ($z)', value: 'madsrdf:Geographic', selected: false },
         'madsrdf:Temporal': { label: 'Chronological ($y)', value: 'madsrdf:Temporal', selected: false },
-        'madsrdf:FamilyName': { label: 'Family Name ($a)', value: 'madsrdf:FamilyName', selected: false },
+        'bf:Family': { label: 'Family ($a)', value: 'bf:Family', selected: false },                      // madsrdf:family name doesn't work with the conversion
       },
 
       labelMap: {
@@ -877,7 +882,9 @@ export default {
         "sources", "sees", "lcclasses", "lcclasss", "identifiers", "broaders",
         "collections", "subjects", "marcKeys"
       ],
-      selectedSortOrder: ""
+      selectedSortOrder: "",
+
+      provisionalHeading: false,
 
     }
   },
@@ -2797,6 +2804,7 @@ export default {
     },
 
     add: async function () {
+      console.info("add: ", JSON.parse(JSON.stringify(this.components)))
       //remove any existing thesaurus label, so it has the most current
       //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2977,6 +2985,15 @@ export default {
         this.components = newComponents
       }
 
+      if (this.provisionalHeading){
+        for (let comp of this.components){
+          if (!comp.uri){
+            comp.provisional = true
+          }
+        }
+      }
+
+      console.info("components: ", this.components)
       this.$emit('subjectAdded', this.components)
     },
 
@@ -3020,7 +3037,8 @@ export default {
 
       this.contextData = { nodeMap: {} }
       this.authorityLookupLocal = null,
-        this.subjectString = ''
+      this.subjectString = ''
+      this.provisionalHeading = false
 
     },
 
