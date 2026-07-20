@@ -3341,10 +3341,8 @@ export const useProfileStore = defineStore('profile', {
                     }
                 }
 
-                console.info("components: ", subjectComponents)
                 // did they add a LCSH heading, if so add that automatically as a source
                 for (let h of subjectComponents) {
-                    console.info("\tsource: ", h)
                     if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/subjects') > -1 || h.provisional) {
                         if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']) {
 

@@ -2582,9 +2582,11 @@ export default {
       if (allHaveURI && allHaveType) {
         this.okayToAdd = true
       }
-      if (allHaveURI && !allHaveType && this.components.length > 1) {
-        this.okayToAdd = true
-      }
+      // if (allHaveURI && !allHaveType && this.components.length > 1) { // why was this here?
+      //   this.okayToAdd = true
+      // }
+
+
     },
 
     subjectStringChanged: async function (event) {
