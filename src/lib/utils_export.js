@@ -2448,11 +2448,7 @@ const utilsExport = {
 
 		}
 
-
-
-
-
-
+        const isAlpha = str => /^[a-zA-Z]*$/.test(str);
 
 		let fieldName = document.createElementNS(marcNamespace,"marcxml:datafield");
 		let oneXXSubfieldsValues = []
@@ -2461,8 +2457,7 @@ const utilsExport = {
 		fieldName.setAttribute( 'ind1', oneXXParts.indicators.charAt(0))
 		fieldName.setAttribute( 'ind2', oneXXParts.indicators.charAt(1))
 		for (let key of Object.keys(oneXXParts)){
-			if (key.length == 1){
-
+			if (key.length == 1 && isAlpha(key)) {
 				// there might be repeated subfields, split the value and loop through tem
 				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
 				for (let v of useValues){
@@ -2472,8 +2467,19 @@ const utilsExport = {
 					fieldName.appendChild(subfield)
 					oneXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 				}
-
-
+			}
+		}
+		for (let key of Object.keys(oneXXParts)){
+			if (key.length == 1 && !isAlpha(key)) {
+				// there might be repeated subfields, split the value and loop through tem
+				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
+				for (let v of useValues){
+					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+					subfield.setAttribute( 'code', key)
+					subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+					fieldName.appendChild(subfield)
+					oneXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
+				}
 			}
 		}
 		// 110//$aMiller, Sam$d1933
@@ -2491,22 +2497,31 @@ const utilsExport = {
 			fieldName4xx.setAttribute( 'ind2', fourXXParts.indicators.charAt(1))
 			for (let key of Object.keys(fourXXParts)){
 				// only add the subfields
-				if (key.length == 1){
-
+				if (key.length == 1 && isAlpha(key)){
 					// there might be repeated subfields, split the value and loop through tem
 					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
-
 					for (let v of useValues){
-
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
 						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
 						fieldName4xx.appendChild(subfield)
 						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
-
-
 					}
-
+				}
+			}
+			
+			for (let key of Object.keys(fourXXParts)){
+				// only add the subfields
+				if (key.length == 1 && !isAlpha(key)){
+					// there might be repeated subfields, split the value and loop through tem
+					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+					for (let v of useValues){
+						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+						subfield.setAttribute( 'code', key)
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+						fieldName4xx.appendChild(subfield)
+						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
+					}
 				}
 			}
 
