@@ -86,8 +86,11 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
         publish : 'http://localhost:9401/marva/util/publish/staging',
         validate: 'http://localhost:9401/marva/util/validate/prod',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-profiles.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-starting.json',
+        profiles : 'http://localhost:9401/marva/dancer/api/serve/marva-prod/profile',
+        starting: 'http://localhost:9401/marva/dancer/api/serve/marva-prod/starting-points',
+        
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,

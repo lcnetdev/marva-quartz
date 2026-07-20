@@ -531,11 +531,26 @@ const utilsParse = {
       }
 
 
+      // does this rt's profile have a rdf:type picklist component (RdfTypeSelector)?
+      // if so the class URIs in its picklist belong to that component's userValue and not the rt level @type
+      let rdfTypePicklistUris = []
+      for (let k in pt){
+        if (utilsRDF.isRdfTypePicklist(pt[k])){
+          rdfTypePicklistUris = pt[k].valueConstraint.picklist.map((v) => { return utilsRDF.expandPrefixedClass(v) })
+        }
+      }
+      let topLevelPicklistTypes = []
+
       //let rdftype = xml.getElementsByTagName('rdf:type')
-      for (let child of xml.children){
+      for (let child of Array.from(xml.children)){
         if (child.tagName == 'rdf:type'){
           if (child.attributes['rdf:resource']){
-            profile.rt[pkey]['@type'] = child.attributes['rdf:resource'].value
+            let typeUri = child.attributes['rdf:resource'].value
+            if (rdfTypePicklistUris.indexOf(typeUri) > -1){
+              topLevelPicklistTypes.push(typeUri)
+            }else{
+              profile.rt[pkey]['@type'] = typeUri
+            }
             // remove it from the XML since we haev the data
             child.parentNode.removeChild(child)
           }
@@ -721,6 +736,24 @@ const utilsParse = {
               '@guid': short.generate() ,
               '@id': profile.rt[pkey].URI,
             }
+          }
+          pt[k] = ptk
+          continue
+        }
+
+        // the rdf:type picklist component (RdfTypeSelector) gets the class URIs we collected
+        // from the top level rdf:type elements above, el will be empty because they were removed from the XML
+        if (utilsRDF.isRdfTypePicklist(ptk)){
+          if (topLevelPicklistTypes.length > 0){
+            ptk.userValue = {
+              '@root': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+              '@guid': short.generate(),
+              'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': topLevelPicklistTypes.map((uri) => {
+                return { '@guid': short.generate(), '@id': uri }
+              })
+            }
+            ptk.hasData = true
+            ptk.canBeHidden = false
           }
           pt[k] = ptk
           continue
