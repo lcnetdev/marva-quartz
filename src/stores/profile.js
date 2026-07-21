@@ -7469,6 +7469,7 @@ export const useProfileStore = defineStore('profile', {
             delete found['valueConstraint']['defaults']
             delete found['refTemplateUserValue']
             delete found['refTemplateUserValueKeys']
+            delete found['valueConstraint']['picklist']
 
             let libraryComponent = JSON.parse(JSON.stringify(componentLibrary))
             delete libraryComponent['@guid']
@@ -7493,6 +7494,7 @@ export const useProfileStore = defineStore('profile', {
             delete libraryComponent['valueConstraint']['defaults']
             delete libraryComponent['refTemplateUserValue']
             delete libraryComponent['refTemplateUserValueKeys']
+            delete libraryComponent['valueConstraint']['picklist']
 
             if (found['valueConstraint']['valueDataType'] && Object.keys(found['valueConstraint']['valueDataType'].length > 0)) {
                 for (let key of Object.keys(found['valueConstraint']['valueDataType'])) {
@@ -7563,8 +7565,9 @@ export const useProfileStore = defineStore('profile', {
             orderedFound = JSON.parse(ordereString)
             orderedLibrary = JSON.parse(libraryString)
 
-            // console.info("existing: ", JSON.stringify(orderedFound))
-            // console.info("library: ", JSON.stringify(orderedLibrary))
+            // console.info("comparing: ")
+            // console.info("\t existing: ", JSON.stringify(orderedFound))
+            // console.info("\t library: ", JSON.stringify(orderedLibrary))
 
             let orderedFoundHashCode = hashCode(JSON.stringify(orderedFound))
             let orderedLibraryHashCode = hashCode(JSON.stringify(orderedLibrary))
