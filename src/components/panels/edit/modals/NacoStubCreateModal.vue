@@ -1327,6 +1327,16 @@
             OnexxPart = event.target.value
           }
 
+          // if the BCP has been added, maintain the preferred indicator
+          if (this.fourXX.includes("$7")){
+            console.info("FourxxPart: ", FourxxPart)
+            if (FourxxPart.startsWith(430)){
+              FourxxPart = FourxxPart.slice(0, 3) + this.fourXX.slice(3, 4) + FourxxPart.slice(4, 5)
+            } else {
+              FourxxPart = FourxxPart.slice(0, 3) + FourxxPart.slice(3, 4) + this.fourXX.slice(4, 5)
+            }
+          }
+
           if (OnexxPart){
             if (this.oneXX.indexOf("$a")>-1){
               this.oneXX = OnexxPart + "$a"+ this.oneXX.split("$a")[1]
@@ -1827,6 +1837,49 @@
           }
         },
 
+
+        addDollar7: function(element){
+          // 淑子金子金子
+          // get language information from record
+          let nonLatin = this.profileStore.returnAllNonLatinLiterals()
+          let langs = {}
+          for (let item of nonLatin){
+            let lang = item.lang
+            if (Object.keys(langs).includes(lang)){
+              langs[lang] = langs[lang] + 1
+            } else {
+              langs[lang] = 1
+            }
+          }
+
+          let lang = Object.keys(langs).reduce((a,b) => langs[a] > langs[b] ? a : b)
+          let bcp = " $7(bcp47)" + lang
+
+          if(element == 'fourXX'){
+            this.fourXX = this.fourXX + bcp
+            let fieldTag = this.fourXX.slice(0,3)
+            let indicators = this.fourXX.slice(3,5)
+
+            // update indicator
+            if (fieldTag == '430'){
+              indicators = "1" + indicators.split("")[1]
+            } else {
+              indicators = indicators.split("")[0] + "1"
+            }
+            let newString = fieldTag + indicators + this.fourXX.slice(5)
+            this.fourXX = newString
+
+          } else {
+            element.value = element.value + bcp
+            // update indicator
+            if (element.fieldTag == '430'){
+              element.indicators = "1" + element.indicators.split("")[1]
+            } else {
+              element.indicators = element.indicators.split("")[0] + "1"
+            }
+          }
+        },
+
     },
 
 
@@ -1924,7 +1977,7 @@
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1;">
                   <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
-
+                  <button class="dollar-7-auto simptip-position-left" @click="addDollar7('fourXX')" data-tooltip="Add a BCP code">$7</button>
                   <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
                   <textarea
                     ref="nar-4xx"
@@ -2270,7 +2323,7 @@
                     ></textarea>
 
 
-
+                    <button v-if="/4\d\d/.test(row.fieldTag)" @click="addDollar7(row)">$7</button>
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index && index != 0" @click="removeRow($event,index)" style="margin-left: 1em;">-</button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
@@ -2435,7 +2488,14 @@
 
 .paste-from-search .material-icons{
   font-size: 19px;
+}
 
+.dollar-7-auto{
+  position: absolute;
+  right: 2px;
+  top: 30px;
+  z-index: 1000;
+  padding: 0;
 }
 
   #error-info{
