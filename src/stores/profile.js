@@ -1091,7 +1091,7 @@ export const useProfileStore = defineStore('profile', {
 
             startingPointData.json.forEach((sp) => {
 
-                this.startingPoints[sp.menuGroup] = { name: sp.menuGroup, work: null, instance: null, item: null }
+                this.startingPoints[sp.menuGroup] = { name: sp.menuGroup, work: null, instance: null, item: null, authority: null }
                 sp.menuItems.forEach((mi) => {
 
                     if (mi.type.indexOf('http://id.loc.gov/ontologies/bibframe/Instance') > -1) {
@@ -1109,6 +1109,10 @@ export const useProfileStore = defineStore('profile', {
                     if (mi.type.indexOf('http://id.loc.gov/ontologies/bibframe/Hub') > -1) {
 
                         this.startingPoints[sp.menuGroup].hub = mi.useResourceTemplates[0]
+                    }
+                    if (mi.type.indexOf('http://www.loc.gov/mads/rdf/v1#Authority') > -1) {
+
+                        this.startingPoints[sp.menuGroup].authority = mi.useResourceTemplates[0]
                     }
 
 
@@ -1129,6 +1133,12 @@ export const useProfileStore = defineStore('profile', {
                 if (this.startingPoints[sp.menuGroup].instance) {
                     this.profiles[sp.menuGroup].rt[this.startingPoints[sp.menuGroup].instance] = plookup[this.startingPoints[sp.menuGroup].instance]
                     this.profiles[sp.menuGroup].rtOrder.push(this.startingPoints[sp.menuGroup].instance)
+                }
+
+                // madsrdf Authority starting points (like NARs) have no work/instance/item, just the single authority rt
+                if (this.startingPoints[sp.menuGroup].authority) {
+                    this.profiles[sp.menuGroup].rt[this.startingPoints[sp.menuGroup].authority] = plookup[this.startingPoints[sp.menuGroup].authority]
+                    this.profiles[sp.menuGroup].rtOrder.push(this.startingPoints[sp.menuGroup].authority)
                 }
 
                 // if there is a hub and work and instance then always put the hub at the start

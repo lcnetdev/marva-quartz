@@ -492,6 +492,11 @@ export default {
         } else if (this.startingPoints[k].name == 'Related WorkExpression'){
           this.startingPoints[k].instance = this.startingPoints[k].work
           points.push(this.startingPoints[k])
+        } else if (this.startingPoints[k].authority){
+          // madsrdf Authority starting points (like NARs) have no work or instance at all,
+          // the buttons and default profile select pass s.instance so populate it with the authority rt
+          this.startingPoints[k].instance = this.startingPoints[k].authority
+          points.push(this.startingPoints[k])
         }
       }
 
