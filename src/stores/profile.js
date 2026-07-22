@@ -3082,9 +3082,6 @@ export const useProfileStore = defineStore('profile', {
             // console.log(subjectComponents)
             // console.log(propertyPath)
 
-            console.info("pt: ", pt)
-            //TODO get provision here
-
             // find it
             if (pt) {
                 // build out the hiearchy
@@ -3188,9 +3185,7 @@ export const useProfileStore = defineStore('profile', {
                     }
 
                     // if there is a URI add authorized label
-                    console.info("currentUserValuePos: ", currentUserValuePos)
                     if (currentUserValuePos['@id'] || subjectComponents[0].provisional) {
-                        console.info("add authLabel: ", subjectComponents[0].label, "--", subjectComponents)
                         currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
                             "@guid": short.generate(),
                             "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": subjectComponents[0].label
@@ -3278,7 +3273,6 @@ export const useProfileStore = defineStore('profile', {
                     currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"] = []
 
                     for (let c of subjectComponents) {
-                        console.info("add authLabel: ", c, "--", subjectComponents)
                         let compo
                         if (c.uri || c.provisional){
                             compo = {

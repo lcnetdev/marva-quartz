@@ -2806,7 +2806,6 @@ export default {
     },
 
     add: async function () {
-      console.info("add: ", JSON.parse(JSON.stringify(this.components)))
       //remove any existing thesaurus label, so it has the most current
       //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2995,7 +2994,6 @@ export default {
         }
       }
 
-      console.info("components: ", this.components)
       this.$emit('subjectAdded', this.components)
     },
 
