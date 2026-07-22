@@ -100,7 +100,10 @@
 
         tagMap: { // Map between tag and expected indicators
           '053': '#0',
-        }
+        },
+
+        langs: {},
+        bcp: null,
       }
     },
     computed: {
@@ -1565,6 +1568,17 @@
           this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
           this.field245 = this.profileStore.nacoStubReturn245()
 
+          // get language information from record
+          let nonLatin = this.profileStore.returnAllNonLatinLiterals()
+          for (let item of nonLatin){
+            let lang = item.lang
+            if (Object.keys(this.langs).includes(lang)){
+              this.langs[lang] = this.langs[lang] + 1
+            } else {
+              this.langs[lang] = 1
+            }
+          }
+
           // Check if the record might be a CIP
           let isCip = this.profileStore.checkCip()
 
@@ -1840,19 +1854,13 @@
 
         addDollar7: function(element){
           // 淑子金子金子
-          // get language information from record
-          let nonLatin = this.profileStore.returnAllNonLatinLiterals()
-          let langs = {}
-          for (let item of nonLatin){
-            let lang = item.lang
-            if (Object.keys(langs).includes(lang)){
-              langs[lang] = langs[lang] + 1
-            } else {
-              langs[lang] = 1
-            }
-          }
 
-          let lang = Object.keys(langs).reduce((a,b) => langs[a] > langs[b] ? a : b)
+          let lang = null
+          if (!this.bcp){
+            lang = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
+          } else {
+            lang = this.bcp
+          }
           let bcp = " $7(bcp47)" + lang
 
           if(element == 'fourXX'){
@@ -1880,6 +1888,9 @@
           }
         },
 
+        setBcp: function(event){
+          this.bcp = event.target.value.toLowerCase()
+        },
     },
 
 
@@ -2016,20 +2027,21 @@
                 </div>
                 <div style="flex: 1;">
                   <select @change="transliterateChange">
-                  <option value="home">Transliterate</option>
-                  <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
+                    <option value="home">Transliterate</option>
+                    <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
+                    <template v-for="ss in transliterateOptions()">
+                      <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
+                    </template>
+                  </select>
+                </div>
 
-
-                  <template v-for="ss in transliterateOptions()">
-
-                    <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
-                  </template>
-
-
-
-                </select>
-
-
+                <div>
+                  Set BCP
+                  <select @change="setBcp">
+                    <template v-for="(value, key) in langs">
+                      <option :value="key">{{ key }}</option>
+                    </template>
+                  </select>
                 </div>
 
 
