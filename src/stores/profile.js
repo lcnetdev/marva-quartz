@@ -1775,6 +1775,44 @@ export const useProfileStore = defineStore('profile', {
             }
         },
 
+        /**
+        * Sets the selected class URIs of a rdf:type picklist component (RdfTypeSelector)
+        * they are stored as an array of {@id} nodes under the rdf:type propertyURI
+        * and exported as <rdf:type rdf:resource=""/> on the top level Work/Instance/Item/Hub
+        *
+        * @param {string} componentGuid - the guid of the component (the parent of all fields)
+        * @param {array} URIs - the full class URIs that are currently selected
+        * @return {void}
+        */
+        setValueRdfTypePicklist: function (componentGuid, URIs) {
+            const typeURI = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+            let pt = utilsProfile.returnPt(this.activeProfile, componentGuid)
+
+            if (pt !== false) {
+
+                if (URIs.length === 0) {
+                    delete pt.userValue[typeURI]
+                } else {
+                    // keep the @guid of values that are still selected
+                    let existing = pt.userValue[typeURI] || []
+                    pt.userValue[typeURI] = URIs.map((uri) => {
+                        let found = existing.filter((v) => { return v['@id'] === uri })
+                        return (found.length > 0) ? found[0] : { '@guid': short.generate(), '@id': uri }
+                    })
+                }
+
+                pt.hasData = (URIs.length > 0)
+                pt.userModified = true
+                pt.dataLoaded = false
+
+                // they changed something
+                this.dataChanged()
+
+            } else {
+                console.error('setValueRdfTypePicklist: Cannot locate the component by guid', componentGuid, this.activeProfile)
+            }
+        },
+
 
 
         /**

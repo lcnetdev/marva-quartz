@@ -597,6 +597,23 @@ const utilsExport = {
 
 				}
 
+				if (utilsRDF.isRdfTypePicklist(ptObj)){
+					// the rdf:type picklist component (RdfTypeSelector) holds class URIs for the top level entity
+					// emit them as <rdf:type rdf:resource=""/> children of the root element
+					let typeKey = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+					if (ptObj.userValue[typeKey]){
+						for (let typeValue of ptObj.userValue[typeKey]){
+							if (typeValue['@id'] && typeValue['@id'] != profile.rt[rt]['@type']){
+								let ptType = this.createElByBestNS(typeKey)
+								ptType.setAttributeNS(this.namespace.rdf, 'rdf:resource', typeValue['@id'])
+								rootEl.appendChild(ptType)
+								xmlLog.push(`Adding rdf:type ${typeValue['@id']} from the rdf:type picklist component`)
+							}
+						}
+					}
+					continue
+				}
+
 				xmlLog.push(`Working on: ${pt}`)
 				// console.log('ptObj.userValue',ptObj.userValue)
 
