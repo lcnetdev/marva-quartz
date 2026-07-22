@@ -1888,8 +1888,24 @@
           }
         },
 
-        setBcp: function(event){
-          this.bcp = event.target.value.toLowerCase()
+        setBcp: async function(event){
+          let val = event.target.value
+          if (val != 'expand'){
+            this.bcp = val.toLowerCase()
+            return
+          }
+          console.info("expand: ", this.langs)
+          let parts = this.fourXX.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+          let name = parts.filter(p => p.includes("$a"))[0]
+          console.info("name: ", name)
+          let bcpCodes = await utilsNetwork.fetchBCP47Codes(name)
+          console.info("bcpCodes: ", bcpCodes)
+          // add to langs
+          for (let bcp of bcpCodes){
+            this.langs[bcp.bcp47code] = bcp.score
+          }
+
+
         },
     },
 
@@ -1988,7 +2004,7 @@
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1;">
                   <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
-                  <button class="dollar-7-auto simptip-position-left" @click="addDollar7('fourXX')" data-tooltip="Add a BCP code" v-if="langs.length > 0">$7</button>
+                  <button class="dollar-7-auto simptip-position-left" @click="addDollar7('fourXX')" data-tooltip="Add a BCP code" v-if="Object.keys(langs).length > 0">$7</button>
                   <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
                   <textarea
                     ref="nar-4xx"
@@ -2041,6 +2057,7 @@
                     <template v-for="(value, key) in langs">
                       <option :value="key">{{ key }}</option>
                     </template>
+                    <option value="expand">Expand</option>
                   </select>
                 </div>
 
@@ -2335,7 +2352,7 @@
                     ></textarea>
 
 
-                    <button v-if="/4\d\d/.test(row.fieldTag) && langs.length > 0" @click="addDollar7(row)">$7</button>
+                    <button v-if="/4\d\d/.test(row.fieldTag) && Object.keys(langs).length > 0" @click="addDollar7(row)">$7</button>
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index && index != 0" @click="removeRow($event,index)" style="margin-left: 1em;">-</button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
