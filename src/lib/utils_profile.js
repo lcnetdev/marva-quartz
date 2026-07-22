@@ -761,13 +761,13 @@ const utilsProfile = {
     // if we don't check some logic here
     // from https://en.wikipedia.org/wiki/ISO_15924
     if (scriptWanted.toLowerCase() == 'kore'){
-        // if it is korean and we have Hani or Hang then use those
-        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
+        // if it is korean and we have Hang, use it, else check for Hani
         if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hang') > -1){ return 'Hang'}
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
     }
     if (scriptWanted.toLowerCase() == 'hanb'){
-      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
       if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('bopo') > -1){ return 'Bopo'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
     }
     if (scriptWanted.toLowerCase() == 'hrkt'){
       if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hira') > -1){ return 'Hira'}
@@ -778,9 +778,18 @@ const utilsProfile = {
     }
 
     if (scriptWanted.toLowerCase() == 'jpan'){
-      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
       if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hira') > -1){ return 'Hira'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
       if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('kana') > -1){ return 'Kana'}
+    }
+    if (scriptWanted.toLowerCase() == 'hani'){
+        // if it is Hani and no match thus far, see if there is Han simplified first, then traditional Han
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hans') > -1){ return 'Hans'}
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hant') > -1){ return 'Hant'}
+    }
+    if (scriptWanted.toLowerCase() == 'hans' || scriptWanted.toLowerCase() == 'hant'){
+        // if it is Hans or Hant and no match thus far, see if there is Hani
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
     }
 
     return false
