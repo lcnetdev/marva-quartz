@@ -8694,19 +8694,22 @@ export const useProfileStore = defineStore('profile', {
                         }
                     }
 
-                    // Adjust the non-Latin form to match
-                    let otherScriptCodes = false
-                    const config = useConfigStore()
-                    for (let key in config.scriptShifterLangCodes) {
-                        let codeObj = config.scriptShifterLangCodes[key]
-                        if (nonLatin['@language'] && codeObj.code.toLowerCase() == nonLatin['@language'].toLowerCase()) {
-                            otherScriptCodes = key
-                            break
-                        }
-                    }
+                    // not all scripts have `roman to script` causing an alert with a warning to showup
+                    // Does doing this make sense?
 
-                    let transValue = await utilsNetwork.scriptShifterRequestTrans(otherScriptCodes, newText, false, "r2s") //abazin_cyrillic
-                    this.setValueLiteral(targetGuid, nonLatin['@guid'], pp, transValue.output, nonLatin['@language'], false)
+                    // Adjust the non-Latin form to match
+                    // let otherScriptCodes = false
+                    // const config = useConfigStore()
+                    // for (let key in config.scriptShifterLangCodes) {
+                    //     let codeObj = config.scriptShifterLangCodes[key]
+                    //     if (nonLatin['@language'] && codeObj.code.toLowerCase() == nonLatin['@language'].toLowerCase()) {
+                    //         otherScriptCodes = key
+                    //         break
+                    //     }
+                    // }
+
+                    // let transValue = await utilsNetwork.scriptShifterRequestTrans(otherScriptCodes, newText, false, "r2s") //abazin_cyrillic
+                    // this.setValueLiteral(targetGuid, nonLatin['@guid'], pp, transValue.output, nonLatin['@language'], false)
                 } else {
                     this.setValueLiteral(targetGuid, fieldGuid, pp, currentValue[0].value.replace(highlightedText, titleCase), currentValue[0]['@language'], false)
                 }
