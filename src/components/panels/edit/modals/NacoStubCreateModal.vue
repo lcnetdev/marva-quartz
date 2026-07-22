@@ -1988,7 +1988,7 @@
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1;">
                   <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
-                  <button class="dollar-7-auto simptip-position-left" @click="addDollar7('fourXX')" data-tooltip="Add a BCP code">$7</button>
+                  <button class="dollar-7-auto simptip-position-left" @click="addDollar7('fourXX')" data-tooltip="Add a BCP code" v-if="langs.length > 0">$7</button>
                   <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
                   <textarea
                     ref="nar-4xx"
@@ -2327,7 +2327,7 @@
                     />
 
                     <textarea
-                     v-model="row.value"
+                      v-model="row.value"
                       placeholder="$a xyz $b abc..."
                       :style="`margin-right: 1em; flex-grow: 1; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
@@ -2335,7 +2335,7 @@
                     ></textarea>
 
 
-                    <button v-if="/4\d\d/.test(row.fieldTag)" @click="addDollar7(row)">$7</button>
+                    <button v-if="/4\d\d/.test(row.fieldTag) && langs.length > 0" @click="addDollar7(row)">$7</button>
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index && index != 0" @click="removeRow($event,index)" style="margin-left: 1em;">-</button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
