@@ -151,6 +151,9 @@ export default {
                     instance = p.rt[rt]
                 }
             }
+            // madsrdf Authority records (like NARs) have no instance rt, so there is no admin metadata or history to look up
+            if (!instance) { return }
+
             let admin = []
             let nines = []
             for (let pt in instance.pt) {

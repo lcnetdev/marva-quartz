@@ -512,7 +512,8 @@ const utilsExport = {
 		Work: {},
 		Instance: {},
 		Item: {},
-		Hub:{}
+		Hub:{},
+		Authority:{}
 	}
 
 		for (let rt of profile.rtOrder){
@@ -547,6 +548,11 @@ const utilsExport = {
 				tleArray = tleWork
 				rootEl = document.createElementNS(this.namespace.bf,"bf:Work");
 				rootElName = "Work"
+			}else if (profile.rt[rt].isAuthorityRt){
+				// a madsrdf Authority rt (like a NAR), the rt id has no bf suffix so it is flagged in the profile store
+				tleArray = tleWork
+				rootEl = document.createElementNS(this.namespace.madsrdf,"madsrdf:Authority");
+				rootElName = "Authority"
 			}else{
 				// don't mess with anything that is not a top level entitiy in the profile, there can be other referenced RTs that we don't want to export they are just used in the main RT
 				xmlLog.push(`Dunno what this part is, skipping ${rt}`)
@@ -1512,6 +1518,12 @@ const utilsExport = {
 			rdfBasic.appendChild(theHub)
 		}
 
+		for (let URI in tleLookup['Authority']){
+			let theAuthority = (new XMLSerializer()).serializeToString(tleLookup['Authority'][URI])
+			theAuthority = xmlParser.parseFromString(theAuthority, "text/xml").children[0];
+			rdfBasic.appendChild(theAuthority)
+		}
+
 		for (let URI in tleLookup['Instance']){
 			// let instance = tleLookup['Instance'][URI].cloneNode( true )
 			let instance = (new XMLSerializer()).serializeToString(tleLookup['Instance'][URI])
@@ -1623,6 +1635,15 @@ const utilsExport = {
 			theHub = xmlParser.parseFromString(theHub, "text/xml").children[0];
 
 			rdf = theHub
+		}
+
+		// are we just editing a single madsrdf Authority (like a NAR)? same deal as the HUB above
+		if (Object.keys(tleLookup['Work']).length==0 && Object.keys(tleLookup['Instance']).length==0 && Object.keys(tleLookup['Authority']).length >= 1){
+
+			let theAuthority = (new XMLSerializer()).serializeToString(rdfBasic)
+			theAuthority = xmlParser.parseFromString(theAuthority, "text/xml").children[0];
+
+			rdf = theAuthority
 		}
 
 		if (rdfBasic.getElementsByTagName("bf:mainTitle").length>0){

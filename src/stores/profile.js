@@ -1139,6 +1139,11 @@ export const useProfileStore = defineStore('profile', {
                 if (this.startingPoints[sp.menuGroup].authority) {
                     this.profiles[sp.menuGroup].rt[this.startingPoints[sp.menuGroup].authority] = plookup[this.startingPoints[sp.menuGroup].authority]
                     this.profiles[sp.menuGroup].rtOrder.push(this.startingPoints[sp.menuGroup].authority)
+                    // mark it so downstream code (like the XML export) knows this rt is a madsrdf Authority
+                    // since the rt id doesn't have one of the bf suffixes (:Work etc.) to test against
+                    if (this.profiles[sp.menuGroup].rt[this.startingPoints[sp.menuGroup].authority]) {
+                        this.profiles[sp.menuGroup].rt[this.startingPoints[sp.menuGroup].authority].isAuthorityRt = true
+                    }
                 }
 
                 // if there is a hub and work and instance then always put the hub at the start
@@ -5005,6 +5010,11 @@ export const useProfileStore = defineStore('profile', {
                         if (structure.parentId.endsWith("Work") || structure.parentId.includes("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")) {
                             isParentTop = true
                         }
+                        // madsrdf Authority rts (like lc:RT:mads:NAR:NameAuthority) don't have the bf suffixes,
+                        // but if the parent rt is one of the active profile's top level rts it is top level
+                        if (this.activeProfile && this.activeProfile.rt && this.activeProfile.rt[structure.parentId]) {
+                            isParentTop = true
+                        }
 
                         let defaultsProperty = false
                         if (this.rtLookup[structure.parentId]) {
@@ -5058,7 +5068,11 @@ export const useProfileStore = defineStore('profile', {
                                             blankNodeType = p.valueConstraint.valueDataType.dataTypeURI
                                         }
                                         // overwrite it if there is anything there already
-                                        userValue[p.propertyURI] = []
+                                        // but at the top level only for this component's own property, the other
+                                        // properties belong to other components and would leave empty arrays behind here
+                                        if (!isParentTop || p.propertyURI == baseURI) {
+                                            userValue[p.propertyURI] = []
+                                        }
                                         for (let d of p.valueConstraint.defaults) {
                                             let value = {
                                                 '@guid': short.generate(d.defaultLiteral, d.defaultURI)
