@@ -20,6 +20,18 @@
 
     <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
+    <Teleport to="body">
+      <div v-if="showRelWorkIframeModal" class="rel-work-iframe-overlay">
+        <div class="rel-work-iframe-container">
+          <div class="rel-work-iframe-header">
+            <span>Create Related Work Expression</span>
+            <button class="rel-work-iframe-close" @click="showRelWorkIframeModal=false">✕</button>
+          </div>
+          <iframe :src="relWorkIframeSrc" class="rel-work-iframe"></iframe>
+        </div>
+      </div>
+    </Teleport>
+
     <template #popper>
 
       <div class="action-button-menu-background" :style="'background-color: ' + preferenceStore.returnValue('--c-edit-general-action-button-menu-background-color')  + ';'">
@@ -123,7 +135,7 @@
 
 
         <template v-if="showBuildHubStub()">
-              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()" :style="buttonStyle">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="isRelWorkExpressionLookupField() ? openRelWorkExpressionEditor() : buildHubStub()" :style="buttonStyle">
                 {{ isRelWorkExpressionLookupField() ? 'Create Related Work Expression' : 'Create Hub' }}
               </button>
         </template>
@@ -256,6 +268,9 @@
         targetInstance: null,
         currentRt: null,
 
+        showRelWorkIframeModal: false,
+        relWorkIframeSrc: null,
+
       }
     },
     computed: {
@@ -363,6 +378,17 @@
 
 
 
+
+      openRelWorkExpressionEditor(){
+        // open the minimal edit screen in an iframe, it runs the whole app stack on its own
+        // so there is no conflict with this session's stores. It gets told which profile to
+        // use via the query params (a load url and uri can also be passed when needed)
+        let profileId = this.profileStore.resolveTemplateId('lc:RT:RelatedWorkExpression')
+        let route = this.$router.resolve({ name: 'EditMinimal', query: { profile: profileId } })
+        this.relWorkIframeSrc = route.href
+        this.showRelWorkIframeModal = true
+        this.isMenuShown = false
+      },
 
       isRelWorkExpressionLookupField(){
         // fields whose value templates point at a RelWorkExpressionLookup template get a
@@ -1310,6 +1336,51 @@
 
 
 <style scoped>
+
+  .rel-work-iframe-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rel-work-iframe-container{
+    width: 85%;
+    height: 90%;
+    background-color: white;
+    border: solid 1px black;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .rel-work-iframe-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px;
+    border-bottom: solid 1px black;
+    font-weight: bold;
+    flex: 0 0 auto;
+  }
+
+  .rel-work-iframe-close{
+    cursor: pointer;
+    background-color: white;
+    border: solid 1px black;
+    border-radius: 4px;
+  }
+
+  .rel-work-iframe{
+    flex: 1 1 auto;
+    width: 100%;
+    border: none;
+  }
+
   .action-button-menu-background{
     width: 250px;
 
