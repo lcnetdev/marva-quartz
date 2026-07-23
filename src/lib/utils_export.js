@@ -65,6 +65,30 @@ const utilsExport = {
   lastGoodXMLBuildProfile: null,
   lastGoodXMLBuildProfileTimestamp: null,
 
+  // keeps track of data problems already alerted about so the popup only fires once per problem per session
+  warnedDataIssues: [],
+
+  // set as the export walks the record, so warnings can say which component they happened in
+  currentComponentContext: null,
+
+  /**
+  * warn about a record/profile data problem found during export, console + a popup the first time
+  * that unique message is seen, so a bad profile fails loudly instead of crashing the XML build
+  *
+  * @param {string} msg - the warning to show
+  * @return {void}
+  */
+  warnDataIssue: function(msg){
+		if (this.currentComponentContext){
+			msg = `${msg}\n\nThis happened while building the component ${this.currentComponentContext}`
+		}
+		console.warn(msg)
+		if (this.warnedDataIssues.indexOf(msg) === -1){
+			this.warnedDataIssues.push(msg)
+			alert(`Warning - there is a problem with the record or profile data, the exported record may be missing parts:\n\n${msg}`)
+		}
+	},
+
   // all the namespaces are stored in the utils_rdf
   namespace: utilsRDF.namespace,
 
@@ -116,6 +140,13 @@ const utilsExport = {
   * @return {element}
   */
   createElByBestNS: function(elStr){
+		// guard against a missing value, like a @type that was never set because
+		// the profile's resource template is missing its resourceURI
+		if (!elStr || typeof elStr !== 'string'){
+			this.warnDataIssue(`Could not create a XML element, no name to create it with (${elStr}). Check the profile for a resource template missing its resourceURI.`)
+			return null
+		}
+
 		// HACK - bad marc2bf conversion
 		if (elStr == 'http://www.loc.gov/mads/rdf/v1#'){
 			elStr = 'http://www.loc.gov/mads/rdf/v1#Authority'
@@ -124,7 +155,12 @@ const utilsExport = {
 		elStr=elStr.replace('https://','http://')
 		// if the elString is not a expanded URI
 		if (!elStr.startsWith('http')){
-			elStr = this.UriNamespace(elStr)
+			let expanded = this.UriNamespace(elStr)
+			if (!expanded){
+				this.warnDataIssue(`Could not create the XML element "${elStr}", it does not use a known namespace prefix.`)
+				return null
+			}
+			elStr = expanded
 		}
 
 		for (let ns of Object.keys(this.namespace)){
@@ -132,7 +168,7 @@ const utilsExport = {
 				return document.createElementNS(this.namespace[ns],this.namespaceUri(elStr))
 			}
 		}
-		console.error('could not find namespace for ', elStr)
+		this.warnDataIssue(`Could not create the XML element "${elStr}", could not find a namespace for it.`)
 		return null
 	},
 
@@ -173,6 +209,9 @@ const utilsExport = {
 			} catch {
 				return false
 			}
+			if (!bnode){
+				return false
+			}
 			if (userValue['@id']){
 				bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 			}
@@ -193,8 +232,17 @@ const utilsExport = {
   * @return {boolean}
   */
 	createLiteral: function(property,userValue){
+		if (!property || typeof property !== 'string' || (!property.startsWith('http') && !this.UriNamespace(property))){
+			let value
+			try{ value = JSON.stringify(userValue) }catch{ value = String(userValue) }
+			this.warnDataIssue(`Could not build part of the record, "${property}" is not a usable property name.\n\nThe value it was trying to write: ${value}`)
+			return false
+		}
 		let p = this.createElByBestNS(property)
-
+		if (!p){
+			// createElByBestNS already warned about why
+			return false
+		}
 
 		// it should be stored under the same key
 		if (userValue[property] && property != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
@@ -584,6 +632,9 @@ const utilsExport = {
         		// extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
 
+				// keep track of what we are working on so any data problem warnings can say where they happened
+				this.currentComponentContext = `"${ptObj.propertyLabel || pt}" (${ptObj.propertyURI}) in ${rt}`
+
 				if (ptObj.deleted){
 					continue
 				}
@@ -844,6 +895,12 @@ const utilsExport = {
 
 						let bnodeLvl1 = this.createBnode(userValue, ptObj.propertyURI)
 
+						if (!pLvl1 || !bnodeLvl1){
+							this.warnDataIssue(`Could not build the "${ptObj.propertyLabel || ptObj.propertyURI}" component, it was skipped in the export.`)
+							xmlLog.push(`Could not create the lvl 1 predicate or bnode for ${ptObj.propertyURI}, skipping it`)
+							continue
+						}
+
 						xmlLog.push(`Created lvl 1 predicate: ${pLvl1.tagName} and bnode: ${bnodeLvl1.tagName}`)
 
 						/*
@@ -860,6 +917,10 @@ const utilsExport = {
 							xmlLog.push(`Looking at property : ${key1} in the userValue`)
 							// console.log('userValue',userValue)
 							let pLvl2 = this.createElByBestNS(key1)
+							if (!pLvl2){
+								xmlLog.push(`Could not create the lvl 2 predicate for ${key1}, skipping it`)
+								continue
+							}
 							if (key1 == 'http://www.loc.gov/mads/rdf/v1#componentList'){
 								pLvl2.setAttribute('rdf:parseType', 'Collection')
 							}
@@ -889,6 +950,10 @@ const utilsExport = {
 								if (!value1FirstLoop && this.needsNewPredicate(key1)){
 									// we are going to make a new predicate, same type but not the same one as the last one was attached to
 									pLvl2 = this.createElByBestNS(key1)
+									if (!pLvl2){
+										xmlLog.push(`Could not create the lvl 2 predicate for ${key1}, skipping it`)
+										continue
+									}
 									xmlLog.push(`Creating lvl 2 property : ${pLvl2.tagName} for ${JSON.stringify(value1)}`)
 								}
 
@@ -897,6 +962,10 @@ const utilsExport = {
 								if (this.isBnode(value1)){
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
+									if (!bnodeLvl2){
+										xmlLog.push(`Could not create the lvl 2 bnode for ${key1}, skipping it`)
+										continue
+									}
 
 									//carve out an exception for associated resource is a series
 									if (bnodeLvl1.tagName == 'bf:Relation' && bnodeLvl2.tagName == 'bf:Series' && pLvl2.tagName == 'bf:associatedResource'){
@@ -913,6 +982,10 @@ const utilsExport = {
                   					// now loop through its properties and see whats nested
 									for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 										let pLvl3 = this.createElByBestNS(key2)
+										if (!pLvl3){
+											xmlLog.push(`Could not create the lvl 3 predicate for ${key2}, skipping it`)
+											continue
+										}
 										// Build the note type correctly when it appears at this level
 										if (key2 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 											let cont = this.buildNoteType(bnodeLvl2, userValue[key1][0], key2, xmlLog)
@@ -934,11 +1007,19 @@ const utilsExport = {
                                                 // more nested bnode
                                                 // one more level
                                                 let bnodeLvl3 = this.createBnode(value2,key2)
+                                                if (!bnodeLvl3){
+													xmlLog.push(`Could not create the lvl 3 bnode for ${key2}, skipping it`)
+													continue
+												}
 
 												if (lastBnodeLvl3TagName == bnodeLvl3.tagName){
 													// console.log("Creating multiple bnodes of the same type in a row", bnodeLvl3.tagName)
 													// if we are doing this we need to create a new parent property to put the new one into
 													pLvl3 = this.createElByBestNS(key2)
+													if (!pLvl3){
+														xmlLog.push(`Could not create the lvl 3 predicate for ${key2}, skipping it`)
+														continue
+													}
 												}
 												lastBnodeLvl3TagName = bnodeLvl3.tagName
 
@@ -950,6 +1031,10 @@ const utilsExport = {
 
                                                 for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
                                                     let pLvl4 = this.createElByBestNS(key3) // this was key2, was that a typo or is this going to break stuff?
+                                                    if (!pLvl4){
+														xmlLog.push(`Could not create the lvl 4 predicate for ${key3}, skipping it`)
+														continue
+													}
 
 													// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
 													// if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
@@ -974,6 +1059,10 @@ const utilsExport = {
                                                         if (this.isBnode(value3)){
                                                             // one more level
                                                             let bnodeLvl4 = this.createBnode(value3,key3)
+                                                            if (!bnodeLvl4){
+																xmlLog.push(`Could not create the lvl 4 bnode for ${key3}, skipping it`)
+																continue
+															}
 
                                                             pLvl4.appendChild(bnodeLvl4)
                                                             bnodeLvl3.appendChild(pLvl4)
@@ -1125,6 +1214,10 @@ const utilsExport = {
 								xmlLog.push(`Root level sibling bnode: ${ptObj.propertyURI}`)
 								let pLvl1Sibling = this.createElByBestNS(ptObj.propertyURI)
 								let bnodeLvl1Sibling = this.createBnode(uv, ptObj.propertyURI)
+								if (!pLvl1Sibling || !bnodeLvl1Sibling){
+									xmlLog.push(`Could not create the sibling predicate or bnode for ${ptObj.propertyURI}, skipping it`)
+									continue
+								}
 								//we are only checking for a label as a nested property, we will not loop through the properties looking for stuff
 
 								if (uv['http://www.w3.org/2000/01/rdf-schema#label']){
@@ -1211,6 +1304,11 @@ const utilsExport = {
 
 								let p = this.createElByBestNS(ptObj.propertyURI)
 								let bnode = this.createElByBestNS(userValue['@type'])
+								if (!p || !bnode){
+									this.warnDataIssue(`Could not build the "${ptObj.propertyLabel || ptObj.propertyURI}" component, it was skipped in the export.`)
+									xmlLog.push(`Could not create the predicate or bnode for ${ptObj.propertyURI}, skipping it`)
+									continue
+								}
 								bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 
 								xmlLog.push(`Created ${p.tagName} property and ${bnode.tagName} bnode`)
@@ -1247,6 +1345,17 @@ const utilsExport = {
 										}
 									}else{
 										for (let value1 of userValue[key1]){
+											// the array can hold a bare literal (for example a profile default with a
+											// defaultLiteral but no defaultURI), don't loop a string like it is an object
+											if (typeof value1 === 'string' || typeof value1 === 'number'){
+												let p1 = this.createLiteral(key1, {[key1]: value1})
+												if (p1!==false) {
+													rootEl.appendChild(p1);
+													allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
+													xmlLog.push(`Creating literal at root level for ${key1} with value ${value1}`)
+												}
+												continue
+											}
 											for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 												if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 													// its a label or some other literal
@@ -1272,7 +1381,31 @@ const utilsExport = {
 								let addedResourceAsLiteral = false
 								for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
 
+									// the value can be a bare literal stored directly under the property (for example a
+									// profile default with a defaultLiteral but no defaultURI), don't loop a string like an array
+									if (typeof userValue[key1] === 'string' || typeof userValue[key1] === 'number'){
+										let p1 = this.createLiteral(key1, userValue)
+										if (p1!==false) {
+											rootEl.appendChild(p1);
+											addedResourceAsLiteral=true
+											allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
+											xmlLog.push(`Listed as rdf:Resource but treating it a a literal, Creating literal for ${key1} with value ${p1.innerHTML}`)
+										}
+										continue
+									}
+
 									for (let value1 of userValue[key1]){
+										// same bare literal check for the values inside the array
+										if (typeof value1 === 'string' || typeof value1 === 'number'){
+											let p1 = this.createLiteral(key1, {[key1]: value1})
+											if (p1!==false) {
+												rootEl.appendChild(p1);
+												addedResourceAsLiteral=true
+												allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
+												xmlLog.push(`Listed as rdf:Resource but treating it a a literal, Creating literal for ${key1} with value ${p1.innerHTML}`)
+											}
+											continue
+										}
 										for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal
@@ -1297,6 +1430,10 @@ const utilsExport = {
 									// also if it is here then there was no action taken, if it at least had a URI then add it
 									if (userValue['@id']) {
 										let p = this.createElByBestNS(ptObj.propertyURI)
+										if (!p){
+											xmlLog.push(`Could not create the predicate for ${ptObj.propertyURI}, skipping it`)
+											continue
+										}
 										p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
 										rootEl.appendChild(p)
 										componentXmlLookup[`${rt}-${pt}`] = formatXML(p.outerHTML)
@@ -1307,6 +1444,10 @@ const utilsExport = {
 							}else if (userValue['@id']){
 								// it has a URI at least, so make that
 								let p = this.createElByBestNS(ptObj.propertyURI)
+								if (!p){
+									xmlLog.push(`Could not create the predicate for ${ptObj.propertyURI}, skipping it`)
+									continue
+								}
 								p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
 								rootEl.appendChild(p)
 								componentXmlLookup[`${rt}-${pt}`] = formatXML(p.outerHTML)
@@ -1315,6 +1456,10 @@ const utilsExport = {
 
 								// does it just have a label?
 								let p = this.createElByBestNS(ptObj.propertyURI)
+								if (!p){
+									xmlLog.push(`Could not create the predicate for ${ptObj.propertyURI}, skipping it`)
+									continue
+								}
 								p.innerHTML = userValue['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
 								rootEl.appendChild(p)
 								componentXmlLookup[`${rt}-${pt}`] = formatXML(p.outerHTML)
@@ -1849,6 +1994,9 @@ const utilsExport = {
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
 	// console.info("strXmlBasic: ", strXmlBasic)
+
+	// done walking the components, clear the warning context
+	this.currentComponentContext = null
 
 	return {
 		xmlDom: rdf,

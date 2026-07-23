@@ -605,6 +605,8 @@ const utilsParse = {
           console.warn("Using default template for admin metadata: ", err)
           targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
         }
+        // the loaded profiles may name their templates without the bf2 segment, use whichever exists
+        targetTemplate = useProfileStore().resolveTemplateId(targetTemplate)
 
         // adminMetadataCount
         pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {

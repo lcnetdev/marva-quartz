@@ -1045,6 +1045,8 @@ export default {
               console.warn("Using default template for admin metadata: ", err)
               targetTemplate = "lc:RT:bf2:AdminMetadata"
             }
+            // the loaded profiles may name their templates without the bf2 segment, use whichever exists
+            targetTemplate = this.profileStore.resolveTemplateId(targetTemplate)
 
             // Add the Admin Metadata with the eNumber
             pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
