@@ -120,7 +120,6 @@
 
 
       disableAddButton() {
-        this.checkBcp()
 
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
@@ -144,6 +143,10 @@
         }
 
         if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !this.good670()){
+          return true
+        }
+
+        if (this.checkBcp()){
           return true
         }
 
@@ -238,8 +241,6 @@
 
       // Check that tag fields aren't empty
       goodTags: function(){
-        this.checkBcp()
-
         let good = this.extraMarcStatements.every((row) => row.fieldTag.length == 3)
         return good
       },
@@ -1868,14 +1869,7 @@
           }
           let bcp = " $7(bcp47)" + lang
 
-          let existingBcp = this.checkBcp()
-
-          console.info("bcp: ", bcp)
-          console.info("existingBcp: ", existingBcp)
-          console.info("includes? ", existingBcp.includes(bcp))
-          for (let ex of existingBcp){
-            console.info("\t '", ex, "' == '", bcp.trim(), "' >> ", ex == bcp.trim())
-          }
+          let existingBcp = this.getPreferredBcp()
 
           if(element == 'fourXX'){
             this.fourXX = this.fourXX + bcp
@@ -1927,14 +1921,10 @@
           }
         },
 
-        checkBcp: function(){
-          console.info("check BCP")
-          // for a given BCP code, there should only be one instance that is preferred.
+        // return a list BCP codes tied to preferred variants
+        getPreferredBcp: function(){
           let primary4XX = this.fourXX
           let additional4XX = this.extraMarcStatements.filter(ex => /4\d\d/.test(ex.fieldTag))
-
-          console.info("\t primary: ", primary4XX)
-          console.info("\t additional: ", additional4XX)
 
           let preferred = []
           let tag = primary4XX.slice(0,3)
@@ -1960,14 +1950,24 @@
             })
           }
 
-          let matches = []
+          let prefLangs = []
           let bcp = preferred.map(pref => {
-            matches.push(pref.match(/\$7(.*)$/g)[0])
+            prefLangs.push(pref.match(/\$7(.*)$/g)[0])
           })
-          console.info("matches: ", matches)
-          // check matches for dupes
-          return matches
 
+          return prefLangs
+        },
+
+        // return true if the same BCP code appears with multiple preferred
+        checkBcp: function(){
+          let bcpList = this.getPreferredBcp()
+          let seen = new Set();
+          let duplicates = bcpList.filter(item => seen.has(item) ? true : !seen.add(item))
+
+          if (duplicates.length > 0){
+            return true
+          }
+          return false
         },
     },
 
@@ -2257,6 +2257,19 @@
                 <!-- Always show these checks, 670 stuff can slip through -->
                 <div>
                   <div class="error-info-title">Other Checks:</div>
+
+                  <template v-if="!checkBcp()">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">No duplicate preferred BCP</span>
+                        </div>
+                  </template>
+                  <template v-else>
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">Duplicate Preferred BCP</span><span data-tooltip="Multiple of the same BCP code are marked preferred." class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
+                  </template>
 
                   <template v-if="goodTags()">
                         <div>
