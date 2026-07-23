@@ -506,7 +506,21 @@
         const marcXML = this.xmlDoc
         let updates = this.marcData
 
-        console.info("\t\t\tupdates: ", updates)
+        let numEval = 0
+        let totalVars = 0
+        // TODO: check if all variants have been evaluated (have bcp codes), to have 667 to "Some non-Latin.... have been evaluated"
+        for (let key of Object.keys(updates)){
+          let data = updates[key]
+          totalVars += 1
+          if (Object.keys(data).includes("subfield_7")){
+            numEval += 1
+          }
+        }
+
+        let someEval = totalVars != numEval
+        if (someEval && !this.marcData.refEval){
+          this.marcData.refEval = "some"
+        }
 
         // add a target for any additions
         for (let idx in updates){
@@ -773,7 +787,13 @@
       },
 
       addDateFromOneXX: function(idx){
-        this.marcData[idx].displayName += ", $d" + this.oneXXdollarD
+        // TODO:
+        // - check language to use correct comma: arabic comma: ،
+        // - If the $7 is added first, make sure is inserted before it
+
+        let comma = ","
+
+        this.marcData[idx].displayName += comma + " $d" + this.oneXXdollarD
         this.activeIndex = idx
         this.buildNewMarcKey()
       },
@@ -1996,7 +2016,7 @@
                   </div> -->
 
                 <div class="button-container">
-                  <label for="refEval">References Evaluated?</label>
+                  <label for="refEval">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                   <br><br>
                   <button @click="previewMarc()">Preview</button>

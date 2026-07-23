@@ -8908,7 +8908,21 @@ export const useProfileStore = defineStore('profile', {
             target667s.push(sixSixSeven)
           }
         }
-        target667s.map(item => record.removeChild(item))
+
+        target667s.map(item => record.removeChild(item)) // remove existing notes, and add new note
+        if (updates.refEval == 'some'){
+          let note = "Some non-Latin script references evaluated."
+          let someNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+          someNote.setAttribute('tag', '667')
+          someNote.setAttribute('ind1', " ")
+          someNote.setAttribute('ind2', " ")
+          let someNoteA = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+          someNoteA.setAttribute("code", 'a')
+          someNoteA.innerHTML = note
+          someNote.appendChild(someNoteA)
+          this.indentedAppend(record, someNote, false, marc667List[marc667List.length - 1])
+        }
+
       }
 
       // 040 if the last $d is DLC, don't add another one
