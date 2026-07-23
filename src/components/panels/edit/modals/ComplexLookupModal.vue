@@ -930,9 +930,6 @@
 
         let source = this.structure.propertyURI
 
-        console.info("source: ", source)
-        console.info("structure: ", this.structure)
-
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',
