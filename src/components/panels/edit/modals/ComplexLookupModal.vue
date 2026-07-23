@@ -927,6 +927,12 @@
       loadNacoStubModal(){
         // Set the current value for NAR creation
         this.lastComplexLookupString = this.searchValueLocal
+
+        let source = this.structure.propertyURI
+
+        console.info("source: ", source)
+        console.info("structure: ", this.structure)
+
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',
@@ -934,7 +940,7 @@
           fieldGuid: null,
           structure: this.structure,
           propertyPath:this.propertyPath,
-          source: "contribution"
+          source: source
         }
 
 

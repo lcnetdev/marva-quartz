@@ -453,6 +453,7 @@
 
         async postNacoStub(){
             this.postStatus='posting'
+
             let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
 
             results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
@@ -477,6 +478,11 @@
               }else if (this.oneXXParts.fieldTag == "147"){
                 type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
               }
+
+              if (this.activeNARStubComponent.source.includes("expressionOf")){
+                type = "http://id.loc.gov/ontologies/bibframe/Hub"
+              }
+
               let useName = ''
               for (let key in this.oneXXParts){
                 if (key.length==1){
@@ -489,6 +495,8 @@
               let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
 
               if (this.activeNARStubComponent.source.includes('contribution')){
+                this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+              } else if (this.activeNARStubComponent.source.includes('expressionOf')){
                 this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
               } else if (this.activeNARStubComponent.source.includes('subject')){
                 let MARCKey = await utilsNetwork.returnMARCKey(results.pubResuts.postLocation)
