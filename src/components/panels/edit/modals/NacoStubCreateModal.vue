@@ -120,6 +120,8 @@
 
 
       disableAddButton() {
+        this.checkBcp()
+
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
         }
@@ -144,6 +146,7 @@
         if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && !this.good670()){
           return true
         }
+
 
         return false
       }
@@ -235,6 +238,8 @@
 
       // Check that tag fields aren't empty
       goodTags: function(){
+        this.checkBcp()
+
         let good = this.extraMarcStatements.every((row) => row.fieldTag.length == 3)
         return good
       },
@@ -1863,27 +1868,43 @@
           }
           let bcp = " $7(bcp47)" + lang
 
+          let existingBcp = this.checkBcp()
+
+          console.info("bcp: ", bcp)
+          console.info("existingBcp: ", existingBcp)
+          console.info("includes? ", existingBcp.includes(bcp))
+          for (let ex of existingBcp){
+            console.info("\t '", ex, "' == '", bcp.trim(), "' >> ", ex == bcp.trim())
+          }
+
           if(element == 'fourXX'){
             this.fourXX = this.fourXX + bcp
             let fieldTag = this.fourXX.slice(0,3)
             let indicators = this.fourXX.slice(3,5)
 
-            // update indicator
-            if (fieldTag == '430'){
-              indicators = "1" + indicators.split("")[1]
-            } else {
-              indicators = indicators.split("")[0] + "1"
+            // if the bcpcode is in existingBcp, don't set the indicator
+
+            if (!existingBcp.includes(bcp.trim())){
+              // update indicator
+              if (fieldTag == '430'){
+                indicators = "1" + indicators.split("")[1]
+              } else {
+                indicators = indicators.split("")[0] + "1"
+              }
             }
+
             let newString = fieldTag + indicators + this.fourXX.slice(5)
             this.fourXX = newString
 
           } else {
             element.value = element.value + bcp
             // update indicator
-            if (element.fieldTag == '430'){
-              element.indicators = "1" + element.indicators.split("")[1]
-            } else {
-              element.indicators = element.indicators.split("")[0] + "1"
+            if (!existingBcp.includes(bcp.trim())){
+              if (element.fieldTag == '430'){
+                element.indicators = "1" + element.indicators.split("")[1]
+              } else {
+                element.indicators = element.indicators.split("")[0] + "1"
+              }
             }
           }
         },
@@ -1904,7 +1925,48 @@
           for (let bcp of bcpCodes){
             this.langs[bcp.bcp47code] = bcp.score
           }
+        },
 
+        checkBcp: function(){
+          console.info("check BCP")
+          // for a given BCP code, there should only be one instance that is preferred.
+          let primary4XX = this.fourXX
+          let additional4XX = this.extraMarcStatements.filter(ex => /4\d\d/.test(ex.fieldTag))
+
+          console.info("\t primary: ", primary4XX)
+          console.info("\t additional: ", additional4XX)
+
+          let preferred = []
+          let tag = primary4XX.slice(0,3)
+          if (tag == '430'){
+            if (primary4XX.charAt(3) == '1'){
+              preferred.push(primary4XX)
+            }
+            additional4XX.map(ex => {
+              let pref = ex.indicators.charAt(0)
+              if (pref == '1'){
+                preferred.push(ex.value)
+              }
+            })
+          } else {
+            if (primary4XX.charAt(4) == '1'){
+              preferred.push(primary4XX)
+            }
+            additional4XX.map(ex => {
+              let pref = ex.indicators.charAt(1)
+              if (pref == '1'){
+                preferred.push(ex.value)
+              }
+            })
+          }
+
+          let matches = []
+          let bcp = preferred.map(pref => {
+            matches.push(pref.match(/\$7(.*)$/g)[0])
+          })
+          console.info("matches: ", matches)
+          // check matches for dupes
+          return matches
 
         },
     },
