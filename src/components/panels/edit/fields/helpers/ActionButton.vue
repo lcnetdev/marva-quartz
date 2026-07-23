@@ -124,7 +124,7 @@
 
         <template v-if="showBuildHubStub()">
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()" :style="buttonStyle">
-                Create Hub
+                {{ isRelWorkExpressionLookupField() ? 'Create Related Work Expression' : 'Create Hub' }}
               </button>
         </template>
 
@@ -363,6 +363,20 @@
 
 
 
+
+      isRelWorkExpressionLookupField(){
+        // fields whose value templates point at a RelWorkExpressionLookup template get a
+        // differently worded create action than the generic "Create Hub"
+        let refs = []
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (pt && pt.valueConstraint && pt.valueConstraint.valueTemplateRefs){
+          refs = refs.concat(pt.valueConstraint.valueTemplateRefs)
+        }
+        if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.valueTemplateRefs){
+          refs = refs.concat(this.structure.valueConstraint.valueTemplateRefs)
+        }
+        return refs.some((r) => typeof r === 'string' && r.includes('RelWorkExpressionLookup'))
+      },
 
       buildHubStub(){
         // console.log(this.guid)
