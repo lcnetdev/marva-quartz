@@ -384,10 +384,49 @@
         // so there is no conflict with this session's stores. It gets told which profile to
         // use via the query params (a load url and uri can also be passed when needed)
         let profileId = this.profileStore.resolveTemplateId('lc:RT:RelatedWorkExpression')
-        let route = this.$router.resolve({ name: 'EditMinimal', query: { profile: profileId } })
+        let query = { profile: profileId }
+
+        let uri = this.mintRelWorkExpressionUri()
+        if (uri){
+          query.uri = uri
+        }
+
+        let route = this.$router.resolve({ name: 'EditMinimal', query: query })
         this.relWorkIframeSrc = route.href
         this.showRelWorkIframeModal = true
         this.isMenuShown = false
+      },
+
+      /**
+       * Related work expressions get the URI of the work they hang off of plus a counter,
+       * e.g. .../works/in01260000069 -> .../works/in01260000069-001. Any expressions already
+       * on the record with that same base URI are counted so the next free number is used.
+       * @return {string|null} the URI to use for the new related work expression
+       */
+      mintRelWorkExpressionUri(){
+        let thisRt = this.profileStore.returnRtByGUID(this.guid)
+        let workUri = null
+        if (thisRt && this.profileStore.activeProfile.rt[thisRt] && this.profileStore.activeProfile.rt[thisRt].URI){
+          workUri = this.profileStore.activeProfile.rt[thisRt].URI
+        }
+        if (!workUri){
+          console.warn('Could not find the URI of the work this field belongs to, the related work expression editor will mint its own URI')
+          return null
+        }
+
+        // find the highest counter in use anywhere in the record for this base URI
+        let maxCounter = 0
+        let escaped = workUri.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        let counterRegEx = new RegExp('"' + escaped + '-(\\d+)"', 'g')
+        let recordJson = JSON.stringify(this.profileStore.activeProfile.rt)
+        for (let match of recordJson.matchAll(counterRegEx)){
+          let counter = parseInt(match[1], 10)
+          if (counter > maxCounter){
+            maxCounter = counter
+          }
+        }
+
+        return workUri + '-' + String(maxCounter + 1).padStart(3, '0')
       },
 
       isRelWorkExpressionLookupField(){
