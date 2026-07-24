@@ -2767,8 +2767,7 @@ const utilsNetwork = {
 
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic, resultsSubjectsSimpleComplex] = await Promise.all([
-            this.searchComplex(searchPayloadNames),
+        [resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic, resultsSubjectsSimpleComplex] = await Promise.all([
             this.searchComplex(searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadSubjectsSimple),
@@ -2777,7 +2776,10 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadSubjectsSimpleComplex),
         ]);
 
-        // break out the complex searches because they can take a while and slow down all results
+        // break out the complex searches & simple names because they can take a while and slow down all results
+        [resultsNames] = await Promise.all([
+          this.searchComplex(searchPayloadNames),
+        ])
         if (searchPayloadSubjectsComplex.searchValue != searchPayloadSubjectsComplexSearchVal.searchValue){
           [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
               this.searchComplex(searchPayloadSubjectsComplex, false),
