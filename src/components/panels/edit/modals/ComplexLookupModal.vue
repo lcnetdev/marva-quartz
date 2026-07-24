@@ -517,7 +517,7 @@
           }
         }
 
-        let someEval = totalVars != numEval
+        let someEval = (totalVars != numEval) && (numEval != 0)
         if (someEval && !this.marcData.refEval){
           this.marcData.refEval = "some"
         }
@@ -788,12 +788,18 @@
 
       addDateFromOneXX: function(idx){
         // TODO:
-        // - check language to use correct comma: arabic comma: ،
         // - If the $7 is added first, make sure is inserted before it
 
         let comma = ","
+        const arabicPattern = /[\u0600-\u06FF]/;
+        let text = this.marcData[idx].displayName
+        let hasArabic = arabicPattern.test(text)
 
+        if (hasArabic){
+          comma = "،"
+        }
         this.marcData[idx].displayName += comma + " $d" + this.oneXXdollarD
+
         this.activeIndex = idx
         this.buildNewMarcKey()
       },
