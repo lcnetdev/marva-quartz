@@ -3185,8 +3185,7 @@ export const useProfileStore = defineStore('profile', {
                     }
 
                     // if there is a URI add authorized label
-                    if (currentUserValuePos['@id']) {
-
+                    if (currentUserValuePos['@id'] || subjectComponents[0].provisional) {
                         currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
                             "@guid": short.generate(),
                             "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": subjectComponents[0].label
@@ -3274,13 +3273,25 @@ export const useProfileStore = defineStore('profile', {
                     currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"] = []
 
                     for (let c of subjectComponents) {
-                        let compo = {
-                            "@guid": short.generate(),
-                            "@type": c.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#'),
-                            "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [{
+                        let compo
+                        if (c.uri || c.provisional){
+                            compo = {
                                 "@guid": short.generate(),
-                                "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": c.label
-                            }]
+                                "@type": c.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#'),
+                                "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [{
+                                    "@guid": short.generate(),
+                                    "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": c.label
+                                }]
+                            }
+                        } else {
+                            compo = {
+                                "@guid": short.generate(),
+                                "@type": c.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#'),
+                                "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                    "@guid": short.generate(),
+                                    "http://www.w3.org/2000/01/rdf-schema#label": c.label
+                                }]
+                            }
                         }
 
                         if (c.uri) {
@@ -3326,7 +3337,7 @@ export const useProfileStore = defineStore('profile', {
 
                 // did they add a LCSH heading, if so add that automatically as a source
                 for (let h of subjectComponents) {
-                    if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/subjects') > -1) {
+                    if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/subjects') > -1 || h.provisional) {
                         if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']) {
 
                             currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] = [
