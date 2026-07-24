@@ -3382,6 +3382,16 @@ const utilsNetwork = {
 
     let url = useConfigStore().returnUrls.publish
 
+    // in local dev there is no real MarkLogic to post into, so ask the developer which
+    // outcome they want to test and fake the matching response from the backend
+    if (useConfigStore().returnUrls.devFakePosting){
+      if (window.confirm("DEV MODE: posting does not really happen in this environment.\n\nPress OK to fake a SUCCESSFUL post, Cancel to fake a FAILED post.")){
+        return {status:true, postLocation: null}
+      }else{
+        return {status:false, postLocation: null, msg: JSON.stringify({status:'error', server: url, message: 'Faked post failure (dev mode)'},null,2)}
+      }
+    }
+
     let uuid = translator.toUUID(translator.new())
 
 

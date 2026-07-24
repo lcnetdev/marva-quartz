@@ -25,7 +25,7 @@
         <div class="rel-work-iframe-container">
           <div class="rel-work-iframe-header">
             <span>Create Related Work Expression</span>
-            <button class="rel-work-iframe-close" @click="showRelWorkIframeModal=false">✕</button>
+            <button class="rel-work-iframe-close" @click="closeRelWorkIframeModal()">✕</button>
           </div>
           <iframe :src="relWorkIframeSrc" class="rel-work-iframe"></iframe>
         </div>
@@ -395,6 +395,35 @@
         this.relWorkIframeSrc = route.href
         this.showRelWorkIframeModal = true
         this.isMenuShown = false
+        // listen for the iframe telling us it posted the new resource
+        window.addEventListener('message', this.handleEditMinimalMessage)
+      },
+
+      closeRelWorkIframeModal(){
+        window.removeEventListener('message', this.handleEditMinimalMessage)
+        this.showRelWorkIframeModal = false
+        this.relWorkIframeSrc = null
+      },
+
+      /**
+       * The minimal editor iframe posted its record successfully, insert the resource it
+       * created into this field's userValue and close the iframe
+       */
+      handleEditMinimalMessage(event){
+        if (event.origin !== window.location.origin){ return }
+        if (!event.data || event.data.type !== 'editMinimalPosted'){ return }
+        if (!this.showRelWorkIframeModal){ return }
+
+        this.closeRelWorkIframeModal()
+
+        // same insert used when a lookup value is picked for the field
+        let nodeMap = {
+          collections: [],
+          genres: [],
+          rdftypes: ['Work'],
+          subjects: [],
+        }
+        this.profileStore.setValueComplex(this.guid, null, this.propertyPath, event.data.uri, event.data.label, 'Work', nodeMap, null)
       },
 
       /**
@@ -1366,6 +1395,9 @@
       },
 
 
+    },
+    beforeUnmount: function(){
+      window.removeEventListener('message', this.handleEditMinimalMessage)
     },
     watch: {
 

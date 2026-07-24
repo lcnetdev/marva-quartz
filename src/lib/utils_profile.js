@@ -278,11 +278,11 @@ const utilsProfile = {
         // we may or maynot need to create a @type for this level, depending on what type of property it is,
         // so test first the property info in the profile
         let type = utilsRDF.suggestTypeProfile(p,pt)
-        if (type === false){
+        if (!type){
           // did not find it in the profile, look to the network
           type = await utilsRDF.suggestTypeNetwork(p)
         }
-        if (type !== false){
+        if (type){
 
           // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
           // don't need to set the type, as its not a blank node, just a nested property

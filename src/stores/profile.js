@@ -2805,6 +2805,10 @@ export const useProfileStore = defineStore('profile', {
         * @return {void}
         */
         setValueComplex: async function (componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap = null, marcKey = null) {
+            // not every caller has a nodeMap to pass, use an empty one so the lookups below don't explode
+            if (!nodeMap) {
+                nodeMap = {}
+            }
             // TODO: reconcile this to how the profiles are built, or dont..
             // remove the sameAs from this property path, which will be the last one, we don't need it
             propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== 'http://www.w3.org/2002/07/owl#sameAs') })
@@ -2951,7 +2955,7 @@ export const useProfileStore = defineStore('profile', {
                     // console.log("nodeMap",nodeMap)
 
                     //Add gacs code to user data
-                    if (nodeMap["gacs"]) {
+                    if (nodeMap && nodeMap["gacs"]) {
                         blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
                         for (let code in nodeMap["gacs"]) {
                             blankNode["http://www.loc.gov/mads/rdf/v1#code"].push(
@@ -2967,6 +2971,8 @@ export const useProfileStore = defineStore('profile', {
                     if (!Array.isArray(marcKey)) {
                         marcKey = [marcKey]
                     }
+                    // a null/empty marcKey just means there isn't one, nothing to add
+                    marcKey = marcKey.filter((v) => v)
 
                     for (let aMarcKeyNode of marcKey) {
 

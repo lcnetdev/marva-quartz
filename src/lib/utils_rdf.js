@@ -172,7 +172,13 @@ const utilsRDF = {
                   let rtKey = pt.valueConstraint.valueTemplateRefs[0]
                   if (rtLookup[rtKey]){
                       // suggest the resource
-                      return rtLookup[rtKey].resourceURI
+                      if (rtLookup[rtKey].resourceURI){
+                          return rtLookup[rtKey].resourceURI
+                      }
+                      // if the template is missing its resourceURI returning undefined here would end up
+                      // as a literal undefined @type in the userValue, warn and fall through to return
+                      // false so the caller can try to work out the type another way
+                      useProfileStore().warnProfileDataIssue(`The template "${rtKey}" does not have a resourceURI defined, unable to use it to type the "${propertyURI}" value`)
                   }else{
                       console.warn("Did not find the requested template name", rtKey)
                   }

@@ -4,7 +4,7 @@
 
     <div class="edit-minimal-topbar">
       <span class="edit-minimal-title">{{ title }}</span>
-      <button class="edit-minimal-post-button" :disabled="!ready" @click="post()">Post</button>
+      <button class="edit-minimal-post-button" :disabled="!ready || posting" @click="post()">{{ posting ? 'Posting...' : 'Post' }}</button>
     </div>
 
     <div class="edit-minimal-fields">
@@ -19,9 +19,14 @@
       </template>
     </div>
 
-    <template v-if="showPostModal == true">
-      <PostModal ref="postmodal" v-model="showPostModal" />
-    </template>
+    <div v-if="postError !== null" class="edit-minimal-error-overlay">
+      <div class="edit-minimal-error-modal">
+        <h2>There was an error posting</h2>
+        <p>The record was not accepted by the system, this is the error it reported:</p>
+        <pre class="edit-minimal-error-msg">{{ postError }}</pre>
+        <button class="edit-minimal-error-close" @click="postError=null">Close</button>
+      </div>
+    </div>
 
     <template v-if="showDebugModal==true">
       <Debug v-model="showDebugModal" />
@@ -45,7 +50,6 @@
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
   import EditPanel from "@/components/panels/edit/EditPanel.vue";
-  import PostModal from "@/components/panels/nav/PostModal.vue";
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
   import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
@@ -61,12 +65,14 @@
    *   &load=http://...    - (optional) a record URL to load into the profile (not implemented yet)
    */
   export default {
-    components: { EditPanel, PostModal, Debug, LiteralLang },
+    components: { EditPanel, Debug, LiteralLang },
 
     data() {
       return {
         ready: false,
         setupError: null,
+        posting: false,
+        postError: null,
       }
     },
 
@@ -75,7 +81,7 @@
       ...mapState(useProfileStore, ['profilesLoaded', 'profiles']),
 
       ...mapWritableState(usePreferenceStore, ['showDebugModal']),
-      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'showPostModal', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'literalLangShow']),
+      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'literalLangShow']),
 
       title() {
         let rtId = this.$route.query.profile
@@ -166,13 +172,72 @@
         this.ready = true
       },
 
-      post: function(){
-        this.showPostModal = true
-        this.$nextTick(()=>{
-          if (this.$refs.postmodal){
-            this.$refs.postmodal.post()
+      post: async function(){
+
+        const config = useConfigStore()
+        if (!config.returnUrls.displayLCOnlyFeatures){
+          alert("Sorry you cannot post in this Marva environment")
+          return
+        }
+
+        this.posting = true
+        let results = null
+        try{
+          results = await this.profileStore.publishRecord()
+        }catch(err){
+          console.error(err)
+          results = { status: false, msg: String(err) }
+        }
+        this.posting = false
+
+        if (results && results.status !== false){
+          this.activeProfilePosted = true
+          this.activeProfilePostedTimestamp = Date.now()
+
+          // hand the created resource back to the parent window, it will insert it
+          // into the field this editor was opened from and close the iframe
+          let rtId = this.activeProfile.rtOrder[0]
+          window.parent.postMessage({
+            type: 'editMinimalPosted',
+            profile: rtId,
+            uri: this.activeProfile.rt[rtId].URI,
+            label: this.returnResourceLabel(rtId),
+            resourceLinks: results.resourceLinks || []
+          }, window.location.origin)
+
+        } else {
+          let msg = (results && results.msg) ? results.msg : 'Unknown error, there was no response from the posting process.'
+          // make the raw backend JSON a little more readable
+          msg = msg.replace(/\\n|\\t/g, '').replace(/\\"/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+          this.postError = msg
+        }
+      },
+
+      /**
+       * Best effort label for the resource that was just created, used by the parent
+       * window when it inserts the new resource into the field. Uses the title if one
+       * was entered, otherwise falls back to the tail of the URI.
+       * @param {string} rtId - the resource template id in the active profile
+       * @return {string} the label
+       */
+      returnResourceLabel: function(rtId){
+        try{
+          for (let ptk of this.activeProfile.rt[rtId].ptOrder){
+            let pt = this.activeProfile.rt[rtId].pt[ptk]
+            if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/title' && pt.userValue['http://id.loc.gov/ontologies/bibframe/title']){
+              let title = pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+              if (title && title['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                let labels = title['http://id.loc.gov/ontologies/bibframe/mainTitle'].map((v) => v['http://id.loc.gov/ontologies/bibframe/mainTitle']).filter(Boolean)
+                if (labels.length > 0){
+                  return labels.join(' ')
+                }
+              }
+            }
           }
-        })
+        }catch(err){
+          console.warn('Could not build a label from the title:', err)
+        }
+        return this.activeProfile.rt[rtId].URI.split('/').at(-1)
       }
 
     },
@@ -228,6 +293,42 @@
     padding: 2em;
     text-align: center;
     color: gray;
+  }
+
+  .edit-minimal-error-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .edit-minimal-error-modal{
+    background-color: white;
+    border: solid 1px black;
+    border-radius: 6px;
+    padding: 1em;
+    max-width: 80%;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .edit-minimal-error-msg{
+    overflow: auto;
+    background-color: #f5f5f5;
+    border: solid 1px lightgray;
+    padding: 0.5em;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .edit-minimal-error-close{
+    align-self: flex-end;
+    margin-top: 0.5em;
+    cursor: pointer;
   }
 
 </style>
