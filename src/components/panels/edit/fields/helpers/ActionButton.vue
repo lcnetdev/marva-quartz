@@ -443,6 +443,14 @@
           return null
         }
 
+        // new records carry an eId based URI in memory (.../works/e1234567890) that only
+        // becomes the real .../works/in### identifier at export time, when buildXML swaps
+        // the eId for the marvaLocalId. Do the same swap here so the minted URI matches
+        // what actually gets posted for the parent work.
+        if (this.profileStore.activeProfile.marvaLocalId && this.profileStore.activeProfile.eId){
+          workUri = workUri.replace(this.profileStore.activeProfile.eId, this.profileStore.activeProfile.marvaLocalId)
+        }
+
         // find the highest counter in use anywhere in the record for this base URI
         let maxCounter = 0
         let escaped = workUri.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
