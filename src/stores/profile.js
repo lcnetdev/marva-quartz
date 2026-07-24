@@ -8906,6 +8906,12 @@ export const useProfileStore = defineStore('profile', {
         for (let sixSixSeven of marc667List){
           if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)){
             target667s.push(sixSixSeven)
+          } else if (sixSixSeven.innerHTML == 'Some non-Latin script references evaluated.'){
+            target667s.push(sixSixSeven)
+          } else if (sixSixSeven.innerHTML.includes('Preferred non-Latin script variants coded for PCC testing')){
+            target667s.push(sixSixSeven)
+          } else if (sixSixSeven.innerHTML.includes('script references evaluated')){ // 667 from strawn tool
+            target667s.push(sixSixSeven)
           }
         }
 

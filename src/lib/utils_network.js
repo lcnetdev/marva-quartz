@@ -520,7 +520,6 @@ const utilsNetwork = {
 
       url = url + "&blastdacache=" + Date.now()
 
-      console.info("url: ", url)
 
       let result = await fetch(
         url,
@@ -3038,7 +3037,6 @@ const utilsNetwork = {
          let response = await fetch(url, { headers: getAuthHeaders() });
 
          let data =  await response.text()
-         console.info("data: ", data)
 
          return  data;
 
@@ -3309,8 +3307,6 @@ const utilsNetwork = {
 
     let uuid = translator.toUUID(translator.new())
 
-    console.info("publishing: ", JSON.stringify({marcxml:xml}))
-
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -3346,9 +3342,6 @@ const utilsNetwork = {
    */
   addCopyCat: async function(xml){
     let url = useConfigStore().returnUrls.copyCatUpload
-
-    console.info("posting to ", url)
-
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -4466,7 +4459,6 @@ const utilsNetwork = {
     async fetchAuthMarc(lccn){
       let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
       let marcXML = await this.fetchSimpleLookup(url)
-      console.info("auth: ", marcXML)
       return marcXML
     },
 

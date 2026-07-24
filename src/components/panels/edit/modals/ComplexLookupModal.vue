@@ -798,7 +798,18 @@
         if (hasArabic){
           comma = "،"
         }
-        this.marcData[idx].displayName += comma + " $d" + this.oneXXdollarD
+
+        // make sure $d goes after dollar $a
+        let dollarD = comma + " $d" + this.oneXXdollarD
+
+        let subfields = text.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+        if (subfields.length > 1){
+          let index = subfields[0].length
+          console.info("index: ", index)
+          this.marcData[idx].displayName = text.slice(0, index) + dollarD + text.slice(index)
+        } else {
+          this.marcData[idx].displayName += dollarD
+        }
 
         this.activeIndex = idx
         this.buildNewMarcKey()
