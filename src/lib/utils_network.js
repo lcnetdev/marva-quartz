@@ -2778,10 +2778,16 @@ const utilsNetwork = {
         ]);
 
         // break out the complex searches because they can take a while and slow down all results
-        [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
-            this.searchComplex(searchPayloadSubjectsComplex, false),
-            this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
-        ]);
+        if (searchPayloadSubjectsComplex.searchValue != searchPayloadSubjectsComplexSearchVal.searchValue){
+          [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
+              this.searchComplex(searchPayloadSubjectsComplex, false),
+              this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
+          ]);
+        } else {
+          [resultsSubjectsComplex] = await Promise.all([
+              this.searchComplex(searchPayloadSubjectsComplex, false),
+          ]);
+        }
 
         if (complexSub[0]){
           [resultsSubjectsComplexSubdivision1] = await Promise.all([
