@@ -369,8 +369,16 @@ const utilsParse = {
           hasExternalLcRel = true
         }
 
+        // related work expressions hang off their work with a hyphenated counter URI,
+        // e.g. .../resources/works/in01260000081-001, those belong to the related work
+        // expression component and not the generic related work one
+        let hasHyphenatedWorkUri = false
+        if (/\/resources\/works\/[^"'<>\s]+-\d+/.test(child.innerHTML)){ hasHyphenatedWorkUri = true }
+
         if ((hasSeriesProperty || hasSeries) && hasAssociatedResource){
           child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+        }else if (hasHyphenatedWorkUri && hasAssociatedResource && hasWork){
+          child.setAttribute('local:pthint', 'lc:RT:RelWorkExpressionLookup')
         }else if (hasAssociatedResource && (hasWork || hasHub)){
           child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
         } else if (hasExternalLcRel){
@@ -427,6 +435,22 @@ const utilsParse = {
 
   specialTransforms: {
     //not used currently
+  },
+
+  /**
+  * Checks if a pt's valueTemplateRefs contains the pthint value. Depending on the profile
+  * set loaded the templates are named either lc:RT:bf2:X or lc:RT:X, so compare with the
+  * :bf2: part of the naming removed from both sides
+  *
+  * @param {array} refs - the valueTemplateRefs of the pt
+  * @param {string} hint - the local:pthint value
+  * @return {boolean}
+  */
+  ptRefsIncludeHint(refs, hint){
+    if (!refs || !hint){ return false }
+    let normalize = (v) => v.replace(':bf2:', ':')
+    let normalizedHint = normalize(hint)
+    return refs.some((r) => typeof r === 'string' && normalize(r) == normalizedHint)
   },
 
   updateAdditionalInstanceParentValues: function(profile, instanceName, newRdId){
@@ -687,7 +711,7 @@ const utilsParse = {
             // if it has a hint then we need to check if we can find the right pt for it
             if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){
               // check to see if this pt has that hint value in the valueConstraint  valueTemplateRefs
-              if (ptk.valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
+              if (this.ptRefsIncludeHint(ptk.valueConstraint.valueTemplateRefs, e.attributes['local:pthint'].value)){
                 // it matches, so use this one for sure
                 // make sure to remove the hint attribute
                 // console.log("Putting into ptk:",ptk)
@@ -699,7 +723,7 @@ const utilsParse = {
                 // so look ahead and see, if there is a better match don't add it now and leave this el for that future pt
                 let foundPtToUse = false
                 for (let kCheck in pt){
-                  if (pt[kCheck].valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
+                  if (this.ptRefsIncludeHint(pt[kCheck].valueConstraint.valueTemplateRefs, e.attributes['local:pthint'].value)){
                     // console.log("found a place for you in the future :)")
                     // console.log("here",pt[kCheck])
                     foundPtToUse = true
