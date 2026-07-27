@@ -8931,6 +8931,27 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
+      // 670 notes
+      for (let item of updates['source670s']){
+        let note670 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+        note670.setAttribute('tag', '670')
+        note670.setAttribute('ind1', " ")
+        note670.setAttribute('ind2', " ")
+        for (let sub of Object.keys(item)){
+          if (sub != 'note'){
+            let subfield = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+            subfield.setAttribute("code", sub)
+            subfield.innerHTML = item[sub].trim()
+            note670.appendChild(subfield)
+          }
+        }
+        try{
+          this.indentedAppend(record, note670, false, marc667List[marc667List.length])
+        } catch{
+          this.indentedAppend(record, note670)
+        }
+      }
+
       // 040 if the last $d is DLC, don't add another one
       let marc040 = record.querySelectorAll('[tag="040"]')[0]
       let lastEl = Array.from(marc040.children).at(-1)

@@ -131,6 +131,7 @@
         note667: "",
         postStatus: "",
         authLccn: false,
+        source670s: [],
 
       }
     },
@@ -257,6 +258,7 @@
         this.note667 = ''
         this.authLccn = false
         this.postStatus = ""
+        this.source670s = []
 
       },
 
@@ -288,7 +290,7 @@
         this.MARClccn = data.uri.split("/").at(-1)
 
         // Get MarcKey for 1XX
-        let marcKey = data.extra.marcKeys[0]
+        let marcKey = data.extra.marcKeys[0] || []
         this.tag = marcKey.slice(0,3)
         this.indicators = marcKey.slice(3,5)
 
@@ -297,7 +299,7 @@
         if (data.type != 'Hub'){
           marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
         } else {
-          let idents = data.extra.identifiers
+          let idents = data.extra.identifiers || []
           idents = idents.map(id => id.replaceAll(" ", ""))
           console.info("idents: ", idents) // bible
           let authId = [...new Set(idents)].filter(item => item.startsWith('n'))
@@ -308,12 +310,14 @@
         console.info("marcXML: ", marcXML)
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
         this.originalMarc = this.xmlDoc.cloneNode(true)
-        this.associatedLang = data.extra.languages[0]//this.xmlDoc.querySelectorAll('[tag="377"]')
-        for (let lang of isoLangLib.iso639_1){
-          let l = lang.name
-          let code = lang.code
-          if (this.associatedLang && l.toLowerCase() == this.associatedLang.toLowerCase()){
-            this.associatedLang = code
+        if (data.extra.languages){
+          this.associatedLang = data.extra.languages[0]//this.xmlDoc.querySelectorAll('[tag="377"]')
+          for (let lang of isoLangLib.iso639_1){
+            let l = lang.name
+            let code = lang.code
+            if (this.associatedLang && l.toLowerCase() == this.associatedLang.toLowerCase()){
+              this.associatedLang = code
+            }
           }
         }
 
@@ -536,6 +540,20 @@
         }
         let targets = this.xmlTargets
         console.info("targets: ", targets)
+
+        // add the 670 info
+        let s670s = this.source670s
+
+        for (let note of s670s){
+          let subfields = note.note.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+          for (let sub of subfields){
+            let tag = sub.slice(1,2)
+            note[tag] = sub.slice(2)
+          }
+        }
+        console.info("s670s: ", s670s)
+
+        this.marcData['source670s'] = s670s
 
         let results = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
@@ -760,6 +778,8 @@
         console.info("\t lastItem: ", lastItem)
         console.info("\t Data: ", this.marcData)
 
+        this.source670s.push({'note': '$a'})
+
         this.marcData[newIdx] = {
           'tag': this.tag,
           'indicators': this.indicators,
@@ -787,9 +807,6 @@
       },
 
       addDateFromOneXX: function(idx){
-        // TODO:
-        // - If the $7 is added first, make sure is inserted before it
-
         let comma = ","
         const arabicPattern = /[\u0600-\u06FF]/;
         let text = this.marcData[idx].displayName
@@ -828,6 +845,7 @@
         if (idx){
           this.xmlTargets.splice(idx, 1)
         }
+        this.source670s.pop()
       },
 
       fetchAuthXML: async function(lccn){
@@ -966,7 +984,7 @@
       },
 
       hasPubDate: function(data){
-        let dates = data.extra.pubdates
+        let dates = data.extra.pubdates || []
 
         if (dates && dates.length > 0){
           return dates[0]
@@ -2028,9 +2046,13 @@
                     </table>
                   </div>
 
-                  <!-- <div class="new-value-container">
-                    667 Note: <textarea type=text v v-model='note667' class="eval-note" />
-                  </div> -->
+                  <div class="new-value-container" v-if="source670s.length > 0">
+                    <!-- 667 Note: <textarea type=text v v-model='note667' class="eval-note" /> -->
+                    <!-- <template v-for="(code, idx) of source670s"> -->
+                    <template v-for="idx in source670s">
+                      670 Note: <textarea type=text v-model='idx.note' class="eval-note" /><br>
+                    </template>
+                  </div>
 
                 <div class="button-container">
                   <label for="refEval">All References Evaluated?</label>
