@@ -138,6 +138,9 @@
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="isRelWorkExpressionLookupField() ? openRelWorkExpressionEditor() : buildHubStub()" :style="buttonStyle">
                 {{ isRelWorkExpressionLookupField() ? 'Create Related Work Expression' : 'Create Hub' }}
               </button>
+              <button v-if="isRelWorkExpressionLookupField() && returnExistingRelWorkExpressionUri()" class="" :id="`action-button-command-${fieldGuid}-b`" @click="openRelWorkExpressionEditor(returnExistingRelWorkExpressionUri())" :style="buttonStyle">
+                Create Expression Based on This One
+              </button>
         </template>
 
         <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
@@ -379,7 +382,7 @@
 
 
 
-      openRelWorkExpressionEditor(){
+      openRelWorkExpressionEditor(loadUri){
         // open the minimal edit screen in an iframe, it runs the whole app stack on its own
         // so there is no conflict with this session's stores. It gets told which profile to
         // use via the query params (a load url and uri can also be passed when needed)
@@ -389,6 +392,12 @@
         let uri = this.mintRelWorkExpressionUri()
         if (uri){
           query.uri = uri
+        }
+
+        // basing the new expression off an existing one, the minimal editor will pull in
+        // that record's data as the starting point (but still use the newly minted uri)
+        if (loadUri){
+          query.load = loadUri
         }
 
         let route = this.$router.resolve({ name: 'EditMinimal', query: query })
@@ -464,6 +473,18 @@
         }
 
         return workUri + '-' + String(maxCounter + 1).padStart(3, '0')
+      },
+
+      /**
+       * If this field already holds a related work expression return its URI, it can be
+       * used as the starting data for building a new one off of it
+       * @return {string|null} the URI of the expression in the field's value
+       */
+      returnExistingRelWorkExpressionUri(){
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (!pt || !pt.userValue){ return null }
+        let match = JSON.stringify(pt.userValue).match(/"@id":\s*"(https?:\/\/[^"]*\/resources\/works\/[^"]+?)"/)
+        return match ? match[1] : null
       },
 
       isRelWorkExpressionLookupField(){

@@ -53,6 +53,9 @@
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
   import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
+  import utilsNetwork from '@/lib/utils_network';
+  import utilsParse from '@/lib/utils_parse';
+
   import short from 'short-uuid'
   const translator = short();
 
@@ -62,7 +65,8 @@
    * a post button. Controlled via query parameters:
    *   ?profile=lc:RT:XXX  - (required) the resource template to build the editing form from
    *   &uri=http://...     - (optional) the URI to use for the resource being created
-   *   &load=http://...    - (optional) a record URL to load into the profile (not implemented yet)
+   *   &load=http://...    - (optional) the URI of an existing record to load into the profile
+   *                         as the starting data, the new resource keeps the &uri= identity
    */
   export default {
     components: { EditPanel, Debug, LiteralLang },
@@ -105,7 +109,7 @@
 
     methods: {
 
-      setupProfile: function(){
+      setupProfile: async function(){
 
         const config = useConfigStore()
 
@@ -147,15 +151,21 @@
         useProfile.newResource = true
 
         // the URI for the resource being created can be passed in, otherwise mint one
+        let useUri
         if (this.$route.query.uri){
-          useProfile.rt[rtId].URI = this.$route.query.uri
+          useUri = this.$route.query.uri
         } else {
-          useProfile.rt[rtId].URI = config.baseURIWork + translator.toUUID(translator.new())
+          useUri = config.baseURIWork + translator.toUUID(translator.new())
         }
+        useProfile.rt[rtId].URI = useUri
 
+        // an existing record can be used as the starting data for the new resource
         if (this.$route.query.load){
-          // TODO: load the record at this URL into the profile
-          console.warn('EditMinimal: the load parameter is not implemented yet:', this.$route.query.load)
+          let merged = await this.loadBaseRecord(useProfile, this.$route.query.load)
+          if (!merged){ return }
+          useProfile = merged
+          // the loaded data carries the source record's URI, the new resource keeps its own
+          useProfile.rt[rtId].URI = useUri
         }
 
         this.activeProfilePosted = false
@@ -170,6 +180,66 @@
         }
 
         this.ready = true
+      },
+
+      /**
+       * Fetch an existing record and merge its data into the profile so the new resource
+       * starts out prefilled with it. Which backend to ask depends on the environment:
+       * production tries preprod-8080 and falls back to id.loc.gov, staging uses
+       * preprod-8210, and local dev just uses a canned test record.
+       * @param {object} useProfile - the profile being built for the editor
+       * @param {string} loadUri - the URI of the record to base the new resource on
+       * @return {object|false} the profile with the record data merged in, false on failure
+       */
+      loadBaseRecord: async function(useProfile, loadUri){
+
+        const config = useConfigStore()
+        let urls = config.returnUrls
+
+        let candidates = []
+        if (urls.devFakePosting){
+          // local dev can't reach the backends, use the canned test record
+          candidates = [import.meta.env.BASE_URL + 'test_files/rel-work-exp-test.decomposed.rdf']
+        } else {
+          let path
+          try{
+            path = new URL(loadUri).pathname
+          }catch{
+            path = loadUri
+          }
+          if (urls.env == 'staging'){
+            candidates = ['https://preprod-8210.id.loc.gov' + path + '.decomposed.rdf']
+          } else {
+            candidates = [
+              'https://preprod-8080.id.loc.gov' + path + '.decomposed.rdf',
+              'https://id.loc.gov' + path + '.decomposed.rdf'
+            ]
+          }
+        }
+
+        let xml = null
+        for (let url of candidates){
+          let response = await utilsNetwork.fetchBfdbXML(url)
+          if (response && typeof response === 'string' && response.includes('<rdf:RDF')){
+            xml = response
+            break
+          }
+          console.warn('EditMinimal: could not load the record from', url)
+        }
+        if (!xml){
+          this.setupError = 'Could not load the record to base the new resource on: ' + loadUri
+          return false
+        }
+
+        utilsParse.parseXml(xml)
+
+        // the new resource gets its own admin metadata when it is posted, don't carry
+        // over the source record's
+        for (let el of Array.from(utilsParse.activeDom.getElementsByTagName('bf:adminMetadata'))){
+          el.remove()
+        }
+
+        return await utilsParse.transformRts(useProfile)
       },
 
       post: async function(){
@@ -286,7 +356,9 @@
   .edit-minimal-fields{
     flex: 1 1 auto;
     overflow-y: scroll;
-    padding: 0 8px 8px 8px;
+    /* the large bottom padding leaves room for dropdown menus opened
+       from the last field, otherwise they get cut off by the iframe */
+    padding: 0 8px 40vh 8px;
   }
 
   .edit-minimal-loading{
