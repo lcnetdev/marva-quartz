@@ -1261,22 +1261,36 @@ export default {
 
             // IBC and Monograph add additional empty fields for LCCN and ISBN
             if (rt.includes("Ibc") || rt.includes("Monograph")) {
+
+              // depending on the profile set loaded these templates are named either
+              // lc:RT:bf2:Identifiers:X or lc:RT:Identifiers:X, resolve each one against
+              // what is actually loaded and drop any that don't exist in either naming
+              let identifierRefs = [
+                "lc:RT:bf2:Identifiers:LCCN",
+                "lc:RT:bf2:Identifiers:ISBN",
+                "lc:RT:bf2:Identifiers:Oclc",
+                "lc:RT:bf2:Identifiers:Other",
+                "lc:RT:bf2:Identifiers:Local",
+                "lc:RT:bf2:Identifiers:EAN",
+                "lc:RT:bf2:Identifiers:Nbn",
+                "lc:RT:bf2:Identifiers:LCOverseas"
+              ].map((id) => this.profileStore.resolveTemplateId(id))
+               .filter((id) => {
+                  if (!this.profileStore.rtLookup[id]){
+                    console.warn(`Skipping the identifier template "${id}", it is not defined in the loaded profiles`)
+                    return false
+                  }
+                  return true
+               })
+              let lccnRef = this.profileStore.resolveTemplateId("lc:RT:bf2:Identifiers:LCCN")
+
               pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1'] = {
                 "propertyLabel": "Identifiers",
                 "propertyURI": "http://id.loc.gov/ontologies/bibframe/identifiedBy",
                 "resourceTemplates": [],
                 "type": "resource",
                 "valueConstraint": {
-                  "valueTemplateRefs": [
-                    "lc:RT:bf2:Identifiers:LCCN",
-                    "lc:RT:bf2:Identifiers:ISBN",
-                    "lc:RT:bf2:Identifiers:Oclc",
-                    "lc:RT:bf2:Identifiers:Other",
-                    "lc:RT:bf2:Identifiers:Local",
-                    "lc:RT:bf2:Identifiers:EAN",
-                    "lc:RT:bf2:Identifiers:Nbn",
-                    "lc:RT:bf2:Identifiers:LCOverseas"
-                  ],
+                  "valueTemplateRefs": identifierRefs.slice(),
                   "useValuesFrom": [],
                   "valueDataType": {},
                   "defaults": []
@@ -1285,7 +1299,7 @@ export default {
                 "repeatable": "true",
                 "remark": "",
                 "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
-                "parentId": "lc:RT:bf2:Monograph:Instance",
+                "parentId": rt,
                 "userValue": {
                   "@guid": short.generate(),
                   "@root": "http://id.loc.gov/ontologies/bibframe/identifiedBy",
@@ -1298,10 +1312,10 @@ export default {
                 },
                 "@guid": short.generate(),
                 "canBeHidden": true,
-                "preferenceId": "http://id.loc.gov/ontologies/bibframe/identifiedBy|lc:RT:bf2:Identifiers:LCCN",
+                "preferenceId": "http://id.loc.gov/ontologies/bibframe/identifiedBy|" + lccnRef,
                 "id": "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1",
                 "hashCode": -1526631250,
-                "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                "hashCodeId": rt + "|http://id.loc.gov/ontologies/bibframe/identifiedBy",
                 "deepHierarchy": false,
                 "hasData": true,
                 "userModified": true,
@@ -1314,16 +1328,7 @@ export default {
                 "resourceTemplates": [],
                 "type": "resource",
                 "valueConstraint": {
-                  "valueTemplateRefs": [
-                    "lc:RT:bf2:Identifiers:LCCN",
-                    "lc:RT:bf2:Identifiers:ISBN",
-                    "lc:RT:bf2:Identifiers:Oclc",
-                    "lc:RT:bf2:Identifiers:Other",
-                    "lc:RT:bf2:Identifiers:Local",
-                    "lc:RT:bf2:Identifiers:EAN",
-                    "lc:RT:bf2:Identifiers:Nbn",
-                    "lc:RT:bf2:Identifiers:LCOverseas"
-                  ],
+                  "valueTemplateRefs": identifierRefs.slice(),
                   "useValuesFrom": [],
                   "valueDataType": {},
                   "defaults": []
@@ -1332,7 +1337,7 @@ export default {
                 "repeatable": "true",
                 "remark": "",
                 "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
-                "parentId": "lc:RT:bf2:Monograph:Instance",
+                "parentId": rt,
                 "userValue": {
                   "@guid": "iR8GAKNdTi8QRq85nZtDPz",
                   "@root": "http://id.loc.gov/ontologies/bibframe/identifiedBy",
@@ -1344,17 +1349,17 @@ export default {
                 },
                 "@guid": "1N17voF8DTBkpowpALhmtp",
                 "canBeHidden": true,
-                "preferenceId": "http://id.loc.gov/ontologies/bibframe/identifiedBy|lc:RT:bf2:Identifiers:LCCN",
+                "preferenceId": "http://id.loc.gov/ontologies/bibframe/identifiedBy|" + lccnRef,
                 "id": "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_2",
                 "hashCode": -1526631250,
-                "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                "hashCodeId": rt + "|http://id.loc.gov/ontologies/bibframe/identifiedBy",
                 "deepHierarchy": false,
                 "hasData": true,
                 "userModified": true,
                 "dataLoaded": false,
                 "activeType": "http://id.loc.gov/ontologies/bibframe/Isbn",
                 "refTemplateUserValueKeys": {
-                  "lc:RT:bf2:Identifiers:LCCN": [
+                  [lccnRef]: [
                     "http://id.loc.gov/ontologies/bibframe/identifiedBy"
                   ]
                 },
