@@ -804,6 +804,8 @@
         this.marcData[newIdx].newRow = true
         this.activeIndex = newIdx
 
+        this.source670s.push({'note': '$a'})
+
       },
 
       addDateFromOneXX: function(idx){
