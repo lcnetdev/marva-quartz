@@ -418,12 +418,22 @@
        * The minimal editor iframe posted its record successfully, insert the resource it
        * created into this field's userValue and close the iframe
        */
-      handleEditMinimalMessage(event){
+      async handleEditMinimalMessage(event){
         if (event.origin !== window.location.origin){ return }
         if (!event.data || event.data.type !== 'editMinimalPosted'){ return }
         if (!this.showRelWorkIframeModal){ return }
 
         this.closeRelWorkIframeModal()
+
+        // if the field already holds an expression (the new one was based off of it for
+        // example) don't overwrite it, add another component and put the new one there
+        let useGuid = this.guid
+        if (this.returnExistingRelWorkExpressionUri()){
+          let newGuid = await this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], this.structure)
+          if (newGuid){
+            useGuid = newGuid
+          }
+        }
 
         // same insert used when a lookup value is picked for the field
         let nodeMap = {
@@ -432,7 +442,7 @@
           rdftypes: ['Work'],
           subjects: [],
         }
-        this.profileStore.setValueComplex(this.guid, null, this.propertyPath, event.data.uri, event.data.label, 'Work', nodeMap, null)
+        this.profileStore.setValueComplex(useGuid, null, this.propertyPath, event.data.uri, event.data.label, 'Work', nodeMap, null)
       },
 
       /**
