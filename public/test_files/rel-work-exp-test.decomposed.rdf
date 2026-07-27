@@ -1,0 +1,90 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#" xmlns:lcc="http://id.loc.gov/ontologies/lcc#" xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xmlns:ri="http://id.loc.gov/ontologies/RecordInfo#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:pmo="http://performedmusicontology.org/ontology/" xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">
+  <bf:Work rdf:about="http://id.loc.gov/resources/works/in01260004487-001">
+    <bflc:aap>Test Notated Music Work - Expression 1</bflc:aap>
+    <bflc:aap-normalized>testnotatedmusicworkexpression1</bflc:aap-normalized>
+    <bf:title>
+      <bf:Title>
+	<bf:mainTitle>Test Notated Music Work - Expression 1</bf:mainTitle>
+      </bf:Title>
+    </bf:title>
+    <bf:contribution>
+      <bf:Contribution>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/nr2001052674">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+	    <rdfs:label>Miller, M.</rdfs:label>
+	    <bflc:marcKey>1001 $aMiller, M.</bflc:marcKey>
+	  </bf:Agent>
+	</bf:agent>
+      </bf:Contribution>
+    </bf:contribution>
+    <bf:ensembleSize>
+      <bf:EnsembleSize rdf:about="http://id.loc.gov/vocabulary/ensemblesize/duo">
+	<rdfs:label>duo</rdfs:label>
+	<bf:code>duo</bf:code>
+      </bf:EnsembleSize>
+    </bf:ensembleSize>
+    <bf:mediumComponent>
+      <bf:MediumComponent>
+	<bf:mediumOfPerformance>
+	  <madsrdf:Medium rdf:about="http://id.loc.gov/authorities/performanceMediums/mp2013015551">
+	    <rdfs:label xml:lang="en">piano ensemble</rdfs:label>
+	    <bflc:marcKey>162  $apiano ensemble</bflc:marcKey>
+	    <bf:source>
+	      <bf:Source rdf:about="http://id.loc.gov/authorities/performanceMediums">
+		<rdfs:label>LC Performance Mediums</rdfs:label>
+	      </bf:Source>
+	    </bf:source>
+	  </madsrdf:Medium>
+	</bf:mediumOfPerformance>
+	<bf:count>5</bf:count>
+	<bf:mediumComponentQualifier>
+	  <bf:MediumComponentQualifier rdf:about="http://id.loc.gov/vocabulary/medcompqual/adlib">
+	    <rdfs:label>ad lib</rdfs:label>
+	    <bf:code>adlib</bf:code>
+	  </bf:MediumComponentQualifier>
+	</bf:mediumComponentQualifier>
+	<bf:note>
+	  <bf:Note>
+	    <rdfs:label>note here</rdfs:label>
+	  </bf:Note>
+	</bf:note>
+	<bf:numberOfHands>3</bf:numberOfHands>
+      </bf:MediumComponent>
+    </bf:mediumComponent>
+    <bf:musicMedium>
+      <bf:MusicMedium>
+	<rdfs:label>mop staement</rdfs:label>
+      </bf:MusicMedium>
+    </bf:musicMedium>
+    <bf:musicFormat>
+      <bf:MusicFormat rdf:about="http://id.loc.gov/vocabulary/mmusicformat/choirbk">
+	<rdfs:label>choir book</rdfs:label>
+	<bf:code>choirbk</bf:code>
+      </bf:MusicFormat>
+    </bf:musicFormat>
+    <bf:notation>
+      <bf:MusicNotation rdf:about="http://id.loc.gov/vocabulary/mmusnotation/chord">
+	<rdfs:label>chord diagrams</rdfs:label>
+	<bf:code>chord</bf:code>
+      </bf:MusicNotation>
+    </bf:notation>
+    <bf:keyMode>
+      <bf:KeyMode>
+	<rdfs:label>f#</rdfs:label>
+      </bf:KeyMode>
+    </bf:keyMode>
+    <bf:identifiedBy>
+      <bf:OpusNumber>
+	<rdf:value>opus 1</rdf:value>
+      </bf:OpusNumber>
+    </bf:identifiedBy>
+    <bf:note>
+      <bf:Note>
+	<rdfs:label>A note here</rdfs:label>
+	<rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/award"/>
+      </bf:Note>
+    </bf:note>
+    <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/>
+  </bf:Work>
+</rdf:RDF>
