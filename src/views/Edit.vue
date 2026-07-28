@@ -91,6 +91,8 @@
     <LiteralLang v-model="literalLangShow" />
   </template>
 
+  <StateReplayControls />
+
 
   </splitpanes>
 
@@ -121,11 +123,12 @@
 
    import LinkedData from "@/components/panels/sidebar_linked_data/LinkedData.vue";
   import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
+  import StateReplayControls from "@/components/state_recorder/StateReplayControls.vue";
 
 
 
   export default {
-    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang, LinkedData },
+    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang, LinkedData, StateReplayControls },
 
 
     data() {

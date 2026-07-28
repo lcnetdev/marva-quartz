@@ -76,6 +76,7 @@ export const useConfigStore = defineStore('config', {
         dev: false,
         devFakePosting: true,
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
       },
@@ -98,6 +99,7 @@ export const useConfigStore = defineStore('config', {
         externalDev: true,
         devFakePosting: true,
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
         publicEndpoints:true,
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
@@ -137,6 +139,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
 
         dancerEnabled: true,
@@ -176,6 +179,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
+        enableStateRecorder: false,
         simpleLookupLang: 'en',
       },
 
@@ -193,6 +197,7 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         publicEndpoints:true,
         displayLCOnlyFeatures: false,
+        enableStateRecorder: false,
         simpleLookupLang: 'en',
         isBibframeDotOrg: true,
 
