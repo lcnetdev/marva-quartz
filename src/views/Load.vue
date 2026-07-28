@@ -869,6 +869,19 @@ export default {
       if (useLoadUrl.trim() !== '') {
         this.loadingRecord = true
         let xml = await utilsNetwork.fetchBfdbXML(useLoadUrl)
+
+        // in staging the record may not be in the preprod db (preprod-8230) but could be
+        // in the testdb (preprod-8210), check there before giving up
+        if ((!xml || typeof xml !== 'string' || xml.indexOf('<rdf:RDF') === -1) && useConfigStore().returnUrls.env == 'staging' && useLoadUrl.includes('preprod-8230.id.')) {
+          let testDbUrl = useLoadUrl.replace('preprod-8230.id.', 'preprod-8210.id.')
+          let testDbXml = await utilsNetwork.fetchBfdbXML(testDbUrl)
+          if (testDbXml && typeof testDbXml === 'string' && testDbXml.indexOf('<rdf:RDF') > -1) {
+            alert("Did not find the record in preprod, but found it in testdb. Loading the testdb version.")
+            useLoadUrl = testDbUrl
+            xml = testDbXml
+          }
+        }
+
         if (!xml) {
           alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
           this.loadingRecord = false
