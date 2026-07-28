@@ -557,6 +557,10 @@
 
         this.marcData['source670s'] = s670s
 
+        console.info("this: ", this)
+        console.info("adjustAuthRecord: ", this.adjustAuthRecord)
+        console.info("isLatin: ", this.isLatin)
+
         let results = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
@@ -1624,6 +1628,9 @@
       loadNacoStubModal(){
         // Set the current value for NAR creation
         this.lastComplexLookupString = this.searchValueLocal
+
+        let source = this.structure.propertyURI
+
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',
@@ -1631,7 +1638,7 @@
           fieldGuid: null,
           structure: this.structure,
           propertyPath:this.propertyPath,
-          source: "contribution"
+          source: source
         }
 
 

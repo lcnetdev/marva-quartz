@@ -151,6 +151,10 @@
         }
 
 
+        if (this.validationResult && ['Empty subfields.', 'Empty datafields.'].includes(this.validationResult.validation[0].message)){
+          return true
+        }
+
         return false
       }
 
@@ -233,9 +237,9 @@
         return good
       },
 
-      // Check that the advanced marc entry have indicators
+      // Check that the advanced marc entry have indicators and they are valid
       goodIndicators: function(){
-        let good = this.extraMarcStatements.every((row) => row.indicators.length == 2)
+        let good = this.extraMarcStatements.every((row) => row.indicators.length == 2 && /[0-9# ]{2}/.test(row.indicators))
         return good
       },
 
@@ -458,6 +462,7 @@
 
         async postNacoStub(){
             this.postStatus='posting'
+
             let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
 
             results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
@@ -482,6 +487,11 @@
               }else if (this.oneXXParts.fieldTag == "147"){
                 type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
               }
+
+              if (this.activeNARStubComponent.source.includes("expressionOf")){
+                type = "http://id.loc.gov/ontologies/bibframe/Hub"
+              }
+
               let useName = ''
               for (let key in this.oneXXParts){
                 if (key.length==1){
@@ -494,6 +504,8 @@
               let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
 
               if (this.activeNARStubComponent.source.includes('contribution')){
+                this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+              } else if (this.activeNARStubComponent.source.includes('expressionOf')){
                 this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
               } else if (this.activeNARStubComponent.source.includes('subject')){
                 let MARCKey = await utilsNetwork.returnMARCKey(results.pubResuts.postLocation)
@@ -2293,7 +2305,7 @@
                   <template v-else>
                     <div>
                           <span class="material-icons not-unique-icon">cancel</span>
-                          <span class="not-unique-text">Indicators Missing</span><span data-tooltip="Add missing indicator in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                          <span class="not-unique-text">Indicators Missing or Invalid</span><span data-tooltip="Add missing indicator in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                         </div>
                   </template>
 
@@ -2415,7 +2427,7 @@
                       maxlength="2"
                       placeholder="IND"
                       :style="`margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
-                      :class="['extra-marc-ind', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.indicators.length != 2}]"
+                      :class="['extra-marc-ind', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.indicators.length != 2 || !/[0-9# ]{2}/.test(row.indicators)}]"
                     />
 
                     <textarea

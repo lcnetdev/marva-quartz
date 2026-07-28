@@ -489,6 +489,9 @@ export default {
       for (let k in this.startingPoints) {
         if (this.startingPoints[k].work && this.startingPoints[k].instance) {
           points.push(this.startingPoints[k])
+        } else if (this.startingPoints[k].name == 'Related WorkExpression'){
+          this.startingPoints[k].instance = this.startingPoints[k].work
+          points.push(this.startingPoints[k])
         }
       }
 

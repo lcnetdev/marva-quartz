@@ -2777,10 +2777,16 @@ const utilsNetwork = {
         ]);
 
         // break out the complex searches because they can take a while and slow down all results
-        [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
-            this.searchComplex(searchPayloadSubjectsComplex, false),
-            this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
-        ]);
+        if (searchPayloadSubjectsComplex.searchValue != searchPayloadSubjectsComplexSearchVal.searchValue){
+          [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
+              this.searchComplex(searchPayloadSubjectsComplex, false),
+              this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
+          ]);
+        } else {
+          [resultsSubjectsComplex] = await Promise.all([
+              this.searchComplex(searchPayloadSubjectsComplex, false),
+          ]);
+        }
 
         if (complexSub[0]){
           [resultsSubjectsComplexSubdivision1] = await Promise.all([
@@ -3025,7 +3031,6 @@ const utilsNetwork = {
     * @return {void} -
     */
     loadSavedRecord: async function(id) {
-
        let url = useConfigStore().returnUrls.ldpjs +'ldp/' + id
 
        // let options = {}
@@ -3035,9 +3040,7 @@ const utilsNetwork = {
        // console.log('options:',options)
        try{
          let response = await fetch(url, { headers: getAuthHeaders() });
-
          let data =  await response.text()
-
          return  data;
 
        }catch(err){

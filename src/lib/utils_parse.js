@@ -483,6 +483,8 @@ const utilsParse = {
       }else if (pkey.endsWith(':Hub')){
         tle = "bf:Hub"
         isHub=true
+      } else if (pkey.endsWith(':RelatedWorkExpression')){
+        tle = "bf:Work"
       }else{
         rtsToRemove.push(pkey)
         // don't mess with anything other than top level entities in the profile, remove them from the profile

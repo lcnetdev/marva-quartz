@@ -468,12 +468,10 @@ const utilsProfile = {
   loadRecordFromBackend: async function(recordId){
     let xml = await utilsNetwork.loadSavedRecord(recordId)
     let meta = this.returnMetaFromSavedXML(xml)
-
     utilsParse.parseXml(meta.xml)
     // alert(parseBfdb.hasItem)
 
     let useProfile = null
-
 
     if (useProfileStore().profiles[meta.profile]){
       useProfile = JSON.parse(JSON.stringify(useProfileStore().profiles[meta.profile]))
@@ -529,12 +527,8 @@ const utilsProfile = {
     useProfile.user = meta.user
     useProfile.status = meta.status
 
-
     let transformResults  = await utilsParse.transformRts(useProfile)
-
     transformResults = this.reorderRTOrder(transformResults)
-
-
     return transformResults
 
 
@@ -622,7 +616,6 @@ const utilsProfile = {
 
 
   returnMetaFromSavedXML: function(xml){
-
       let parser = new DOMParser();
       xml = parser.parseFromString(xml, "text/xml");
       let voidData = xml.getElementsByTagName('void:DatasetDescription')[0]
@@ -768,13 +761,13 @@ const utilsProfile = {
     // if we don't check some logic here
     // from https://en.wikipedia.org/wiki/ISO_15924
     if (scriptWanted.toLowerCase() == 'kore'){
-        // if it is korean and we have Hani or Hang then use those
-        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
+        // if it is korean and we have Hang, use it, else check for Hani
         if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hang') > -1){ return 'Hang'}
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
     }
     if (scriptWanted.toLowerCase() == 'hanb'){
-      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
       if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('bopo') > -1){ return 'Bopo'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
     }
     if (scriptWanted.toLowerCase() == 'hrkt'){
       if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hira') > -1){ return 'Hira'}
@@ -785,9 +778,18 @@ const utilsProfile = {
     }
 
     if (scriptWanted.toLowerCase() == 'jpan'){
-      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
       if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hira') > -1){ return 'Hira'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
       if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('kana') > -1){ return 'Kana'}
+    }
+    if (scriptWanted.toLowerCase() == 'hani'){
+        // if it is Hani and no match thus far, see if there is Han simplified first, then traditional Han
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hans') > -1){ return 'Hans'}
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hant') > -1){ return 'Hant'}
+    }
+    if (scriptWanted.toLowerCase() == 'hans' || scriptWanted.toLowerCase() == 'hant'){
+        // if it is Hans or Hant and no match thus far, see if there is Hani
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
     }
 
     return false

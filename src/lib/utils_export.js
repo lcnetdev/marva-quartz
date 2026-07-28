@@ -543,6 +543,10 @@ const utilsExport = {
 				tleArray = tleItem
 				rootEl = document.createElementNS(this.namespace.bf,"bf:Hub");
 				rootElName = "Hub"
+			} else if (rt.includes(':RelatedWorkExpression')){
+				tleArray = tleWork
+				rootEl = document.createElementNS(this.namespace.bf,"bf:Work");
+				rootElName = "Work"
 			}else{
 				// don't mess with anything that is not a top level entitiy in the profile, there can be other referenced RTs that we don't want to export they are just used in the main RT
 				xmlLog.push(`Dunno what this part is, skipping ${rt}`)
@@ -573,7 +577,6 @@ const utilsExport = {
 				xmlLog.push(`Setting URI for this resource rdf:resource to: ${profile.rt[rt]['@type']}`)
 				rootEl.appendChild(type)
 			}
-
 
 			xmlLog.push(`Looping through the PTs`)
 
@@ -801,7 +804,6 @@ const utilsExport = {
 					xmlLog.push(['Set adminData to:', JSON.parse(JSON.stringify(adminData)) ])
 					// make sure if its an instance it has a localid
 				}
-
 
 				// does it even have any userValues?
 				if (this.hasUserValue(userValue)){
@@ -1693,7 +1695,6 @@ const utilsExport = {
 		datasetDescriptionEl.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:lclocal`, this.namespace.lclocal)
 		let el
 
-
 		for (let x of xmlVoidDataRtsUsed){
 			el = document.createElementNS(this.namespace.lclocal, 'lclocal:rtsused')
 			el.innerHTML = escapeHTML(x)
@@ -2375,7 +2376,7 @@ const utilsExport = {
 
 
 		if (zero46 && Object.keys(zero46).length > 0){
-
+			let good = false
 			let field046 = document.createElementNS(marcNamespace,"marcxml:datafield");
 			field046.setAttribute( 'tag', '046')
 			field046.setAttribute( 'ind1', ' ')
@@ -2387,6 +2388,7 @@ const utilsExport = {
 				field046f.innerHTML = zero46.f
 				field046.appendChild(field046f)
 				subfieldsValues.push(`$f ${zero46.f}`)
+				good = true
 
 			}
 			if (zero46.g && zero46.g.length > 0){
@@ -2395,6 +2397,7 @@ const utilsExport = {
 				field046g.innerHTML = zero46.g
 				field046.appendChild(field046g)
 				subfieldsValues.push(`$g ${zero46.g}`)
+				good = true
 			}
 
 			if (zero46.q){
@@ -2403,6 +2406,7 @@ const utilsExport = {
 				field046q.innerHTML = zero46.q
 				field046.appendChild(field046q)
 				subfieldsValues.push(`$q ${zero46.q}`)
+				good = true
 
 			}
 			if (zero46.r && zero46.r.length > 0){
@@ -2411,6 +2415,7 @@ const utilsExport = {
 				field046r.innerHTML = zero46.r
 				field046.appendChild(field046r)
 				subfieldsValues.push(`$r ${zero46.r}`)
+				good = true
 			}
 
 			if (zero46.s){
@@ -2419,6 +2424,7 @@ const utilsExport = {
 				field046s.innerHTML = zero46.s
 				field046.appendChild(field046s)
 				subfieldsValues.push(`$q ${zero46.s}`)
+				good = true
 
 			}
 			if (zero46.t && zero46.t.length > 0){
@@ -2427,26 +2433,24 @@ const utilsExport = {
 				field046t.innerHTML = zero46.t
 				field046.appendChild(field046t)
 				subfieldsValues.push(`$t ${zero46.t}`)
+				good = true
 			}
 
-			let field0462 = document.createElementNS(marcNamespace,"marcxml:subfield");
-			field0462.setAttribute( 'code', '2')
-			field0462.innerHTML = 'edtf'
-			subfieldsValues.push(`$2 edtf`)
-			field046.appendChild(field0462)
-			rootEl.appendChild(field046)
+			if (good){
+				let field0462 = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field0462.setAttribute( 'code', '2')
+				field0462.innerHTML = 'edtf'
+				subfieldsValues.push(`$2 edtf`)
+				field046.appendChild(field0462)
+				rootEl.appendChild(field046)
 
 
-			marcTextArray.push({txt: this.buildMarcTxtLine('046',' ',' ',subfieldsValues), field: '046', fieldInt: 46})
-
+				marcTextArray.push({txt: this.buildMarcTxtLine('046',' ',' ',subfieldsValues), field: '046', fieldInt: 46})
+			}
 
 		}
 
-
-
-
-
-
+        const isAlpha = str => /^[a-zA-Z]*$/.test(str);
 
 		let fieldName = document.createElementNS(marcNamespace,"marcxml:datafield");
 		let oneXXSubfieldsValues = []
@@ -2455,8 +2459,7 @@ const utilsExport = {
 		fieldName.setAttribute( 'ind1', oneXXParts.indicators.charAt(0))
 		fieldName.setAttribute( 'ind2', oneXXParts.indicators.charAt(1))
 		for (let key of Object.keys(oneXXParts)){
-			if (key.length == 1){
-
+			if (key.length == 1 && isAlpha(key)) {
 				// there might be repeated subfields, split the value and loop through tem
 				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
 				for (let v of useValues){
@@ -2466,8 +2469,19 @@ const utilsExport = {
 					fieldName.appendChild(subfield)
 					oneXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 				}
-
-
+			}
+		}
+		for (let key of Object.keys(oneXXParts)){
+			if (key.length == 1 && !isAlpha(key)) {
+				// there might be repeated subfields, split the value and loop through tem
+				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
+				for (let v of useValues){
+					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+					subfield.setAttribute( 'code', key)
+					subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+					fieldName.appendChild(subfield)
+					oneXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
+				}
 			}
 		}
 		// 110//$aMiller, Sam$d1933
@@ -2483,24 +2497,34 @@ const utilsExport = {
 			fieldName4xx.setAttribute( 'tag', fourXXParts.fieldTag)
 			fieldName4xx.setAttribute( 'ind1', fourXXParts.indicators.charAt(0))
 			fieldName4xx.setAttribute( 'ind2', fourXXParts.indicators.charAt(1))
+
 			for (let key of Object.keys(fourXXParts)){
 				// only add the subfields
-				if (key.length == 1){
-
+				if (key.length == 1 && isAlpha(key)){
 					// there might be repeated subfields, split the value and loop through tem
 					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
-
 					for (let v of useValues){
-
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
 						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
 						fieldName4xx.appendChild(subfield)
 						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
-
-
 					}
-
+				}
+			}
+			
+			for (let key of Object.keys(fourXXParts)){
+				// only add the subfields
+				if (key.length == 1 && !isAlpha(key)){
+					// there might be repeated subfields, split the value and loop through tem
+					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+					for (let v of useValues){
+						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+						subfield.setAttribute( 'code', key)
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+						fieldName4xx.appendChild(subfield)
+						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
+					}
 				}
 			}
 
@@ -2611,6 +2635,7 @@ const utilsExport = {
 
 		if (extraMarcStatements && extraMarcStatements.length > 0){
 			for (let x of extraMarcStatements){
+				let hasValue = false
 				if (x.fieldTag && x.fieldTag.trim() != ''){
 					let field = document.createElementNS(marcNamespace,"marcxml:datafield");
 					field.setAttribute( 'tag', x.fieldTag)
@@ -2625,11 +2650,13 @@ const utilsExport = {
 							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ')
 							field.appendChild(subfield)
 							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
-
+							hasValue = true
 						}
 					}
-					rootEl.appendChild(field)
-					marcTextArray.push({txt: this.buildMarcTxtLine(x.fieldTag, x.indicators.charAt(0), x.indicators.charAt(1), useSubfieldsValues), field: x.fieldTag, fieldInt: parseInt(x.fieldTag)})
+					if (hasValue){
+						rootEl.appendChild(field)
+						marcTextArray.push({txt: this.buildMarcTxtLine(x.fieldTag, x.indicators.charAt(0), x.indicators.charAt(1), useSubfieldsValues), field: x.fieldTag, fieldInt: parseInt(x.fieldTag)})
+					}
 				}
 			}
 		}
