@@ -486,7 +486,8 @@
         console.info(this.finalMarc)
 
         this.postStatus='posting'
-        let results = await this.postNacoStub(this.finalMarc, this.MARClccn)
+        let cataloger = null
+        let results = await this.postNacoStub(this.finalMarc, this.MARClccn, true)
         console.info("results: ", results)
 
         // Reset and redo search to refresh everything

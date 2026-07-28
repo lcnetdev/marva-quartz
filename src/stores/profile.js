@@ -6763,7 +6763,7 @@ export const useProfileStore = defineStore('profile', {
       return NARData
     },
 
-    async postNacoStub(xml,lccn, update=false){
+    async postNacoStub(xml, lccn, update=false){
 
       let pubResuts
 

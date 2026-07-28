@@ -3302,9 +3302,8 @@ const utilsNetwork = {
 
   publishNar: async function(xml){
 
-
+    let cataloger = usePreferenceStore().ssoUser.email.split('@')[0]
     let url = useConfigStore().returnUrls.publishNar
-
     let uuid = translator.toUUID(translator.new())
 
     const rawResponse = await fetch(url, {
@@ -3312,6 +3311,7 @@ const utilsNetwork = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Cat-Id': cataloger,
         ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
