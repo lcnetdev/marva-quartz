@@ -8926,7 +8926,11 @@ export const useProfileStore = defineStore('profile', {
           someNoteA.setAttribute("code", 'a')
           someNoteA.innerHTML = note
           someNote.appendChild(someNoteA)
-          this.indentedAppend(record, someNote, false, marc667List[0])
+          try{
+            this.indentedAppend(record, someNote, false, marc667List[marc667List.length - 1])
+          } catch {
+            this.indentedAppend(record, someNote)
+          }
         }
 
       }
