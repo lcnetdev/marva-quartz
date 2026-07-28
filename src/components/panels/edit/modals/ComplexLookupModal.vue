@@ -447,6 +447,7 @@
       },
       hidePreview: function(){
         delete this.marcData['refEval']
+        delete this.marcData['source670s']
         this.showMarcPreview = false
 
       },
@@ -1962,7 +1963,6 @@
             <!-- MARC Preview Panel -->
             <template v-else-if="showMarcPreview">
               <div class="marc-container">
-
                 <template v-if="validationResult.validation && postStatus != 'posting'">
                   <h2 class='validation-header'>Validation:</h2>
                   <span v-for="val in validationResult.validation">
@@ -2000,7 +2000,6 @@
                   <h2>Update BCP47 Language</h2>
                   <!-- <input class="bcp-input" type="text" v-model="targetName" /> -->
                   <!-- <div v-for="(row, index) in this.newMarcKeys" :key="index" class="advanced-row"> -->
-
                     <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
                       <template v-if="typeof row === 'object'">
                         <input type="checkbox" class="prefCheck" :id="index + '_pref'" :name="index + '_pref'" value="row.pref" :checked="row.pref" @click="activeIndex = index; updateIndicator(index)">
