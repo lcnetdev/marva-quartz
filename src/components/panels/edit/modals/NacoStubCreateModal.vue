@@ -1882,7 +1882,6 @@
           let bcp = "\u200E$7(bcp47)" + lang
 
           let existingBcp = this.getPreferredBcp()
-
           if(element == 'fourXX'){
             this.fourXX = this.fourXX + bcp
             let fieldTag = this.fourXX.slice(0,3)
@@ -1890,7 +1889,7 @@
 
             // if the bcpcode is in existingBcp, don't set the indicator
 
-            if (!existingBcp.includes(bcp.trim())){
+            if (!existingBcp.includes(bcp.replace('\u200E', '').trim())){
               // update indicator
               if (fieldTag == '430'){
                 indicators = "1" + indicators.split("")[1]
@@ -1905,7 +1904,7 @@
           } else {
             element.value = element.value + bcp
             // update indicator
-            if (!existingBcp.includes(bcp.trim())){
+            if (!existingBcp.includes(bcp.replace('\u200E', '').trim())){
               if (element.fieldTag == '430'){
                 element.indicators = "1" + element.indicators.split("")[1]
               } else {
@@ -1969,7 +1968,7 @@
             try{
               prefLangs.push(pref.match(/\$7(.*)$/g)[0])
             } catch {
-              console.info(">>>>>", pref)
+              console.info(">>>>>", pref.match(/\$7(.*)$/g))
             }
           })
 

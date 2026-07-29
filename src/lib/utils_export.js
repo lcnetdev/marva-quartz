@@ -2252,9 +2252,7 @@ const utilsExport = {
 
 		let pos29 = "n"
 		// did they make a 4xx
-		if (fourXXParts && fourXXParts.a && add667){
-			pos29 = 'b'
-		}else if (fourXXParts && fourXXParts.a && !add667){
+		if (fourXXParts && fourXXParts.a && !add667){
 			pos29 = 'a'
 		}
 
@@ -2506,24 +2504,25 @@ const utilsExport = {
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
-						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()
 						fieldName4xx.appendChild(subfield)
-						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
+						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()}`)
 					}
 				}
 			}
-			
+
 			for (let key of Object.keys(fourXXParts)){
 				// only add the subfields
 				if (key.length == 1 && !isAlpha(key)){
 					// there might be repeated subfields, split the value and loop through tem
 					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+					console.info("useValues: ", useValues)
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
-						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()
 						fieldName4xx.appendChild(subfield)
-						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
+						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()}`)
 					}
 				}
 			}
@@ -2539,25 +2538,6 @@ const utilsExport = {
 			}
 
 			marcTextArray.push({txt: this.buildMarcTxtLine(fourXXParts.fieldTag, fourXXParts.indicators.charAt(0).replace(" ","#"), fourXXParts.indicators.charAt(1).replace(" ","#"), fourXXSubfieldsValues), field: fourXXParts.fieldTag, fieldInt: parseInt(fourXXParts.fieldTag)})
-
-		}
-
-
-
-		if (pos29 === 'b' && !useAdvancedMode){
-
-			let field667 = document.createElementNS(marcNamespace,"marcxml:datafield");
-			field667.setAttribute( 'tag', '667')
-			field667.setAttribute( 'ind1', ' ')
-			field667.setAttribute( 'ind2', ' ')
-			let field667a = document.createElementNS(marcNamespace,"marcxml:subfield");
-			field667a.setAttribute( 'code', 'a')
-			field667a.innerHTML = "Non-Latin script references not evaluated."
-			field667.appendChild(field667a)
-
-			rootEl.appendChild(field667)
-			marcTextArray.push({txt: this.buildMarcTxtLine('667', ' ', ' ', ['$a Non-Latin script references not evaluated.']), field: '667', fieldInt: 667})
-
 
 		}
 
@@ -2647,9 +2627,9 @@ const utilsExport = {
 						if (key.length == 1){
 							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 							subfield.setAttribute( 'code', x[key][0])
-							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ')
+							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ').replace('\u200E', '')
 							field.appendChild(subfield)
-							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
+							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`).replace('\u200E', '')
 							hasValue = true
 						}
 					}

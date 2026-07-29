@@ -8865,6 +8865,13 @@ export const useProfileStore = defineStore('profile', {
             let record = marcXML.getElementsByTagName('marcxml:record')[0]
             record = record.cloneNode(true)
 
+            console.info("record: ", record)
+
+            // make sure leader/05 is "c"
+            let leader = record.getElementsByTagName('marcxml:leader')[0]
+            let leaderString = leader.innerHTML
+            leaderString = leaderString.substring(0,5) + 'c' + leaderString.substring(6)
+
             let marc667List = record.querySelectorAll('[tag="667"]')
 
             // add new 667
@@ -9135,6 +9142,9 @@ export const useProfileStore = defineStore('profile', {
             for (let del of forDeletion) {
                 record.removeChild(del)
             }
+
+            // sort the record by tag
+            console.info("final record: ", record)
 
             console.info("langEval: ", langEval)
             console.info("langUneval: ", langUneval)
