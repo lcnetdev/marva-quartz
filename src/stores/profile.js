@@ -8873,6 +8873,7 @@ export const useProfileStore = defineStore('profile', {
             leaderString = leaderString.substring(0,5) + 'c' + leaderString.substring(6)
 
             let marc667List = record.querySelectorAll('[tag="667"]')
+            let marc670List = record.querySelectorAll('[tag="670"]')
 
             // add new 667
             // if (updates['note667'] && updates['note667'] != ''){
@@ -8890,11 +8891,14 @@ export const useProfileStore = defineStore('profile', {
             // removing existing 667 test notes
             for (let field of marc667List) {
                 Array.from(field.children).map(f => {
-                    if (f.getAttribute('code') == 'a' && f.textContent == "Preferred non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7.") {
+                    if (f.getAttribute('code') == 'a' && f.textContent == "Non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7.") {
                         record.removeChild(field)
                     }
                 })
             }
+
+            console.info("marc667List: ", marc667List)
+            console.info("marc670List: ", marc670List)
 
             // add test note
             let testNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
@@ -8903,9 +8907,14 @@ export const useProfileStore = defineStore('profile', {
             testNote.setAttribute('ind2', " ")
             let testNoteA = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
             testNoteA.setAttribute("code", 'a')
-            testNoteA.innerHTML = "Preferred non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
+            testNoteA.innerHTML = "Non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
             testNote.appendChild(testNoteA)
-            this.indentedAppend(record, testNote, false, marc667List[marc667List.length - 1])
+            console.info("\t\t before: ",  marc667List[marc667List.length - 1])
+            // this.indentedAppend(record, testNote, false, marc667List[marc667List.length - 1])
+
+            record.insertBefore(testNote, marc670List[0])
+            // this.indentedAppend(record, testNote)
+            marc667List = record.querySelectorAll('[tag="667"]') // update the list
 
             // update 008 and 667 if non-latin references have been evaluated
             if (updates.refEval) {
@@ -8920,9 +8929,9 @@ export const useProfileStore = defineStore('profile', {
                 for (let sixSixSeven of marc667List) {
                     if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
                         target667s.push(sixSixSeven)
-                    } else if (sixSixSeven.innerHTML == 'Some non-Latin script references evaluated.') {
+                    } else if (sixSixSeven.innerHTML == 'Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated') {
                         target667s.push(sixSixSeven)
-                    } else if (sixSixSeven.innerHTML.includes('Preferred non-Latin script variants coded for PCC testing')) {
+                    } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants coded for PCC testing')) {
                         target667s.push(sixSixSeven)
                     } else if (sixSixSeven.innerHTML.includes('script references evaluated')) { // 667 from strawn tool
                         target667s.push(sixSixSeven)
@@ -8931,7 +8940,7 @@ export const useProfileStore = defineStore('profile', {
 
                 target667s.map(item => record.removeChild(item)) // remove existing notes, and add new note
                 if (updates.refEval == 'some') {
-                    let note = "Some non-Latin script references evaluated."
+                    let note = "Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated."
                     let someNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
                     someNote.setAttribute('tag', '667')
                     someNote.setAttribute('ind1', " ")
@@ -8943,7 +8952,7 @@ export const useProfileStore = defineStore('profile', {
                     try {
                         this.indentedAppend(record, someNote, false, marc667List[marc667List.length - 1])
                     } catch {
-                        this.indentedAppend(record, someNote)
+                        this.indentedAppend(record, someNote, false)
                     }
                 }
 
@@ -8963,8 +8972,9 @@ export const useProfileStore = defineStore('profile', {
                         note670.appendChild(subfield)
                     }
                 }
+                marc670List = record.querySelectorAll('[tag="667"]')
                 try {
-                    this.indentedAppend(record, note670, false, marc667List[marc667List.length])
+                    this.indentedAppend(record, note670, false, marc667List[marc670List.length])
                 } catch {
                     this.indentedAppend(record, note670)
                 }

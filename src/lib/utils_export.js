@@ -2506,7 +2506,7 @@ const utilsExport = {
 						subfield.setAttribute( 'code', key)
 						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()
 						fieldName4xx.appendChild(subfield)
-						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()}`)
+						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 					}
 				}
 			}
@@ -2522,7 +2522,7 @@ const utilsExport = {
 						subfield.setAttribute( 'code', key)
 						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()
 						fieldName4xx.appendChild(subfield)
-						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()}`)
+						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 					}
 				}
 			}
@@ -2629,7 +2629,7 @@ const utilsExport = {
 							subfield.setAttribute( 'code', x[key][0])
 							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ').replace('\u200E', '')
 							field.appendChild(subfield)
-							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`).replace('\u200E', '')
+							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
 							hasValue = true
 						}
 					}

@@ -3309,9 +3309,6 @@ const utilsNetwork = {
     let url = useConfigStore().returnUrls.publishNar
     let uuid = translator.toUUID(translator.new())
 
-    console.info("xml: ", xml)
-    return
-
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
