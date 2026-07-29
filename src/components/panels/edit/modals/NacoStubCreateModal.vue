@@ -456,8 +456,6 @@
 
             let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
 
-            console.info("results: ", results)
-
             results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
             results.xml = results.xml.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
             results.xml = results.xml.replace(/\<\/marcxml:leader>/g,"</marcxml:leader>\n")
@@ -495,8 +493,6 @@
               // console.log(this.oneXXParts)
               // console.log(useName)
               let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
-
-              console.info("newUri: ", newUri)
 
               if (this.activeNARStubComponent.source.includes('contribution')){
                 this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
