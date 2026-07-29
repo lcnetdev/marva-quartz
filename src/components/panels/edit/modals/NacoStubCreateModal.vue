@@ -1879,7 +1879,7 @@
           } else {
             lang = this.bcp
           }
-          let bcp = " $7(bcp47)" + lang
+          let bcp = "\u200E$7(bcp47)" + lang
 
           let existingBcp = this.getPreferredBcp()
 
@@ -1913,6 +1913,8 @@
               }
             }
           }
+
+          this.checkFourXX()
         },
 
         setBcp: async function(event){
@@ -1964,7 +1966,11 @@
 
           let prefLangs = []
           let bcp = preferred.map(pref => {
-            prefLangs.push(pref.match(/\$7(.*)$/g)[0])
+            try{
+              prefLangs.push(pref.match(/\$7(.*)$/g)[0])
+            } catch {
+              console.info(">>>>>", pref)
+            }
           })
 
           return prefLangs
