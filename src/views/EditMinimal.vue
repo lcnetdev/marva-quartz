@@ -67,6 +67,9 @@
    *   &uri=http://...     - (optional) the URI to use for the resource being created
    *   &load=http://...    - (optional) the URI of an existing record to load into the profile
    *                         as the starting data, the new resource keeps the &uri= identity
+   *   &edit=true          - (optional) edit the &load= record in place instead of creating a
+   *                         new resource, it keeps its URI and admin metadata and gets
+   *                         posted as an update
    */
   export default {
     components: { EditPanel, Debug, LiteralLang },
@@ -142,13 +145,16 @@
           useProfile.rt[rtId].pt[ptk]['@guid'] = short.generate()
         }
 
+        // editing an existing record in place, it keeps its URI and posts as an update
+        let editExisting = this.$route.query.edit == 'true' && this.$route.query.load
+
         let uuid = 'e' + Date.now().toString()
         useProfile.eId = uuid
-        useProfile.log = [{ action: 'createMinimalEdit', profile: rtId }]
-        useProfile.procInfo = config.procInfoNewWorkInstance
+        useProfile.log = [{ action: editExisting ? 'editMinimalUpdate' : 'createMinimalEdit', profile: rtId }]
+        useProfile.procInfo = editExisting ? 'update work' : config.procInfoNewWorkInstance
         useProfile.user = this.preferenceStore.returnUserNameForSaving
         useProfile.status = 'unposted'
-        useProfile.newResource = true
+        useProfile.newResource = !editExisting
 
         // the URI for the resource being created can be passed in, otherwise mint one
         let useUri
@@ -161,7 +167,7 @@
 
         // an existing record can be used as the starting data for the new resource
         if (this.$route.query.load){
-          let merged = await this.loadBaseRecord(useProfile, this.$route.query.load)
+          let merged = await this.loadBaseRecord(useProfile, this.$route.query.load, editExisting)
           if (!merged){ return }
           useProfile = merged
           // the loaded data carries the source record's URI, the new resource keeps its own
@@ -189,9 +195,11 @@
        * preprod-8210, and local dev just uses a canned test record.
        * @param {object} useProfile - the profile being built for the editor
        * @param {string} loadUri - the URI of the record to base the new resource on
+       * @param {boolean} keepAdminMetadata - keep the source record's admin metadata, used
+       *                                      when the record is being edited in place
        * @return {object|false} the profile with the record data merged in, false on failure
        */
-      loadBaseRecord: async function(useProfile, loadUri){
+      loadBaseRecord: async function(useProfile, loadUri, keepAdminMetadata){
 
         const config = useConfigStore()
         let urls = config.returnUrls
@@ -233,10 +241,12 @@
 
         utilsParse.parseXml(xml)
 
-        // the new resource gets its own admin metadata when it is posted, don't carry
-        // over the source record's
-        for (let el of Array.from(utilsParse.activeDom.getElementsByTagName('bf:adminMetadata'))){
-          el.remove()
+        if (!keepAdminMetadata){
+          // the new resource gets its own admin metadata when it is posted, don't carry
+          // over the source record's
+          for (let el of Array.from(utilsParse.activeDom.getElementsByTagName('bf:adminMetadata'))){
+            el.remove()
+          }
         }
 
         return await utilsParse.transformRts(useProfile)

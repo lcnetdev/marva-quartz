@@ -24,7 +24,7 @@
       <div v-if="showRelWorkIframeModal" class="rel-work-iframe-overlay">
         <div class="rel-work-iframe-container">
           <div class="rel-work-iframe-header">
-            <span>Create Related Work Expression</span>
+            <span>{{ relWorkEditMode ? 'Edit Related Music Work' : 'Create Related Music Work' }}</span>
             <button class="rel-work-iframe-close" @click="closeRelWorkIframeModal()">✕</button>
           </div>
           <iframe :src="relWorkIframeSrc" class="rel-work-iframe"></iframe>
@@ -136,10 +136,13 @@
 
         <template v-if="showBuildHubStub()">
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="isRelWorkExpressionLookupField() ? openRelWorkExpressionEditor() : buildHubStub()" :style="buttonStyle">
-                {{ isRelWorkExpressionLookupField() ? 'Create Related Work Expression' : 'Create Hub' }}
+                {{ isRelWorkExpressionLookupField() ? 'Create Related Music Work' : 'Create Hub' }}
               </button>
               <button v-if="isRelWorkExpressionLookupField() && returnExistingRelWorkExpressionUri()" class="" :id="`action-button-command-${fieldGuid}-b`" @click="openRelWorkExpressionEditor(returnExistingRelWorkExpressionUri())" :style="buttonStyle">
-                Create Expression Based on This One
+                Create New Related Music Work Based on Existing
+              </button>
+              <button v-if="isRelWorkExpressionLookupField() && returnExistingRelWorkExpressionUri()" class="" :id="`action-button-command-${fieldGuid}-e`" @click="openRelWorkExpressionEditor(returnExistingRelWorkExpressionUri(), true)" :style="buttonStyle">
+                Edit Related Music Work
               </button>
         </template>
 
@@ -273,6 +276,7 @@
 
         showRelWorkIframeModal: false,
         relWorkIframeSrc: null,
+        relWorkEditMode: false,
 
       }
     },
@@ -362,6 +366,12 @@
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
+        // in the related work expression lookup component the create actions only belong on
+        // the associated resource field, not the relationship (or any other) field next to it
+        if (this.isRelWorkExpressionLookupField() && !this.isAssociatedResourceField()){
+          return false
+        }
+
         let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
           return true
@@ -382,22 +392,32 @@
 
 
 
-      openRelWorkExpressionEditor(loadUri){
+      openRelWorkExpressionEditor(loadUri, editMode){
         // open the minimal edit screen in an iframe, it runs the whole app stack on its own
         // so there is no conflict with this session's stores. It gets told which profile to
         // use via the query params (a load url and uri can also be passed when needed)
         let profileId = this.profileStore.resolveTemplateId('lc:RT:RelatedWorkExpression')
         let query = { profile: profileId }
 
-        let uri = this.mintRelWorkExpressionUri()
-        if (uri){
-          query.uri = uri
-        }
+        this.relWorkEditMode = editMode === true
 
-        // basing the new expression off an existing one, the minimal editor will pull in
-        // that record's data as the starting point (but still use the newly minted uri)
-        if (loadUri){
+        if (this.relWorkEditMode){
+          // editing the existing resource in place, it keeps its own URI and the
+          // minimal editor posts it as an update instead of a create
+          query.uri = loadUri
           query.load = loadUri
+          query.edit = 'true'
+        } else {
+          let uri = this.mintRelWorkExpressionUri()
+          if (uri){
+            query.uri = uri
+          }
+
+          // basing the new expression off an existing one, the minimal editor will pull in
+          // that record's data as the starting point (but still use the newly minted uri)
+          if (loadUri){
+            query.load = loadUri
+          }
         }
 
         let route = this.$router.resolve({ name: 'EditMinimal', query: query })
@@ -426,9 +446,11 @@
         this.closeRelWorkIframeModal()
 
         // if the field already holds an expression (the new one was based off of it for
-        // example) don't overwrite it, add another component and put the new one there
+        // example) don't overwrite it, add another component and put the new one there.
+        // Not when the existing resource itself was edited though, then the field keeps
+        // its component and just gets the (possibly changed) label refreshed
         let useGuid = this.guid
-        if (this.returnExistingRelWorkExpressionUri()){
+        if (!this.relWorkEditMode && this.returnExistingRelWorkExpressionUri()){
           let newGuid = await this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], this.structure)
           if (newGuid){
             useGuid = newGuid
@@ -495,6 +517,22 @@
         if (!pt || !pt.userValue){ return null }
         let match = JSON.stringify(pt.userValue).match(/"@id":\s*"(https?:\/\/[^"]*\/resources\/works\/[^"]+?)"/)
         return match ? match[1] : null
+      },
+
+      isAssociatedResourceField(){
+        // is this specific field the bf:associatedResource lookup, checked against the
+        // field's own structure (each field in a component shares the component guid but
+        // gets its own structure/propertyPath)
+        if (this.structure && this.structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/associatedResource'){
+          return true
+        }
+        if (this.propertyPath && this.propertyPath.length > 0){
+          let last = this.propertyPath[this.propertyPath.length - 1]
+          if (last && last.propertyURI == 'http://id.loc.gov/ontologies/bibframe/associatedResource'){
+            return true
+          }
+        }
+        return false
       },
 
       isRelWorkExpressionLookupField(){
