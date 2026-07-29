@@ -8875,27 +8875,23 @@ export const useProfileStore = defineStore('profile', {
             let marc667List = record.querySelectorAll('[tag="667"]')
             let marc670List = record.querySelectorAll('[tag="670"]')
 
-            // add new 667
-            // if (updates['note667'] && updates['note667'] != ''){
-            //   let new667 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
-            //   new667.setAttribute('tag', '667')
-            //   new667.setAttribute('ind1', " ")
-            //   new667.setAttribute('ind2', " ")
-            //   let new667A = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
-            //   new667A.setAttribute("code", 'a')
-            //   new667A.innerHTML = updates['note667']
-            //   new667.appendChild(new667A)
-            //   this.indentedAppend(record, new667, false, marc667List[marc667List.length - 1])
-            // }
 
-            // removing existing 667 test notes
-            for (let field of marc667List) {
-                Array.from(field.children).map(f => {
-                    if (f.getAttribute('code') == 'a' && f.textContent == "Non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7.") {
-                        record.removeChild(field)
-                    }
-                })
+            // Get the 667s, remove "...not evaluated..."
+            // remove
+            let target667s = []
+            for (let sixSixSeven of marc667List) {
+                if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
+                    target667s.push(sixSixSeven)
+                } else if (sixSixSeven.innerHTML == 'Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated') {
+                    target667s.push(sixSixSeven)
+                } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants coded for PCC testing')) {
+                    target667s.push(sixSixSeven)
+                } else if (sixSixSeven.innerHTML.includes('script references evaluated')) { // 667 from strawn tool
+                    target667s.push(sixSixSeven)
+                }
             }
+
+            target667s.map(item => record.removeChild(item)) // remove existing notes, and add new note
 
             console.info("marc667List: ", marc667List)
             console.info("marc670List: ", marc670List)
@@ -8909,11 +8905,7 @@ export const useProfileStore = defineStore('profile', {
             testNoteA.setAttribute("code", 'a')
             testNoteA.innerHTML = "Non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
             testNote.appendChild(testNoteA)
-            console.info("\t\t before: ",  marc667List[marc667List.length - 1])
-            // this.indentedAppend(record, testNote, false, marc667List[marc667List.length - 1])
-
             record.insertBefore(testNote, marc670List[0])
-            // this.indentedAppend(record, testNote)
             marc667List = record.querySelectorAll('[tag="667"]') // update the list
 
             // update 008 and 667 if non-latin references have been evaluated
@@ -8923,22 +8915,6 @@ export const useProfileStore = defineStore('profile', {
                 let updatedValue = this.setCharAt(currentValue, 29, 'a')
                 zeroZeroEight.innerHTML = updatedValue
 
-                // Get the 667s, remove "...not evaluated..."
-                // remove
-                let target667s = []
-                for (let sixSixSeven of marc667List) {
-                    if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
-                        target667s.push(sixSixSeven)
-                    } else if (sixSixSeven.innerHTML == 'Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated') {
-                        target667s.push(sixSixSeven)
-                    } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants coded for PCC testing')) {
-                        target667s.push(sixSixSeven)
-                    } else if (sixSixSeven.innerHTML.includes('script references evaluated')) { // 667 from strawn tool
-                        target667s.push(sixSixSeven)
-                    }
-                }
-
-                target667s.map(item => record.removeChild(item)) // remove existing notes, and add new note
                 if (updates.refEval == 'some') {
                     let note = "Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated."
                     let someNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
@@ -8949,11 +8925,7 @@ export const useProfileStore = defineStore('profile', {
                     someNoteA.setAttribute("code", 'a')
                     someNoteA.innerHTML = note
                     someNote.appendChild(someNoteA)
-                    try {
-                        this.indentedAppend(record, someNote, false, marc667List[marc667List.length - 1])
-                    } catch {
-                        this.indentedAppend(record, someNote, false)
-                    }
+                    record.insertBefore(someNote, marc670List[0])
                 }
 
             }
@@ -8973,11 +8945,12 @@ export const useProfileStore = defineStore('profile', {
                     }
                 }
                 marc670List = record.querySelectorAll('[tag="667"]')
-                try {
-                    this.indentedAppend(record, note670, false, marc667List[marc670List.length])
-                } catch {
-                    this.indentedAppend(record, note670)
-                }
+                record.appendChild(note670)
+                // try {
+                //     this.indentedAppend(record, note670, false, marc667List[marc670List.length])
+                // } catch {
+                //     this.indentedAppend(record, note670)
+                // }
             }
 
             // 040 if the last $d is DLC, don't add another one
@@ -9108,7 +9081,8 @@ export const useProfileStore = defineStore('profile', {
                         newField.setAttribute('tag', update.tag)
                         newField.setAttribute('ind1', indicators[0])
                         newField.setAttribute('ind2', indicators[1])
-                        this.indentedAppend(record, newField, false, nextBlock)
+                        record.insertBefore(newField, nextBlock)
+                        // this.indentedAppend(record, newField, false, nextBlock)
 
                         for (let [idx, key] of Object.keys(update).entries()) {
                             if (key.includes('subfield_')) {
@@ -9120,12 +9094,13 @@ export const useProfileStore = defineStore('profile', {
                                 if (typeof value == 'string') {
                                     newSubField.setAttribute("code", subfield)
                                     newSubField.innerHTML = value.trim()
-                                    // targetNameXML.appendChild(newSubField)
-                                    if (idx == Object.keys(update).length - 1) {
-                                        this.indentedAppend(newField, newSubField, false, 'last')
-                                    } else {
-                                        this.indentedAppend(newField, newSubField, false)
-                                    }
+                                    newField.appendChild(newSubField)
+                                    // if (idx == Object.keys(update).length - 1) {
+                                    //     newField.appendChild(newSubField)
+                                    //     this.indentedAppend(newField, newSubField, false, 'last')
+                                    // } else {
+                                    //     this.indentedAppend(newField, newSubField, false)
+                                    // }
                                 } else {
                                     for (let i in value) {
                                         let bcp = value[i]
@@ -9133,11 +9108,12 @@ export const useProfileStore = defineStore('profile', {
                                         newSubField.setAttribute("code", subfield)
                                         newSubField.innerHTML = bcp.trim()
                                         // targetNameXML.appendChild(newSubField)
-                                        if (i == value.length - 1) {
-                                            this.indentedAppend(newField, newSubField, false, 'last')
-                                        } else {
-                                            this.indentedAppend(newField, newSubField, false)
-                                        }
+                                        newField.appendChild(newSubField)
+                                        // if (i == value.length - 1) {
+                                        //     this.indentedAppend(newField, newSubField, false, 'last')
+                                        // } else {
+                                        //     this.indentedAppend(newField, newSubField, false)
+                                        // }
                                     }
                                 }
                             }
@@ -9199,39 +9175,39 @@ export const useProfileStore = defineStore('profile', {
             return record
         },
 
-        indentedAppend: function (parent, child, existing = true, next = null) {
-            let indent = ""
-            let elem = child
+        // indentedAppend: function (parent, child, existing = true, next = null) {
+        //     let indent = ""
+        //     let elem = child
 
-            while (elem && elem !== parent) {
-                indent += "  ";
-                elem = elem.parentNode;
-                if (!existing) {
-                    indent += "  ";
-                }
-            }
+        //     while (elem && elem !== parent) {
+        //         indent += "  ";
+        //         elem = elem.parentNode;
+        //         if (!existing) {
+        //             indent += "  ";
+        //         }
+        //     }
 
-            if (next && next != 'last') {
-                console.info("parent: ", parent)
-                console.info("next: ", next)
+        //     if (next && next != 'last') {
+        //         console.info("parent: ", parent)
+        //         console.info("next: ", next)
 
-                parent.insertBefore(document.createTextNode(""), next)
-                parent.insertBefore(child, next)
-                // child.appendChild(document.createTextNode("\n" + indent))
-                child.after(document.createTextNode("\n" + indent.slice(0, -2)))
-            } else {
-                if (existing) {
-                    parent.appendChild(document.createTextNode(indent))
-                    parent.appendChild(child)
-                    parent.appendChild(document.createTextNode("\n" + indent))
-                } else {
-                    parent.appendChild(document.createTextNode("\n" + indent))
-                    parent.appendChild(child)
-                    if (next && next == 'last') {
-                        parent.appendChild(document.createTextNode("\n" + indent.slice(0, -2))) // this should only happen for the last element added
-                    }
-                }
-            }
-        }
+        //         parent.insertBefore(document.createTextNode(""), next)
+        //         parent.insertBefore(child, next)
+        //         // child.appendChild(document.createTextNode("\n" + indent))
+        //         child.after(document.createTextNode("\n" + indent.slice(0, -2)))
+        //     } else {
+        //         if (existing) {
+        //             parent.appendChild(document.createTextNode(indent))
+        //             parent.appendChild(child)
+        //             parent.appendChild(document.createTextNode("\n" + indent))
+        //         } else {
+        //             parent.appendChild(document.createTextNode("\n" + indent))
+        //             parent.appendChild(child)
+        //             if (next && next == 'last') {
+        //                 parent.appendChild(document.createTextNode("\n" + indent.slice(0, -2))) // this should only happen for the last element added
+        //             }
+        //         }
+        //     }
+        // }
     }, // end of methods
 })
