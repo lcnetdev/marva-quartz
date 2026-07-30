@@ -47,6 +47,16 @@ const utilsMisc = {
 
   calculateCutter (toCut,howLong) {
     var authorName = toCut
+    // https://www.loc.gov/aba/publications/FreeCSM/G100.pdf
+    authorName = authorName.replace(/Æ|æ/g, "ae")
+    authorName = authorName.replace(/α/g, "a")
+    authorName = authorName.replace(/β/g, "b")
+    authorName = authorName.replace(/ð/g, "d")
+    authorName = authorName.replace(/γ/g, "g")
+    authorName = authorName.replace(/ı/g, "i")
+    authorName = authorName.replace(/Œ|œ/g, "oe")
+    authorName = authorName.replace(/Þ|þ/g, "th")
+
     authorName = authorName.toUpperCase();
     authorName = authorName.replace(/^[0-9]/,"a");
     //replace diacritics with the letter
@@ -55,6 +65,7 @@ const utilsMisc = {
     //var authorNameLength = authorName.length;
     authorName = authorName.replace(/^QU/i,"Q");
     authorName = authorName.replace(/(^.)CH/i,"$1#");
+
     var cutter = "";
 
     for (var i=0; i<authorName.length; i++) {
@@ -62,8 +73,7 @@ const utilsMisc = {
         cutter += authorName.slice(0,1); //alert (cutter);
         cutter = cutter.replace(/a/,"A");
         //alert (authorName + " " + cutter);
-      }
-	  else if (i == 1) {
+      } else if (i == 1) {
         var initialLetter = authorName.slice(0,1); //alert (initialLetter);
         var secondLetter = authorName.slice(1,2); //alert (secondLetter);
         if (initialLetter.match(/^A|E|I|O|U$/)) {
