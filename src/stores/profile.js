@@ -8916,7 +8916,7 @@ export const useProfileStore = defineStore('profile', {
                 zeroZeroEight.innerHTML = updatedValue
 
                 if (updates.refEval == 'some') {
-                    let note = "Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated."
+                    let note = "Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated. Others have not yet been evaluated."
                     let someNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
                     someNote.setAttribute('tag', '667')
                     someNote.setAttribute('ind1', " ")
@@ -8946,11 +8946,6 @@ export const useProfileStore = defineStore('profile', {
                 }
                 marc670List = record.querySelectorAll('[tag="667"]')
                 record.appendChild(note670)
-                // try {
-                //     this.indentedAppend(record, note670, false, marc667List[marc670List.length])
-                // } catch {
-                //     this.indentedAppend(record, note670)
-                // }
             }
 
             // 040 if the last $d is DLC, don't add another one
@@ -9061,14 +9056,12 @@ export const useProfileStore = defineStore('profile', {
                                         let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                                         newSubField.setAttribute("code", subfield)
                                         newSubField.innerHTML = value.trim()
-                                        // targetNameXML.appendChild(newSubField)
                                         this.indentedAppend(targetNameXML, newSubField)
                                     } else {
                                         for (let bcp of value) {
                                             let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                                             newSubField.setAttribute("code", subfield)
                                             newSubField.innerHTML = bcp.trim()
-                                            // targetNameXML.appendChild(newSubField)
                                             this.indentedAppend(targetNameXML, newSubField)
                                         }
                                     }
@@ -9082,7 +9075,6 @@ export const useProfileStore = defineStore('profile', {
                         newField.setAttribute('ind1', indicators[0])
                         newField.setAttribute('ind2', indicators[1])
                         record.insertBefore(newField, nextBlock)
-                        // this.indentedAppend(record, newField, false, nextBlock)
 
                         for (let [idx, key] of Object.keys(update).entries()) {
                             if (key.includes('subfield_')) {
@@ -9095,25 +9087,13 @@ export const useProfileStore = defineStore('profile', {
                                     newSubField.setAttribute("code", subfield)
                                     newSubField.innerHTML = value.trim()
                                     newField.appendChild(newSubField)
-                                    // if (idx == Object.keys(update).length - 1) {
-                                    //     newField.appendChild(newSubField)
-                                    //     this.indentedAppend(newField, newSubField, false, 'last')
-                                    // } else {
-                                    //     this.indentedAppend(newField, newSubField, false)
-                                    // }
                                 } else {
                                     for (let i in value) {
                                         let bcp = value[i]
                                         let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                                         newSubField.setAttribute("code", subfield)
                                         newSubField.innerHTML = bcp.trim()
-                                        // targetNameXML.appendChild(newSubField)
                                         newField.appendChild(newSubField)
-                                        // if (i == value.length - 1) {
-                                        //     this.indentedAppend(newField, newSubField, false, 'last')
-                                        // } else {
-                                        //     this.indentedAppend(newField, newSubField, false)
-                                        // }
                                     }
                                 }
                             }
@@ -9175,39 +9155,5 @@ export const useProfileStore = defineStore('profile', {
             return record
         },
 
-        // indentedAppend: function (parent, child, existing = true, next = null) {
-        //     let indent = ""
-        //     let elem = child
-
-        //     while (elem && elem !== parent) {
-        //         indent += "  ";
-        //         elem = elem.parentNode;
-        //         if (!existing) {
-        //             indent += "  ";
-        //         }
-        //     }
-
-        //     if (next && next != 'last') {
-        //         console.info("parent: ", parent)
-        //         console.info("next: ", next)
-
-        //         parent.insertBefore(document.createTextNode(""), next)
-        //         parent.insertBefore(child, next)
-        //         // child.appendChild(document.createTextNode("\n" + indent))
-        //         child.after(document.createTextNode("\n" + indent.slice(0, -2)))
-        //     } else {
-        //         if (existing) {
-        //             parent.appendChild(document.createTextNode(indent))
-        //             parent.appendChild(child)
-        //             parent.appendChild(document.createTextNode("\n" + indent))
-        //         } else {
-        //             parent.appendChild(document.createTextNode("\n" + indent))
-        //             parent.appendChild(child)
-        //             if (next && next == 'last') {
-        //                 parent.appendChild(document.createTextNode("\n" + indent.slice(0, -2))) // this should only happen for the last element added
-        //             }
-        //         }
-        //     }
-        // }
     }, // end of methods
 })

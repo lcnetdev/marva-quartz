@@ -104,6 +104,7 @@
 
         langs: {},
         bcp: null,
+        selectebcp: null,
       }
     },
     computed: {
@@ -1596,6 +1597,7 @@
               this.langs[lang] = 1
             }
           }
+          this.selectebcp = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
 
           // Check if the record might be a CIP
           let isCip = this.profileStore.checkCip()
@@ -1918,6 +1920,7 @@
 
         setBcp: async function(event){
           let val = event.target.value
+          this.selectebcp = val
           if (val != 'expand'){
             this.bcp = val.toLowerCase()
             return
@@ -2131,8 +2134,8 @@
                 </div>
 
                 <div>
-                  Set BCP
-                  <select @change="setBcp">
+                  Set BCP {{ selectebcp }}
+                  <select @change="setBcp" v-model="selectebcp">
                     <template v-for="(value, key) in langs">
                       <option :value="key">{{ key }}</option>
                     </template>
