@@ -132,6 +132,7 @@
         postStatus: "",
         authLccn: false,
         source670s: [],
+        feedbackUrl: '',
 
       }
     },
@@ -178,13 +179,6 @@
       modalSelectOptionsLabels(){
         return this.modalSelectOptions.map((o)=>{return o.label})
       },
-
-
-
-
-
-
-
     },
 
     watch: {
@@ -280,9 +274,23 @@
         }
       },
 
+      buildFeedbackLink: function(){
+        console.info("xml: ", this.xmlDoc)
+        console.info("marcData: ",  this.marcData)
+
+        let fbLccn = Array.from(this.xmlDoc.querySelectorAll('[tag="010"]')[0].children).filter(child => child.getAttribute('code') == 'a')[0].innerHTML.trim().replaceAll(" ", "")
+        let fbUserName = usePreferenceStore().ssoUser.name
+        let fbScript = ''
+        let fbOneXX = Array.from(this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0].children).map(child => child.innerHTML).join(" ")
+        let fbFourXX = ''
+
+        this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${fbFourXX}`
+
+      },
+
       // initial 4XX
       edit4XX: async function(data){
-        //TODO: set the 667 based on existing values
+
 
         this.resetBcp()
         console.info("data: ", data)
@@ -321,7 +329,9 @@
           }
         }
 
-        console.info("xml: ", this.xmlDoc)
+        // build feedbackURL
+        this.buildFeedbackLink()
+
         console.info("tag: ", this.tag)
         // get the $d for the 1XX, as long as there is no $t
         let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
@@ -767,6 +777,7 @@
 
         this.marcData[this.activeIndex]['displayName'] = key
         this.build667Note()
+        this.buildFeedbackLink()
         // this.marcData[this.activeIndex]['marcKey'] = marcKey + key
       },
 
@@ -2067,12 +2078,12 @@
                   <label for="refEval">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                   <br><br>
+                  <a :href="feedbackUrl" target="_blank">feedback</a>
                   <button @click="previewMarc()">Preview</button>
                   <button @click="hideBCP()">Cancel</button>
 
                   <!-- open in FOLIO -->
                   <button class="folio-button" @click="openFolioRecord()">FOLIO</button>
-                  <!-- https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=no2004001358&rfd977bcc6181467f8e2dd8a5d232ae6a=Zoom,+Jessalyn&r64ff4d13080f450080c7ce5910cbb2d2=Chinese&r5b0534e8e244466787eab4c097efb620=Tong,+Chengxu,+-1542&ra9767296ca0540b0a1d5c5f78ed91e17=童承叙,+-1542 -->
                 </div>
               </div>
             </template>
