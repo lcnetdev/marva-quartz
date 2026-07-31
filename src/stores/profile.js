@@ -6766,7 +6766,7 @@ export const useProfileStore = defineStore('profile', {
             return NARData
         },
 
-        async postNacoStub(xml, lccn) {
+        async postNacoStub(xml, lccn, update) {
 
             let pubResuts
 
@@ -6781,11 +6781,19 @@ export const useProfileStore = defineStore('profile', {
             console.log('pubResuts')
             console.log(pubResuts)
 
-            if (pubResuts && pubResuts.status === 'published') {
-                this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
-            } else if (pubResuts && pubResuts.status === true) {
-                this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+            if ( (pubResuts && pubResuts.status === true || pubResuts.status === 'published') ){
+                if (update){
+                    this.logEvent('UPDATED_NAR', { metadata: [lccn] })
+                } else {
+                    this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+                }
             }
+
+            // if (pubResuts && pubResuts.status === 'published') {
+            //     this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+            // } else if (pubResuts && pubResuts.status === true) {
+            //     this.logEvent('PUBLISHED_NAR', { metadata: [lccn] })
+            // }
 
             return {
                 xml: xml,
@@ -8883,6 +8891,7 @@ export const useProfileStore = defineStore('profile', {
                 if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
                     target667s.push(sixSixSeven)
                 } else if (sixSixSeven.innerHTML == 'Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated') {
+                    console.info("delete: ", sixSixSeven)
                     target667s.push(sixSixSeven)
                 } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants coded for PCC testing')) {
                     target667s.push(sixSixSeven)
@@ -9056,13 +9065,13 @@ export const useProfileStore = defineStore('profile', {
                                         let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                                         newSubField.setAttribute("code", subfield)
                                         newSubField.innerHTML = value.trim()
-                                        this.indentedAppend(targetNameXML, newSubField)
+                                        targetNameXML.appendChild(newSubField)
                                     } else {
                                         for (let bcp of value) {
                                             let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
                                             newSubField.setAttribute("code", subfield)
                                             newSubField.innerHTML = bcp.trim()
-                                            this.indentedAppend(targetNameXML, newSubField)
+                                            targetNameXML.appendChild(newSubField)
                                         }
                                     }
                                 }

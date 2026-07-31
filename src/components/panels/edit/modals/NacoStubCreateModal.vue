@@ -152,7 +152,7 @@
         }
 
 
-        if (this.validationResult && ['Empty subfields.', 'Empty datafields.'].includes(this.validationResult.validation[0].message)){
+        if (this.validationResult && this.validationResult.validation && ['Empty subfields.', 'Empty datafields.'].includes(this.validationResult.validation[0].message)){
           return true
         }
 
@@ -356,6 +356,7 @@
         },
 
         async validate(){
+          console.info('validating: ', this.MARCXml)
           this.validationResult = null
           this.validating = true
 
@@ -367,6 +368,7 @@
             console.error("Validation error:", error)
             this.validationResult = "ERROR VALIDATING NAR"
           } finally {
+            console.info("this.validationResult: ", this.validationResult)
             this.validating = false
           }
 
@@ -1597,7 +1599,10 @@
               this.langs[lang] = 1
             }
           }
-          this.selectebcp = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
+          if (Object.keys(this.langs).length > 0){
+            console.info("????")
+            this.selectebcp = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
+          }
 
           // Check if the record might be a CIP
           let isCip = this.profileStore.checkCip()

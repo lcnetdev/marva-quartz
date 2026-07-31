@@ -281,7 +281,7 @@
         let fbLccn = Array.from(this.xmlDoc.querySelectorAll('[tag="010"]')[0].children).filter(child => child.getAttribute('code') == 'a')[0].innerHTML.trim().replaceAll(" ", "")
         let fbUserName = usePreferenceStore().ssoUser.name
         let fbScript = ''
-        let fbOneXX = Array.from(this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0].children).map(child => child.innerHTML).join(" ")
+        let fbOneXX = Array.from(this.xmlDoc.querySelectorAll('[tag="' + this.tag.replace("4", "1") +'"]')[0].children).map(child => child.innerHTML).join(" ")
         let fbFourXX = ''
 
         this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${fbFourXX}`
@@ -500,6 +500,15 @@
         let cataloger = null
         let results = await this.postNacoStub(this.finalMarc, this.MARClccn, true)
         console.info("results: ", results)
+
+        if (!results.pubResuts.status){
+          alert("Error posting NAR")
+          console.error("NAR post error: ", results.pubresults)
+          return
+        }
+        if (results.pubResuts.details.status == 'success, but with errors'){
+
+        }
 
         // Reset and redo search to refresh everything
         this.showMarcPreview = false
