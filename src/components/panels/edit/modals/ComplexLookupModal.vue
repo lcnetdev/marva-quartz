@@ -122,6 +122,7 @@
         validating: false,
         validationResult: {},
 
+        bcpLccn: false,
         formattedMarc: '',
         finalMarc: '',
         submitting: false,
@@ -133,6 +134,7 @@
         authLccn: false,
         source670s: [],
         feedbackUrl: '',
+        overrideTG: false,
 
       }
     },
@@ -253,6 +255,7 @@
         this.authLccn = false
         this.postStatus = ""
         this.source670s = []
+        this.overrideTG = false
 
       },
 
@@ -274,18 +277,36 @@
         }
       },
 
+      allowPreview: function(){
+        if (this.overrideTG){
+          return true
+        }
+        // check lccn against test list
+        return false //!useConfigStore().testLccnList.contains(this.bcpLccn)
+      },
+
       buildFeedbackLink: function(){
         console.info("xml: ", this.xmlDoc)
         console.info("marcData: ",  this.marcData)
 
-        let fbLccn = Array.from(this.xmlDoc.querySelectorAll('[tag="010"]')[0].children).filter(child => child.getAttribute('code') == 'a')[0].innerHTML.trim().replaceAll(" ", "")
-        let fbUserName = usePreferenceStore().ssoUser.name
+        let fbLccn = ''
+        let fbUserName = ''
         let fbScript = ''
-        let fbOneXX = Array.from(this.xmlDoc.querySelectorAll('[tag="' + this.tag.replace("4", "1") +'"]')[0].children).map(child => child.innerHTML).join(" ")
+        let fbOneXX = ''
         let fbFourXX = ''
 
-        this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${fbFourXX}`
+        try {
+          fbLccn = Array.from(this.xmlDoc.querySelectorAll('[tag="010"]')[0].children).filter(child => child.getAttribute('code') == 'a')[0].innerHTML.trim().replaceAll(" ", "")
+          this.bcpLccn = fbLccn
+          fbUserName = usePreferenceStore().ssoUser.name
+          fbScript = ''
+          fbOneXX = Array.from(this.xmlDoc.querySelectorAll('[tag="' + this.tag.replace("4", "1") +'"]')[0].children).map(child => child.innerHTML).join(" ")
+          fbFourXX = ''
 
+          this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${fbFourXX}`
+        } catch {
+          this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${fbFourXX}`
+        }
       },
 
       // initial 4XX
@@ -2087,9 +2108,12 @@
                   <label for="refEval">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                   <br><br>
-                  <a :href="feedbackUrl" target="_blank">feedback</a>
-                  <button @click="previewMarc()">Preview</button>
+                  <a :href="feedbackUrl" target="_blank" @click="overrideTG = true">feedback</a>
+                  <button @click="previewMarc()" v-if="allowPreview()">Preview</button>
                   <button @click="hideBCP()">Cancel</button>
+                  <tempalte v-if="!allowPreview()">
+                    <div>This LCCN has been flagged by the PC TaskGroup. Please provide feedback before continuing.</div>
+                  </tempalte>
 
                   <!-- open in FOLIO -->
                   <button class="folio-button" @click="openFolioRecord()">FOLIO</button>
