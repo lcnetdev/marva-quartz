@@ -96,7 +96,38 @@
             }
           }
 
+          this.verifyLangSupport()
 
+        },
+
+        // probe the trans endpoint to see if a direction actually works,
+        // the /languages response can incorrectly report has_s2r/has_r2s as false
+        async checkDirection(lang, tDir){
+          const res = await fetch(this.configStore.returnUrls.scriptshifter + 'trans', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: 'a', lang: lang, t_dir: tDir, capitalize: 'no_change', options: {} }),
+          })
+          if (res.ok) return true
+          const body = await res.json().catch(() => null)
+          if (body && body.warnings && body.warnings.some(w => w.includes('not yet supported'))) return false
+          throw new Error(`Inconclusive probe for ${lang}/${tDir}`)
+        },
+
+        async verifyLangSupport(){
+          const toCheck = Object.keys(this.scriptshifterLanguages).filter(
+            k => this.scriptshifterLanguages[k].has_s2r === false && this.scriptshifterLanguages[k].has_r2s === false
+          )
+          await Promise.allSettled(toCheck.map(async (k) => {
+            for (const [dir, flag] of [['s2r','has_s2r'], ['r2s','has_r2s']]){
+              try {
+                this.scriptshifterLanguages[k][flag] = await this.checkDirection(k, dir)
+              } catch (e) {
+                // inconclusive (network error, 5xx) - leave the direction disabled
+                console.warn(e.message)
+              }
+            }
+          }))
         },
 
 
