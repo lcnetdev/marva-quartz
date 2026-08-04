@@ -61,6 +61,14 @@
 
         },
 
+        doneAndSearch : function(){
+
+          this.showPostModal = false
+          // the #search hash tells the Load view to focus the search input
+          this.$router.push('/load#search')
+
+        },
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -212,6 +220,7 @@
 
 
             <button @click="done">Close</button>
+            <button @click="doneAndSearch" title="Returns to the Load screen to serach for a new record to edit.">Close and Search</button>
 
 
 
