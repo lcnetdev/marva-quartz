@@ -397,6 +397,10 @@
                 f670.u = this.instanceURI
                 f670.value = f670.value + ` $u ${this.instanceURI}`
               }
+              // if (this.mainTitleLccn){
+              //   f670.w = this.mainTitleLccn
+              //   f670.value = f670.value + ` $w (DLC)${this.mainTitleLccn}`
+              // }
 
               this.extraMarcStatements.push(f670)
             }
@@ -1664,6 +1668,10 @@
                 f670.u = this.instanceURI
                 f670.value = f670.value + ` $u ${this.instanceURI}`
               }
+              // if (this.mainTitleLccn){
+              //   f670.w = this.mainTitleLccn
+              //   f670.value = f670.value + ` $w (DLC)${this.mainTitleLccn}`
+              // }
               this.extraMarcStatements.push(f670)
 
               addingDefaultExtraMarcStatements = true

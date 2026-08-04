@@ -608,7 +608,7 @@ const utilsNetwork = {
             }
 
             //TODO: undo this
-            url = url.replace("preprod", "preprod-8288")
+            url = url.replace("preprod", "preprod-8299")
 
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
@@ -3325,17 +3325,11 @@ const utilsNetwork = {
     const content = await rawResponse.json();
 
     // console.log(content);
-    console.info("content: ", content)
 
     if (content && content.publish && content.publish.status && content.publish.status == 'published'){
-
-      return {status:true, postLocation: (content.postLocation) ? content.postLocation : null, details: (content.publish.details) ? JSON.parse(content.publish.details) : null }
-
+      return {status:true, postLocation: (content.postLocation) ? content.postLocation : null, details: (content.publish.details) ? content.publish.details : null }
     }else{
-
       // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
-
-
       return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2), msgObj: content.publish}
     }
   },
@@ -4466,7 +4460,7 @@ const utilsNetwork = {
     async fetchAuthMarc(lccn){
       // let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
       // TODO: undo this
-      let url = "https://preprod-8288.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
+      let url = "https://preprod-8299.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: UNDO 8080 for production
       let marcXML = await this.fetchSimpleLookup(url)
       return marcXML
     },

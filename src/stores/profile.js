@@ -6781,6 +6781,8 @@ export const useProfileStore = defineStore('profile', {
             console.log('pubResuts')
             console.log(pubResuts)
 
+            console.info('pubResuts: ', pubResuts)
+
             if ( (pubResuts && pubResuts.status === true || pubResuts.status === 'published') ){
                 if (update){
                     this.logEvent('UPDATED_NAR', { metadata: [lccn] })
@@ -8826,8 +8828,7 @@ export const useProfileStore = defineStore('profile', {
             for (let sixSixSeven of marc667List) {
                 if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
                     target667s.push(sixSixSeven)
-                } else if (sixSixSeven.innerHTML == 'Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated') {
-                    console.info("delete: ", sixSixSeven)
+                } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated')) {
                     target667s.push(sixSixSeven)
                 } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants coded for PCC testing')) {
                     target667s.push(sixSixSeven)
@@ -8850,7 +8851,7 @@ export const useProfileStore = defineStore('profile', {
             testNoteA.setAttribute("code", 'a')
             testNoteA.innerHTML = "Non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
             testNote.appendChild(testNoteA)
-            record.insertBefore(testNote, marc670List[0])
+            record.appendChild(testNote)
             marc667List = record.querySelectorAll('[tag="667"]') // update the list
 
             // update 008 and 667 if non-latin references have been evaluated
@@ -8872,7 +8873,7 @@ export const useProfileStore = defineStore('profile', {
                     someNoteA.setAttribute("code", 'a')
                     someNoteA.innerHTML = note
                     someNote.appendChild(someNoteA)
-                    record.insertBefore(someNote, marc670List[0])
+                    record.appendChild(someNote)
                 }
 
             }
@@ -8913,7 +8914,6 @@ export const useProfileStore = defineStore('profile', {
                 console.info("\ttarget: ", target)
                 let targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
                 let index = [].indexOf.call(record.children, targetNameXML)
-                let nextBlock = record.children[index + 1]
 
                 if (!targetNameXML) {
                     targetNameXML = { 'children': [] }
@@ -8921,7 +8921,6 @@ export const useProfileStore = defineStore('profile', {
                         if (idx.startsWith("##")) { break }
                         targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[idx]
                         index = [].indexOf.call(record.children, targetNameXML)
-                        nextBlock = record.children[index + 1]
                     }
                 }
 
@@ -9021,7 +9020,7 @@ export const useProfileStore = defineStore('profile', {
                         newField.setAttribute('tag', update.tag)
                         newField.setAttribute('ind1', indicators[0])
                         newField.setAttribute('ind2', indicators[1])
-                        record.insertBefore(newField, nextBlock)
+                        record.appendChild(newField)
 
                         for (let [idx, key] of Object.keys(update).entries()) {
                             if (key.includes('subfield_')) {
@@ -9057,10 +9056,16 @@ export const useProfileStore = defineStore('profile', {
             }
 
             // sort the record by tag
-            console.info("final record: ", record)
+            let sortedChildren = Array.from(record.children).sort((a, b) => {
+                let tagA = a.getAttribute('tag');
+                let tagB = b.getAttribute('tag');
+                if (tagA < tagB) return -1;
+                if (tagA > tagB) return 1;
+                return 0;
+            });
 
-            console.info("langEval: ", langEval)
-            console.info("langUneval: ", langUneval)
+            record.innerHTML = ''; // Clear existing children
+            sortedChildren.forEach(child => record.appendChild(child))
 
             let parsedRecord = this.parseMarcXml(record)
             return [record, parsedRecord]

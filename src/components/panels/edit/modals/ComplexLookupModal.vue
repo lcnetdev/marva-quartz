@@ -527,8 +527,13 @@
           console.error("NAR post error: ", results.pubresults)
           return
         }
-        if (results.pubResuts.details.status == 'success, but with errors'){
 
+        if (results.pubResuts.details){
+          let details = JSON.parse(atob(results.pubResuts.details))
+          console.info("details: ", details)
+          if (details.status == 'success, but with errors'){
+            alert("NAR added to BFDB, but not sent to FOLIO.")
+          }
         }
 
         // Reset and redo search to refresh everything
