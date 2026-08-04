@@ -1,5 +1,5 @@
 <template>
- <span class="trigger-open">{{displayLabelValue}}</span>
+ <span class="trigger-open">{{displayLabelValue || URI}}</span>
 </template>
 
 <script>
