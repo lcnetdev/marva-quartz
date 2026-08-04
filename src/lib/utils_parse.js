@@ -358,6 +358,15 @@ const utilsParse = {
         let hasHub = false
         if (child.innerHTML.indexOf("bf:Hub")>-1) { hasHub = true}
 
+        // a bare <bf:associatedResource rdf:resource="..."/> reference has no typed element
+        // to sniff, so also look at the URI of the reference to tell works/hubs apart
+        for (let assocEl of child.getElementsByTagName('bf:associatedResource')){
+          let ref = assocEl.attributes['rdf:resource'] ? assocEl.attributes['rdf:resource'].value : null
+          if (!ref){ continue }
+          if (ref.indexOf('/resources/hubs/')>-1){ hasHub = true }
+          if (ref.indexOf('/resources/works/')>-1){ hasWork = true }
+        }
+
         let hasSeries = false
         if (child.innerHTML.indexOf("bf:Series")>-1){ hasSeries = true }
 
