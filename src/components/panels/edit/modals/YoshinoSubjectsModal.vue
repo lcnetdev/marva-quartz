@@ -170,6 +170,22 @@
                                             <span v-if="results.classificationCounts && results.classificationCounts[c.key] > 1"
                                                   class="yoshino-usage-badge"
                                                   :title="'Used on ' + results.classificationCounts[c.key] + ' of the retrieved similar records'">{{ results.classificationCounts[c.key] }}×</span>
+                                            <span v-if="c.type === 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc' && c.portion" class="yoshino-classweb-actions">
+                                                <a :href="classWebSearchUrl(c.portion)" target="_blank" class="yoshino-classweb-btn"
+                                                   :title="'ClassWeb Search: ' + c.portion">
+                                                    <span class="material-icons">search</span>
+                                                </a>
+                                                <a :href="classWebBrowseUrl(c.portion)" target="_blank" class="yoshino-classweb-btn"
+                                                   :title="'ClassWeb Browse: ' + c.portion">
+                                                    <span class="material-icons">menu_book</span>
+                                                </a>
+                                                <button class="yoshino-classweb-btn" :class="{'yoshino-classweb-copied': copiedKey === c.key}"
+                                                        @click="copyLinkToClipboard(c.portion, c.key)"
+                                                        :title="'Copy ' + c.portion + ' to clipboard'">
+                                                    <span class="material-icons">{{ copiedKey === c.key ? 'check' : 'content_copy' }}</span>
+                                                    <span v-if="copiedKey === c.key" class="yoshino-classweb-copied-label">Copied</span>
+                                                </button>
+                                            </span>
                                         </div>
                                         <button v-if="!insertedClassifications.has(c.key)"
                                                 @click="insertClassification(c)"
@@ -492,6 +508,42 @@
         margin-right: 6px;
     }
 
+    .yoshino-classweb-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    .yoshino-classweb-btn {
+        display: inline-flex;
+        align-items: center;
+        background: none;
+        border: none;
+        padding: 0 2px;
+        cursor: pointer;
+        color: #1976d2;
+        text-decoration: none;
+    }
+
+    .yoshino-classweb-btn:hover {
+        color: #0d47a1;
+    }
+
+    .yoshino-classweb-btn .material-icons {
+        font-size: 18px;
+    }
+
+    .yoshino-classweb-copied {
+        color: #2e7d32;
+    }
+
+    .yoshino-classweb-copied-label {
+        font-size: 0.7rem;
+        margin-left: 2px;
+    }
+
     .yoshino-insert-btn {
         background-color: #1976d2;
         color: white;
@@ -596,6 +648,7 @@
             resultsTab: 'subjects',
             insertedClassifications: new Set(),
             userDescription: '',
+            copiedKey: null,
         }
     },
 
@@ -879,6 +932,24 @@
             if (this.isNarSubject(subj)) return 'yoshino-insert-btn yoshino-insert-btn-nar'
             if (this.isNonLcSubject(subj)) return 'yoshino-insert-btn yoshino-insert-btn-uncontrolled'
             return 'yoshino-insert-btn'
+        },
+
+        classWebSearchUrl(portion) {
+            return 'https://classweb.org/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan=' + encodeURIComponent(portion) + '&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'
+        },
+
+        classWebBrowseUrl(portion) {
+            return 'https://classweb.org/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + encodeURIComponent(portion)
+        },
+
+        copyLinkToClipboard(text, key) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.copiedKey = key
+                window.clearTimeout(this.copiedKeyTimeout)
+                this.copiedKeyTimeout = window.setTimeout(() => { this.copiedKey = null }, 1500)
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
         },
 
         classificationLabel(type) {
