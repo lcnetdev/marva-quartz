@@ -104,7 +104,7 @@
 
         langs: {},
         bcp: null,
-        selectebcp: null,
+        selectedBcp: null,
       }
     },
     computed: {
@@ -1600,8 +1600,7 @@
             }
           }
           if (Object.keys(this.langs).length > 0){
-            console.info("????")
-            this.selectebcp = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
+            this.selectedBcp = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
           }
 
           // Check if the record might be a CIP
@@ -1924,8 +1923,13 @@
         },
 
         setBcp: async function(event){
+          if (this.fourXX == ''){
+            alert("Add a non-Latin 4XX value to continue.")
+            return
+          }
           let val = event.target.value
-          this.selectebcp = val
+          console.info("val: ", val)
+          this.selectedBcp = val
           if (val != 'expand'){
             this.bcp = val.toLowerCase()
             return
@@ -2139,8 +2143,8 @@
                 </div>
 
                 <div>
-                  Set BCP {{ selectebcp }}
-                  <select @change="setBcp" v-model="selectebcp">
+                  Set BCP
+                  <select @change="setBcp" v-model="selectedBcp">
                     <template v-for="(value, key) in langs">
                       <option :value="key">{{ key }}</option>
                     </template>
