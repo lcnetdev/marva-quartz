@@ -149,7 +149,7 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'isLatin', 'adjustAuthRecord', 'compareAuthRecords', 'postNacoStub']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'isLatin', 'adjustAuthRecord', 'postNacoStub']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -282,7 +282,7 @@
           return true
         }
         // check lccn against test list
-        return false //!useConfigStore().testLccnList.contains(this.bcpLccn)
+        return true //!useConfigStore().testLccnList.contains(this.bcpLccn)
       },
 
       buildFeedbackLink: function(){
@@ -628,10 +628,6 @@
           this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
           // return
         }
-
-        // let comparison = this.compareAuthRecords(this.originalMarc, this.updatedRecord, targets, updates)
-        // this.diffRecord = comparison
-        // console.info("diff: ", comparison)
 
         let marcString = xmlUpdated.replace(/ xmlns:.*=".*"/g, "")
         this.finalMarc = marcString
@@ -2112,7 +2108,7 @@
                   <button @click="previewMarc()" v-if="allowPreview()">Preview</button>
                   <button @click="hideBCP()">Cancel</button>
                   <tempalte v-if="!allowPreview()">
-                    <div>This LCCN has been flagged by the PC TaskGroup. Please provide feedback before continuing.</div>
+                    <div class="tg-note">This LCCN has been flagged by the PC TaskGroup. Please provide feedback before continuing.</div>
                   </tempalte>
 
                   <!-- open in FOLIO -->

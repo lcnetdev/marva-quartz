@@ -8791,71 +8791,6 @@ export const useProfileStore = defineStore('profile', {
             return pp
         },
 
-        compareAuthRecords: function (oldRec, newRec, targets, updates) {
-            let hasDeletions = false
-            for (let idx in updates) {
-                let update = updates[idx]
-                if (Object.keys(update).includes('delete')) {
-                    hasDeletions = true
-                    break
-                }
-            }
-
-            let diff = {
-                'old': [],
-                'new': [],
-            }
-
-            let recordOld = oldRec.getElementsByTagName('marcxml:record')[0]
-            let recordNew = newRec
-
-            for (let target of targets) {
-                let targetNameOld = oldRec.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
-                let recordOldString = new XMLSerializer().serializeToString(targetNameOld);
-
-                let targetNameNew = newRec.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
-                let recordNewString
-
-                try {
-                    recordNewString = new XMLSerializer().serializeToString(targetNameNew);
-                    if (!recordNewString.includes(target[2])) {
-                        if (hasDeletions) {
-                            recordNewString = 'DELETED'
-                        }
-                    }
-                } catch (err) {
-                    if (hasDeletions) {
-                        recordNewString = 'DELETED'
-                    }
-                }
-
-                // change to target name
-                // diff.old.push(recordOldString)
-                // diff.new.push(recordNewString)
-                // diff = {
-                //   'old': [recordOldString],
-                //   'new': [recordNewString],
-                // }
-            }
-
-            // look at the children and see what's new
-            let childrenOriginal = [].slice.call(recordOld.children)
-            let childrenNew = [].slice.call(recordNew.children)
-
-            childrenOriginal = childrenOriginal.map(rec => new XMLSerializer().serializeToString(rec))
-            childrenNew = childrenNew.map(rec => new XMLSerializer().serializeToString(rec))
-
-            let newPieces = []
-            for (let nc of childrenNew) {
-                if (!childrenOriginal.includes(nc)) {
-                    if (!diff.new.includes(nc)) {
-                        diff.new.push(nc)
-                        console.info("\tnew: ", nc)
-                    }
-                }
-            }
-            return diff
-        },
 
         setCharAt: function (str, index, chr) {
             if (index > str.length - 1) return str;
@@ -8879,6 +8814,7 @@ export const useProfileStore = defineStore('profile', {
             let leader = record.getElementsByTagName('marcxml:leader')[0]
             let leaderString = leader.innerHTML
             leaderString = leaderString.substring(0,5) + 'c' + leaderString.substring(6)
+            leader.innerHTML = leaderString
 
             let marc667List = record.querySelectorAll('[tag="667"]')
             let marc670List = record.querySelectorAll('[tag="670"]')
@@ -8919,10 +8855,12 @@ export const useProfileStore = defineStore('profile', {
 
             // update 008 and 667 if non-latin references have been evaluated
             if (updates.refEval) {
-                let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
-                let currentValue = zeroZeroEight.innerHTML
-                let updatedValue = this.setCharAt(currentValue, 29, 'a')
-                zeroZeroEight.innerHTML = updatedValue
+                if (updates.refEval == true) {
+                    let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
+                    let currentValue = zeroZeroEight.innerHTML
+                    let updatedValue = this.setCharAt(currentValue, 29, 'a')
+                    zeroZeroEight.innerHTML = updatedValue
+                }
 
                 if (updates.refEval == 'some') {
                     let note = "Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated. Others have not yet been evaluated."
