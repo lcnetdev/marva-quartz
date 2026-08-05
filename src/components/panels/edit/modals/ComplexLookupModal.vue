@@ -802,8 +802,10 @@
         this.buildNewMarcKey()
 
         window.setTimeout(async ()=>{
-          el.setSelectionRange(startPos+1, startPos+1)
+          el.setSelectionRange(startPos, startPos)
         }, 1)
+
+        this.getBcpSuggestions()
       },
 
       sortResults: function(a,b){
