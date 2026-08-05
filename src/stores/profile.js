@@ -8828,7 +8828,7 @@ export const useProfileStore = defineStore('profile', {
             for (let sixSixSeven of marc667List) {
                 if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
                     target667s.push(sixSixSeven)
-                } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated')) {
+                } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with (bcp47) in subfield 7')) {
                     target667s.push(sixSixSeven)
                 } else if (sixSixSeven.innerHTML.includes('Non-Latin script variants coded for PCC testing')) {
                     target667s.push(sixSixSeven)
@@ -8849,7 +8849,7 @@ export const useProfileStore = defineStore('profile', {
             testNote.setAttribute('ind2', " ")
             let testNoteA = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
             testNoteA.setAttribute("code", 'a')
-            testNoteA.innerHTML = "Non-Latin script variants coded for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
+            testNoteA.innerHTML = "Non-Latin script variants with (bcp47) in subfield 7 are for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
             testNote.appendChild(testNoteA)
             record.appendChild(testNote)
             marc667List = record.querySelectorAll('[tag="667"]') // update the list
@@ -8864,7 +8864,7 @@ export const useProfileStore = defineStore('profile', {
                 }
 
                 if (updates.refEval == 'some') {
-                    let note = "Non-Latin script variants with BCP47 codes in subfield 7 have been evaluated. Others have not yet been evaluated."
+                    let note = "Non-Latin script variants with (bcp47) in subfield 7 have been evaluated. Others have not yet been evaluated."
                     let someNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
                     someNote.setAttribute('tag', '667')
                     someNote.setAttribute('ind1', " ")
