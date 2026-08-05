@@ -2610,7 +2610,6 @@ const utilsParse = {
    * marcBlob: MARC iso2709 string
    */
   htmlify: function(marcBlob){
-    console.info("html: ", marcBlob)
     let formattedMarcRecord = ["<div class='marc record'>"];
     for (let [idx, line] of marcBlob.split("\n").entries()){
       if (idx == 0){

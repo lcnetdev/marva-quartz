@@ -2034,17 +2034,7 @@ export const useProfileStore = defineStore('profile', {
         * @return {void}
         */
         setValueLiteral: function (componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral) {
-            // console.info("--------------------------\nsetValueLiteral")
-            // console.info("\tcomponentGuid: ", componentGuid)
-            // console.info("\tfieldGuid: ", fieldGuid)
-            // console.info("\tpropertyPath: ", propertyPath)
-            // console.info("\tvalue: ", value)
-            // console.info("\tlang: ", lang)
-            //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
-            //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
-
             // from NAR, fieldGuid is null
-
             // remove returns from value
             value = value.replace(/[\n\r]+/g, '');
 
@@ -6782,8 +6772,6 @@ export const useProfileStore = defineStore('profile', {
             console.log('pubResuts')
             console.log(pubResuts)
 
-            console.info('pubResuts: ', pubResuts)
-
             if ( (pubResuts && pubResuts.status === true || pubResuts.status === 'published') ){
                 if (update){
                     this.logEvent('UPDATED_NAR', { metadata: [lccn] })
@@ -7586,10 +7574,6 @@ export const useProfileStore = defineStore('profile', {
 
             orderedFound = JSON.parse(ordereString)
             orderedLibrary = JSON.parse(libraryString)
-
-            // console.info("comparing: ")
-            // console.info("\t existing: ", JSON.stringify(orderedFound))
-            // console.info("\t library: ", JSON.stringify(orderedLibrary))
 
             let orderedFoundHashCode = hashCode(JSON.stringify(orderedFound))
             let orderedLibraryHashCode = hashCode(JSON.stringify(orderedLibrary))

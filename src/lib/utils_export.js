@@ -2249,8 +2249,6 @@ const utilsExport = {
 		let month2Digits = dateValue.slice(4,6)
 		let day2Digits = dateValue.slice(6,8)
 
-		console.info("add667: ", add667)
-
 		let pos29 = "n"
 		// did they make a 4xx
 		if (fourXXParts && fourXXParts.a && !add667){
@@ -2517,7 +2515,6 @@ const utilsExport = {
 				if (key.length == 1 && !isAlpha(key)){
 					// there might be repeated subfields, split the value and loop through tem
 					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
-					console.info("useValues: ", useValues)
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
@@ -2687,17 +2684,8 @@ const utilsExport = {
 	 * @return {Array} two elements, the update MARCXML and the record in JSON that can be turned in HTML for display
 	 */
 	adjustAuthRecord: function (marcXML, updates, targets) {
-		console.info("adjusting")
-		console.info("\tmarcXML: ", marcXML)
-		console.info("\ttarget:  ", JSON.stringify(targets))
-		console.info("\tupdates: ", JSON.stringify(updates))
-
-
-
 		let record = marcXML.getElementsByTagName('marcxml:record')[0]
 		record = record.cloneNode(true)
-
-		console.info("record: ", record)
 
 		// make sure leader/05 is "c"
 		let leader = record.getElementsByTagName('marcxml:leader')[0]
@@ -2725,9 +2713,6 @@ const utilsExport = {
 		}
 
 		target667s.map(item => record.removeChild(item)) // remove existing notes, and add new note
-
-		console.info("marc667List: ", marc667List)
-		console.info("marc670List: ", marc670List)
 
 		// add test note
 		let testNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
@@ -2765,7 +2750,6 @@ const utilsExport = {
 		}
 
 		// 670 notes
-		console.info("updates['source670s']: ", updates['source670s'])
 		for (let item of updates['source670s']) {
 			let note670 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
 			note670.setAttribute('tag', '670')
@@ -2798,7 +2782,6 @@ const utilsExport = {
 		let langEval = []
 		let langUneval = []
 		for (let target of targets) {
-			console.info("\ttarget: ", target)
 			let targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
 			let index = [].indexOf.call(record.children, targetNameXML)
 
@@ -2814,7 +2797,6 @@ const utilsExport = {
 			// Get the existing subfields
 			let existingCodes = {}
 			let evaluated = false
-			console.info("\t\ttargetNameXML: ", targetNameXML)
 			for (let child of targetNameXML.children) {
 				let code = child.getAttribute("code")
 				if (existingCodes[code]) {
@@ -2828,7 +2810,6 @@ const utilsExport = {
 			let idx = target[1]
 			let update = updates[idx]
 
-			console.info("update: ", update)
 			if (update['subfield_7']) {
 				evaluated = true
 				langEval.push(...update['subfield_7'])
@@ -2838,7 +2819,6 @@ const utilsExport = {
 
 
 			if (Object.keys(update).includes('delete') && update.delete) {
-				console.info("deleting: ", targetNameXML)
 				forDeletion.push(targetNameXML)
 			} else {
 				let indicators = update.indicators.split("")
@@ -2870,8 +2850,6 @@ const utilsExport = {
 							let targets = existingCodes[subfield]
 
 							if (targets) {                // if the subfield is existing update it
-								console.info("\n\nexisting: ",)
-								console.info("\t\t", value)
 								for (let target of targets) {
 									target.innerHTML = value
 									for (let code of deleteCodes) {

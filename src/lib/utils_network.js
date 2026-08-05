@@ -2968,8 +2968,6 @@ const utilsNetwork = {
 
       this.subjectSearchActive = false
 
-      // console.info("results: ", results)
-
       return results
     },
 
@@ -3258,20 +3256,10 @@ const utilsNetwork = {
 
 
   worldCatSearch: async function(query, index, type, offset, limit, marc=false){
-    console.info("worldCatSearch")
-    console.info("     query: ", query)
-    console.info("     index: ", index)
-    console.info("     type: ", type)
-    console.info("     offset: ", offset)
-    console.info("     limit: ", limit)
-    console.info("     marc: ", marc)
-
     // consonsole.info("useConfigStore().returnUrls >>", useConfigStore().returnUrls)
     let baseUrl = useConfigStore().returnUrls.worldCat
 
     let url = baseUrl + "search/"
-
-    console.info("url: ", url)
 
     const rawResponse = await fetch(url, {
       method: 'POST',
@@ -3289,8 +3277,6 @@ const utilsNetwork = {
         marc: marc
       })
     })
-
-    console.info("rawResponse: ", rawResponse)
 
     return rawResponse.json()
 
@@ -4472,10 +4458,6 @@ const utilsNetwork = {
         url = url + "&hint=" + hint
       }
       let resp = await this.fetchSimpleLookup(url)
-      // console.info("resp: ", resp)
-      // if (resp.status != 200){
-      //   resp = [{"bcp47code":"th", "name":"Thai", "score":6}, {"bcp47code":"lo-thai", "name":"Lao", "score":0}, {"bcp47code":"lwl-thai", "name":"Eastern Lawa", "score":-1}, {"bcp47code":"kdt-thai", "name":"Kuy", "score":-1}, {"bcp47code":"tts-thai", "name":"Northeastern Thai", "score":-1}, {"bcp47code":"kxm-thai", "name":"Northern Khmer", "score":-1}, {"bcp47code":"sou-thai", "name":"Southern Thai", "score":-1}, {"bcp47code":"lcp-thai", "name":"Western Lawa", "score":-1}, {"bcp47code":"pi-thai", "name":"Pali", "score":-2}]
-      // }
 
       return resp
     },

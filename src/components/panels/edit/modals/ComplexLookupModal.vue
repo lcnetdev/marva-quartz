@@ -283,9 +283,6 @@
       },
 
       buildFeedbackLink: function(){
-        console.info("xml: ", this.xmlDoc)
-        console.info("marcData: ",  this.marcData)
-
         let fbLccn = ''
         let fbUserName = ''
         let fbScript = ''
@@ -308,11 +305,7 @@
 
       // initial 4XX
       edit4XX: async function(data){
-
-
         this.resetBcp()
-        console.info("data: ", data)
-
         this.MARClccn = data.uri.split("/").at(-1)
 
         // Get MarcKey for 1XX
@@ -327,13 +320,11 @@
         } else {
           let idents = data.extra.identifiers || []
           idents = idents.map(id => id.replaceAll(" ", ""))
-          console.info("idents: ", idents) // bible
           let authId = [...new Set(idents)].filter(item => item.startsWith('n'))
           this.authLccn = authId
           marcXML = await this.fetchAuthXML(authId)
         }
         let parser = new DOMParser()
-        console.info("marcXML: ", marcXML)
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
         this.originalMarc = this.xmlDoc.cloneNode(true)
         if (data.extra.languages){
@@ -350,10 +341,8 @@
         // build feedbackURL
         this.buildFeedbackLink()
 
-        console.info("tag: ", this.tag)
         // get the $d for the 1XX, as long as there is no $t
         let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
-        console.info("oneXX: ", oneXX)
         let childFields = [].slice.call(oneXX.children).map(field => field.getAttribute('code'))
         for (let child of oneXX.children){
           if (child.getAttribute('code') == 'd' && !childFields.includes('t')){
@@ -376,21 +365,15 @@
         }
 
         let vars = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')
-        console.info("data: ", data)
-        console.info("vars: ", vars)
         for (let varIdx in Array.from(vars)){
           let variant = Array.from(vars[varIdx].children).map((item) => {
-            console.info("\t item: ", item)
             if(data.type != 'Hub' && item.getAttribute('code') == 'a'){
-              console.info("a: ", item.textContent)
               return item.textContent
             } else if (data.type == 'Hub' && ['a', 't'].includes(item.getAttribute('code'))){
-              console.info("t: ", item.textContent)
               return item.textContent
             }
           })
           variant = variant.join(" ")
-          console.info("variant: ", variant)
           if (variant && !this.isLatin(variant)){
             let localMarc = {}
             // if (!localMarc) { this.marcData[varIdx] = {}}
@@ -411,17 +394,7 @@
               }else if (this.tag == 430 && ind1 == 1){
                 localMarc.pref = true
               }
-
-              console.info("localMarc: ", localMarc)
             } catch {}
-
-            console.info("\t targetTag: ", targetTag)
-            console.info("\t varIdx: ", varIdx)
-            console.info("\t available: ", this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]'))
-            console.info("\t variants: ", variants)
-            console.info("\t targetNameXML: ", targetNameXML)
-
-            console.info("\t\tadd target: ", [targetTag, varIdx, targetNameXML.children[0].innerHTML])
             this.xmlTargets.push([targetTag, varIdx, targetNameXML.children[0].innerHTML])
             // for additions add a fake target with an varIdx that will match that update
 
@@ -506,18 +479,14 @@
       },
 
       submitEdit: async function(){
-        console.info("Submitting")
-        // console.info(this.finalMarc)
         this.finalMarc = this.finalMarc.replace(/(?:\r\n|\r|\n)/g, '');
         this.finalMarc = this.finalMarc.replace(/> *</g, '><');
 
         this.finalMarc = this.finalMarc.replace('<marcxml:record>', '<marcxml:record xmlns:marcxml="http://www.loc.gov/MARC21/slim">');
-        console.info(this.finalMarc)
 
         this.postStatus='posting'
         let cataloger = null
         let results = await this.postNacoStub(this.finalMarc, this.MARClccn, true)
-        console.info("results: ", results)
 
         if (!results.pubResuts.status){
           alert("Error posting NAR")
@@ -527,7 +496,6 @@
 
         if (results.pubResuts.details){
           let details = JSON.parse(atob(results.pubResuts.details))
-          console.info("details: ", details)
           if (details.status == 'success, but with errors'){
             alert("NAR added to BFDB, but not sent to FOLIO.")
           }
@@ -575,15 +543,11 @@
           if (idx.startsWith("##")){
             let t = [this.tag, idx, updates[idx]['subfield_a']]
             if (!JSON.stringify(this.xmlTargets).includes(JSON.stringify(t))){
-              console.info("adding target: ", t)
               this.xmlTargets.push(t)
-            } else {
-              console.info("duplicate target")
             }
           }
         }
         let targets = this.xmlTargets
-        console.info("targets: ", targets)
 
         // add the 670 info
         let s670s = this.source670s
@@ -595,21 +559,13 @@
             note[tag] = sub.slice(2)
           }
         }
-        console.info("s670s: ", s670s)
-
         this.marcData['source670s'] = s670s
-
-        console.info("this: ", this)
-        console.info("adjustAuthRecord: ", this.adjustAuthRecord)
-        console.info("isLatin: ", this.isLatin)
 
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
 
         let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord)
-
-        console.info("xmlUpdated: ", xmlUpdated)
 
         // validate the update
         this.validating = true
@@ -624,7 +580,6 @@
         }
         this.validating = false
         this.validationErrors = false
-        console.info(">>>>>", this.validationResult)
         if (this.validationResult.validation.some(item => item.level == 'ERROR')){
           this.validationErrors = true
           this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
@@ -634,21 +589,17 @@
         let marcString = xmlUpdated.replace(/ xmlns:.*=".*"/g, "")
         this.finalMarc = marcString
         this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
-        console.info("formattedMarc: ", this.formattedMarc)
-
         if (!this.formattedMarc){
           this.updatedRecord = parsedRecord.leader + "\n"
           for (let field of parsedRecord.fields){
             this.updatedRecord = this.updatedRecord + field.join(" ") + "\n"
           }
         }
-        console.info("updatedRecord: ", this.updatedRecord)
 
         this.submitting = false
       },
 
       getBcpSuggestions: async function(){
-        console.info("getSuggestion: ", this.marcData[this.activeIndex])
         if (!this.activeIndex){ return }
         if (this.marcData[this.activeIndex]){
           this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
@@ -677,50 +628,6 @@
           this.marcData[this.activeIndex].bcpSelection.push(idx)
           this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName + "$7(bcp47)" + this.bcpCodes[idx].bcp47code
         }
-        this.build667Note()
-      },
-
-      build667Note: function(){
-        return
-        console.info("build 667: ", this.marcData)
-        /**
-         * Cyrillic script and Arabic script references evaluated.
-         * .... Other non-Latin script references not evaluated.
-         * <Script> evaluated for [<Languages>].
-         */
-        let note = ""
-
-        let evaluated = {}
-        for (let idx of Object.keys(this.marcData)){
-          let item = this.marcData[idx]
-          let scripts = item.scripts
-          let lang
-          let script
-
-          if (scripts && scripts.length > 0){
-            for (let s of scripts){
-
-              lang = utilsMisc.getLangScriptName(s.lang, 'lang')
-              script = utilsMisc.getLangScriptName(s.script, 'script')
-              if (Object.keys(evaluated).includes(script)){
-                evaluated[script].push(lang)
-              } else {
-                evaluated[script] = [lang]
-              }
-            }
-          }
-        }
-
-        console.info("evaluated: ", evaluated)
-
-        for (let script of Object.keys(evaluated)){
-          let langList = evaluated[script]
-          langList = [...new Set(langList)]
-          langList = langList.filter(lang => lang)
-          note = note + script + " script evaluated for " + langList.join(', ') + ". "
-        }
-
-        this.note667 = note
       },
 
       buildNewMarcKey: function(){
@@ -751,8 +658,6 @@
           this.marcData[this.activeIndex].delete = false
         }
 
-        console.info('subfields: ', subfields)
-
         // empty out the scripts, so they are always uptodate
         this.marcData[this.activeIndex].scripts = []
 
@@ -762,7 +667,6 @@
           if (field != '7'){
             this.marcData[this.activeIndex]["subfield_" + field] = value
           } else {
-            console.info("value: ", value)
             if (!this.marcData[this.activeIndex]["subfield_7"]){
               this.marcData[this.activeIndex]["subfield_7"] = [value]
             } else {
@@ -796,17 +700,13 @@
           } else if (sub == 'subfield_7'){
             for (let sub7 of this.marcData[this.activeIndex][sub]){
               let val = "$7" + sub7
-              console.info("key: ", key)
-              console.info("sub7: ", sub7)
               key = `${key}\u200E${val}`
             }
           }
         }
 
         this.marcData[this.activeIndex]['displayName'] = key
-        this.build667Note()
         this.buildFeedbackLink()
-        // this.marcData[this.activeIndex]['marcKey'] = marcKey + key
       },
 
       addBcpRow: function(){
@@ -819,9 +719,6 @@
           let temp = lastItem.replace("##", "")
           newIdx = "##" + (Number(temp) + 1)
         }
-        console.info("newIdx: ", newIdx)
-        console.info("\t lastItem: ", lastItem)
-        console.info("\t Data: ", this.marcData)
 
         this.source670s.push({'note': '$a'})
 
@@ -843,7 +740,6 @@
           let temp = idx.replace("##", "")
           newIdx = "##" + (Number(temp) + 1)
         }
-        console.info("dupe newIdx: ", newIdx)
 
         this.marcData[newIdx] = JSON.parse(JSON.stringify(this.marcData[idx]))
         this.marcData[newIdx].newRow = true
@@ -869,7 +765,6 @@
         let subfields = text.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
         if (subfields.length > 1){
           let index = subfields[0].length
-          console.info("index: ", index)
           this.marcData[idx].displayName = text.slice(0, index) + dollarD + text.slice(index)
         } else {
           this.marcData[idx].displayName += dollarD
@@ -907,7 +802,6 @@
         this.buildNewMarcKey()
 
         window.setTimeout(async ()=>{
-          console.info("current: ", el.selectionStart)
           el.setSelectionRange(startPos+1, startPos+1)
         }, 1)
       },
@@ -1157,9 +1051,6 @@
               )
             }
           })
-
-        console.info("searchPayload: ", searchPayload)
-        // searchPayload.url[0] = searchPayload.url[0].replace("preprod.", "preprod-8299.")
 
         // wrapping this in setTimeout might not be needed anymore
         this.searchTimeout = window.setTimeout(async ()=>{
@@ -1810,8 +1701,6 @@
       },
 
       openFolioRecord: function(){
-        console.info("FOLIO")
-        console.info("\t data: ", this.data)
         let config = useConfigStore()
         let lccn
         if (this.authLccn){
@@ -1820,7 +1709,6 @@
           lccn = this.activeContext.uri.split("/").at(-1)
         }
         let url = config.returnUrls.folioBase + `/marc-authorities/authorities/?authRefType=Authorized&query=${lccn}&segment=search`
-        console.info("url: ", url)
         window.open(url, '_blank');
       },
 

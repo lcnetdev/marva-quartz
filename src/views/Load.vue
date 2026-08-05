@@ -828,7 +828,6 @@ export default {
     },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
-      console.info("load")
       console.log("useInstanceProfile", useInstanceProfile)
       let useLoadUrl = ''
       let marva001 = null

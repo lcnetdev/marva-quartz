@@ -356,11 +356,8 @@
         },
 
         async validate(){
-          console.info('validating: ', this.MARCXml)
           this.validationResult = null
           this.validating = true
-
-
           // wrap in try catch
           try {
             this.validationResult = await utilsNetwork.validateNar(this.MARCXml)
@@ -368,7 +365,6 @@
             console.error("Validation error:", error)
             this.validationResult = "ERROR VALIDATING NAR"
           } finally {
-            console.info("this.validationResult: ", this.validationResult)
             this.validating = false
           }
 
@@ -1357,7 +1353,6 @@
 
           // if the BCP has been added, maintain the preferred indicator
           if (this.fourXX.includes("$7")){
-            console.info("FourxxPart: ", FourxxPart)
             if (FourxxPart.startsWith(430)){
               FourxxPart = FourxxPart.slice(0, 3) + this.fourXX.slice(3, 4) + FourxxPart.slice(4, 5)
             } else {
@@ -1936,18 +1931,14 @@
             return
           }
           let val = event.target.value
-          console.info("val: ", val)
           this.selectedBcp = val
           if (val != 'expand'){
             this.bcp = val.toLowerCase()
             return
           }
-          console.info("expand: ", this.langs)
           let parts = this.fourXX.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
           let name = parts.filter(p => p.includes("$a"))[0]
-          console.info("name: ", name)
           let bcpCodes = await utilsNetwork.fetchBCP47Codes(name)
-          console.info("bcpCodes: ", bcpCodes)
           // add to langs
           for (let bcp of bcpCodes){
             this.langs[bcp.bcp47code] = bcp.score
@@ -1988,7 +1979,7 @@
             try{
               prefLangs.push(pref.match(/\$7(.*)$/g)[0])
             } catch {
-              console.info(">>>>>", pref.match(/\$7(.*)$/g))
+              console.error("Error getting preferred BCP: ", pref.match(/\$7(.*)$/g))
             }
           })
 
