@@ -766,7 +766,32 @@ export const useConfigStore = defineStore('config', {
     //   "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
     //   }
     // ]},
+    "https://preprod-8299.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+      }
+    ]},
+    "https://preprod-8080.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+      }
+    ]},
+    "https://preprod.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+      }
+    ]},
+    "https://preprod-8295.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
+      }
+    ]},
 
+    
     "https://preprod-8080.id.loc.gov/resources/hubs" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
         "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
