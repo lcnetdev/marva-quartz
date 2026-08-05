@@ -2662,6 +2662,42 @@ const utilsParse = {
     return formattedMarcRecord.join('\r\n');
   },
 
+  // break down the MARCXML into a record that marcjs understands
+  // marcjs parses from a string and tag needs to be before indicators, but
+  // the marcxml from ID puts it after, so we'll parse the MARCXml into the required format
+  parseMarcXml: function (marcXml) {
+      let record = { 'leader': '', 'fields': [] }
+      for (let field of marcXml.children) {
+          let type = field.tagName.replace("marcxml:", "")
+          let value = field.innerHTML
+
+          if (type == 'leader') {
+              record['leader'] = value
+          } else {
+              let tag = field.getAttribute('tag')
+              let ind1 = field.getAttribute('ind1')
+              let ind2 = field.getAttribute('ind2')
+              let subfields = field.children
+
+              let subfieldData = []
+              for (let subfield of subfields) {
+                  let code = subfield.getAttribute('code')
+                  let value = subfield.innerHTML
+                  subfieldData.push(...[code, value])
+              }
+
+              if (subfields.length == 0) {
+                  record.fields.push([tag, field.innerHTML])
+              } else {
+                  record.fields.push([tag, ind1 + ind2, ...subfieldData])
+              }
+          }
+
+      }
+
+      return record
+  },
+
 
 
 }

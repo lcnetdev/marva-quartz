@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { useProfileStore } from '@/stores/profile'
+import utilsExport from '@/lib/utils_export';
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
@@ -115,9 +116,12 @@ describe('methods', () => {
       let marcXML = twainXml
       let parser = new DOMParser()
       marcXML = parser.parseFromString(marcXML, "text/xml")
-      const updates = {'13': {"tag":"400","indicators":"11","bcpSelection":[0],"marcKey":"40011$aטבןַ, מרק,$d1835-1910(bcp47)he","displayName":"$aטבןַ, מרק,$d1835-1910","delete":false,"subfield_a":"טבןַ, מרק,","subfield_d":"1835-1910","subfield_7":["(bcp47)he"]}}
+      const updates = {'13': {"tag":"400","indicators":"11","bcpSelection":[0],"marcKey":"40011$aטבןַ, מרק,$d1835-1910(bcp47)he","displayName":"$aטבןַ, מרק,$d1835-1910","delete":false,"subfield_a":"טבןַ, מרק,","subfield_d":"1835-1910","subfield_7":["(bcp47)he"]},"refEval":false,"source670s":[]}
       const target = [["400",13,"טבןַ, מרק,"]]
-      let update = await useProfileStore().adjustAuthRecord(marcXML, updates, target)
+      let update = await utilsExport.adjustAuthRecord(marcXML, updates, target)[0]
+
+      console.log("update: ", update)
+
       update = new XMLSerializer().serializeToString(update)
 
       expect(update).toContain('<marcxml:datafield tag=\"400\" ind1=\"1\" ind2=\"1\">')
@@ -130,9 +134,9 @@ describe('methods', () => {
       let marcXML = twainXml
       let parser = new DOMParser()
       marcXML = parser.parseFromString(marcXML, "text/xml")
-      const updates = {"13": {"tag":"400","indicators":"11","bcpSelection":[0],"marcKey":"40011$aטבןַ, מרק,$d1835-1910(bcp47)he","displayName":"$aטבןַ, מרק,$d1835-1910","delete":false,"subfield_a":"טבןַ, מרק,","subfield_d":"1835-1910","subfield_7":["(bcp47)he"]}, "refEval":true}
+      const updates = {"13": {"tag":"400","indicators":"11","bcpSelection":[0],"marcKey":"40011$aטבןַ, מרק,$d1835-1910(bcp47)he","displayName":"$aטבןַ, מרק,$d1835-1910","delete":false,"subfield_a":"טבןַ, מרק,","subfield_d":"1835-1910","subfield_7":["(bcp47)he"]}, "refEval":true, "source670s":[]}
       const target = [["400",13,"טבןַ, מרק,"]]
-      let update = await useProfileStore().adjustAuthRecord(marcXML, updates, target)
+      let update = await utilsExport.adjustAuthRecord(marcXML, updates, target)[0]
       update = new XMLSerializer().serializeToString(update)
 
       expect(update).toContain('<marcxml:datafield tag=\"400\" ind1=\"1\" ind2=\"1\">')
@@ -147,9 +151,9 @@ describe('methods', () => {
       let marcXML = twainXml
       let parser = new DOMParser()
       marcXML = parser.parseFromString(marcXML, "text/xml")
-      const updates = {"13": {"tag":"400","indicators":"11","bcpSelection":[0],"marcKey":"40011$aטבןַ, מרק,(bcp47)he","displayName":"$aטבןַ, מרק,","delete":false,"subfield_a":"טבןַ, מרק,","subfield_7":["(bcp47)he"],"refEval":false}}
+      const updates = {"13": {"tag":"400","indicators":"11","bcpSelection":[0],"marcKey":"40011$aטבןַ, מרק,(bcp47)he","displayName":"$aטבןַ, מרק,","delete":false,"subfield_a":"טבןַ, מרק,","subfield_7":["(bcp47)he"]},"refEval":false, "source670s":[]}
       const target = [["400",13,"טבןַ, מרק,"]]
-      let update = await useProfileStore().adjustAuthRecord(marcXML, updates, target)
+      let update = await utilsExport.adjustAuthRecord(marcXML, updates, target)[0]
       update = new XMLSerializer().serializeToString(update)
       update = update.replace(/[\n\r\s\s]+/g, ' ')
 
@@ -161,9 +165,9 @@ describe('methods', () => {
       let marcXML = twainXml
       let parser = new DOMParser()
       marcXML = parser.parseFromString(marcXML, "text/xml")
-      const updates = {"13": {"tag":"400","indicators":"11","bcpSelection":[0],"marcKey":"40011$(bcp47)he","displayName":"$","delete":true,"subfield_":"","subfield_7":["(bcp47)he"],"refEval":false}}
+      const updates = {"13": {"tag":"400","indicators":"11","bcpSelection":[0],"marcKey":"40011$(bcp47)he","displayName":"$","delete":true,"subfield_":"","subfield_7":["(bcp47)he"]},"refEval":false, "source670s":[]}
       const target = [["400",13,"טבןַ, מרק,"]]
-      let update = await useProfileStore().adjustAuthRecord(marcXML, updates, target)
+      let update = await utilsExport.adjustAuthRecord(marcXML, updates, target)[0]
       update = new XMLSerializer().serializeToString(update)
       update = update.replace(/[\n\r\s\s]+/g, ' ')
 
@@ -176,25 +180,26 @@ describe('methods', () => {
       let marcXML = twainXml
       let parser = new DOMParser()
       marcXML = parser.parseFromString(marcXML, "text/xml")
-      const updates = {"27": {"tag":"400","indicators":"11","bcpSelection":[0,1],"marcKey":"40011$a트웨인, 마크,$d1835-1910(bcp47)ko $7 (bcp47)ko-jamo","displayName":"$a트웨인, 마크,$d1835-1910","delete":false,"subfield_a":"트웨인, 마크,","subfield_d":"1835-1910","subfield_7":["(bcp47)ko","(bcp47)ko-jamo"],"refEval":false}}
+      const updates = {"27": {"tag":"400","indicators":"11","bcpSelection":[0,1],"marcKey":"40011$a트웨인, 마크,$d1835-1910(bcp47)ko $7 (bcp47)ko-jamo","displayName":"$a트웨인, 마크,$d1835-1910","delete":false,"subfield_a":"트웨인, 마크,","subfield_d":"1835-1910","subfield_7":["(bcp47)ko","(bcp47)ko-jamo"]},"refEval":false, "source670s":[]}
       const target = [["400",27,"트웨인, 마크,"]]
-      let update = await useProfileStore().adjustAuthRecord(marcXML, updates, target)
+      let update = await utilsExport.adjustAuthRecord(marcXML, updates, target)[0]
       update = new XMLSerializer().serializeToString(update)
       update = update.replace(/[\n\r\s\s]+/g, ' ')
 
       expect(update).toContain('<marcxml:datafield tag=\"400\" ind1=\"1\" ind2=\"1\">')
       expect(update).toContain('<marcxml:subfield code=\"a\">트웨인, 마크,</marcxml:subfield>')
       expect(update).toContain('<marcxml:subfield code=\"d\">1835-1910</marcxml:subfield>')
-      expect(update).toContain('<marcxml:subfield code=\"7\">(bcp47)ko</marcxml:subfield> <marcxml:subfield code=\"7\">(bcp47)ko-jamo</marcxml:subfield>')
+      expect(update).toContain('<marcxml:subfield code=\"7\">(bcp47)ko</marcxml:subfield>')
+      expect(update).toContain('<marcxml:subfield code=\"7\">(bcp47)ko-jamo</marcxml:subfield>')
     });
 
     it('Update NAR with BCP plus an additional form', async () => {
       let marcXML = twainXml
       let parser = new DOMParser()
       marcXML = parser.parseFromString(marcXML, "text/xml")
-      const updates = {"27": {"tag":"400","indicators":"11","bcpSelection":[0,1],"marcKey":"40011$a트웨인, 마크,$d1835-1910(bcp47)ko $7 (bcp47)ko-jamo","displayName":"$a트웨인, 마크,$d1835-1910","delete":false,"subfield_a":"트웨인, 마크,","subfield_d":"1835-1910","subfield_7":["(bcp47)ko","(bcp47)ko-jamo"],"refEval":false},"##28": {"tag":"400","indicators":"11","bcpSelection":[3],"marcKey":"40011$aTest(bcp47)oko-hang","displayName":"$aTest","delete":false,"subfield_a":"Test","subfield_7":["(bcp47)oko-hang"],"refEval":false}}
+      const updates = {"27": {"tag":"400","indicators":"11","bcpSelection":[0,1],"marcKey":"40011$a트웨인, 마크,$d1835-1910(bcp47)ko $7 (bcp47)ko-jamo","displayName":"$a트웨인, 마크,$d1835-1910","delete":false,"subfield_a":"트웨인, 마크,","subfield_d":"1835-1910","subfield_7":["(bcp47)ko","(bcp47)ko-jamo"],"refEval":false},"##28": {"tag":"400","indicators":"11","bcpSelection":[3],"marcKey":"40011$aTest(bcp47)oko-hang","displayName":"$aTest","delete":false,"subfield_a":"Test","subfield_7":["(bcp47)oko-hang"]},"refEval":false, "source670s":[]}
       const target = [["400",27,"트웨인, 마크,"], ["400", "##28","Test"]]
-      let update = await useProfileStore().adjustAuthRecord(marcXML, updates, target)
+      let update = await utilsExport.adjustAuthRecord(marcXML, updates, target)[0]
       update = new XMLSerializer().serializeToString(update)
       update = update.replace(/[\n\r\s\s]+/g, ' ')
 
@@ -203,7 +208,7 @@ describe('methods', () => {
       expect(update).toContain('<marcxml:subfield code=\"d\">1835-1910</marcxml:subfield>')
       expect(update).toContain('<marcxml:subfield code=\"7\">(bcp47)ko</marcxml:subfield>')
 
-      expect(update).toContain('<marcxml:subfield code=\"a\">Test</marcxml:subfield> <marcxml:subfield code=\"7\">(bcp47)oko-hang</marcxml:subfield>')
+      expect(update).toContain('<marcxml:subfield code=\"a\">Test</marcxml:subfield><marcxml:subfield code=\"7\">(bcp47)oko-hang</marcxml:subfield>')
     });
 
 

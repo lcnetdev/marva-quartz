@@ -3,6 +3,7 @@
   import { useProfileStore } from '@/stores/profile'
   import utilsParse from '@/lib/utils_parse';
   import utilsMisc from '@/lib/utils_misc';
+  import utilsExport from '@/lib/utils_export';
 
   import { useConfigStore } from '@/stores/config'
   import { mapStores, mapState, mapWritableState } from 'pinia'
@@ -149,7 +150,7 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'isLatin', 'adjustAuthRecord', 'postNacoStub']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'isLatin', 'postNacoStub']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -228,10 +229,6 @@
 
         return show
       },
-      setCharAt: function(str, index, chr) {
-          if(index > str.length-1) return str;
-          return str.substring(0,index) + chr + str.substring(index+1);
-      },
 
       resetBcp: function(){
         this.showEdit4xxPanel =  false
@@ -270,10 +267,10 @@
         let val = target.pref ? '1' : ' '
         if (this.tag != 430){
           //ind 2 = 1
-          target.indicators = this.setCharAt(target.indicators, 1, val)
+          target.indicators = utilsMisc.setCharAt(target.indicators, 1, val)
         }else{
           //ind 1 = 1
-          target.indicators = this.setCharAt(target.indicators, 0, val)
+          target.indicators = utilsMisc.setCharAt(target.indicators, 0, val)
         }
       },
 
@@ -606,7 +603,7 @@
         console.info("adjustAuthRecord: ", this.adjustAuthRecord)
         console.info("isLatin: ", this.isLatin)
 
-        let results = this.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
+        let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
 
@@ -2014,9 +2011,11 @@
               <div class="marc-container">
                 <template v-if="validationResult.validation && postStatus != 'posting'">
                   <h2 class='validation-header'>Validation:</h2>
-                  <span v-for="val in validationResult.validation">
-                    <span :class="'validation-'+val.level">{{ val.message }}</span>
-                  </span>
+                  <div class="validation-results">
+                    <span v-for="val in validationResult.validation">
+                      <div :class="'validation-'+val.level">{{ val.message }}</div>
+                    </span>
+                  </div>
                 </template>
                 <template v-else-if="postStatus == 'posting'">
                   <h2 class='validation-header' >Submitting</h2>
@@ -2870,7 +2869,7 @@ pre {
 
 .validation-ERROR{
   color: #721c24;
-  background-color: #f8d7da;
+  background-color: #f5b3b9;
   border-color: #f5c6cb;
 }
 
@@ -2897,7 +2896,7 @@ pre {
 }
 
 .marc-preview-container {
-  height: 85vh;
+  height: 75vh;
   overflow: scroll;
   padding: 10px;
   font-family: monospace;
@@ -2958,6 +2957,11 @@ input.prefCheck[type=checkbox]:checked+label {
   width: 50vw;
 }
 
+.validation-results {
+  overflow: scroll;
+  height: 10vh;
+}
+
 .validation-header {
   margin-bottom: 10px;
 }
@@ -2966,5 +2970,7 @@ input.prefCheck[type=checkbox]:checked+label {
   direction: ltr;
   unicode-bidi: embed;
 }
+
+
 
 </style>
