@@ -465,8 +465,6 @@ export const useConfigStore = defineStore('config', {
 
   ],
 
-  testLccnList: [],
-
   lookupConfig: {
     "http://id.loc.gov/authorities/childrensSubjects" : {
             "name":"childrensSubjects", "type":"complex", "modes":[

@@ -13,6 +13,7 @@
   import CopyCat from "@/views/CopyCat.vue"
 
   import isoLangLib from "@/lib/iso_lang.json"
+  import LccnList from "@/lib/TG_LCCN_LIST.json"
   import utilsNetwork from '@/lib/utils_network';
 
   import { AccordionList, AccordionItem } from "vue3-rich-accordion";
@@ -135,7 +136,12 @@
         authLccn: false,
         source670s: [],
         feedbackUrl: '',
+
+        // TG group stuff
         overrideTG: false,
+        TGrecord: "No",
+        fbScript: '',
+        fbFourXX: '',
 
       }
     },
@@ -182,6 +188,7 @@
       modalSelectOptionsLabels(){
         return this.modalSelectOptions.map((o)=>{return o.label})
       },
+
     },
 
     watch: {
@@ -252,7 +259,12 @@
         this.authLccn = false
         this.postStatus = ""
         this.source670s = []
+
+        // Task group
         this.overrideTG = false
+        this.TGrecord = "No"
+        this.fbScript = ''
+        this.fbFourXX = ''
 
       },
 
@@ -278,29 +290,41 @@
         if (this.overrideTG){
           return true
         }
+
+        for (let item of LccnList.LccnList){
+          if (item['lccn_normalized'] == this.authLccn){
+            this.TGrecord = "Yes"
+            this.fbScript = item.script
+            return false
+          }
+        }
+
         // check lccn against test list
-        return true //!useConfigStore().testLccnList.contains(this.bcpLccn)
+        return true
       },
 
       buildFeedbackLink: function(){
         let fbLccn = ''
         let fbUserName = ''
-        let fbScript = ''
         let fbOneXX = ''
-        let fbFourXX = ''
+
+        if (Object.keys(this.marcData).length == 1){
+          let key = Object.keys(this.marcData)[0]
+          this.fbFourXX = this.marcData[key]["subfield_a"]
+        }
 
         try {
           fbLccn = Array.from(this.xmlDoc.querySelectorAll('[tag="010"]')[0].children).filter(child => child.getAttribute('code') == 'a')[0].innerHTML.trim().replaceAll(" ", "")
           this.bcpLccn = fbLccn
           fbUserName = usePreferenceStore().ssoUser.name
-          fbScript = ''
           fbOneXX = Array.from(this.xmlDoc.querySelectorAll('[tag="' + this.tag.replace("4", "1") +'"]')[0].children).map(child => child.innerHTML).join(" ")
-          fbFourXX = ''
 
-          this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${fbFourXX}`
+          this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${this.fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${this.fbFourXX}&raa18f1d1801245c3bba6d58ea24c64d8=%22${this.TGrecord}%22`
         } catch {
-          this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${fbFourXX}`
+          this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${this.fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${this.fbFourXX}&raa18f1d1801245c3bba6d58ea24c64d8=%22${this.TGrecord}%22`
         }
+
+        window.open(this.feedbackUrl, '_blank');
       },
 
       // initial 4XX
@@ -316,7 +340,8 @@
         // get the MARCxml
         let marcXML = false
         if (data.type != 'Hub'){
-          marcXML = await this.fetchAuthXML(data.uri.split('/').at(-1))
+          this.authLccn = this.MARClccn
+          marcXML = await this.fetchAuthXML(this.authLccn)
         } else {
           let idents = data.extra.identifiers || []
           idents = idents.map(id => id.replaceAll(" ", ""))
@@ -337,9 +362,6 @@
             }
           }
         }
-
-        // build feedbackURL
-        this.buildFeedbackLink()
 
         // get the $d for the 1XX, as long as there is no $t
         let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
@@ -540,7 +562,7 @@
 
         // add a target for any additions
         for (let idx in updates){
-          if (idx.startsWith("##")){
+          if (idx.startsWith("##") && updates[idx]['subfield_a']){
             let t = [this.tag, idx, updates[idx]['subfield_a']]
             if (!JSON.stringify(this.xmlTargets).includes(JSON.stringify(t))){
               this.xmlTargets.push(t)
@@ -706,7 +728,6 @@
         }
 
         this.marcData[this.activeIndex]['displayName'] = key
-        this.buildFeedbackLink()
       },
 
       addBcpRow: function(){
@@ -803,9 +824,8 @@
 
         window.setTimeout(async ()=>{
           el.setSelectionRange(startPos, startPos)
+          this.getBcpSuggestions()
         }, 1)
-
-        this.getBcpSuggestions()
       },
 
       sortResults: function(a,b){
@@ -1998,7 +2018,7 @@
                   <label for="refEval">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                   <br><br>
-                  <a :href="feedbackUrl" target="_blank" @click="overrideTG = true">feedback</a>
+                  <button @click="overrideTG = true; buildFeedbackLink()">Feedback</button>
                   <button @click="previewMarc()" v-if="allowPreview()">Preview</button>
                   <button @click="hideBCP()">Cancel</button>
                   <tempalte v-if="!allowPreview()">
@@ -2860,7 +2880,5 @@ input.prefCheck[type=checkbox]:checked+label {
   direction: ltr;
   unicode-bidi: embed;
 }
-
-
 
 </style>
