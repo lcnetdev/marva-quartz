@@ -8875,7 +8875,6 @@ export const useProfileStore = defineStore('profile', {
                     someNote.appendChild(someNoteA)
                     record.appendChild(someNote)
                 }
-
             }
 
             // 670 notes

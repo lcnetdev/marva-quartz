@@ -524,7 +524,7 @@
 
         if (!results.pubResuts.status){
           alert("Error posting NAR")
-          console.error("NAR post error: ", results.pubresults)
+          console.error("NAR post error: ", results)
           return
         }
 
