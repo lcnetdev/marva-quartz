@@ -1858,6 +1858,9 @@ export default {
         this.contextData.type = types.includes("Hub") ? "bf:Hub" : types.includes("Work") ? "bf:Work" : "madsrdf:" + types[0]
         this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
 
+        if (!Object.keys(this.pickLookup[this.pickPostion].extra).includes('collections')){
+          this.pickLookup[this.pickPostion].extra['collections'] = []
+        }
         //Check if it's a Jurisdiction, and overwrite
         if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
           this.contextData.type = "bf:Jursidiction"
@@ -1874,9 +1877,13 @@ export default {
       this.contextData.variantLabels = [...new Set(this.contextData.variantLabels)]
 
       // filter related, so it doesn't duplicate value from earlier/later, broader
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
+      if (this.contextData['relateds']){
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
+      } else {
+        this.contextData['relateds'] = []
+      }
 
       this.contextRequestInProgress = false
     },
