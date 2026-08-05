@@ -248,15 +248,15 @@ test('add complex subdivision, type first part of subdivision and then select th
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
     await page.getByText('Dogs', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--history');
-    await page.getByText('History--20th century').click();
-    await expect(page.getByRole('heading')).toContainText('sh2002006165');
+    await page.getByText('History--19th century').click();
+    await expect(page.getByRole('heading')).toContainText('sh2002006167');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('Dogs--History--20th century');
+    await expect(page.locator('#app')).toContainText('Dogs--History--19th century');
     await expect(page.locator('#app')).toContainText('150 $aDogs');
     await expect(page.locator('#app')).toContainText('180 $xHistory');
-    await expect(page.locator('#app')).toContainText('182 $y20th century');
-    await expect(page.locator('#app')).toContainText('650 0 $a Dogs $x History $y 20th century');
+    await expect(page.locator('#app')).toContainText('182 $y19th century');
+    await expect(page.locator('#app')).toContainText('650 0 $a Dogs $x History $y 19th century');
 });
 
 // Test headings with Hierarchical Geographic

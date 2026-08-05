@@ -1835,12 +1835,16 @@ export default {
     },
 
     getContext: async function () {
+      console.info("getContext:")
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
       }
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
+
+      console.info("this.pickLookup: ", this.pickLookup)
+      console.info("\t this.contextData: ", this.contextData)
 
       if (this.pickLookup[this.pickPostion].uri) {
         // Pull information into contextData from 1 level up
@@ -1859,10 +1863,15 @@ export default {
         this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
 
         //Check if it's a Jurisdiction, and overwrite
-        if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
+        if (this.pickLookup[this.pickPostion].extra['collections'] && this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
           this.contextData.type = "bf:Jursidiction"
           this.contextData.typeFull = "http://id.loc.gov/ontologies/bibframe/Jurisdiction"
         }
+
+        if (!Object.keys(this.pickLookup[this.pickPostion].extra).includes('collections')){
+          this.pickLookup[this.pickPostion].extra['collections'] = []
+        }
+
 
         this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
@@ -1874,9 +1883,13 @@ export default {
       this.contextData.variantLabels = [...new Set(this.contextData.variantLabels)]
 
       // filter related, so it doesn't duplicate value from earlier/later, broader
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
+      if (this.contextData['relateds']){
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
+      } else {
+        this.contextData['relateds'] = []
+      }
 
       this.contextRequestInProgress = false
     },
