@@ -91,6 +91,10 @@ export default {
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
           if (tmpid === this.manualOverride){
+            if (!this.rtLookup[tmpid]){
+              this.profileStore.warnProfileDataIssue(`The template "${tmpid}" is referenced in valueTemplateRefs of "${this.structure.id}" but is not defined in any loaded profile`)
+              return true
+            }
             let use = JSON.parse(JSON.stringify(this.rtLookup[tmpid]))
             console.log(use)
             return use
@@ -115,11 +119,19 @@ export default {
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
+          // guard against a ref pointing at a template that is not defined in the loaded profiles
+          if (!this.rtLookup[tmpid]){
+            this.profileStore.warnProfileDataIssue(`The template "${tmpid}" is referenced in valueTemplateRefs of "${this.structure.id}" but is not defined in any loaded profile`)
+            return
+          }
           //if tmpid is 'lc:RT:bf2:Agents:Contribution', need to look somehwere else
           if (foundBetter) return false
 
+          // some profile sets name templates without the bf2 segment, compare on the normalized id
+          let tmpidNorm = tmpid.replace(':bf2:', ':')
+
           let selection = this.structure['@guid']+'-select'
-          if (tmpid == "lc:RT:bf2:Agents:Contribution"){
+          if (tmpidNorm == "lc:RT:Agents:Contribution"){
           } else if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
             useId = tmpid
             foundBetter = true
@@ -131,8 +143,8 @@ export default {
                 if (val['@type'] && this.rtLookup[tmpid].resourceURI === val['@type']){
                   useId = tmpid
                   foundBetter = true
-                  if (tmpid == 'lc:RT:bf2:Topic:SubjectWork' && key == 'http://www.loc.gov/mads/rdf/v1#componentList'){ // a hub with subdivisions should be `lc:RT:bf2:Components`
-                    useId = 'lc:RT:bf2:Components'
+                  if (tmpidNorm == 'lc:RT:Topic:SubjectWork' && key == 'http://www.loc.gov/mads/rdf/v1#componentList'){ // a hub with subdivisions should be `lc:RT:bf2:Components`
+                    useId = this.profileStore.resolveTemplateId('lc:RT:bf2:Components')
                   }
                 }
               }
@@ -164,6 +176,11 @@ export default {
         for (let idx in this.structure.valueConstraint.valueTemplateRefs){
           let template = this.structure.valueConstraint.valueTemplateRefs[idx]
 
+          if (!this.rtLookup[template]){
+            this.profileStore.warnProfileDataIssue(`The template "${template}" is referenced in valueTemplateRefs of "${this.structure.id}" but is not defined in any loaded profile`)
+            continue
+          }
+
           if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
             let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
             if (target){
@@ -171,7 +188,7 @@ export default {
               if (type && this.rtLookup[template].resourceURI === type){   // the resourceURIs don't match the types
                 useId = template
               } else if (type && Object.keys(typeMap).includes(type)){
-                useId = typeMap[type]
+                useId = this.profileStore.resolveTemplateId(typeMap[type])
               }
             } else { //there's no user agent
               let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]
@@ -191,7 +208,7 @@ export default {
       // if this is true, a default value is being "used" because the incoming value
       // doesn't match an available option
       // ignore for subjects
-        if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform") || this.structure.id.includes("associated_with_item" || this.structure.id.includes("intended_audience"))) && this.rtLookup[useId].resourceURI != userValue['@type']){
+        if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform") || this.structure.id.includes("associated_with_item" || this.structure.id.includes("intended_audience"))) && this.rtLookup[useId] && this.rtLookup[useId].resourceURI != userValue['@type']){
           let elementId = this.structure['@guid'] + "-select"
           this.$nextTick(() => {
             window.setTimeout(()=> {
@@ -208,7 +225,7 @@ export default {
 
             },10);
           });
-      } else if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform")) && this.rtLookup[useId].resourceURI == userValue['@type']){
+      } else if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform")) && this.rtLookup[useId] && this.rtLookup[useId].resourceURI == userValue['@type']){
         // remove the class
         this.$nextTick(() => {
           window.setTimeout(()=> {
@@ -265,6 +282,10 @@ export default {
         resourceLabel: 'Select Type'
       }]
       for (let id of this.structure.valueConstraint.valueTemplateRefs){
+        if (!this.rtLookup[id]){
+          this.profileStore.warnProfileDataIssue(`The template "${id}" is referenced in valueTemplateRefs of "${this.structure.id}" but is not defined in any loaded profile`)
+          continue
+        }
         templates.push(JSON.parse(JSON.stringify(this.rtLookup[id])))
       }
 

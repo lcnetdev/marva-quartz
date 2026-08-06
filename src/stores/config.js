@@ -74,7 +74,9 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
         dev: false,
+        devFakePosting: true,
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
       },
@@ -86,13 +88,18 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/marva/scriptshifter/',
         publish : 'http://localhost:9401/marva/util/publish/staging',
         validate: 'http://localhost:9401/marva/util/validate/prod',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-profiles.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-starting.json',
+        profiles : 'http://localhost:9401/marva/dancer/api/serve/marva-prod/profile',
+        starting: 'http://localhost:9401/marva/dancer/api/serve/marva-prod/starting-points',
+        
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
         externalDev: true,
+        devFakePosting: true,
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
         publicEndpoints:true,
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
@@ -132,6 +139,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
 
         dancerEnabled: true,
@@ -171,6 +179,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
+        enableStateRecorder: false,
         simpleLookupLang: 'en',
       },
 
@@ -188,6 +197,7 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         publicEndpoints:true,
         displayLCOnlyFeatures: false,
+        enableStateRecorder: false,
         simpleLookupLang: 'en',
         isBibframeDotOrg: true,
 
@@ -756,7 +766,32 @@ export const useConfigStore = defineStore('config', {
     //   "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
     //   }
     // ]},
+    "https://preprod-8299.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+      }
+    ]},
+    "https://preprod-8080.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+      }
+    ]},
+    "https://preprod.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+      }
+    ]},
+    "https://preprod-8295.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
+      }
+    ]},
 
+    
     "https://preprod-8080.id.loc.gov/resources/hubs" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
         "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},

@@ -70,6 +70,9 @@ export const useProfileStore = defineStore('profile', {
         // flag if the profiles have been loaded and processed
         profilesLoaded: false,
 
+        // keeps track of profile data problems already alerted about so the popup only fires once per problem per session
+        warnedProfileDataIssues: [],
+
         // holds all profiles
         profiles: {},
 
@@ -487,6 +490,39 @@ export const useProfileStore = defineStore('profile', {
             cachePt = {}
             cacheGuid = {}
             dataChangedTimeout = null
+        },
+
+        /**
+        * Warn about a profile data problem that was actually hit while editing a record,
+        * console + a popup the first time that unique message is seen this session.
+        * The popup is deferred so it doesn't block whatever render/computed hit the problem.
+        * @param {string} msg - the warning to show
+        */
+        warnProfileDataIssue(msg) {
+            console.warn(msg)
+            if (this.warnedProfileDataIssues.indexOf(msg) === -1) {
+                this.warnedProfileDataIssues.push(msg)
+                window.setTimeout(() => {
+                    alert(`Warning - there is a problem with the profile used by this record, parts of it may not display or export correctly:\n\n${msg}`)
+                }, 0)
+            }
+        },
+
+        /**
+        * Resolve a resource template id against the loaded profiles. Some profile sets name their
+        * templates "lc:RT:bf2:Xxx" and others "lc:RT:Xxx", so if the requested id is not loaded
+        * try the other naming convention before giving up.
+        * @param {string} id - the preferred template id
+        * @return {string} the id that actually exists in rtLookup, or the original id if neither does
+        */
+        resolveTemplateId(id) {
+            if (!id || this.rtLookup[id]) { return id }
+            let alt = id.includes(':bf2:') ? id.replace(':bf2:', ':') : id.replace(/^lc:RT:/, 'lc:RT:bf2:')
+            if (this.rtLookup[alt]) {
+                console.warn(`The template "${id}" is not defined in the loaded profiles, using "${alt}" instead`)
+                return alt
+            }
+            return id
         },
 
         /** Load the default component order */
@@ -972,6 +1008,23 @@ export const useProfileStore = defineStore('profile', {
                                     pt.parentId = rt.id
                                     pt.userValue = { '@root': pt.propertyURI }
                                     pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((v) => { return (v.length > 0) })
+
+                                    // support a markdown link style default value, "[label](uri)" is split into
+                                    // defaultLiteral = label and defaultURI = uri so the correct userValue gets built
+                                    // (labels starting with $ are left alone, those are placeholders like [$date])
+                                    if (pt.valueConstraint.defaults) {
+                                        for (let d of pt.valueConstraint.defaults) {
+                                            if (d.defaultLiteral && typeof d.defaultLiteral === 'string') {
+                                                let mdLink = d.defaultLiteral.trim().match(/^\[([^$\]][^\]]*)\]\((\S+)\)$/)
+                                                if (mdLink) {
+                                                    d.defaultLiteral = mdLink[1].trim()
+                                                    if (!d.defaultURI || d.defaultURI == '') {
+                                                        d.defaultURI = mdLink[2]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     pt['@guid'] = short.generate()
                                     pt.canBeHidden = true
 
@@ -1013,6 +1066,28 @@ export const useProfileStore = defineStore('profile', {
                     })
                 }
             })
+
+            // defensive check: look for common problems in the loaded profile data and warn about them here,
+            // otherwise they surface later as confusing errors in the editor or during the XML export
+            let profileProblems = []
+            for (let rtId of Object.keys(this.rtLookup)) {
+                if (!this.rtLookup[rtId].resourceURI) {
+                    profileProblems.push(`The resource template "${rtId}" is missing its resourceURI`)
+                }
+                for (let pt of this.rtLookup[rtId].propertyTemplates || []) {
+                    let refs = (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs) ? pt.valueConstraint.valueTemplateRefs : []
+                    for (let ref of refs) {
+                        if (!this.rtLookup[ref]) {
+                            profileProblems.push(`"${rtId}" property "${pt.propertyLabel}" references the template "${ref}" which is not defined in any loaded profile`)
+                        }
+                    }
+                }
+            }
+            if (profileProblems.length > 0) {
+                // console only here - a problem in a profile that is never used shouldn't nag anyone,
+                // the editor will popup a warning if one of these is actually hit while editing a record
+                console.warn('Problems found in the loaded profiles:\n' + profileProblems.join('\n'))
+            }
 
             // make a copy of the obj to cut refs to the orginal
             // this.profiles = Object.assign({}, this.profiles)
@@ -1398,7 +1473,7 @@ export const useProfileStore = defineStore('profile', {
                             "defaults": [],
                             "useValuesFrom": [],
                             "valueDataType": {},
-                            "valueTemplateRefs": [(!rt.includes(':GPO')) ? 'lc:RT:bf2:AdminMetadata:BFDB' : 'lc:RT:bf2:GPOMono:AdminMetadata']
+                            "valueTemplateRefs": [this.resolveTemplateId((!rt.includes(':GPO')) ? 'lc:RT:bf2:AdminMetadata:BFDB' : 'lc:RT:bf2:GPOMono:AdminMetadata')]
                         }
                     }
                     let adminMetadataPropertyLabel = 'http://id.loc.gov/ontologies/bibframe/adminMetadata'.replace('http://', '').replace('https://', '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "_") + '__admin_metadata'
@@ -1772,6 +1847,44 @@ export const useProfileStore = defineStore('profile', {
 
             } else {
                 console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
+            }
+        },
+
+        /**
+        * Sets the selected class URIs of a rdf:type picklist component (RdfTypeSelector)
+        * they are stored as an array of {@id} nodes under the rdf:type propertyURI
+        * and exported as <rdf:type rdf:resource=""/> on the top level Work/Instance/Item/Hub
+        *
+        * @param {string} componentGuid - the guid of the component (the parent of all fields)
+        * @param {array} URIs - the full class URIs that are currently selected
+        * @return {void}
+        */
+        setValueRdfTypePicklist: function (componentGuid, URIs) {
+            const typeURI = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+            let pt = utilsProfile.returnPt(this.activeProfile, componentGuid)
+
+            if (pt !== false) {
+
+                if (URIs.length === 0) {
+                    delete pt.userValue[typeURI]
+                } else {
+                    // keep the @guid of values that are still selected
+                    let existing = pt.userValue[typeURI] || []
+                    pt.userValue[typeURI] = URIs.map((uri) => {
+                        let found = existing.filter((v) => { return v['@id'] === uri })
+                        return (found.length > 0) ? found[0] : { '@guid': short.generate(), '@id': uri }
+                    })
+                }
+
+                pt.hasData = (URIs.length > 0)
+                pt.userModified = true
+                pt.dataLoaded = false
+
+                // they changed something
+                this.dataChanged()
+
+            } else {
+                console.error('setValueRdfTypePicklist: Cannot locate the component by guid', componentGuid, this.activeProfile)
             }
         },
 
@@ -2692,6 +2805,10 @@ export const useProfileStore = defineStore('profile', {
         * @return {void}
         */
         setValueComplex: async function (componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap = null, marcKey = null) {
+            // not every caller has a nodeMap to pass, use an empty one so the lookups below don't explode
+            if (!nodeMap) {
+                nodeMap = {}
+            }
             // TODO: reconcile this to how the profiles are built, or dont..
             // remove the sameAs from this property path, which will be the last one, we don't need it
             propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== 'http://www.w3.org/2002/07/owl#sameAs') })
@@ -2838,7 +2955,7 @@ export const useProfileStore = defineStore('profile', {
                     // console.log("nodeMap",nodeMap)
 
                     //Add gacs code to user data
-                    if (nodeMap["gacs"]) {
+                    if (nodeMap && nodeMap["gacs"]) {
                         blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
                         for (let code in nodeMap["gacs"]) {
                             blankNode["http://www.loc.gov/mads/rdf/v1#code"].push(
@@ -2854,6 +2971,8 @@ export const useProfileStore = defineStore('profile', {
                     if (!Array.isArray(marcKey)) {
                         marcKey = [marcKey]
                     }
+                    // a null/empty marcKey just means there isn't one, nothing to add
+                    marcKey = marcKey.filter((v) => v)
 
                     for (let aMarcKeyNode of marcKey) {
 

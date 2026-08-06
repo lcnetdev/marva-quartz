@@ -75,6 +75,36 @@ const utilsRDF = {
 
 
   /**
+  * Expands a prefixed class name like bf:NotatedMusic into its full URI
+  * @param {string} prefixed - the prefixed name, e.g. "bf:NotatedMusic"
+  * @return {string|false} - the full URI or false if the prefix is unknown
+  */
+  expandPrefixedClass: function(prefixed){
+    if (!prefixed || prefixed.indexOf(':') === -1){ return false }
+    let prefix = prefixed.split(':')[0]
+    let name = prefixed.split(':').slice(1).join(':')
+    if (this.namespace[prefix]){
+      return this.namespace[prefix] + name
+    }
+    return false
+  },
+
+  /**
+  * Tests if a property template is a rdf:type picklist component (RdfTypeSelector),
+  * meaning it is a rdf:type property with a valueConstraint.picklist of prefixed
+  * class names like bf:NotatedMusic, only used at the top level of a Work/Instance/Item/Hub
+  * @param {object} pt - the property template / structure of the component
+  * @return {boolean}
+  */
+  isRdfTypePicklist: function(pt){
+    if (!pt || pt.propertyURI !== 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){ return false }
+    if (!pt.valueConstraint || !Array.isArray(pt.valueConstraint.picklist)){ return false }
+    if (pt.valueConstraint.picklist.length === 0){ return false }
+    return pt.valueConstraint.picklist.every((v) => { return /^[a-z]+:[A-Z][A-Za-z]*$/.test(v) })
+  },
+
+
+  /**
   * returns a Class type basedon the predicate from the the profiles
   * @param {string} propertyURI - the string URI to test
   * @param {obj} pt - the pt template from the profile
@@ -142,7 +172,13 @@ const utilsRDF = {
                   let rtKey = pt.valueConstraint.valueTemplateRefs[0]
                   if (rtLookup[rtKey]){
                       // suggest the resource
-                      return rtLookup[rtKey].resourceURI
+                      if (rtLookup[rtKey].resourceURI){
+                          return rtLookup[rtKey].resourceURI
+                      }
+                      // if the template is missing its resourceURI returning undefined here would end up
+                      // as a literal undefined @type in the userValue, warn and fall through to return
+                      // false so the caller can try to work out the type another way
+                      useProfileStore().warnProfileDataIssue(`The template "${rtKey}" does not have a resourceURI defined, unable to use it to type the "${propertyURI}" value`)
                   }else{
                       console.warn("Did not find the requested template name", rtKey)
                   }

@@ -39,6 +39,14 @@
       :guid="guid"
       :readOnly="readOnly"
     />
+    <RdfTypeSelector
+      v-if="componentType === 'RDFTYPE'"
+      :propertyPath="buildPropertyPath(propertyPath)"
+      :level="level+1"
+      :structure="structure"
+      :guid="guid"
+      :readOnly="readOnly"
+    />
 
     <!-- {{structure}} -->
 
@@ -80,10 +88,13 @@ import { mapStores, mapState } from 'pinia'
 // const short = require('short-uuid');
 
 
+import utilsRDF from '@/lib/utils_rdf'
+
 import Ref from "@/components/panels/edit/fields/Ref.vue";
 import LookupComplex from "@/components/panels/edit/fields/LookupComplex.vue";
 import LookupSimple from "@/components/panels/edit/fields/LookupSimple.vue";
 import Literal from "@/components/panels/edit/fields/Literal.vue";
+import RdfTypeSelector from "@/components/panels/edit/fields/RdfTypeSelector.vue";
 
 
 
@@ -103,6 +114,7 @@ export default {
     LookupComplex,
     LookupSimple,
     Literal,
+    RdfTypeSelector,
 
   },
   props: {
@@ -194,6 +206,11 @@ export default {
       // we handle this structural thing elsewhere
       if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/hasItem"){
         return "HIDE"
+      }
+
+      // a rdf:type property with a picklist of classes, only at the top level of a Work/Instance/Item/Hub
+      if (utilsRDF.isRdfTypePicklist(this.structure)){
+        return 'RDFTYPE'
       }
 
       if (this.structure.valueConstraint.valueTemplateRefs.length > 0){

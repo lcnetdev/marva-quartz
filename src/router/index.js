@@ -3,6 +3,7 @@ import HomeView from "../views/HomeView.vue";
 import Edit from "../views/Edit.vue";
 import Load from "../views/Load.vue";
 import EditMulti from "../views/EditMulti.vue";
+import EditMinimal from "../views/EditMinimal.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +34,12 @@ const router = createRouter({
       name: "MultiEdit",
       component: EditMulti,
       props: true
+
+    },
+    {
+      path: "/editminimal",
+      name: "EditMinimal",
+      component: EditMinimal,
 
     },
 
