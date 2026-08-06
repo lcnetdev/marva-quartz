@@ -156,7 +156,8 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'isLatin', 'postNacoStub']),
+
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'returnStructureByComponentGuid', 'isLatin', 'postNacoStub']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -1581,7 +1582,7 @@
         // Set the current value for NAR creation
         this.lastComplexLookupString = this.searchValueLocal
 
-        let source = this.structure.propertyURI
+        let source = this.returnStructureByComponentGuid(this.guid).propertyURI
 
         // store the info needed to pass to the process
         this.activeNARStubComponent = {

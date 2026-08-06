@@ -1835,12 +1835,16 @@ export default {
     },
 
     getContext: async function () {
+      console.info("getContext:")
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
       }
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
+
+      console.info("this.pickLookup: ", this.pickLookup)
+      console.info("\t this.contextData: ", this.contextData)
 
       if (this.pickLookup[this.pickPostion].uri) {
         // Pull information into contextData from 1 level up
@@ -1862,10 +1866,15 @@ export default {
           this.pickLookup[this.pickPostion].extra['collections'] = []
         }
         //Check if it's a Jurisdiction, and overwrite
-        if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
+        if (this.pickLookup[this.pickPostion].extra['collections'] && this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
           this.contextData.type = "bf:Jursidiction"
           this.contextData.typeFull = "http://id.loc.gov/ontologies/bibframe/Jurisdiction"
         }
+
+        if (!Object.keys(this.pickLookup[this.pickPostion].extra).includes('collections')){
+          this.pickLookup[this.pickPostion].extra['collections'] = []
+        }
+
 
         this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 

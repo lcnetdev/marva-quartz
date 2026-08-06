@@ -1474,6 +1474,11 @@ export default {
     if (window.location.hash && window.location.hash =='#copycat'){
       this.profileStore.copyCatMode = true
     }
+    if (window.location.hash && window.location.hash == '#search'){
+      this.$nextTick(() => {
+        if (this.$refs.urlToLoad) this.$refs.urlToLoad.focus()
+      })
+    }
     if (window.location.hash && window.location.hash.startsWith('#marvalog')){
       let searchVal = window.location.hash.replace('#marvalog', '')
       if (searchVal) this.searchMarvaLog(searchVal)
