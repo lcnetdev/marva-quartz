@@ -342,7 +342,8 @@ export default {
       let existingMarcUrl = this.existingRecordUrl.replace(".html", ".bf2m.txt")
       if (existingMarcUrl && !this.existingMarc){
         this.existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
-        this.existingMarc = this.htmlify(this.existingMarc)
+        // this.existingMarc = this.htmlify(this.existingMarc)
+        this.existingMarc = utilsParse.htmlify(this.existingMarc)
       }
 
       this.displayCompModal = true
@@ -366,9 +367,6 @@ export default {
 
     changeSearchType: function (event) {
       this.searchType = event.target.value
-
-      console.info("searchType: ", this.searchType)
-
       this.checkLccn(this.searchType)
     },
 
@@ -403,8 +401,6 @@ export default {
       let existingLccn = this.loadLccnFromRecord(value)
       this.selectedRecordUrl = existingLccn
       this.checkLccn('lccn')
-      console.info("load: ", existingLccn)
-      console.info("this.selectedRecordUrl: ", this.selectedRecordUrl)
     },
 
     setSearchPage: function (value) {
@@ -445,8 +441,6 @@ export default {
       this.searchType = type
       // if (this.urlToLoad.length < 3){ return }
       if(this.overrideAllow && this.overrideBibid !=''){
-        console.info("override: ", this.overrideBibid)
-        console.info("checking override: ", this.overrideBibid)
         this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
         this.searchType = 'override'
       } else {
@@ -457,11 +451,9 @@ export default {
       let recordData = null
 
       if (this.searchType == 'bibid'){
-        console.info("searching bibid")
         this.checkingLCCN = true
         let url = "https://preprod-8080.id.loc.gov/resources/instances/" + this.isbn + ".html"
         let resp = await utilsNetwork.searchBibId(this.isbn)
-        console.info("resp: ", resp)
         this.checkingLCCN = false
         if (resp.status == 200){
           this.existingISBN = true
@@ -503,16 +495,6 @@ export default {
         try {
           this.existingLCCN = resp.status != 404
 
-          //9789975865623
-          //2024387549
-          console.info("     >>>>> ", typeof resp)
-          console.info("     status ", resp.status)
-          console.info("     headers ", resp.headers)
-          console.info("     headers ", Object.keys(resp.headers))
-          console.info("     x-uri ", resp.headers.get('x-uri'))
-          console.info("     x-preflabel ", resp.headers.get('x-preflabel'))
-          console.info("headers: ", ...resp.headers)
-
           if (this.existingLCCN) {
             this.existingRecordUrl = resp.url
             this.existingISBN = false
@@ -525,7 +507,6 @@ export default {
         }
       }
 
-      console.info("this.existingRecordUrl: ", this.existingRecordUrl)
       if (this.existingRecordUrl) {
         if (!recordData){
           recordData = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
@@ -568,10 +549,8 @@ export default {
     },
 
     checkRecordHasLccn: function (record) {
-      // console.info("hasLCCN?: ", record)
       if (record) {
         let marc010 = this.getMarcFieldAsString(record, "010")
-        // console.info("marc010: ", marc010)
         if (!marc010) { return false }
 
         if (marc010.includes('$a')) { return true }
@@ -653,7 +632,6 @@ export default {
 
       try {
         this.wcResults = await utilsNetwork.worldCatSearch(cleanQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
-        console.info("this.wcResults", this.wcResults)
         if (!Object.keys(this.wcResults.results).includes("numberOfRecords")) {
           this.wcResults.results["numberOfRecords"] = 1
           this.wcResults.results["briefRecords"] = [this.wcResults.results]
@@ -678,57 +656,57 @@ export default {
       }
     },
 
-    htmlify: function(marcBlob){
-      let formattedMarcRecord = ["<div class='marc record'>"];
-      for (let [idx, line] of marcBlob.split("\n").entries()){
-        if (idx == 0){
-          let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
-          formattedMarcRecord.push(leader);
-        } else {
-          let tag = String(line.slice(0,3))
-          let value = null;                 // fixed fields?
-          let indicators = null;
-          let subfields = [];               // subfields
-          let subfieldsSplit = []
-          if (line == ""){ continue }
-          if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
-            value = line.slice(7)
-          } else {
-            let tmpIndicators = line.slice(4, 6)
+    // htmlify: function(marcBlob){
+    //   let formattedMarcRecord = ["<div class='marc record'>"];
+    //   for (let [idx, line] of marcBlob.split("\n").entries()){
+    //     if (idx == 0){
+    //       let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
+    //       formattedMarcRecord.push(leader);
+    //     } else {
+    //       let tag = String(line.slice(0,3))
+    //       let value = null;                 // fixed fields?
+    //       let indicators = null;
+    //       let subfields = [];               // subfields
+    //       let subfieldsSplit = []
+    //       if (line == ""){ continue }
+    //       if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
+    //         value = line.slice(7)
+    //       } else {
+    //         let tmpIndicators = line.slice(4, 6)
 
-            indicators = [" ", " "]
-            indicators[0] = tmpIndicators.slice(0, tmpIndicators.length / 2)
-            indicators[1] = tmpIndicators.slice(tmpIndicators.length / 2, tmpIndicators.length)
-            let subfieldGroups = line.slice(7).replaceAll(/\$([a-z0-9]{1})/g, "-#-#-$1").split("-#-#-")
+    //         indicators = [" ", " "]
+    //         indicators[0] = tmpIndicators.slice(0, tmpIndicators.length / 2)
+    //         indicators[1] = tmpIndicators.slice(tmpIndicators.length / 2, tmpIndicators.length)
+    //         let subfieldGroups = line.slice(7).replaceAll(/\$([a-z0-9]{1})/g, "-#-#-$1").split("-#-#-")
 
-            for (let sub of subfieldGroups){
-              if (sub != ""){
-                let field = "$" + sub.at(0)
-                let value = sub.slice(1)
+    //         for (let sub of subfieldGroups){
+    //           if (sub != ""){
+    //             let field = "$" + sub.at(0)
+    //             let value = sub.slice(1)
 
-                subfields.push([field, value])
-              }
-            }
-          }
+    //             subfields.push([field, value])
+    //           }
+    //         }
+    //       }
 
-          if (value) {
-            tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
-            value = " <span class='marc value'>" + value + '</span>';
-            formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
-          } else {
-            subfields = subfields.map((subfield) =>
-              "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
-            );
-            indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
-            tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
-            formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
-          }
+    //       if (value) {
+    //         tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+    //         value = " <span class='marc value'>" + value + '</span>';
+    //         formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
+    //       } else {
+    //         subfields = subfields.map((subfield) =>
+    //           "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
+    //         );
+    //         indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
+    //         tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+    //         formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
+    //       }
 
-        }
-      }
-      formattedMarcRecord.push('</div>');
-      return formattedMarcRecord.join('\r\n');
-    },
+    //     }
+    //   }
+    //   formattedMarcRecord.push('</div>');
+    //   return formattedMarcRecord.join('\r\n');
+    // },
 
     compareRecords: async function(profile){
       this.creatingComp = true
@@ -741,7 +719,7 @@ export default {
       if (existingMarcUrl){
         existingMarc = await utilsNetwork.fetchSimpleLookup(existingMarcUrl)
         this.existingMarc = existingMarc
-        this.existingMarc = this.htmlify(this.existingMarc)
+        this.existingMarc = utilsParse.htmlify(this.existingMarc)
       }
       this.selectedMarc = this.selectedWcRecord.marcHTML
 
@@ -784,7 +762,6 @@ export default {
       this.createSubField("c", this.jackphyCheck, dummyField)
       this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummyField)
 
-      console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
       let marva001 = false
       if (this.existingLCCN || this.existingISBN || (this.overrideAllow && this.overrideBibid != '')) {
@@ -817,15 +794,11 @@ export default {
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
-      console.info("strXmlBasic: ", strXmlBasic)
-
       this.posting = true
       this.postResults = {}
 
       this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
-
-      console.info("this.postResults: ", this.postResults)
 
       this.responseURL = this.postResults.postLocation
 
@@ -834,11 +807,6 @@ export default {
         console.error("Failed to send copy cat record: ", this.postResults)
         return
       }
-
-      // console.info("getting recordId")
-      // console.info("this.existingLCCN: ", this.existingLCCN)
-      // console.info("this.existingISBN: ", this.existingISBN)
-      // console.info("bibId: ", bibId)
 
       let recordId = ''
       if (this.existingLCCN || this.existingISBN) {
@@ -850,13 +818,10 @@ export default {
       } else {
         if (useConfigStore().returnUrls.env != 'production'){
           recordId = marva001
-          console.info("eNumber: ", this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, ''))
         } else {
           recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
         }
       }
-
-      console.info("recordId: ", recordId)
 
       if(useConfigStore().returnUrls.env == 'staging'){
         this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
@@ -867,7 +832,6 @@ export default {
       this.existingISBN = false
 
       try {
-        console.info("loading URL to Marva: ", this.urlToLoad)
         this.loadUrl(profile)
       } catch (err) {
         alert("Couldn't load the record with the selected profile.")

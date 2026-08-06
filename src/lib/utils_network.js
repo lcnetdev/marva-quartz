@@ -520,7 +520,6 @@ const utilsNetwork = {
 
       url = url + "&blastdacache=" + Date.now()
 
-      console.info("url: ", url)
 
       let result = await fetch(
         url,
@@ -2966,8 +2965,6 @@ const utilsNetwork = {
 
       this.subjectSearchActive = false
 
-      // console.info("results: ", results)
-
       return results
     },
 
@@ -3256,20 +3253,10 @@ const utilsNetwork = {
 
 
   worldCatSearch: async function(query, index, type, offset, limit, marc=false){
-    console.info("worldCatSearch")
-    console.info("     query: ", query)
-    console.info("     index: ", index)
-    console.info("     type: ", type)
-    console.info("     offset: ", offset)
-    console.info("     limit: ", limit)
-    console.info("     marc: ", marc)
-
     // consonsole.info("useConfigStore().returnUrls >>", useConfigStore().returnUrls)
     let baseUrl = useConfigStore().returnUrls.worldCat
 
     let url = baseUrl + "search/"
-
-    console.info("url: ", url)
 
     const rawResponse = await fetch(url, {
       method: 'POST',
@@ -3288,8 +3275,6 @@ const utilsNetwork = {
       })
     })
 
-    console.info("rawResponse: ", rawResponse)
-
     return rawResponse.json()
 
   },
@@ -3306,9 +3291,8 @@ const utilsNetwork = {
 
   publishNar: async function(xml){
 
-
+    let cataloger = usePreferenceStore().ssoUser.email.split('@')[0]
     let url = useConfigStore().returnUrls.publishNar
-
     let uuid = translator.toUUID(translator.new())
 
     const rawResponse = await fetch(url, {
@@ -3316,6 +3300,7 @@ const utilsNetwork = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Cat-Id': cataloger + "@loc.gov",
         ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
@@ -3325,14 +3310,9 @@ const utilsNetwork = {
     // console.log(content);
 
     if (content && content.publish && content.publish.status && content.publish.status == 'published'){
-
-      return {status:true, postLocation: (content.postLocation) ? content.postLocation : null }
-
+      return {status:true, postLocation: (content.postLocation) ? content.postLocation : null, details: (content.publish.details) ? content.publish.details : null }
     }else{
-
       // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
-
-
       return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2), msgObj: content.publish}
     }
   },
@@ -3346,9 +3326,6 @@ const utilsNetwork = {
    */
   addCopyCat: async function(xml){
     let url = useConfigStore().returnUrls.copyCatUpload
-
-    console.info("posting to ", url)
-
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -4470,6 +4447,50 @@ const utilsNetwork = {
 
       const content = await rawResponse.json();
 
+      return content
+    },
+
+    async fetchAuthMarc(lccn){
+      // let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
+      let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml"
+      let marcXML = await this.fetchSimpleLookup(url)
+      return marcXML
+    },
+
+    async fetchBCP47Codes(string, hint=false){
+      // 8288
+      let url = "https://preprod-8080.id.loc.gov/controllers/xqapi-determine-bcp47.xqy?serialization=application/json&string=" + encodeURIComponent(string) + "&includelatn=false"
+      if (hint){
+        url = url + "&hint=" + hint
+      }
+      let resp = await this.fetchSimpleLookup(url)
+
+      return resp
+    },
+
+    async formatMarc(xml, sType, tType){
+      if (!xml){
+        return ""
+      }
+
+      let url = useConfigStore().returnUrls.util + 'marcformat'
+
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify({
+          mrc: xml,
+          sourceType: sType,
+          targetType: tType,
+        })
+      });
+
+      if (rawResponse.status == 404) { return false}
+      const content = await rawResponse.json();
       return content
     },
 

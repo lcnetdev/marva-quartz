@@ -8,6 +8,7 @@ import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
 import utilsNetwork from './utils_network';
 import utilsProfile from './utils_profile';
+import utilsParse from './utils_parse';
 
 import { parse, parse as parseEDTF } from 'edtf'
 
@@ -2415,27 +2416,25 @@ const utilsExport = {
 
 		let pos29 = "n"
 		// did they make a 4xx
-		if (fourXXParts && fourXXParts.a && add667){
-			pos29 = 'b'
-		}else if (fourXXParts && fourXXParts.a && !add667){
+		if (fourXXParts && fourXXParts.a && !add667){
 			pos29 = 'a'
 		}
 
 		let has667 = add667
-		// if there is a 667 in the extraMarcStatements then set it
-		for (let x of extraMarcStatements){
-			if (x.tag == '667' || x.fieldTag == '667'){
-				pos29 = 'b'
-				has667 = true
-			}
-			if (/5[0-9]{2}/.test(x.fieldTag) && pos29 == "n"){ // treat 5XX like 4XX
-				if (add667){
-					pos29 = 'b'
-				} else if (!add667){
-					pos29 = 'a'
-				}
-			}
-		}
+		// // if there is a 667 in the extraMarcStatements then set it
+		// for (let x of extraMarcStatements){
+		// 	if (x.tag == '667' || x.fieldTag == '667'){
+		// 		pos29 = 'b'
+		// 		has667 = true
+		// 	}
+		// 	if (/5[0-9]{2}/.test(x.fieldTag) && pos29 == "n"){ // treat 5XX like 4XX
+		// 		if (add667){
+		// 			pos29 = 'b'
+		// 		} else if (!add667){
+		// 			pos29 = 'a'
+		// 		}
+		// 	}
+		// }
 
 		// check again if they made a 4XX in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
@@ -2669,13 +2668,13 @@ const utilsExport = {
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
-						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()
 						fieldName4xx.appendChild(subfield)
 						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 					}
 				}
 			}
-			
+
 			for (let key of Object.keys(fourXXParts)){
 				// only add the subfields
 				if (key.length == 1 && !isAlpha(key)){
@@ -2684,7 +2683,7 @@ const utilsExport = {
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
-						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()
 						fieldName4xx.appendChild(subfield)
 						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 					}
@@ -2702,25 +2701,6 @@ const utilsExport = {
 			}
 
 			marcTextArray.push({txt: this.buildMarcTxtLine(fourXXParts.fieldTag, fourXXParts.indicators.charAt(0).replace(" ","#"), fourXXParts.indicators.charAt(1).replace(" ","#"), fourXXSubfieldsValues), field: fourXXParts.fieldTag, fieldInt: parseInt(fourXXParts.fieldTag)})
-
-		}
-
-
-
-		if (pos29 === 'b' && !useAdvancedMode){
-
-			let field667 = document.createElementNS(marcNamespace,"marcxml:datafield");
-			field667.setAttribute( 'tag', '667')
-			field667.setAttribute( 'ind1', ' ')
-			field667.setAttribute( 'ind2', ' ')
-			let field667a = document.createElementNS(marcNamespace,"marcxml:subfield");
-			field667a.setAttribute( 'code', 'a')
-			field667a.innerHTML = "Non-Latin script references not evaluated."
-			field667.appendChild(field667a)
-
-			rootEl.appendChild(field667)
-			marcTextArray.push({txt: this.buildMarcTxtLine('667', ' ', ' ', ['$a Non-Latin script references not evaluated.']), field: '667', fieldInt: 667})
-
 
 		}
 
@@ -2810,7 +2790,7 @@ const utilsExport = {
 						if (key.length == 1){
 							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 							subfield.setAttribute( 'code', x[key][0])
-							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ')
+							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ').replace('\u200E', '')
 							field.appendChild(subfield)
 							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
 							hasValue = true
@@ -2858,7 +2838,268 @@ const utilsExport = {
 		console.log(xml)
 		return {xml: xml, text: marcTxt}
 
-	}
+	},
+
+
+	/**
+	 * Adjust marc authority record for BCP codes and related changes
+	 * @@param {Object} marcXML - XML Document of the record that is being adjusted
+	 * @@param {Object} updates - The updates to apply to the record
+	 * @@param {Array} target - List of lists: [MARC tag to look for, index of update to apply targat that matches next element, non-latin variant]
+	 * @return {Array} two elements, the update MARCXML and the record in JSON that can be turned in HTML for display
+	 */
+	adjustAuthRecord: function (marcXML, updates, targets) {
+		let record = marcXML.getElementsByTagName('marcxml:record')[0]
+		record = record.cloneNode(true)
+
+		// make sure leader/05 is "c"
+		let leader = record.getElementsByTagName('marcxml:leader')[0]
+		let leaderString = leader.innerHTML
+		leaderString = leaderString.substring(0,5) + 'c' + leaderString.substring(6)
+		leader.innerHTML = leaderString
+
+		let marc667List = record.querySelectorAll('[tag="667"]')
+		let marc670List = record.querySelectorAll('[tag="670"]')
+
+
+		// Get the 667s, remove "...not evaluated..."
+		// remove
+		let target667s = []
+		for (let sixSixSeven of marc667List) {
+			if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
+				target667s.push(sixSixSeven)
+			} else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with (bcp47) in subfield 7')) {
+				target667s.push(sixSixSeven)
+			} else if (sixSixSeven.innerHTML.includes('Non-Latin script variants coded for PCC testing')) {
+				target667s.push(sixSixSeven)
+			} else if (sixSixSeven.innerHTML.includes('script references evaluated')) { // 667 from strawn tool
+				target667s.push(sixSixSeven)
+			}
+		}
+
+		target667s.map(item => record.removeChild(item)) // remove existing notes, and add new note
+
+		// add test note
+		let testNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+		testNote.setAttribute('tag', '667')
+		testNote.setAttribute('ind1', " ")
+		testNote.setAttribute('ind2', " ")
+		let testNoteA = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+		testNoteA.setAttribute("code", 'a')
+		testNoteA.innerHTML = "Non-Latin script variants with (bcp47) in subfield 7 are for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
+		testNote.appendChild(testNoteA)
+		record.appendChild(testNote)
+		marc667List = record.querySelectorAll('[tag="667"]') // update the list
+
+		// update 008 and 667 if non-latin references have been evaluated
+		if (updates.refEval) {
+			if (updates.refEval == true) {
+				let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
+				let currentValue = zeroZeroEight.innerHTML
+				let updatedValue = utilsMisc.setCharAt(currentValue, 29, 'a')
+				zeroZeroEight.innerHTML = updatedValue
+			}
+
+			if (updates.refEval == 'some') {
+				let note = "Non-Latin script variants with (bcp47) in subfield 7 have been evaluated. Others have not yet been evaluated."
+				let someNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+				someNote.setAttribute('tag', '667')
+				someNote.setAttribute('ind1', " ")
+				someNote.setAttribute('ind2', " ")
+				let someNoteA = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+				someNoteA.setAttribute("code", 'a')
+				someNoteA.innerHTML = note
+				someNote.appendChild(someNoteA)
+				record.appendChild(someNote)
+			}
+		}
+
+		// 670 notes
+		for (let item of updates['source670s']) {
+			let note670 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+			note670.setAttribute('tag', '670')
+			note670.setAttribute('ind1', " ")
+			note670.setAttribute('ind2', " ")
+			for (let sub of Object.keys(item)) {
+				if (sub != 'note') {
+					let subfield = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+					subfield.setAttribute("code", sub)
+					subfield.innerHTML = item[sub].trim()
+					note670.appendChild(subfield)
+				}
+			}
+			marc670List = record.querySelectorAll('[tag="667"]')
+			record.appendChild(note670)
+		}
+
+		// 040 if the last $d is DLC, don't add another one
+		let marc040 = record.querySelectorAll('[tag="040"]')[0]
+		let lastEl = Array.from(marc040.children).at(-1)
+		if (lastEl.textContent != "DLC") {
+			let new040D = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+			new040D.setAttribute("code", 'd')
+			new040D.innerHTML = 'DLC'
+			marc040.appendChild(new040D)
+		}
+
+		let forDeletion = []
+
+		let langEval = []
+		let langUneval = []
+		for (let target of targets) {
+			let targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
+			let index = [].indexOf.call(record.children, targetNameXML)
+
+			if (!targetNameXML) {
+				targetNameXML = { 'children': [] }
+				for (let idx of Object.keys(updates)) {
+					if (idx.startsWith("##")) { break }
+					targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[idx]
+					index = [].indexOf.call(record.children, targetNameXML)
+				}
+			}
+
+			// Get the existing subfields
+			let existingCodes = {}
+			let evaluated = false
+			for (let child of targetNameXML.children) {
+				let code = child.getAttribute("code")
+				if (existingCodes[code]) {
+					existingCodes[code].push(child)
+				} else {
+					existingCodes[code] = [child]
+				}
+			}
+
+			// for additions add a fake target with an idx that will match that update
+			let idx = target[1]
+			let update = updates[idx]
+
+			if (update['subfield_7']) {
+				evaluated = true
+				langEval.push(...update['subfield_7'])
+			} else {
+				langUneval.push(update['subfield_a'])
+			}
+
+
+			if (Object.keys(update).includes('delete') && update.delete) {
+				forDeletion.push(targetNameXML)
+			} else {
+				let indicators = update.indicators.split("")
+				if (!String(target[1]).startsWith("##")) {
+					targetNameXML.setAttribute("ind1", indicators[0])
+					targetNameXML.setAttribute("ind2", indicators[1])
+
+					// existingCodes not present in the update
+					let deleteCodes = Object.keys(existingCodes).map(code => {
+						if (!Object.keys(update).includes('subfield_' + code)) {
+							return code
+						}
+					})
+
+					if (update.hasBCP) {
+						// delete existing $7
+						for (let existing7 of existingCodes['7']) {
+							targetNameXML.removeChild(existing7)
+						}
+						delete existingCodes['7']
+					}
+
+					for (let key of Object.keys(update)) {
+						if (key.includes('subfield_')) {
+							let subfield = key.split("_")[1]
+							let value = update[key]
+
+							// if we're looking at the first update
+							let targets = existingCodes[subfield]
+
+							if (targets) {                // if the subfield is existing update it
+								for (let target of targets) {
+									target.innerHTML = value
+									for (let code of deleteCodes) {
+										if (code) {
+											for (let element of existingCodes[code]) {
+												if (targetNameXML.contains(element)) {
+													targetNameXML.removeChild(element)
+												}
+											}
+										}
+									}
+								}
+							} else {                     // otherwise, create it
+								if (typeof value == 'string') {
+									let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+									newSubField.setAttribute("code", subfield)
+									newSubField.innerHTML = value.trim()
+									targetNameXML.appendChild(newSubField)
+								} else {
+									for (let bcp of value) {
+										let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+										newSubField.setAttribute("code", subfield)
+										newSubField.innerHTML = bcp.trim()
+										targetNameXML.appendChild(newSubField)
+									}
+								}
+							}
+
+						}
+					}
+				} else { // it's a new field for the top element
+					let newField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+					newField.setAttribute('tag', update.tag)
+					newField.setAttribute('ind1', indicators[0])
+					newField.setAttribute('ind2', indicators[1])
+					record.appendChild(newField)
+
+					for (let [idx, key] of Object.keys(update).entries()) {
+						if (key.includes('subfield_')) {
+							let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+							let subfield = key.split("_")[1]
+							let value = update[key]
+
+
+							if (typeof value == 'string') {
+								newSubField.setAttribute("code", subfield)
+								newSubField.innerHTML = value.trim()
+								newField.appendChild(newSubField)
+							} else {
+								for (let i in value) {
+									let bcp = value[i]
+									let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+									newSubField.setAttribute("code", subfield)
+									newSubField.innerHTML = bcp.trim()
+									newField.appendChild(newSubField)
+								}
+							}
+						}
+					}
+
+				}
+			}
+			// }
+		}
+
+		// make deletions
+		for (let del of forDeletion) {
+			record.removeChild(del)
+		}
+
+		// sort the record by tag
+		let sortedChildren = Array.from(record.children).sort((a, b) => {
+			let tagA = a.getAttribute('tag');
+			let tagB = b.getAttribute('tag');
+			if (tagA < tagB) return -1;
+			if (tagA > tagB) return 1;
+			return 0;
+		});
+
+		record.innerHTML = ''; // Clear existing children
+		sortedChildren.forEach(child => record.appendChild(child))
+
+		let parsedRecord = utilsParse.parseMarcXml(record)
+		return [record, parsedRecord]
+	},
 
 }
 

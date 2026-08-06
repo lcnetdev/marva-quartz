@@ -1,0 +1,290 @@
+<marcxml:record xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:marcxml="http://www.loc.gov/MARC21/slim"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:ri="http://id.loc.gov/ontologies/RecordInfo#"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mets="http://www.loc.gov/METS/"
+    xmlns:idx="info:lc/xq-modules/lcindex"
+    xmlns:bfidx="info:lc/xq-modules/bfidx"
+    xmlns:semtriples="http://marklogic.com/semantic"
+    xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+    xmlns:bflc="http://id.loc.gov/ontologies/bflc/"
+    xmlns:bfsimple="http://id.loc.gov/ontologies/bfsimple/"
+    xmlns:dcterms="http://purl.org/dc/terms/">
+    <marcxml:leader>04185cz  a2200781n  4500</marcxml:leader>
+    <marcxml:controlfield tag="001">n79021164</marcxml:controlfield>
+    <marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+    <marcxml:controlfield tag="005">20250804195926.6</marcxml:controlfield>
+    <marcxml:controlfield tag="008">790418n| azannaabn          |b aaa      </marcxml:controlfield>
+    <marcxml:datafield tag="010" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">n  79021164 </marcxml:subfield>
+        <marcxml:subfield code="z">sh 89001267 </marcxml:subfield>
+        <marcxml:subfield code="z">no 98029431 </marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="040" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">DLC</marcxml:subfield>
+        <marcxml:subfield code="b">eng</marcxml:subfield>
+        <marcxml:subfield code="e">rda</marcxml:subfield>
+        <marcxml:subfield code="c">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">MdU</marcxml:subfield>
+        <marcxml:subfield code="d">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">InU</marcxml:subfield>
+        <marcxml:subfield code="d">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">PPiU</marcxml:subfield>
+        <marcxml:subfield code="d">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">OCoLC</marcxml:subfield>
+        <marcxml:subfield code="d">InU</marcxml:subfield>
+        <marcxml:subfield code="d">OCoLC</marcxml:subfield>
+        <marcxml:subfield code="d">ICU</marcxml:subfield>
+        <marcxml:subfield code="d">OCoLC</marcxml:subfield>
+        <marcxml:subfield code="d">UPB</marcxml:subfield>
+        <marcxml:subfield code="d">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">NjP</marcxml:subfield>
+        <marcxml:subfield code="d">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">WaU</marcxml:subfield>
+        <marcxml:subfield code="d">IEN</marcxml:subfield>
+        <marcxml:subfield code="d">WU</marcxml:subfield>
+        <marcxml:subfield code="d">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">MdRoLAC</marcxml:subfield>
+        <marcxml:subfield code="d">DLC</marcxml:subfield>
+        <marcxml:subfield code="d">ICRL</marcxml:subfield>
+        <marcxml:subfield code="d">OCoLC</marcxml:subfield>
+        <marcxml:subfield code="d">HU</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="046" ind1=" " ind2=" ">
+        <marcxml:subfield code="f">1835-11-30</marcxml:subfield>
+        <marcxml:subfield code="g">1910-04-21</marcxml:subfield>
+        <marcxml:subfield code="2">edtf</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="053" ind1=" " ind2="0">
+        <marcxml:subfield code="a">PS1300</marcxml:subfield>
+        <marcxml:subfield code="b">PS1348</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="100" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Twain, Mark,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="368" ind1=" " ind2=" ">
+        <marcxml:subfield code="c">Americans</marcxml:subfield>
+        <marcxml:subfield code="2">lcsh</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="370" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Florida (Mo.)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="370" ind1=" " ind2=" ">
+        <marcxml:subfield code="b">Redding (Conn.)</marcxml:subfield>
+        <marcxml:subfield code="c">United States</marcxml:subfield>
+        <marcxml:subfield code="e">Hannibal (Mo.)</marcxml:subfield>
+        <marcxml:subfield code="2">naf</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="372" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Literature</marcxml:subfield>
+        <marcxml:subfield code="a">Humor</marcxml:subfield>
+        <marcxml:subfield code="2">lcgft</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="372" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Wit and humor</marcxml:subfield>
+        <marcxml:subfield code="2">lcsh</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="374" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Authors</marcxml:subfield>
+        <marcxml:subfield code="a">Lecturers</marcxml:subfield>
+        <marcxml:subfield code="a">Humorists</marcxml:subfield>
+        <marcxml:subfield code="2">lcsh</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="377" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">eng</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tvėn, Mark,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tuėĭn, Mark,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tuwayn, Mārk,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Twayn, Mārk,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tʻu-wen, Ma-kʻo,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tven, M.</marcxml:subfield>
+        <marcxml:subfield code="q">(Mark),</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Touen, Makū,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Twain, Marek,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="0" ind2=" ">
+        <marcxml:subfield code="a">Make Tuwen,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tuwen, Make,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="0" ind2=" ">
+        <marcxml:subfield code="a">Make Teviin,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Твен, Марк,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Touain, Mark,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">טבןַ, מרק,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">טוויין, מארק,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">טוויין, מרק,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">טווין, מארק,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">טווין, מרק,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">טווען, מארק,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">טוין, מרק,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">馬克吐温,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tuvāyn, Mārk,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tvāyn, Mārk,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">تواين، مارک</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tivāyn, Mārk,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">Tʻuēyn, Markʻ,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">T'ŭwein, Mak'ŭ,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="400" ind1="1" ind2=" ">
+        <marcxml:subfield code="a">트웨인, 마크,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="500" ind1="1" ind2=" ">
+        <marcxml:subfield code="w">nnnc</marcxml:subfield>
+        <marcxml:subfield code="a">Clemens, Samuel Langhorne,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="500" ind1="1" ind2=" ">
+        <marcxml:subfield code="w">nnnc</marcxml:subfield>
+        <marcxml:subfield code="a">Snodgrass, Quintus Curtius,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="500" ind1="1" ind2=" ">
+        <marcxml:subfield code="w">nnnc</marcxml:subfield>
+        <marcxml:subfield code="a">Conte, Louis de,</marcxml:subfield>
+        <marcxml:subfield code="d">1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="663" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">For works of this author written under other names, search also under</marcxml:subfield>
+        <marcxml:subfield code="b">Clemens, Samuel Langhorne, 1835-1910,</marcxml:subfield>
+        <marcxml:subfield code="b">Snodgrass, Quintus Curtius, 1835-1910</marcxml:subfield>
+        <marcxml:subfield code="b">Conte, Louis de, 1835-1910,</marcxml:subfield>
+        <marcxml:subfield code="b">Alden, Jean François, 1835-1910</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="667" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Machine-derived non-Latin script reference project.</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="667" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Non-Latin script references not evaluated.</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="667" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Pseudonym not established: Jean François Alden</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Geviksman, V. A. Print︠s︡ i nishchiĭ, 1984:</marcxml:subfield>
+        <marcxml:subfield code="b">t.p. (M. Tvena)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Makū Touen tanpenshū, 1961.</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Personal recollections of Joan of Arc, 1923:</marcxml:subfield>
+        <marcxml:subfield code="b">v. 1-2, t.p. (the Sieur Louis de Conte; Jean François Alden) spine (Mark Twain)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">DAB, 1930</marcxml:subfield>
+        <marcxml:subfield code="b">(Clemens, Samuel Langhorne, 1835-1910; better known under pseud. Mark Twain; also used name Quintus Curtius Snodgrass)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Mark Twain's personal recollections of Joan of Arc, 1997:</marcxml:subfield>
+        <marcxml:subfield code="b">CIP t.p. (Sieur Louis de Conte) p. vii (Sieur Louis de Conte shared ... initials with Samuel L. Clemens)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Przygody Huck'a, 1912:</marcxml:subfield>
+        <marcxml:subfield code="b">t.p. (Marek Twain)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Alda-bar ȯnggelegsen erin caġ, 1985:</marcxml:subfield>
+        <marcxml:subfield code="b">v. 1, t.p. (Make Teveiin) colophon (Make Tuwen)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Wikipedia, Oct. 18, 2011</marcxml:subfield>
+        <marcxml:subfield code="b">(b. November 30, 1835 in Florida, Missouri; grew up in Hannibal, Missouri; d. April 21, 1910 in Redding, Connecticut; a writer and lecturer; wrote in genres of fiction, historical fiction, children's literature, non-fiction, travel literature, satire, essay, philosophical literature, social commentary, literary criticism)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Vasilopoulo kai zētianopoulo, 1953:</marcxml:subfield>
+        <marcxml:subfield code="b">t.p. (Mark Touain)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Mājarāhā-yi Hākil Birī Fīn, 1967:</marcxml:subfield>
+        <marcxml:subfield code="b">t.p. (مارک تواين = Mārk Tuvāyn) t.p. verso (Mark Twain [in rom.])</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">Hatěntir patmwatskʻner, 1963:</marcxml:subfield>
+        <marcxml:subfield code="b">title page (Markʻ Tʻuēyn)</marcxml:subfield>
+    </marcxml:datafield>
+    <marcxml:datafield tag="670" ind1=" " ind2=" ">
+        <marcxml:subfield code="a">OCLC, May 13, 2024:</marcxml:subfield>
+        <marcxml:subfield code="b">(access point: Twain, Mark, 1835-1910; usage: 마크 트웨인 = Mak'u T'ŭwein)</marcxml:subfield>
+    </marcxml:datafield>
+</marcxml:record>

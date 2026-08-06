@@ -100,7 +100,11 @@
 
         tagMap: { // Map between tag and expected indicators
           '053': '#0',
-        }
+        },
+
+        langs: {},
+        bcp: null,
+        selectedBcp: null,
       }
     },
     computed: {
@@ -117,6 +121,7 @@
 
 
       disableAddButton() {
+
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
         }
@@ -142,7 +147,12 @@
           return true
         }
 
-        if (this.validationResult && ['Empty subfields.', 'Empty datafields.'].includes(this.validationResult.validation[0].message)){
+        if (this.checkBcp()){
+          return true
+        }
+
+
+        if (this.validationResult && this.validationResult.validation && ['Empty subfields.', 'Empty datafields.'].includes(this.validationResult.validation[0].message)){
           return true
         }
 
@@ -348,8 +358,6 @@
         async validate(){
           this.validationResult = null
           this.validating = true
-
-
           // wrap in try catch
           try {
             this.validationResult = await utilsNetwork.validateNar(this.MARCXml)
@@ -385,18 +393,22 @@
                 f670.u = this.instanceURI
                 f670.value = f670.value + ` $u ${this.instanceURI}`
               }
+              // if (this.mainTitleLccn){
+              //   f670.w = this.mainTitleLccn
+              //   f670.value = f670.value + ` $w (DLC)${this.mainTitleLccn}`
+              // }
 
               this.extraMarcStatements.push(f670)
             }
 
-            if (this.add667){
-              let f667 = {
-                fieldTag: '667',
-                indicators: '##',
-                value: `$a Non-Latin script references not evaluated.`
-              }
-              this.extraMarcStatements.push(f667)
-            }
+            // if (this.add667){
+            //   let f667 = {
+            //     fieldTag: '667',
+            //     indicators: '##',
+            //     value: `$a Non-Latin script references not evaluated.`
+            //   }
+            //   this.extraMarcStatements.push(f667)
+            // }
 
             // console.log("extraMarcStatements",this.extraMarcStatements)
             // is there a 046 field already?
@@ -968,33 +980,33 @@
             }
 
 
-            if (this.fourXXParts && this.fourXXParts.a){
-              if (this.profileStore.isLatin(this.fourXXParts.a) === false){
-                this.add667 = true
+            // if (this.fourXXParts && this.fourXXParts.a){
+            //   if (this.profileStore.isLatin(this.fourXXParts.a) === false){
+            //     this.add667 = true
 
-                // if there isn't a 667 field already in advenced mode
-                if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && this.extraMarcStatements.length > 0){
-                  let found667 = false
-                  for (let field of this.extraMarcStatements){
-                    if (field.fieldTag == '667'){
-                      found667 = true
-                      break
-                    }
-                  }
-                  if (!found667){
-                    this.extraMarcStatements.push({
-                      fieldTag: '667',
-                      indicators: '##',
-                      value: "$a Non-Latin script references not evaluated."
-                    })
-                  }
-                }
+            //     // if there isn't a 667 field already in advenced mode
+            //     if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && this.extraMarcStatements.length > 0){
+            //       let found667 = false
+            //       for (let field of this.extraMarcStatements){
+            //         if (field.fieldTag == '667'){
+            //           found667 = true
+            //           break
+            //         }
+            //       }
+            //       if (!found667){
+            //         this.extraMarcStatements.push({
+            //           fieldTag: '667',
+            //           indicators: '##',
+            //           value: "$a Non-Latin script references not evaluated."
+            //         })
+            //       }
+            //     }
 
-              }else if (this.profileStore.isLatin(this.fourXXParts.a) === true){
-                this.add667 = false
-              }
+            //   }else if (this.profileStore.isLatin(this.fourXXParts.a) === true){
+            //     this.add667 = false
+            //   }
 
-            }
+            // }
 
 
 
@@ -1339,6 +1351,15 @@
             OnexxPart = event.target.value
           }
 
+          // if the BCP has been added, maintain the preferred indicator
+          if (this.fourXX.includes("$7")){
+            if (FourxxPart.startsWith(430)){
+              FourxxPart = FourxxPart.slice(0, 3) + this.fourXX.slice(3, 4) + FourxxPart.slice(4, 5)
+            } else {
+              FourxxPart = FourxxPart.slice(0, 3) + FourxxPart.slice(3, 4) + this.fourXX.slice(4, 5)
+            }
+          }
+
           if (OnexxPart){
             if (this.oneXX.indexOf("$a")>-1){
               this.oneXX = OnexxPart + "$a"+ this.oneXX.split("$a")[1]
@@ -1567,6 +1588,20 @@
           this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
           this.field245 = this.profileStore.nacoStubReturn245()
 
+          // get language information from record
+          let nonLatin = this.profileStore.returnAllNonLatinLiterals()
+          for (let item of nonLatin){
+            let lang = item.lang
+            if (Object.keys(this.langs).includes(lang)){
+              this.langs[lang] = this.langs[lang] + 1
+            } else {
+              this.langs[lang] = 1
+            }
+          }
+          if (Object.keys(this.langs).length > 0){
+            this.selectedBcp = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
+          }
+
           // Check if the record might be a CIP
           let isCip = this.profileStore.checkCip()
 
@@ -1628,6 +1663,10 @@
                 f670.u = this.instanceURI
                 f670.value = f670.value + ` $u ${this.instanceURI}`
               }
+              // if (this.mainTitleLccn){
+              //   f670.w = this.mainTitleLccn
+              //   f670.value = f670.value + ` $w (DLC)${this.mainTitleLccn}`
+              // }
               this.extraMarcStatements.push(f670)
 
               addingDefaultExtraMarcStatements = true
@@ -1839,6 +1878,125 @@
           }
         },
 
+
+        addDollar7: function(element){
+          // 淑子金子金子
+
+          let lang = null
+          if (!this.bcp){
+            lang = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
+          } else {
+            lang = this.bcp
+          }
+          let bcp = "\u200E$7(bcp47)" + lang
+
+          let existingBcp = this.getPreferredBcp()
+          if(element == 'fourXX'){
+            this.fourXX = this.fourXX + bcp
+            let fieldTag = this.fourXX.slice(0,3)
+            let indicators = this.fourXX.slice(3,5)
+
+            // if the bcpcode is in existingBcp, don't set the indicator
+
+            if (!existingBcp.includes(bcp.replace('\u200E', '').trim())){
+              // update indicator
+              if (fieldTag == '430'){
+                indicators = "1" + indicators.split("")[1]
+              } else {
+                indicators = indicators.split("")[0] + "1"
+              }
+            }
+
+            let newString = fieldTag + indicators + this.fourXX.slice(5)
+            this.fourXX = newString
+
+          } else {
+            element.value = element.value + bcp
+            // update indicator
+            if (!existingBcp.includes(bcp.replace('\u200E', '').trim())){
+              if (element.fieldTag == '430'){
+                element.indicators = "1" + element.indicators.split("")[1]
+              } else {
+                element.indicators = element.indicators.split("")[0] + "1"
+              }
+            }
+          }
+
+          this.checkFourXX()
+        },
+
+        setBcp: async function(event){
+          if (this.fourXX == ''){
+            alert("Add a non-Latin 4XX value to continue.")
+            return
+          }
+          let val = event.target.value
+          this.selectedBcp = val
+          if (val != 'expand'){
+            this.bcp = val.toLowerCase()
+            return
+          }
+          let parts = this.fourXX.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+          let name = parts.filter(p => p.includes("$a"))[0]
+          let bcpCodes = await utilsNetwork.fetchBCP47Codes(name)
+          // add to langs
+          for (let bcp of bcpCodes){
+            this.langs[bcp.bcp47code] = bcp.score
+          }
+        },
+
+        // return a list BCP codes tied to preferred variants
+        getPreferredBcp: function(){
+          let primary4XX = this.fourXX
+          let additional4XX = this.extraMarcStatements.filter(ex => /4\d\d/.test(ex.fieldTag))
+
+          let preferred = []
+          let tag = primary4XX.slice(0,3)
+          if (tag == '430'){
+            if (primary4XX.charAt(3) == '1'){
+              preferred.push(primary4XX)
+            }
+            additional4XX.map(ex => {
+              let pref = ex.indicators.charAt(0)
+              if (pref == '1'){
+                preferred.push(ex.value)
+              }
+            })
+          } else {
+            if (primary4XX.charAt(4) == '1'){
+              preferred.push(primary4XX)
+            }
+            additional4XX.map(ex => {
+              let pref = ex.indicators.charAt(1)
+              if (pref == '1'){
+                preferred.push(ex.value)
+              }
+            })
+          }
+
+          let prefLangs = []
+          let bcp = preferred.map(pref => {
+            try{
+              prefLangs.push(pref.match(/\$7(.*)$/g)[0])
+            } catch {
+              console.error("Error getting preferred BCP: ", pref.match(/\$7(.*)$/g))
+            }
+          })
+
+          return prefLangs
+        },
+
+        // return true if the same BCP code appears with multiple preferred
+        checkBcp: function(){
+          let bcpList = this.getPreferredBcp()
+          let seen = new Set();
+          let duplicates = bcpList.filter(item => seen.has(item) ? true : !seen.add(item))
+
+          if (duplicates.length > 0){
+            return true
+          }
+          return false
+        },
     },
 
 
@@ -1936,7 +2094,7 @@
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1;">
                   <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
-
+                  <button class="dollar-7-auto simptip-position-left" @click="addDollar7('fourXX')" data-tooltip="Add a BCP code" v-if="Object.keys(langs).length > 0">$7</button>
                   <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
                   <textarea
                     ref="nar-4xx"
@@ -1975,20 +2133,22 @@
                 </div>
                 <div style="flex: 1;">
                   <select @change="transliterateChange">
-                  <option value="home">Transliterate</option>
-                  <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
+                    <option value="home">Transliterate</option>
+                    <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
+                    <template v-for="ss in transliterateOptions()">
+                      <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
+                    </template>
+                  </select>
+                </div>
 
-
-                  <template v-for="ss in transliterateOptions()">
-
-                    <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
-                  </template>
-
-
-
-                </select>
-
-
+                <div>
+                  Set BCP
+                  <select @change="setBcp" v-model="selectedBcp">
+                    <template v-for="(value, key) in langs">
+                      <option :value="key">{{ key }}</option>
+                    </template>
+                    <option value="expand">Expand</option>
+                  </select>
                 </div>
 
 
@@ -2126,6 +2286,19 @@
                 <div>
                   <div class="error-info-title">Other Checks:</div>
 
+                  <template v-if="!checkBcp()">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">No duplicate preferred BCP</span>
+                        </div>
+                  </template>
+                  <template v-else>
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">Duplicate Preferred BCP</span><span data-tooltip="Multiple of the same BCP code are marked preferred." class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
+                  </template>
+
                   <template v-if="goodTags()">
                         <div>
                           <span class="material-icons unique-icon">check</span>
@@ -2232,8 +2405,8 @@
 
                   <div class="selectable" style="font-family: monospace; padding: 0.2em;" v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
 
-                    <input type="checkbox" v-model="add667" id="add-667"/>
-                    <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label>
+                    <!-- <input type="checkbox" v-model="add667" id="add-667"/>
+                    <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label> -->
 
                   </div>
 
@@ -2274,7 +2447,7 @@
                     />
 
                     <textarea
-                     v-model="row.value"
+                      v-model="row.value"
                       placeholder="$a xyz $b abc..."
                       :style="`margin-right: 1em; flex-grow: 1; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
@@ -2282,7 +2455,7 @@
                     ></textarea>
 
 
-
+                    <button v-if="/4\d\d/.test(row.fieldTag) && Object.keys(langs).length > 0" @click="addDollar7(row)">$7</button>
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index && index != 0" @click="removeRow($event,index)" style="margin-left: 1em;">-</button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
@@ -2447,7 +2620,14 @@
 
 .paste-from-search .material-icons{
   font-size: 19px;
+}
 
+.dollar-7-auto{
+  position: absolute;
+  right: 2px;
+  top: 30px;
+  z-index: 1000;
+  padding: 0;
 }
 
   #error-info{

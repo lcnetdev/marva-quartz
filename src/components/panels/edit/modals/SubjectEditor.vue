@@ -1862,6 +1862,9 @@ export default {
         this.contextData.type = types.includes("Hub") ? "bf:Hub" : types.includes("Work") ? "bf:Work" : "madsrdf:" + types[0]
         this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
 
+        if (!Object.keys(this.pickLookup[this.pickPostion].extra).includes('collections')){
+          this.pickLookup[this.pickPostion].extra['collections'] = []
+        }
         //Check if it's a Jurisdiction, and overwrite
         if (this.pickLookup[this.pickPostion].extra['collections'] && this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
           this.contextData.type = "bf:Jursidiction"

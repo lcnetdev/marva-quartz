@@ -1,3 +1,4 @@
+import iso from './iso_lang.json'
 
 const utilsMisc = {
 
@@ -141,7 +142,51 @@ const utilsMisc = {
         cutter = cutter.slice(0,noofdigits);
     }
     return cutter
-  }
+  },
+
+  /**
+   * Get the full name of a language or script from iso_lang.json
+   * @param {string} target - the abbreivated form to expand
+   * @param {string} type - lang or script
+   *
+   * @return {string} the full name
+   */
+  getLangScriptName(target, type){
+    let source
+    let targetKey
+    if (type == "lang"){
+      if (target.length == 2){
+        source = iso['iso639_2']
+        targetKey = 'alpha_2'
+      } else {
+        source = iso['iso639_3']
+        targetKey = 'code'
+      }
+
+    } else if (type == "script"){
+      source = iso['iso15924']
+      targetKey = 'alpha_4'
+    } else if (type == "langScript"){
+      source = iso['langScriptMap']
+      targetKey = 'lang'
+    }
+
+    for (let item of source){
+      if (item[targetKey] && item[targetKey].toLowerCase() == target.toLowerCase()){
+        if (type == "langScript"){
+          return item.code
+        }
+        return item.name
+      }
+    }
+
+  },
+
+  // set string character at index to chr
+  setCharAt: function (str, index, chr) {
+      if (index > str.length - 1) return str;
+      return str.substring(0, index) + chr + str.substring(index + 1);
+  },
 
 
 

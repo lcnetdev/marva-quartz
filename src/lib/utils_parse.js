@@ -2674,6 +2674,97 @@ const utilsParse = {
 
   },
 
+  /**
+   * marcBlob: MARC iso2709 string
+   */
+  htmlify: function(marcBlob){
+    let formattedMarcRecord = ["<div class='marc record'>"];
+    for (let [idx, line] of marcBlob.split("\n").entries()){
+      if (idx == 0){
+        let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
+        formattedMarcRecord.push(leader);
+      } else {
+        let tag = String(line.slice(0,3))
+        let value = null;                 // fixed fields?
+        let indicators = null;
+        let subfields = [];               // subfields
+        let subfieldsSplit = []
+        if (line == ""){ continue }
+        if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
+          value = line.slice(7)
+        } else {
+          let tmpIndicators = line.slice(4, 6)
+
+          indicators = [" ", " "]
+          indicators[0] = tmpIndicators.slice(0, tmpIndicators.length / 2)
+          indicators[1] = tmpIndicators.slice(tmpIndicators.length / 2, tmpIndicators.length)
+          let subfieldGroups = line.slice(7).replaceAll(/\$([a-z0-9]{1})/g, "-#-#-$1").split("-#-#-")
+
+          for (let sub of subfieldGroups){
+            if (sub != ""){
+              let field = "$" + sub.at(0)
+              let value = sub.slice(1)
+
+              subfields.push([field, value])
+            }
+          }
+        }
+
+        if (value) {
+          tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+          value = " <span class='marc value'>" + value + '</span>';
+          formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
+        } else {
+          subfields = subfields.map((subfield) =>
+            "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
+          );
+          indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
+          tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+          formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
+        }
+
+      }
+    }
+    formattedMarcRecord.push('</div>');
+    return formattedMarcRecord.join('\r\n');
+  },
+
+  // break down the MARCXML into a record that marcjs understands
+  // marcjs parses from a string and tag needs to be before indicators, but
+  // the marcxml from ID puts it after, so we'll parse the MARCXml into the required format
+  parseMarcXml: function (marcXml) {
+      let record = { 'leader': '', 'fields': [] }
+      for (let field of marcXml.children) {
+          let type = field.tagName.replace("marcxml:", "")
+          let value = field.innerHTML
+
+          if (type == 'leader') {
+              record['leader'] = value
+          } else {
+              let tag = field.getAttribute('tag')
+              let ind1 = field.getAttribute('ind1')
+              let ind2 = field.getAttribute('ind2')
+              let subfields = field.children
+
+              let subfieldData = []
+              for (let subfield of subfields) {
+                  let code = subfield.getAttribute('code')
+                  let value = subfield.innerHTML
+                  subfieldData.push(...[code, value])
+              }
+
+              if (subfields.length == 0) {
+                  record.fields.push([tag, field.innerHTML])
+              } else {
+                  record.fields.push([tag, ind1 + ind2, ...subfieldData])
+              }
+          }
+
+      }
+
+      return record
+  },
+
 
 
 }
