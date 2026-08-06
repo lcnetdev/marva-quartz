@@ -474,7 +474,7 @@
                               <circle :fill="preferenceStore.returnValue('--c-general-icon-work-color')" cx="0.55em" cy="0.6em" r="0.45em"/>
                             </svg>
 
-                            <svg v-if="profileName.includes('RelatedWorkExpression')" width="1.5em" height="1.1em" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <svg v-else-if="profileName.includes('Work')" width="1.5em" height="1.1em" version="1.1" xmlns="http://www.w3.org/2000/svg">
                               <circle :fill="preferenceStore.returnValue('--c-general-icon-work-color')" cx="0.55em" cy="0.6em" r="0.45em"/>
                             </svg>
 
