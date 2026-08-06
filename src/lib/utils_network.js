@@ -607,9 +607,6 @@ const utilsNetwork = {
               url = url.replace('searchtype=<TYPE>','searchtype=keyword')
             }
 
-            //TODO: undo this
-            url = url.replace("preprod", "preprod-8299")
-
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
             //Config only allows 25 results, this will add something to the results
@@ -4445,8 +4442,7 @@ const utilsNetwork = {
 
     async fetchAuthMarc(lccn){
       // let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
-      // TODO: undo this
-      let url = "https://preprod-8299.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: UNDO 8080 for production
+      let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml"
       let marcXML = await this.fetchSimpleLookup(url)
       return marcXML
     },
