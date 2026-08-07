@@ -142,6 +142,7 @@
         TGrecord: "No",
         fbScript: '',
         fbFourXX: '',
+        syncNar: false,
 
       }
     },
@@ -266,6 +267,7 @@
         this.TGrecord = "No"
         this.fbScript = ''
         this.fbFourXX = ''
+        this.syncNar = false
 
       },
 
@@ -332,6 +334,13 @@
       edit4XX: async function(data){
         this.resetBcp()
         this.MARClccn = data.uri.split("/").at(-1)
+
+        if (Object.keys(data.extra).includes('lastmods')){
+          let lastMod = data.extra.lastmods
+          let earlier = new Date(lastMod) < new Date("2026-08-07");
+          this.syncNar = earlier
+
+        }
 
         // Get MarcKey for 1XX
         let marcKey = data.extra.marcKeys[0] || []
@@ -813,7 +822,7 @@
       },
 
       fetchAuthXML: async function(lccn){
-        let r = await utilsNetwork.fetchAuthMarc(lccn)
+        let r = await utilsNetwork.fetchAuthMarc(lccn, this.syncNar)
         return r
       },
 
