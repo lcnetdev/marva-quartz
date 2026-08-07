@@ -631,7 +631,6 @@
 
         checkOneXX(){
           this.oneXXErrors = []
-          this.oneXX = this.oneXX.replace(/  +/g, ' ')
           this.oneXX = this.oneXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
 
@@ -716,6 +715,11 @@
             if (dollarKey.g){
               authLabel = authLabel + ' ' + dollarKey.g
             }
+            if (dollarKey.t){
+              authLabel = authLabel + ' ' + dollarKey.t
+            }
+
+            authLabel = authLabel.replace(/  +/g, ' ')
 
             if (dollarKey.a){
               window.clearTimeout(this.oneXXResultsTimeout)
@@ -887,7 +891,6 @@
         checkFourXX(){
 
           this.fourXXErrors = []
-          this.fourXX = this.fourXX.replace(/  +/g, ' ')
           this.fourXX = this.fourXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
           if (this.fourXX.length<3){ return true}
@@ -968,8 +971,11 @@
             if (dollarKey.g){
               authLabel = authLabel + ' ' + dollarKey.g
             }
+            if (dollarKey.t){
+              authLabel = authLabel + ' ' + dollarKey.t
+            }
 
-
+            authLabel = authLabel.replace(/  +/g, ' ')
 
             if (dollarKey.a){
               window.clearTimeout(this.fourXXResultsTimeout)
