@@ -715,6 +715,9 @@
             if (dollarKey.g){
               authLabel = authLabel + ' ' + dollarKey.g
             }
+            if (dollarKey.t){
+              authLabel = authLabel + ' ' + dollarKey.t
+            }
 
             authLabel = authLabel.replace(/  +/g, ' ')
 

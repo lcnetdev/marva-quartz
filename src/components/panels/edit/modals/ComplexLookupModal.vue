@@ -2022,9 +2022,9 @@
                   <button @click="overrideTG = true; buildFeedbackLink()">Feedback</button>
                   <button @click="previewMarc()" v-if="allowPreview()">Preview</button>
                   <button @click="hideBCP()">Cancel</button>
-                  <tempalte v-if="!allowPreview()">
+                  <template v-if="!allowPreview()">
                     <div class="tg-note">This LCCN has been flagged by the PC TaskGroup. Please provide feedback before continuing.</div>
-                  </tempalte>
+                  </template>
 
                   <!-- open in FOLIO -->
                   <button class="folio-button" @click="openFolioRecord()">FOLIO</button>
