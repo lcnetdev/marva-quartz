@@ -332,15 +332,12 @@
 
       // initial 4XX
       edit4XX: async function(data){
-        console.info("data: ", data)
         this.resetBcp()
         this.MARClccn = data.uri.split("/").at(-1)
 
         if (Object.keys(data.extra).includes('lastmods')){
           let lastMod = data.extra.lastmods
-          console.info("lastMode: ", lastMod)
           let earlier = new Date(lastMod) < new Date("2026-08-07");
-          console.info("earlier: ", earlier)
           this.syncNar = earlier
 
         }
