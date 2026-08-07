@@ -4453,8 +4453,8 @@ const utilsNetwork = {
     async fetchAuthMarc(lccn, syncNar = false){
       // let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
       if (syncNar){
-        // let url = `http://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/name?lccn=${lccn}&serialization=json`
-        let url = `https://10.52.149.98:8001/foliar/api/fetch_and_load/name?lccn=${lccn}&serialization=json`
+        let url = `https://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/name?lccn=${lccn}&serialization=json`
+        // let url = `https://10.52.149.98:8001/foliar/api/fetch_and_load/name?lccn=${lccn}&serialization=json`
         // let options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}
         let sync = await fetch(url)
       }
