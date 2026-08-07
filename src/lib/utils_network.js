@@ -4450,9 +4450,14 @@ const utilsNetwork = {
       return content
     },
 
-    async fetchAuthMarc(lccn){
+    async fetchAuthMarc(lccn, syncNar = false){
       // let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
-      let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml"
+      if (syncNar){
+        let url = `http://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/name?lccn=${lccn}&serialization=json`
+        // let options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}
+        let sync = await fetch(url)
+      }
+      let url = `https://preprod-8080.id.loc.gov/authorities/names/${lccn}.marcxml.xml` //"https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml"
       let marcXML = await this.fetchSimpleLookup(url)
       return marcXML
     },
