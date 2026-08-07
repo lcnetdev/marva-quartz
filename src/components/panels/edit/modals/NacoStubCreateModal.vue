@@ -631,7 +631,6 @@
 
         checkOneXX(){
           this.oneXXErrors = []
-          this.oneXX = this.oneXX.replace(/  +/g, ' ')
           this.oneXX = this.oneXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
 
@@ -716,6 +715,8 @@
             if (dollarKey.g){
               authLabel = authLabel + ' ' + dollarKey.g
             }
+
+            authLabel = authLabel.replace(/  +/g, ' ')
 
             if (dollarKey.a){
               window.clearTimeout(this.oneXXResultsTimeout)
