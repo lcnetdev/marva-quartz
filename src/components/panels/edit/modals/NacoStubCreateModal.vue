@@ -105,6 +105,7 @@
         langs: {},
         bcp: null,
         selectedBcp: null,
+        newLccn: null,
       }
     },
     computed: {
@@ -340,7 +341,7 @@
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
           // console.log("additonalFields",additonalFields)
-          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode)
+          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode, this.newLccn)
 
           this.MARCXml = results.xml
           this.MARCText = results.text
@@ -1583,7 +1584,7 @@
         },
 
 
-        init(resetMode){
+        async init(resetMode){
           this.tmpXML=false
           this.tmpErrorMessage=false
           this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
@@ -1593,6 +1594,11 @@
           this.statementOfResponsibilityOptions = []
           this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
           this.field245 = this.profileStore.nacoStubReturn245()
+
+          this.newLccn = await utilsNetwork.nacoLccn()
+          if (this.newLccn) {
+              this.profileStore.logEvent('NACO_LCCN_ISSUED', { metadata: [this.newLccn] })
+          }
 
           // get language information from record
           let nonLatin = this.profileStore.returnAllNonLatinLiterals()

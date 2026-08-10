@@ -2870,7 +2870,7 @@ const utilsExport = {
 				target667s.push(sixSixSeven)
 			} else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with (bcp47) in subfield 7')) {
 				target667s.push(sixSixSeven)
-			} else if (sixSixSeven.innerHTML.includes('Non-Latin script variants coded for PCC testing')) {
+			} else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with (bcp47) in subfield 7 are for PCC testing')) {
 				target667s.push(sixSixSeven)
 			} else if (sixSixSeven.innerHTML.includes('script references evaluated')) { // 667 from strawn tool
 				target667s.push(sixSixSeven)

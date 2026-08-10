@@ -336,10 +336,9 @@
         this.MARClccn = data.uri.split("/").at(-1)
 
         if (Object.keys(data.extra).includes('lastmods')){
-          let lastMod = data.extra.lastmods
+          let lastMod = data.extra.lastmods[0]
           let earlier = new Date(lastMod) < new Date("2026-08-07");
           this.syncNar = earlier
-
         }
 
         // Get MarcKey for 1XX

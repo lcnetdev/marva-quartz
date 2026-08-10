@@ -6865,12 +6865,8 @@ export const useProfileStore = defineStore('profile', {
           * @param {string} langObj - {uri:"",label:""}
           * @return {String}
           */
-        async buildNacoStub(oneXX, fourXX, mainTitle, workURI, mainTitleDate, mainTitleLccn, mainTitleNote, zero46, add667, extraMarcStatements, useAdvancedMode) {
+        async buildNacoStub(oneXX, fourXX, mainTitle, workURI, mainTitleDate, mainTitleLccn, mainTitleNote, zero46, add667, extraMarcStatements, useAdvancedMode, lccn) {
             console.log(oneXX, fourXX, mainTitle, workURI, zero46)
-            let lccn = await utilsNetwork.nacoLccn()
-            if (lccn) {
-                this.logEvent('NACO_LCCN_ISSUED', { metadata: [lccn] })
-            }
             let NARData = await utilsExport.createNacoStubXML(oneXX, fourXX, mainTitle, lccn, workURI, mainTitleDate, mainTitleLccn, mainTitleNote, zero46, add667, extraMarcStatements, useAdvancedMode)
             NARData.lccn = lccn
             return NARData
