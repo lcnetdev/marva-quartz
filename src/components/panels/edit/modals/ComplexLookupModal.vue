@@ -336,18 +336,9 @@
         this.MARClccn = data.uri.split("/").at(-1)
 
         if (Object.keys(data.extra).includes('lastmods')){
-          let lastMod = data.extra.lastmods
+          let lastMod = data.extra.lastmods[0]
           let earlier = new Date(lastMod) < new Date("2026-08-07");
           this.syncNar = earlier
-
-          let today = new Date()
-          if(today.setHours(0,0,0,0) == new Date(lastMod).setHours(0,0,0,0)) {
-              // Date equals today's date
-              console.info("same day")
-          }
-          console.info("l: ", new Date(lastMod).setHours(0,0,0,0))
-          console.info("t: ", today.setHours(0,0,0,0))
-
         }
 
         // Get MarcKey for 1XX
