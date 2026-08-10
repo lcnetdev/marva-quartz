@@ -1835,16 +1835,12 @@ export default {
     },
 
     getContext: async function () {
-      console.info("getContext:")
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
       }
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
-
-      console.info("this.pickLookup: ", this.pickLookup)
-      console.info("\t this.contextData: ", this.contextData)
 
       if (this.pickLookup[this.pickPostion].uri) {
         // Pull information into contextData from 1 level up
