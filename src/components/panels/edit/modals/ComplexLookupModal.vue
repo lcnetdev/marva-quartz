@@ -514,8 +514,7 @@
         this.finalMarc = this.finalMarc.replace(/(?:\r\n|\r|\n)/g, '');
         this.finalMarc = this.finalMarc.replace(/> *</g, '><');
 
-        this.finalMarc = this.finalMarc.replace('<marcxml:record>', '<marcxml:record xmlns:marcxml="http://www.loc.gov/MARC21/slim">');
-
+        console.info("submitting: ", this.finalMarc)
         this.postStatus='posting'
         let cataloger = null
         let results = await this.postNacoStub(this.finalMarc, this.MARClccn, true)
@@ -597,6 +596,11 @@
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
 
+        // remove namespaces
+        for (let att of this.updatedRecord.attributes){
+          this.updatedRecord.removeAttribute(att.nodeName)
+        }
+
         let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord)
 
         // validate the update
@@ -615,10 +619,9 @@
         if (this.validationResult.validation.some(item => item.level == 'ERROR')){
           this.validationErrors = true
           this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
-          // return
         }
 
-        let marcString = xmlUpdated.replace(/ xmlns:.*=".*"/g, "")
+        let marcString = xmlUpdated
         this.finalMarc = marcString
         this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
         if (!this.formattedMarc){
