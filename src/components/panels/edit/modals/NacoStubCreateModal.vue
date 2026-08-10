@@ -890,7 +890,7 @@
         },
 
         checkFourXX(){
-
+          console.info("checkFourXX")
           this.fourXXErrors = []
           this.fourXX = this.fourXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
@@ -2464,6 +2464,8 @@
                       :style="`margin-right: 1em; flex-grow: 1; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
+
+                      @input="/4\d\d/.test(row.fieldTag) ? checkFourXX : console.info('?????')"
                     ></textarea>
 
 
