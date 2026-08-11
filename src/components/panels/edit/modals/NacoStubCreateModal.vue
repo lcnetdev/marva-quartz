@@ -898,40 +898,40 @@
 
         },
 
-        checkAdded4XX(tag, data){
-          console.info("added 4XX: ", data)
+        checkFourXX(target=false){
+          console.info("checkFourXX: ", this.fourXX, "--", target)
 
-          console.info("fourXX: ", this.fourXX)
-        },
+          if (!target) { target = this.fourXX }
+          else { target = `${target.fieldTag}${target.indicators}${target.value}` }
 
-        checkFourXX(){
-          console.info("checkFourXX")
+          console.info("target: ", target)
+
           this.fourXXErrors = []
-          this.fourXX = this.fourXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
+          target = target.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
-          if (this.fourXX.length<3){ return true}
+          if (target.length<3){ return true }
 
           // check the auth label for a textmacro and update it
           let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
           if (useTextMacros && useTextMacros.length>0){
             for (let m of useTextMacros){
-              if (this.fourXX.indexOf(m.lookFor) > -1){
-                this.fourXX = this.fourXX.replace(m.lookFor,m.replaceWith)
-                this.searchValueLocal = this.fourXX
+              if (target.indexOf(m.lookFor) > -1){
+                target = target.replace(m.lookFor,m.replaceWith)
+                this.searchValueLocal = target
               }
             }
           }
 
-          if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
+          if (/[^0-9 #]/.test(target.slice(3,5))){
             this.fourXXErrors.push("There's an invalid indicator for 4XX")
           }
 
-          if (!/4[0-9]{2}/.test(this.fourXX.slice(0,3))){
-            this.fourXXErrors.push(this.fourXX.slice(0,3) + " invalid tag")
+          if (!/4[0-9]{2}/.test(target.slice(0,3))){
+            this.fourXXErrors.push(target.slice(0,3) + " invalid tag")
             return false
           }
 
-          let fourXXParts = this.fourXX.split(/[$‡ǂ|]/)
+          let fourXXParts = target.split(/[$‡ǂ|]/)
           if (fourXXParts.length>0){
 
             let fieldTag = fourXXParts[0].slice(0,3)
@@ -1037,10 +1037,12 @@
             errors.push("Bad 4XX")
           }
 
-          let count = (this.fourXX.match(/\$a/g) || []).length;
+          let count = (target.match(/\$a/g) || []).length;
           if (count == 0){
             this.fourXXErrors.push("No Subfield a entered for 4XX")
           }
+
+          console.info("this.fourXXErrors: ", this.fourXXErrors)
 
 
         },
@@ -2129,7 +2131,7 @@
                     placeholder="4XX##$a....$d...."
                     :style="`color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                     :class="['title', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
-                    @input="checkFourXX"
+                    @input="checkFourXX()"
                     @keydown="keydown" @keyup="keyup"
                     ></textarea>
                 </div>
@@ -2480,7 +2482,7 @@
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
 
-                      @input="/4\d\d/.test(row.fieldTag) ? checkAdded4XX(row.fieldTag, row) : null"
+                      @input="/4\d\d/.test(row.fieldTag) ? checkFourXX(row) : null"
                     ></textarea>
 
 
