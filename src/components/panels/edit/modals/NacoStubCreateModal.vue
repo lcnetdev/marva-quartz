@@ -898,6 +898,12 @@
 
         },
 
+        checkAdded4XX(tag, data){
+          console.info("added 4XX: ", data)
+
+          console.info("fourXX: ", this.fourXX)
+        },
+
         checkFourXX(){
           console.info("checkFourXX")
           this.fourXXErrors = []
@@ -2474,7 +2480,7 @@
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
 
-                      @input="/4\d\d/.test(row.fieldTag) ? checkFourXX : console.info('?????')"
+                      @input="/4\d\d/.test(row.fieldTag) ? checkAdded4XX(row.fieldTag, row) : null"
                     ></textarea>
 
 

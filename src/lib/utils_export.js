@@ -2457,12 +2457,11 @@ const utilsExport = {
 
 		rootEl.appendChild(field001)
 
-		let field003 = document.createElementNS(marcNamespace,"marcxml:controlfield");
-		field003.setAttribute( 'tag', '003')
-		field003.innerHTML = "DLC"
-		rootEl.appendChild(field003)
-
-		marcTextArray.push({txt: this.buildMarcTxtLine('003',' ',' ',["DLC"]), field: '003', fieldInt: 3})
+		// let field003 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		// field003.setAttribute( 'tag', '003')
+		// field003.innerHTML = "DLC"
+		// rootEl.appendChild(field003)
+		// marcTextArray.push({txt: this.buildMarcTxtLine('003',' ',' ',["DLC"]), field: '003', fieldInt: 3})
 
 
 
