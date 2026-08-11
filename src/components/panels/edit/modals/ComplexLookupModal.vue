@@ -190,6 +190,9 @@
       modalSelectOptionsLabels(){
         return this.modalSelectOptions.map((o)=>{return o.label})
       },
+      baseUrl() {
+        return useConfigStore().returnUrls.util
+      },
 
     },
 
@@ -340,6 +343,22 @@
           let earlier = new Date(lastMod) < new Date("2026-08-07");
           this.syncNar = earlier
         }
+
+        // if the record is less than 10 miuntes old in FOLIO, resync
+        try{
+          let now = new Date()
+          let folioLastMod = await this.folioLastMod(this.MARClccn)
+          let modDate = new Date(folioLastMod.authority.comparison.folio.date)
+          const diffMs = now - modDate;
+          const seconds = Math.floor(diffMs / 1000);
+          const minutes = Math.floor(seconds / 60);
+          if (minutes && minutes <= 10){
+            this.syncNar = true
+          }
+        } catch(err) {
+          console.error("Error checking diff: ", err)
+        }
+
 
         // Get MarcKey for 1XX
         let marcKey = data.extra.marcKeys[0] || []
@@ -826,6 +845,14 @@
       fetchAuthXML: async function(lccn){
         let r = await utilsNetwork.fetchAuthMarc(lccn, this.syncNar)
         return r
+      },
+
+      folioLastMod: async function(lccn){
+        let env = useConfigStore().returnUrls.env
+        let url = `${this.baseUrl}folio/last-updated/${env}?authLccn=${lccn}`
+        let results = await utilsNetwork.fetchFolioLastMod(url)
+
+        return results
       },
 
       handleInput: function(event){
