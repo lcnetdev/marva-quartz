@@ -2860,6 +2860,14 @@ const utilsExport = {
 		let marc667List = record.querySelectorAll('[tag="667"]')
 		let marc670List = record.querySelectorAll('[tag="670"]')
 
+		// remove 003, if present
+		let field003s = record.querySelectorAll('[tag="003"]')
+		if (field003s.length > 0){
+			for (let target of field003s){
+				record.removeChild(target)
+			}
+		}
+
 
 		// Get the 667s, remove "...not evaluated..."
 		// remove
