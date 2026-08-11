@@ -330,6 +330,9 @@
                 let subfieldKey = subfield.slice(0,1)
                 let value = subfield.slice(1)
                 if (value && value.trim().length > 0){
+                  if (/4\d\d/.test(fieldTag) && value.includes("(bcp47)")){ // check if we should add the testing note
+                    this.add667 = true
+                  }
                   // newField[subfieldKey] = value.trim()
                   newField[idx] = [subfieldKey, value.trim()] // use the index to maintain subfield order
                 }
@@ -338,6 +341,12 @@
               additonalFields.push(newField)
             }
           }
+
+          // Non-Latin script variants with (bcp47) in subfield 7 are for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7.
+          if (this.fourXXParts && Object.keys(this.fourXXParts).includes('7') && this.fourXXParts['7'].includes('(bcp47)')){
+            this.add667 = true
+          }
+
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
           // console.log("additonalFields",additonalFields)

@@ -2416,25 +2416,9 @@ const utilsExport = {
 
 		let pos29 = "n"
 		// did they make a 4xx
-		if (fourXXParts && fourXXParts.a && !add667){
+		if (fourXXParts && fourXXParts.a){
 			pos29 = 'a'
 		}
-
-		let has667 = add667
-		// // if there is a 667 in the extraMarcStatements then set it
-		// for (let x of extraMarcStatements){
-		// 	if (x.tag == '667' || x.fieldTag == '667'){
-		// 		pos29 = 'b'
-		// 		has667 = true
-		// 	}
-		// 	if (/5[0-9]{2}/.test(x.fieldTag) && pos29 == "n"){ // treat 5XX like 4XX
-		// 		if (add667){
-		// 			pos29 = 'b'
-		// 		} else if (!add667){
-		// 			pos29 = 'a'
-		// 		}
-		// 	}
-		// }
 
 		// check again if they made a 4XX in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
@@ -2752,6 +2736,21 @@ const utilsExport = {
 		if (!useAdvancedMode){
 			marcTextArray.push({txt: this.buildMarcTxtLine('670', ' ', ' ', field670SubfieldsValues), field: '670', fieldInt: 670})
 			rootEl.appendChild(field670)
+		}
+
+		if (add667){
+			let testNote = document.createElementNS(marcNamespace,"marcxml:datafield");
+			testNote.setAttribute( 'tag', '667')
+			testNote.setAttribute( 'ind1', ' ')
+			testNote.setAttribute( 'ind2', ' ')
+
+			let testNoteA = document.createElementNS(marcNamespace,"marcxml:subfield");
+			testNoteA.setAttribute( 'code', 'a')
+			testNoteA.innerHTML = 'Non-Latin script variants with (bcp47) in subfield 7 are for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7.'
+			testNote.appendChild(testNoteA)
+
+			marcTextArray.push({txt: this.buildMarcTxtLine('667', ' ', ' ', ['$a', testNoteA.innerHTML]), field: '667', fieldInt: 667})
+			rootEl.appendChild(testNote)
 		}
 
 		// ---- 985
