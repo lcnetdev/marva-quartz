@@ -4475,6 +4475,19 @@ const utilsNetwork = {
       return resp
     },
 
+    async fetchFolioLastMod(url){
+      try {
+        let resp = await fetch(url)
+        if (!resp.ok) {
+          let text = await resp.text()
+          throw new Error(text || `HTTP ${resp.status}`)
+        }
+        return await resp.json()
+      } catch (e) {
+        throw new Error("Failed to fetch FOLIO's LastMod: ", e)
+      }
+    },
+
     async formatMarc(xml, sType, tType){
       if (!xml){
         return ""
