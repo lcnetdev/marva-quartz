@@ -219,13 +219,14 @@
       showBCPButton: function(key, data){
         let show = false
 
-        if (data.variantLabels){
-          for(let variant of data.variantLabels){
-            if (!this.isLatin(variant)){
-              show = true
-              break
-            }
-          }
+        if (data.variantLabels && data.variantLabels.length > 0){
+          show = true
+          // for(let variant of data.variantLabels){
+          //   if (!this.isLatin(variant)){
+          //     show = true
+          //     break
+          //   }
+          // }
         }
         if (data.varianttitles){
           for(let variant of data.varianttitles){
@@ -352,7 +353,7 @@
           const diffMs = now - modDate;
           const seconds = Math.floor(diffMs / 1000);
           const minutes = Math.floor(seconds / 60);
-          if (minutes && minutes <= 10){
+          if (!this.syncNar && minutes && minutes <= 10){
             this.syncNar = true
           }
         } catch(err) {
@@ -487,6 +488,11 @@
           }
         }
 
+        if (Object.keys(this.marcData).length == 0){
+          this.addBcpRow()
+        }
+
+
         this.activeIndex = false
         // swap out left panel for form
         this.showEdit4xxPanel = true
@@ -600,14 +606,25 @@
 
         // add the 670 info
         let s670s = this.source670s
-
-        for (let note of s670s){
+        let remove670 = [] // empty 670s to remove
+        for (let idx in s670s){
+          let note = s670s[idx]
           let subfields = note.note.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
-          for (let sub of subfields){
-            let tag = sub.slice(1,2)
-            note[tag] = sub.slice(2)
+          if (subfields){
+            for (let sub of subfields){
+              let tag = sub.slice(1,2)
+              let val = sub.slice(2)
+              if (val != ''){
+                note[tag] = val
+              } else {
+                remove670.push(idx)
+              }
+            }
+          } else {
+            remove670.push(idx)
           }
         }
+        for (let idx of remove670){ s670s.splice(idx, 1) }
         this.marcData['source670s'] = s670s
 
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
@@ -661,7 +678,7 @@
           this.marcData[this.activeIndex].bcpSelection = []
         }
 
-        if (this.marcData[this.activeIndex].bcpSelection.length == 0){
+        if (this.marcData[this.activeIndex] && this.marcData[this.activeIndex].bcpSelection.length == 0){
           let currentSelection = this.marcData[this.activeIndex].subfield_7
           let bcpList = currentSelection ? currentSelection.map(i => i.replace('(bcp47)', '')) : []
           for (let [idx, item] of Object.entries(this.bcpCodes)){
@@ -765,11 +782,13 @@
         let lastItem = Object.keys(this.marcData).at(-1)
         // Index for new fields will start with ##
         let newIdx = false
-        if (!lastItem.startsWith("##")){
+        if (lastItem && !lastItem.startsWith("##")){
           newIdx = "##" + (Number(lastItem) + 1)
-        } else {
+        } else if (lastItem && lastItem.startsWith("##")){
           let temp = lastItem.replace("##", "")
           newIdx = "##" + (Number(temp) + 1)
+        } else {
+          newIdx = "##" + 1
         }
 
         this.source670s.push({'note': '$a'})
@@ -826,6 +845,10 @@
         this.buildNewMarcKey()
       },
 
+      removeAdded670: function(idx){
+        this.source670s.splice(idx, 1)
+      },
+
       removeBcpRow: function(row){
         this.activeIndex = Object.keys(this.marcData).at(0)
         delete this.marcData[row]
@@ -844,6 +867,7 @@
 
       fetchAuthXML: async function(lccn){
         let r = await utilsNetwork.fetchAuthMarc(lccn, this.syncNar)
+        this.syncNar = false
         return r
       },
 
@@ -2047,10 +2071,14 @@
 
                   <div class="new-value-container" v-if="source670s.length > 0">
                     <!-- 667 Note: <textarea type=text v v-model='note667' class="eval-note" /> -->
-                    <!-- <template v-for="(code, idx) of source670s"> -->
-                    <template v-for="idx in source670s">
-                      670 Note: <textarea type=text v-model='idx.note' class="eval-note" /><br>
+                    <template v-for="(code, idx) of source670s">
+                      670 Note: <textarea type=text v-model='code.note' class="eval-note" />
+                      <button @click="removeAdded670(idx)" class="material-icons bcp-icon">delete</button><br>
                     </template>
+                    <!-- <template v-for="idx in source670s">
+                      670 Note: <textarea type=text v-model='idx.note' class="eval-note" /><br>
+                      <button @click="remove670(idx)" class="material-icons bcp-icon">delete</button>
+                    </template> -->
                   </div>
 
                 <div class="button-container">
@@ -2065,7 +2093,7 @@
                   </template>
 
                   <!-- open in FOLIO -->
-                  <button class="folio-button" @click="openFolioRecord()">FOLIO</button>
+                  <!-- <button class="folio-button" @click="openFolioRecord()">FOLIO</button> -->
                 </div>
               </div>
             </template>
@@ -2152,7 +2180,9 @@
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:
 
                             <button v-if="showBCPButton(key, activeContext.extra)" class="material-icons variant-edit" @click="edit4XX(activeContext)">edit</button>
-
+                            <template v-if="showBCPButton(key, activeContext.extra) && this.syncNar">
+                              Syncing <span class="syncing"><span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span> </span>
+                            </template>
                           </div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -2282,6 +2312,12 @@
                                   </li>
                                   <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
                                 </ul>
+                              </template>
+                            </template>
+                            <template v-if="!Object.keys(activeContext.extra).includes('variantLabels')">
+                              <button @click="edit4XX(activeContext)">Add 4XX</button>
+                              <template v-if="this.syncNar">
+                                Syncing <span class="syncing"><span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span> </span>
                               </template>
                             </template>
                           </AccordionItem>
@@ -2918,6 +2954,48 @@ input.prefCheck[type=checkbox]:checked+label {
 :deep() .subfield-7 > .subfield {
   direction: ltr;
   unicode-bidi: embed;
+}
+
+/* https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://codepen.io/itsmanojb/pen/xQpZbR&ved=2ahUKEwjqgeuKx5uWAxVaL1kFHSntE-QQFnoECBoQAQ&usg=AOvVaw1WE0klQuyvFRvuUTtGjyou */
+.syncing {
+  position: relative;
+  top: 10px;
+  margin-right: 2px;
+
+  span {
+    content: '';
+    animation: blink 1.5s infinite;
+    animation-fill-mode: both;
+    height: 5px;
+    width: 5px;
+    background: #3b5998;;
+    position: absolute;
+    left:0;
+    top:0;
+    border-radius: 50%;
+
+    &:nth-child(2) {
+      animation-delay: .2s;
+      margin-left: 7px;
+    }
+
+    &:nth-child(3) {
+      animation-delay: .4s;
+      margin-left: 14px;
+    }
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: .1;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .1;
+  }
 }
 
 </style>
