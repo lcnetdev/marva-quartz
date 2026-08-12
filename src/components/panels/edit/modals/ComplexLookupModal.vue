@@ -567,7 +567,6 @@
       },
 
       previewMarc: async function(){
-        console.info("preview")
         this.submitting = true
         this.showMarcPreview = true
         let prefChecks = this.checkPrefLabels()
@@ -679,7 +678,7 @@
           this.marcData[this.activeIndex].bcpSelection = []
         }
 
-        if (this.marcData[this.activeIndex].bcpSelection.length == 0){
+        if (this.marcData[this.activeIndex] && this.marcData[this.activeIndex].bcpSelection.length == 0){
           let currentSelection = this.marcData[this.activeIndex].subfield_7
           let bcpList = currentSelection ? currentSelection.map(i => i.replace('(bcp47)', '')) : []
           for (let [idx, item] of Object.entries(this.bcpCodes)){
@@ -844,6 +843,10 @@
 
         this.activeIndex = idx
         this.buildNewMarcKey()
+      },
+
+      removeAdded670: function(idx){
+        this.source670s.splice(idx, 1)
       },
 
       removeBcpRow: function(row){
@@ -2067,10 +2070,14 @@
 
                   <div class="new-value-container" v-if="source670s.length > 0">
                     <!-- 667 Note: <textarea type=text v v-model='note667' class="eval-note" /> -->
-                    <!-- <template v-for="(code, idx) of source670s"> -->
-                    <template v-for="idx in source670s">
-                      670 Note: <textarea type=text v-model='idx.note' class="eval-note" /><br>
+                    <template v-for="(code, idx) of source670s">
+                      670 Note: <textarea type=text v-model='code.note' class="eval-note" />
+                      <button @click="removeAdded670(idx)" class="material-icons bcp-icon">delete</button><br>
                     </template>
+                    <!-- <template v-for="idx in source670s">
+                      670 Note: <textarea type=text v-model='idx.note' class="eval-note" /><br>
+                      <button @click="remove670(idx)" class="material-icons bcp-icon">delete</button>
+                    </template> -->
                   </div>
 
                 <div class="button-container">
