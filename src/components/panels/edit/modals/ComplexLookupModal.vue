@@ -343,6 +343,7 @@
           let lastMod = data.extra.lastmods[0]
           let earlier = new Date(lastMod) < new Date("2026-08-07");
           this.syncNar = earlier
+          console.info("sync earlier: ", lastMod, "--", earlier)
         }
 
         // if the record is less than 10 miuntes old in FOLIO, resync
@@ -353,9 +354,10 @@
           const diffMs = now - modDate;
           const seconds = Math.floor(diffMs / 1000);
           const minutes = Math.floor(seconds / 60);
-          if (minutes && minutes <= 10){
+          if (!this.syncNar && minutes && minutes <= 10){
             this.syncNar = true
           }
+          console.info("sync <= 10 minutes: ", minutes <= 10, "--", minutes)
         } catch(err) {
           console.error("Error checking diff: ", err)
         }
@@ -867,6 +869,7 @@
 
       fetchAuthXML: async function(lccn){
         let r = await utilsNetwork.fetchAuthMarc(lccn, this.syncNar)
+        this.syncNar = false
         return r
       },
 
@@ -2179,7 +2182,9 @@
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:
 
                             <button v-if="showBCPButton(key, activeContext.extra)" class="material-icons variant-edit" @click="edit4XX(activeContext)">edit</button>
-
+                            <template v-if="showBCPButton(key, activeContext.extra) && this.syncNar">
+                              Syncing <span class="syncing"><span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span> </span>
+                            </template>
                           </div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -2948,6 +2953,48 @@ input.prefCheck[type=checkbox]:checked+label {
 :deep() .subfield-7 > .subfield {
   direction: ltr;
   unicode-bidi: embed;
+}
+
+/* https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://codepen.io/itsmanojb/pen/xQpZbR&ved=2ahUKEwjqgeuKx5uWAxVaL1kFHSntE-QQFnoECBoQAQ&usg=AOvVaw1WE0klQuyvFRvuUTtGjyou */
+.syncing {
+  position: absolute;
+  top: 10px;
+  margin-right: 2px;
+
+  span {
+    content: '';
+    animation: blink 1.5s infinite;
+    animation-fill-mode: both;
+    height: 5px;
+    width: 5px;
+    background: #3b5998;;
+    position: absolute;
+    left:0;
+    top:0;
+    border-radius: 50%;
+
+    &:nth-child(2) {
+      animation-delay: .2s;
+      margin-left: 7px;
+    }
+
+    &:nth-child(3) {
+      animation-delay: .4s;
+      margin-left: 14px;
+    }
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: .1;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .1;
+  }
 }
 
 </style>
