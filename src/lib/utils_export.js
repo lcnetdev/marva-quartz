@@ -2927,7 +2927,6 @@ const utilsExport = {
 			note670.setAttribute('tag', '670')
 			note670.setAttribute('ind1', " ")
 			note670.setAttribute('ind2', " ")
-			console.info("item: ", item)
 			if (Object.keys(item).length > 0){
 				for (let sub of Object.keys(item)) {
 					if (sub != 'note') {

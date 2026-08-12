@@ -343,7 +343,6 @@
           let lastMod = data.extra.lastmods[0]
           let earlier = new Date(lastMod) < new Date("2026-08-07");
           this.syncNar = earlier
-          console.info("sync earlier: ", lastMod, "--", earlier)
         }
 
         // if the record is less than 10 miuntes old in FOLIO, resync
@@ -357,7 +356,6 @@
           if (!this.syncNar && minutes && minutes <= 10){
             this.syncNar = true
           }
-          console.info("sync <= 10 minutes: ", minutes <= 10, "--", minutes)
         } catch(err) {
           console.error("Error checking diff: ", err)
         }
@@ -2318,6 +2316,9 @@
                             </template>
                             <template v-if="!Object.keys(activeContext.extra).includes('variantLabels')">
                               <button @click="edit4XX(activeContext)">Add 4XX</button>
+                              <template v-if="this.syncNar">
+                                Syncing <span class="syncing"><span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span> </span>
+                              </template>
                             </template>
                           </AccordionItem>
                         </AccordionList>
@@ -2957,7 +2958,7 @@ input.prefCheck[type=checkbox]:checked+label {
 
 /* https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://codepen.io/itsmanojb/pen/xQpZbR&ved=2ahUKEwjqgeuKx5uWAxVaL1kFHSntE-QQFnoECBoQAQ&usg=AOvVaw1WE0klQuyvFRvuUTtGjyou */
 .syncing {
-  position: absolute;
+  position: relative;
   top: 10px;
   margin-right: 2px;
 
