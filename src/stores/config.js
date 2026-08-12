@@ -346,7 +346,8 @@ export const useConfigStore = defineStore('config', {
   // to allow editing of nested works for example
   exludeDeepHierarchy: [
     'http://id.loc.gov/ontologies/bibframe/adminMetadata',
-    'http://id.loc.gov/ontologies/bibframe/subject'
+    'http://id.loc.gov/ontologies/bibframe/subject',
+    'http://id.loc.gov/ontologies/bibframe/ensemble'
 
   ],
 
