@@ -2092,7 +2092,7 @@
                   </template>
 
                   <!-- open in FOLIO -->
-                  <button class="folio-button" @click="openFolioRecord()">FOLIO</button>
+                  <!-- <button class="folio-button" @click="openFolioRecord()">FOLIO</button> -->
                 </div>
               </div>
             </template>
