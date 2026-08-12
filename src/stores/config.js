@@ -347,6 +347,7 @@ export const useConfigStore = defineStore('config', {
   exludeDeepHierarchy: [
     'http://id.loc.gov/ontologies/bibframe/adminMetadata',
     'http://id.loc.gov/ontologies/bibframe/subject',
+    'http://id.loc.gov/ontologies/bibframe/mediumComponent',
     'http://id.loc.gov/ontologies/bibframe/ensemble'
 
   ],
