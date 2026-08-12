@@ -473,6 +473,8 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2023548750',label:"Subject Test", idUrl:'https://id.loc.gov/resources/instances/2023548750.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'66082276',label:"Non-latin Rare", idUrl:'https://id.loc.gov/resources/instances/66082276.html', profile:'Rare Matereials',profileId:'lc:RT:bf2:RareMat:Instance'},
 
+    {lccn:'in01260004891',label:"Related music works test (Sonatas from manuscript sources. IV)", idUrl:'https://id.loc.gov/resources/instances/in01260004891.html', profile:'Notated Music',profileId:'lc:RT:bf2:NotatedMusic:Instance'},
+
 
 
   ],
