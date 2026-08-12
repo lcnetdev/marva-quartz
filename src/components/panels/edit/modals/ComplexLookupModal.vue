@@ -219,13 +219,14 @@
       showBCPButton: function(key, data){
         let show = false
 
-        if (data.variantLabels){
-          for(let variant of data.variantLabels){
-            if (!this.isLatin(variant)){
-              show = true
-              break
-            }
-          }
+        if (data.variantLabels && data.variantLabels.length > 0){
+          show = true
+          // for(let variant of data.variantLabels){
+          //   if (!this.isLatin(variant)){
+          //     show = true
+          //     break
+          //   }
+          // }
         }
         if (data.varianttitles){
           for(let variant of data.varianttitles){
@@ -486,6 +487,11 @@
             }
           }
         }
+
+        if (Object.keys(this.marcData).length == 0){
+          this.addBcpRow()
+        }
+
 
         this.activeIndex = false
         // swap out left panel for form
@@ -765,11 +771,13 @@
         let lastItem = Object.keys(this.marcData).at(-1)
         // Index for new fields will start with ##
         let newIdx = false
-        if (!lastItem.startsWith("##")){
+        if (lastItem && !lastItem.startsWith("##")){
           newIdx = "##" + (Number(lastItem) + 1)
-        } else {
+        } else if (lastItem && lastItem.startsWith("##")){
           let temp = lastItem.replace("##", "")
           newIdx = "##" + (Number(temp) + 1)
+        } else {
+          newIdx = "##" + 1
         }
 
         this.source670s.push({'note': '$a'})
@@ -2283,6 +2291,9 @@
                                   <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
                                 </ul>
                               </template>
+                            </template>
+                            <template v-if="!Object.keys(activeContext.extra).includes('variantLabels')">
+                              <button @click="edit4XX(activeContext)">Add 4XX</button>
                             </template>
                           </AccordionItem>
                         </AccordionList>
