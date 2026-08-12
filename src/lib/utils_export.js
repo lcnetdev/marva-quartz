@@ -2422,7 +2422,7 @@ const utilsExport = {
 
 		// check again if they made a 4XX in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
-			if (( /4\d\d/.test(x.tag) || /4\d\d/.test(x.fieldTag) || /5\d\d/.test(x.tag) || /5\d\d/.test(x.fieldTag) ) && !has667){
+			if (( /4\d\d/.test(x.tag) || /4\d\d/.test(x.fieldTag) || /5\d\d/.test(x.tag) || /5\d\d/.test(x.fieldTag) )){
 				pos29 = 'a'
 			}
 		}
