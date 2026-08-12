@@ -567,6 +567,7 @@
       },
 
       previewMarc: async function(){
+        console.info("preview")
         this.submitting = true
         this.showMarcPreview = true
         let prefChecks = this.checkPrefLabels()
@@ -606,14 +607,25 @@
 
         // add the 670 info
         let s670s = this.source670s
-
-        for (let note of s670s){
+        let remove670 = [] // empty 670s to remove
+        for (let idx in s670s){
+          let note = s670s[idx]
           let subfields = note.note.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
-          for (let sub of subfields){
-            let tag = sub.slice(1,2)
-            note[tag] = sub.slice(2)
+          if (subfields){
+            for (let sub of subfields){
+              let tag = sub.slice(1,2)
+              let val = sub.slice(2)
+              if (val != ''){
+                note[tag] = val
+              } else {
+                remove670.push(idx)
+              }
+            }
+          } else {
+            remove670.push(idx)
           }
         }
+        for (let idx of remove670){ s670s.splice(idx, 1) }
         this.marcData['source670s'] = s670s
 
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
