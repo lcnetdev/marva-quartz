@@ -2034,10 +2034,6 @@
     async mounted() {
       this.initalHeight = window.innerHeight * .8
       this.init()
-      console.info("height: ", window.innerHeight)
-
-
-
 
     }
 
