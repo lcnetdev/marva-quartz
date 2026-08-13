@@ -2032,7 +2032,7 @@
 
 
     async mounted() {
-      this.initalHeight = window.innerHeight * .8
+      this.initalHeight = window.innerHeight * .9
       this.init()
 
     }
