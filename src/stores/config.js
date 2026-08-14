@@ -7,8 +7,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 6,
-    versionPatch: 4,
+    versionMinor: 7,
+    versionPatch: 0,
 
 
 
@@ -93,7 +93,7 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-starting.json',
         profiles : 'http://localhost:9401/marva/dancer/api/serve/marva-prod/profile',
         starting: 'http://localhost:9401/marva/dancer/api/serve/marva-prod/starting-points',
-        
+
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
@@ -346,7 +346,9 @@ export const useConfigStore = defineStore('config', {
   // to allow editing of nested works for example
   exludeDeepHierarchy: [
     'http://id.loc.gov/ontologies/bibframe/adminMetadata',
-    'http://id.loc.gov/ontologies/bibframe/subject'
+    'http://id.loc.gov/ontologies/bibframe/subject',
+    'http://id.loc.gov/ontologies/bibframe/mediumComponent',
+    'http://id.loc.gov/ontologies/bibframe/ensemble'
 
   ],
 
@@ -470,6 +472,8 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2023548750',label:"Subject Test", idUrl:'https://id.loc.gov/resources/instances/2023548750.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'66082276',label:"Non-latin Rare", idUrl:'https://id.loc.gov/resources/instances/66082276.html', profile:'Rare Matereials',profileId:'lc:RT:bf2:RareMat:Instance'},
+
+    {lccn:'in01260004891',label:"Related music works test (Sonatas from manuscript sources. IV)", idUrl:'https://id.loc.gov/resources/instances/in01260004891.html', profile:'Notated Music',profileId:'lc:RT:bf2:NotatedMusic:Instance'},
 
 
 
@@ -771,19 +775,19 @@ export const useConfigStore = defineStore('config', {
     "https://preprod-8299.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
         "Left Anchored":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
-        "Keyword":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+        "Keyword":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
       }
     ]},
     "https://preprod-8080.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
         "Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
-        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
       }
     ]},
     "https://preprod.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
         "Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
-        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},         
+        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
       }
     ]},
     "https://preprod-8295.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
@@ -793,7 +797,7 @@ export const useConfigStore = defineStore('config', {
       }
     ]},
 
-    
+
     "https://preprod-8080.id.loc.gov/resources/hubs" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
         "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},

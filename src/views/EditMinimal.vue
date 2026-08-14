@@ -206,8 +206,14 @@
 
         let candidates = []
         if (urls.devFakePosting){
-          // local dev can't reach the backends, use the canned test record
-          candidates = [import.meta.env.BASE_URL + 'test_files/rel-work-exp-test.decomposed.rdf']
+          // backends aren't reachable from local dev, so grab a canned test record instead.
+          // If there's a decomposed file in test_files that matches the requested URI, use
+          // that; otherwise just fall back to the generic one
+          let tail = loadUri.split('/').filter(Boolean).at(-1)
+          candidates = [
+            import.meta.env.BASE_URL + 'test_files/' + tail + '.decomposed.rdf',
+            import.meta.env.BASE_URL + 'test_files/rel-work-exp-test.decomposed.rdf'
+          ]
         } else {
           let path
           try{

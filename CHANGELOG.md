@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.7.0] - 2026-08-14
+### Added
+- Support for BCP and Preferred Variants
+
 ## [1.6.4] - 2026-07-24
 ### Update
 - Add "bf:Family" to subject literal types

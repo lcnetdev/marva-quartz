@@ -26,7 +26,7 @@
         top: 200,
         left: 0,
 
-        initalHeight: 750,
+        initalHeight: 800,
         initalLeft: 400,
 
 
@@ -2048,11 +2048,8 @@
 
 
     async mounted() {
-
+      this.initalHeight = window.innerHeight * .9
       this.init()
-
-
-
 
     }
 
@@ -2146,7 +2143,7 @@
               </div>
 
               <div style="display: flex; margin-bottom: 1em;">
-                <div style="flex: 1;">
+                <div style="flex: 1 3;">
                   <select @change="presetChange" class="preset-select">
                     <option class="preset-option" value="home">Presets</option>
                     <option class="preset-option" value="1000#">"1000 "</option>
@@ -2168,7 +2165,7 @@
 
                   </select>
                 </div>
-                <div style="flex: 1;">
+                <div style="flex: 1 3;">
                   <select @change="transliterateChange">
                     <option value="home">Transliterate</option>
                     <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
@@ -2177,8 +2174,8 @@
                     </template>
                   </select>
                 </div>
-
-                <div>
+              </div>
+              <div>
                   Set BCP
                   <select @change="setBcp" v-model="selectedBcp">
                     <template v-for="(value, key) in langs">
@@ -2187,10 +2184,6 @@
                     <option value="expand">Expand</option>
                   </select>
                 </div>
-
-
-              </div>
-
 
 
 
