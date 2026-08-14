@@ -58,6 +58,9 @@
         fourXXParts: {},
         fourXXErrors: [],
         fourXXResults: [],
+        fiveXXParts: {},
+        fiveXXErrors: [],
+        fiveXXResults: [],
         fourXXResultsTimeout: null,
 
 
@@ -597,6 +600,8 @@
           if (field=='4xx'){
             this.fourXXResults = this.fourXXResults.filter(item => item.rowIdx != rowIdx)
             // this.fourXXResults = []
+          } else if (field=='5xx'){
+            this.fiveXXResults = this.fiveXXResults.filter(item => item.rowIdx != rowIdx)
           }else{
             this.oneXXResults = this.oneXXResults.filter(item => item.rowIdx != rowIdx)
             // this.oneXXResults = []
@@ -652,6 +657,8 @@
           if (field=='4xx'){
             // this.fourXXResults = formatted
             this.fourXXResults = [...new Set([...this.fourXXResults, ...formatted])]
+          } else if (field=='5xx'){
+            this.fiveXXResults = [...new Set([...this.fiveXXResults, ...formatted])]
           }else{
             // this.oneXXResults = formatted
             this.oneXXResults = [...new Set([...this.oneXXResults, ...formatted])]
@@ -956,12 +963,13 @@
             this.fourXXErrors.push("There's an invalid indicator for 4XX")
           }
 
-          if (!/4[0-9]{2}/.test(target.slice(0,3))){
+          if (!/[45][0-9]{2}/.test(target.slice(0,3))){
             this.fourXXErrors.push(target.slice(0,3) + " invalid tag")
             return false
           }
 
           let fourXXParts = target.split(/[$‡ǂ|]/)
+          console.info("fourXXParts: ", fourXXParts)
           if (fourXXParts.length>0){
 
             let fieldTag = fourXXParts[0].slice(0,3)
@@ -976,7 +984,13 @@
                 this.fourXXErrors.push("Invalid indicator character(s)")
               }
             }
-            this.fourXXParts = {}
+
+            if (target.startsWith("4")){
+              this.fourXXParts = {}
+            } else if (target.startsWith("5")){
+              this.fiveXXParts = {}
+            }
+
             let dollarParts = fourXXParts.slice(1)
 
             let dollarKey = {}
@@ -997,7 +1011,12 @@
             dollarKey.fieldTag = fieldTag
             dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
-            this.fourXXParts = dollarKey
+
+            if (target.startsWith("4")){
+              this.fourXXParts = dollarKey
+            } else if (target.startsWith("5")){
+              this.fiveXXParts = dollarKey
+            }
             let authLabel = ""
             if (dollarKey.a){
               authLabel = authLabel + dollarKey.a
@@ -1023,10 +1042,16 @@
 
             authLabel = authLabel.replace(/  +/g, ' ')
 
+            console.info("authLabel: ", authLabel)
+
             if (dollarKey.a){
               window.clearTimeout(this.fourXXResultsTimeout)
               this.fourXXResultsTimeout = window.setTimeout(()=>{
-                this.searchAuthLabel(authLabel,'4xx', rowIdx)
+                if (target.startsWith('4')){
+                  this.searchAuthLabel(authLabel,'4xx', rowIdx)
+                } else {
+                  this.searchAuthLabel(authLabel,'5xx', rowIdx)
+                }
               },500)
 
             }
@@ -2310,6 +2335,35 @@
                       </details>
                       </template>
 
+                      <template v-if="fiveXXResults.length>0">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">5XX Heading FOUND in LCNAF file:</span>
+                        </div>
+                      </template>
+
+
+                      <template v-if="fiveXXResults.length==0 && fiveXXParts && fiveXXParts.a && searching==false">
+                        <div>
+                          <span class="material-icons unique-icon">cancel</span>
+                          <span class="not-unique-text">5XX: Heading NOT found in LCNAF file:</span>
+                        </div>
+                      </template>
+
+                      <template v-if="fiveXXResults.length>0 && fiveXXResults.length<=5">
+                        <div v-for="r in fiveXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </template>
+                      <template v-else-if="fiveXXResults.length>0 && fiveXXResults.length>5">
+                      <details style="margin-bottom: 1em; padding-left: 2em;">
+                        <summary>There are {{ fiveXXResults.length }} hits on that name.</summary>
+                        <div v-for="r in fiveXXResults">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </details>
+                      </template>
+
 
 
 
@@ -2507,7 +2561,7 @@
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
 
-                      @input="/4\d\d/.test(row.fieldTag) ? checkFourXX(row, index) : null"
+                      @input="/[45]\d\d/.test(row.fieldTag) ? checkFourXX(row, index) : null"
                     ></textarea>
 
 
