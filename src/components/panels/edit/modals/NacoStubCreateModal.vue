@@ -581,6 +581,7 @@
         },
 
         async searchAuthLabel(authLabel,field){
+          console.info("AuthSearch: ", field, "--", authLabel)
           this.searching = true
 
           // clear results
@@ -604,7 +605,9 @@
           this.oneXXExactMatches = this.findAuthExactMatch(results, authLabel)
           // console.log("oneXXExactMatches", this.oneXXExactMatches)
           let formatted = []
+          console.info("\tresults: ", results)
           for (let key of Object.keys(results)){
+            console.info("\t\tkey: ", key)
             if (key != 'metadata'){
               let toAdd = {name:results[key][0], uri:key}
               // console.log(results.metadata)
@@ -621,18 +624,23 @@
                 continue
               }
               toAdd.variantMatch = this.matchVariant(toAdd.more.variantLabels, authLabel)
+              console.info("\t\t\t toAdd: ", toAdd)
               formatted.push(toAdd)
 
             }
           }
 
           // console.log("formatted",formatted)
+          console.info("formatted",formatted)
 
           if (field=='4xx'){
             this.fourXXResults = formatted
+            // this.fourXXResults.concat(formatted)
           }else{
             this.oneXXResults = formatted
           }
+          console.info("this.oneXXResults: ", this.oneXXResults)
+          console.info("this.fourXXResults: ", this.fourXXResults, "\n")
 
           this.searching = false
 
