@@ -580,15 +580,26 @@
 
         },
 
-        async searchAuthLabel(authLabel,field){
+        /**
+         * param authLabel = label being searched
+         * param field = tag being searched
+         * param rowIdx = the index for the extra row
+         */
+        async searchAuthLabel(authLabel,field, rowIdx=false){
           console.info("AuthSearch: ", field, "--", authLabel)
           this.searching = true
 
-          // clear results
+          if (!rowIdx){
+            rowIdx = '4XX-input-main'
+          }
+
+          // clear results for this row
           if (field=='4xx'){
-            this.fourXXResults = []
+            this.fourXXResults = this.fourXXResults.filter(item => item.rowIdx != rowIdx)
+            // this.fourXXResults = []
           }else{
-            this.oneXXResults = []
+            this.oneXXResults = this.oneXXResults.filter(item => item.rowIdx != rowIdx)
+            // this.oneXXResults = []
           }
 
 
@@ -602,8 +613,10 @@
           let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true)
           // console.log("search results",results)
 
-          this.oneXXExactMatches = this.findAuthExactMatch(results, authLabel)
+          let exactMatches = this.findAuthExactMatch(results, authLabel)
+          this.oneXXExactMatches.concat(exactMatches)
           // console.log("oneXXExactMatches", this.oneXXExactMatches)
+          console.info("oneXXExactMatches", this.oneXXExactMatches)
           let formatted = []
           console.info("\tresults: ", results)
           for (let key of Object.keys(results)){
@@ -633,14 +646,18 @@
           // console.log("formatted",formatted)
           console.info("formatted",formatted)
 
+          // inject rowIdx in to formatted results
+          formatted.map(item => item.rowIdx=rowIdx)
+
           if (field=='4xx'){
-            this.fourXXResults = formatted
-            // this.fourXXResults.concat(formatted)
+            // this.fourXXResults = formatted
+            this.fourXXResults = [...new Set([...this.fourXXResults, ...formatted])]
           }else{
-            this.oneXXResults = formatted
+            // this.oneXXResults = formatted
+            this.oneXXResults = [...new Set([...this.oneXXResults, ...formatted])]
           }
-          console.info("this.oneXXResults: ", this.oneXXResults)
-          console.info("this.fourXXResults: ", this.fourXXResults, "\n")
+          console.info("\tthis.oneXXResults: ", this.oneXXResults)
+          console.info("\tthis.fourXXResults: ", this.fourXXResults, "\n")
 
           this.searching = false
 
@@ -906,8 +923,13 @@
 
         },
 
-        checkFourXX(target=false){
-          console.info("checkFourXX: ", this.fourXX, "--", target)
+        /**
+         *
+         * @param target = The row data for additional 4XX fields
+         * @param rowIdx = the index for the extra row
+         */
+        checkFourXX(target=false, rowIdx=false){
+          console.info("checkFourXX: ", this.fourXX, "--", rowIdx, "--", target)
 
           if (!target) { target = this.fourXX }
           else { target = `${target.fieldTag}${target.indicators}${target.value}` }
@@ -1004,7 +1026,7 @@
             if (dollarKey.a){
               window.clearTimeout(this.fourXXResultsTimeout)
               this.fourXXResultsTimeout = window.setTimeout(()=>{
-                this.searchAuthLabel(authLabel,'4xx')
+                this.searchAuthLabel(authLabel,'4xx', rowIdx)
               },500)
 
             }
@@ -2131,6 +2153,7 @@
                   <button class="dollar-7-auto simptip-position-left" @click="addDollar7('fourXX')" data-tooltip="Add a BCP code" v-if="Object.keys(langs).length > 0">$7</button>
                   <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
                   <textarea
+                    id="4XX-input-main"
                     ref="nar-4xx"
                     v-model="fourXX"
                     placeholder="4XX##$a....$d...."
@@ -2477,13 +2500,14 @@
                     />
 
                     <textarea
+                      :id="`extra-input-${index}`"
                       v-model="row.value"
                       placeholder="$a xyz $b abc..."
                       :style="`margin-right: 1em; flex-grow: 1; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
 
-                      @input="/4\d\d/.test(row.fieldTag) ? checkFourXX(row) : null"
+                      @input="/4\d\d/.test(row.fieldTag) ? checkFourXX(row, index) : null"
                     ></textarea>
 
 
