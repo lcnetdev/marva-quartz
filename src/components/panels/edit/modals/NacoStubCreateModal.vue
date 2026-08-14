@@ -664,11 +664,21 @@
             this.oneXXResults = [...new Set([...this.oneXXResults, ...formatted])]
           }
           console.info("\tthis.oneXXResults: ", this.oneXXResults)
-          console.info("\tthis.fourXXResults: ", this.fourXXResults, "\n")
+          console.info("\tthis.fourXXResults: ", this.fourXXResults)
+          console.info("\tthis.fiveXXResults: ", this.fourXXResults, "\n")
 
           this.searching = false
 
 
+        },
+
+        replace5XX(data){
+          let newValue = data.more.marcKeys[0].slice(5)
+          let idx = data.rowIdx
+          let id = `extra-input-${idx}`
+          let el = document.getElementById(id)
+          el.value = newValue
+          el.dispatchEvent(new Event('input', { bubbles: true })); // trigger the
         },
 
         checkOneXX(){
@@ -2345,21 +2355,21 @@
 
                       <template v-if="fiveXXResults.length==0 && fiveXXParts && fiveXXParts.a && searching==false">
                         <div>
-                          <span class="material-icons unique-icon">cancel</span>
+                          <span class="material-icons not-unique-icon">cancel</span>
                           <span class="not-unique-text">5XX: Heading NOT found in LCNAF file:</span>
                         </div>
                       </template>
 
                       <template v-if="fiveXXResults.length>0 && fiveXXResults.length<=5">
                         <div v-for="r in fiveXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
-                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx">swap_vert</span></button>
                         </div>
                       </template>
                       <template v-else-if="fiveXXResults.length>0 && fiveXXResults.length>5">
                       <details style="margin-bottom: 1em; padding-left: 2em;">
                         <summary>There are {{ fiveXXResults.length }} hits on that name.</summary>
                         <div v-for="r in fiveXXResults">
-                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx">swap_vert</span></button>
                         </div>
                       </details>
                       </template>
@@ -2901,11 +2911,17 @@ select{
     background-color: red;
   }
 
-
   @keyframes grow {
     0% { transform: scale(1); }
     50% { transform: scale(2); color: blue }
     100% { transform: scale(1); }
+  }
+
+  .replace-button{
+    padding: 0;
+  }
+  .replace-5xx {
+    font-size: 1em;
   }
 
 </style>
