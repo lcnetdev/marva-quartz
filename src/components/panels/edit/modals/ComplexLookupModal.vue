@@ -806,10 +806,10 @@
       dupeBcpRow: function(idx){
         let newIdx = false
         if (!idx.startsWith("##")){
-          newIdx = "##" + (Number(idx) + 1)
+          newIdx = "##" + (Number(idx) + Object.keys(this.marcData).length+1)
         } else {
           let temp = idx.replace("##", "")
-          newIdx = "##" + (Number(temp) + 1)
+          newIdx = "##" + (Number(temp) + Object.keys(this.marcData).length+1)
         }
 
         this.marcData[newIdx] = JSON.parse(JSON.stringify(this.marcData[idx]))
