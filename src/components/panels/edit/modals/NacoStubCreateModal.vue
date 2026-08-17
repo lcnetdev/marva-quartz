@@ -2165,7 +2165,7 @@
                     <template v-for="(value, key) in langs">
                       <option :value="key">{{ key }}</option>
                     </template>
-                    <option value="expand">Expand</option>
+                    <option value="expand" @click="setBcp">Expand</option>
                   </select>
                 </div>
 
