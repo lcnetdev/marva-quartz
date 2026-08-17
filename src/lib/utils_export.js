@@ -2881,6 +2881,8 @@ const utilsExport = {
 				target667s.push(sixSixSeven)
 			} else if (sixSixSeven.innerHTML.includes('script references evaluated')) { // 667 from strawn tool
 				target667s.push(sixSixSeven)
+			} else if (sixSixSeven.innerHTML.includes('Machine-derived non-Latin script reference project') && updates.refJust){
+				target667s.push(sixSixSeven)
 			}
 		}
 

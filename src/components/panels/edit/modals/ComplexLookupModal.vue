@@ -117,6 +117,7 @@
         activeIndex: 0,
         xmlTargets: [],
         refEval: false,
+        refJust: false,
         originalMarc: null,
         updatedRecord: null,
         diffRecord: [],
@@ -251,6 +252,7 @@
         this.activeIndex =  0
         this.xmlTargets =  []
         this.refEval =  false
+        this.refJust = false
         this.originalMarc =  null
         this.updatedRecord =  null
         this.diffRecord =  []
@@ -504,6 +506,7 @@
       },
       hidePreview: function(){
         delete this.marcData['refEval']
+        delete this.marcData['refJust']
         delete this.marcData['source670s']
         this.showMarcPreview = false
 
@@ -572,6 +575,7 @@
         let prefChecks = this.checkPrefLabels()
 
         this.marcData.refEval = this.refEval
+        this.marcData.refJust = this.refJust
         // this.marcData['note667'] = this.note667
 
         const marcXML = this.xmlDoc
@@ -2084,6 +2088,13 @@
                 <div class="button-container">
                   <label for="refEval">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
+                  <br></br>
+                  <label for="refJust">All References Justified?</label>
+                  <input type="checkbox" id="refJust" name="refJust" value="false" v-model="refJust">
+                  <br>
+                  <a target="_blank" href="https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/Edit%20Authority%20Language%20Info.md">Documentation</a>
+
+
                   <br><br>
                   <button @click="overrideTG = true; buildFeedbackLink()">Feedback</button>
                   <button @click="previewMarc()" v-if="allowPreview()">Preview</button>
