@@ -1951,13 +1951,24 @@
             alert("Add a non-Latin 4XX value to continue.")
             return
           }
-          let val = event.target.value
+
+          let val = false
+          if (typeof event == 'object'){
+            val = event.target.value
+          }
           this.selectedBcp = val
           if (val != 'expand'){
             this.bcp = val.toLowerCase()
             return
           }
-          let parts = this.fourXX.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+
+          let label = this.fourXX
+          this.expandBcpSelection(label)
+
+        },
+
+        expandBcpSelection: async function(label){
+          let parts = label.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
           let name = parts.filter(p => p.includes("$a"))[0]
           let bcpCodes = await utilsNetwork.fetchBCP47Codes(name)
           // add to langs
@@ -2468,8 +2479,11 @@
                       @keydown="keydown" @keyup="keyup"
                     ></textarea>
 
+                    <div style="height: 100%;">
+                      <button v-if="/4\d\d/.test(row.fieldTag)" @click="addDollar7(row)" style="display:block;">$7</button>
+                      <button v-if="/4\d\d/.test(row.fieldTag)" @click="expandBcpSelection(row.value)" style="display:block;">Expand</button>
+                    </div>
 
-                    <button v-if="/4\d\d/.test(row.fieldTag) && Object.keys(langs).length > 0" @click="addDollar7(row)">$7</button>
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index && index != 0" @click="removeRow($event,index)" style="margin-left: 1em;">-</button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
