@@ -2944,7 +2944,7 @@ const utilsExport = {
 		// 040 if the last $d is DLC, don't add another one
 		let marc040 = record.querySelectorAll('[tag="040"]')[0]
 		let lastEl = Array.from(marc040.children).at(-1)
-		if (lastEl.textContent != "DLC" || lastEl.getAttribute('code') == 'c') {
+		if (lastEl.textContent != "DLC" || (lastEl.getAttribute('code') == 'c' && lastEl.textContent == "DLC" )) {
 			let new040D = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
 			new040D.setAttribute("code", 'd')
 			new040D.innerHTML = 'DLC'
