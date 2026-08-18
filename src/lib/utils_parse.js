@@ -832,6 +832,9 @@ const utilsParse = {
             // console.log(e.innerHTML)
             // console.log((new XMLSerializer()).serializeToString(e))
 
+            // ignore illustrativeContent from rdaregistry
+            if (e?.tagName == "bf:illustrativeContent" && e.getAttribute('rdf:resource')?.includes('rdaregistry')){ continue }
+
             // some special checks here first
             // differentiate between creator and contributor
             if (ptk.propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution'){
