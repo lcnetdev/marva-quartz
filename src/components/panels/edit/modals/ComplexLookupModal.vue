@@ -2086,11 +2086,14 @@
                   </div>
 
                 <div class="button-container">
-                  <label for="refEval">All References Evaluated?</label>
+                  <label for="refEval" class="class-ref-check">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                   <br></br>
-                  <label for="refJust">All References Justified?</label>
+                  <label for="refJust" class="class-ref-check">All References Justified?</label>
                   <input type="checkbox" id="refJust" name="refJust" value="false" v-model="refJust">
+                  <span class="simptip-position-bottom" data-tooltip='Remove the note "Machine-derived non-Latin script reference project."'>
+                    <span class="help-info material-icons">help</span>
+                  </span>
                   <br>
                   <a target="_blank" href="https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/Edit%20Authority%20Language%20Info.md">Documentation</a>
 
@@ -3007,6 +3010,15 @@ input.prefCheck[type=checkbox]:checked+label {
   100% {
     opacity: .1;
   }
+}
+
+.class-ref-check {
+  font-weight: bold;
+  font-size: 1em;
+}
+
+.help-info {
+  font-size: 1em;
 }
 
 </style>
