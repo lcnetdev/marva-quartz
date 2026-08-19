@@ -418,7 +418,7 @@
         let vars = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')
         for (let varIdx in Array.from(vars)){
           let variant = Array.from(vars[varIdx].children).map((item) => {
-            if(data.type != 'Hub' && item.getAttribute('code') == 'a'){
+            if(data.type != 'Hub' ){ //&& ['a', 'b'].includes(item.getAttribute('code'))
               return item.textContent
             } else if (data.type == 'Hub' && ['a', 't'].includes(item.getAttribute('code'))){
               return item.textContent
