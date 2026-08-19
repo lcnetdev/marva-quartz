@@ -2215,8 +2215,8 @@
                 </div>
               </div>
 
-              <div style="display: flex; margin-bottom: 1em;">
-                <div style="flex: 1 3;">
+              <div style="display: flex; margin-bottom: 1em; gap:1em">
+                <div style="flex: 1;">
                   <select @change="presetChange" class="preset-select">
                     <option class="preset-option" value="home">Presets</option>
                     <option class="preset-option" value="1000#">"1000 "</option>
@@ -2233,12 +2233,10 @@
                     <option class="preset-option" value="430#and 430##">"130##" &amp; "430##"</option>
                     <option class="preset-option" value="151##">"151##"</option>
                     <option class="preset-option" value="151##and 451##">"151## &amp; 451##"</option>
-
-
-
                   </select>
                 </div>
-                <div style="flex: 1 3;">
+
+                <div style="flex: 1;">
                   <select @change="transliterateChange">
                     <option value="home">Transliterate</option>
                     <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
@@ -2248,15 +2246,16 @@
                   </select>
                 </div>
               </div>
+
               <div>
-                  Set BCP
-                  <select @change="setBcp" v-model="selectedBcp">
-                    <template v-for="(value, key) in langs">
-                      <option :value="key">{{ key }}</option>
-                    </template>
-                    <option value="expand" @click="setBcp">Expand</option>
-                  </select>
-                </div>
+                Set BCP
+                <select @change="setBcp" v-model="selectedBcp">
+                  <template v-for="(value, key) in langs">
+                    <option :value="key">{{ key }}</option>
+                  </template>
+                  <option value="expand" @click="setBcp">Expand</option>
+                </select>
+              </div>
 
 
 
@@ -2512,7 +2511,7 @@
                     <input :class="['literal-input', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]" placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" :style="`width:100%; margin-bottom:0.25em; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`" :disabled="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" />
 
                     <template v-if="statementOfResponsibilityOptions && statementOfResponsibilityOptions.length>0">
-                      <div style="padding: 0.2em;">
+                      <div style="padding: 0.2em; display: flex; flex-wrap: wrap">
                         Multi SOR found:
                         <template v-for="(sor, index) in statementOfResponsibilityOptions">
                           <button style="font-size: 0.75em;" @click="mainTitleNote = profileStore.checkCip() ? 'CIP title page (' + sor.trim() + ')' : 'title page (' + sor.trim() + ')'; update670()">{{ sor }}</button>
