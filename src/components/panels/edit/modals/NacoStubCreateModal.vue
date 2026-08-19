@@ -1613,12 +1613,24 @@
           let nonLatin = this.profileStore.returnAllNonLatinLiterals()
           for (let item of nonLatin){
             let lang = item.lang
-            if (Object.keys(this.langs).includes(lang)){
+            if (lang.includes("zxx")){ continue }
+
+            if (lang.includes("-")){
+              let l = lang.split("-")[0]
+              if ( l in this.langs ){
+                this.langs[l] += 1
+              } else {
+                this.langs[l] = 2
+              }
+            }
+
+            if (lang in this.langs){
               this.langs[lang] = this.langs[lang] + 1
             } else {
               this.langs[lang] = 1
             }
           }
+
           if (Object.keys(this.langs).length > 0){
             this.selectedBcp = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
           }
