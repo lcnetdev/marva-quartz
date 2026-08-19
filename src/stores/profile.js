@@ -8551,9 +8551,9 @@ export const useProfileStore = defineStore('profile', {
             if (!pref) { return true }
             try {
                 if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject") {
-
                     let userValue = comp.userValue
                     let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"] ? userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] : {}
+
                     if (data['@id'] && data['@id'].includes('http://id.loc.gov/authorities/')) {
                         return true
                     }
@@ -8567,6 +8567,10 @@ export const useProfileStore = defineStore('profile', {
                             return false
                         }
                     } else if (Object.keys(data).length == 2) {
+                        return false
+                    }
+
+                    if (!data['@id'] && !data["http://id.loc.gov/ontologies/bibframe/source"]){
                         return false
                     }
                 }
