@@ -514,23 +514,37 @@
         // with the same BCP code aren't preferred
         let pref47 = {}
         let checks = []
+        let all = 0
+        let evaluated = 0
 
         for (let key of Object.keys(this.marcData)){
           let value = this.marcData[key]
+          if (typeof value == 'object'){
+            all += 1
+          }
           if (value.pref){
             if (!Object.keys(value).includes("subfield_7") || value["subfield_7"].length == 0){
-              checks.push("A name has been marked as preferred, without having a BCP code added to it. Name: " + value.displayName)
+              checks.push({level: "ERROR", message: "A name has been marked as preferred, without having a BCP code added to it. Name: " + value.displayName})
             } else {
               for(let bcp of value["subfield_7"]){
                 if (pref47[bcp] == 1){
-                  checks.push("Multiple preferred forms have the same BCPcode: " + bcp)
+                  checks.push({level: "ERROR", message: "Multiple preferred forms have the same BCPcode: " + bcp})
                 }
                 pref47[bcp] = pref47[bcp] ? pref47[bcp] + 1 : 1;
 
               }
             }
           }
+          if (value['subfield_7']){
+            evaluated += 1
+          }
         }
+
+        if (all == evaluated && !this.refEval){
+          checks.push({level: 'INFO', message:"All references have BCP codes, but the reference evaluated box wasn't checked."})
+        }
+
+
         return checks
       },
 
@@ -571,7 +585,6 @@
         this.showMarcPreview = true
         let prefChecks = this.checkPrefLabels()
 
-        this.marcData.refEval = this.refEval
         // this.marcData['note667'] = this.note667
 
         const marcXML = this.xmlDoc
@@ -579,7 +592,6 @@
 
         let numEval = 0
         let totalVars = 0
-        // TODO: check if all variants have been evaluated (have bcp codes), to have 667 to "Some non-Latin.... have been evaluated"
         for (let key of Object.keys(updates)){
           let data = updates[key]
           totalVars += 1
@@ -592,6 +604,8 @@
         if (someEval && !this.marcData.refEval){
           this.marcData.refEval = "some"
         }
+
+        this.marcData.refEval = this.refEval
 
         // add a target for any additions
         for (let idx in updates){
@@ -644,8 +658,8 @@
         if (prefChecks.length > 0 ){
           for (let mess of prefChecks){
             this.validationResult.validation.push({
-              level: 'ERROR',
-              message: mess,
+              level: mess.level,
+              message: mess.message,
             })
           }
         }
@@ -665,7 +679,6 @@
             this.updatedRecord = this.updatedRecord + field.join(" ") + "\n"
           }
         }
-
         this.submitting = false
       },
 
@@ -886,7 +899,7 @@
         this.buildNewMarcKey()
 
         window.setTimeout(async ()=>{
-          el.setSelectionRange(startPos, startPos)
+          el.setSelectionRange(startPos+1, startPos+1)
           this.getBcpSuggestions()
         }, 1)
       },
@@ -2082,7 +2095,7 @@
                   </div>
 
                 <div class="button-container">
-                  <label for="refEval">All References Evaluated?</label>
+                  <label for="refEval" class="all-ref-check">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                   <br><br>
                   <button @click="overrideTG = true; buildFeedbackLink()">Feedback</button>
@@ -2996,6 +3009,11 @@ input.prefCheck[type=checkbox]:checked+label {
   100% {
     opacity: .1;
   }
+}
+
+.all-ref-check {
+  font-weight: bold;
+  font-size: 1em;
 }
 
 </style>
