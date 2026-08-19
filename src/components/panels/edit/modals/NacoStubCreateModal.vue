@@ -2359,10 +2359,16 @@
                       </details>
                       </template>
 
-                      <template v-if="fiveXXResults.length>0">
+                      <template v-if="fiveXXResults.length == 1">
                         <div>
                           <span class="material-icons unique-icon">check</span>
                           <span class="not-unique-text">5XX Heading FOUND in LCNAF file:</span>
+                        </div>
+                      </template>
+                      <template v-else-if="fiveXXResults.length > 1">
+                        <div>
+                          <span class="material-icons warning">warning</span>
+                          <span class="not-unique-text">5XX Heading FOUND <span style="font-weight: bold;">MULTIPLE</span> in LCNAF file:</span>
                         </div>
                       </template>
 
@@ -2376,14 +2382,14 @@
 
                       <template v-if="fiveXXResults.length>0 && fiveXXResults.length<=5">
                         <div v-for="r in fiveXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
-                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx">swap_vert</span></button>
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx" v-if="fiveXXResults.length != 1">south</span></button>
                         </div>
                       </template>
                       <template v-else-if="fiveXXResults.length>0 && fiveXXResults.length>5">
                       <details style="margin-bottom: 1em; padding-left: 2em;">
                         <summary>There are {{ fiveXXResults.length }} hits on that name.</summary>
                         <div v-for="r in fiveXXResults">
-                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx">swap_vert</span></button>
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx">south</span></button>
                         </div>
                       </details>
                       </template>
