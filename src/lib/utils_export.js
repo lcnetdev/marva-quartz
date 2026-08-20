@@ -2959,6 +2959,15 @@ const utilsExport = {
 			let targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
 			let index = [].indexOf.call(record.children, targetNameXML)
 
+			// sort the subfields in alpha - numeric
+			try {
+				let sorted = Array.from(targetNameXML.children).sort((a,b) => /^[0-9]/.test(a.getAttribute('code')) - /^[0-9]/.test(b.getAttribute('code')) || a.getAttribute('code').localeCompare(b.getAttribute('code'), undefined, { numeric: true }))
+				targetNameXML.innerHTML = '';
+				sorted.forEach(child => targetNameXML.appendChild(child))
+			} catch(err){
+				console.error("Couldn't sort children of ", targetNameXML)
+			}
+
 			if (!targetNameXML) {
 				targetNameXML = { 'children': [] }
 				for (let idx of Object.keys(updates)) {
@@ -2967,6 +2976,7 @@ const utilsExport = {
 					index = [].indexOf.call(record.children, targetNameXML)
 				}
 			}
+
 
 			// Get the existing subfields
 			let existingCodes = {}
