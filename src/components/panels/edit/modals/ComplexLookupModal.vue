@@ -378,7 +378,6 @@
           this.authLccn = authId
           marcXML = await this.fetchAuthXML(authId)
         }
-
         let parser = new DOMParser()
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
         this.originalMarc = this.xmlDoc.cloneNode(true)
@@ -452,7 +451,6 @@
 
             for (let sub of targetNameXML.children){
               let subfield = sub.getAttribute("code")
-              console.info("subfield: ", subfield)
               let value = sub.innerHTML
               // localMarc.indicators = sub
 
@@ -480,9 +478,7 @@
               }
             }
             localMarc.idx = varIdx
-
             this.marcData[varIdx] = localMarc
-
             this.activeIndex = varIdx
             this.buildNewMarcKey()
 

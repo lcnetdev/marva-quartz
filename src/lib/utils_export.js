@@ -2956,7 +2956,6 @@ const utilsExport = {
 		let langEval = []
 		let langUneval = []
 		for (let target of targets) {
-
 			let targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
 			let index = [].indexOf.call(record.children, targetNameXML)
 
