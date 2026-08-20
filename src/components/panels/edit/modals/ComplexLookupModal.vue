@@ -378,6 +378,9 @@
           this.authLccn = authId
           marcXML = await this.fetchAuthXML(authId)
         }
+
+        console.info("marcXML: ", marcXML)
+
         let parser = new DOMParser()
         this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
         this.originalMarc = this.xmlDoc.cloneNode(true)
@@ -451,6 +454,7 @@
 
             for (let sub of targetNameXML.children){
               let subfield = sub.getAttribute("code")
+              console.info("subfield: ", subfield)
               let value = sub.innerHTML
               // localMarc.indicators = sub
 
@@ -478,7 +482,23 @@
               }
             }
             localMarc.idx = varIdx
+
+            // --------------------------------------------------------
+            let keyOrder = Object.keys(localMarc).sort((a, b) => /^[0-9]/.test(a.replace("subfield_", "")) - /^[0-9]/.test(b.replace("subfield_", "")) || a.replace("subfield_", "").localeCompare(b.replace("subfield_", ""), undefined, { numeric: true }))
+            console.info("keyOrder: ", keyOrder)
+            let newObj = Object.fromEntries(
+                                      keyOrder.map(key => [key, key])//[key, localMarc[key]])
+                                    ); // sort by subfield
+            console.info("newObj: ", newObj)
+            // [ "tag", "indicators", "bcpSelection", "script", "subfield_7", "subfield_a", "subfield_c", "displayName", "idx" ]
+            this.marcData[varIdx] = null
+            this.marcData[varIdx] = newObj
+            console.info("this.marcData[varIdx]: ", JSON.parse(JSON.stringify(this.marcData[varIdx])))
+            // --------------------------------------------------------
+
+
             this.marcData[varIdx] = localMarc
+
             this.activeIndex = varIdx
             this.buildNewMarcKey()
 
@@ -581,6 +601,7 @@
       },
 
       previewMarc: async function(){
+        console.info("\nPREVIEW")
         this.submitting = true
         this.showMarcPreview = true
         let prefChecks = this.checkPrefLabels()
@@ -640,6 +661,8 @@
         }
         for (let idx of remove670){ s670s.splice(idx, 1) }
         this.marcData['source670s'] = s670s
+
+        console.info("\t updates: ", this.marcData)
 
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
@@ -726,7 +749,6 @@
           'newRow': this.marcData[this.activeIndex].newRow,
           'scripts': this.marcData[this.activeIndex].scripts ? this.marcData[this.activeIndex].scripts : [],
         }
-
 
         let key = ''
         let marcKey = this.marcData[this.activeIndex].tag + this.marcData[this.activeIndex].indicators
@@ -899,7 +921,11 @@
         this.buildNewMarcKey()
 
         window.setTimeout(async ()=>{
-          el.setSelectionRange(startPos+1, startPos+1)
+          if (event.inputType == "deleteContentBackward" ){
+            el.setSelectionRange(startPos-1, startPos-1)
+          } else {
+            el.setSelectionRange(startPos+1, startPos+1)
+          }
           this.getBcpSuggestions()
         }, 1)
       },
