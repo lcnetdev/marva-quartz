@@ -125,8 +125,6 @@
 
 
       disableAddButton() {
-        console.info("######### this.fourXXErrors: ", this.fourXXErrors)
-
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
         }
@@ -156,10 +154,11 @@
           return true
         }
 
-
         if (this.validationResult && this.validationResult.validation && ['Empty subfields.', 'Empty datafields.'].includes(this.validationResult.validation[0].message)){
           return true
         }
+
+        // TODO: add check for uniqueness in 4XXs
 
         return false
       }
@@ -239,7 +238,7 @@
 
       // Check that advanced mode doesn't have 670 $b ()
       good670: function(){
-        let good = this.extraMarcStatements.some((row) => !row.value.includes('$b ()'))
+        let good = this.extraMarcStatements.some((row) => !row.value.includes('$b ()') && row.fieldTag == '670')
         return good
       },
 
@@ -1005,7 +1004,7 @@
               }
             }
 
-            if (target.startsWith("4")){
+            if (target.startsWith("4") && !rowIdx){
               this.fourXXParts = {}
             } else if (target.startsWith("5")){
               this.fiveXXParts = {}
@@ -1032,7 +1031,7 @@
             dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
 
-            if (target.startsWith("4")){
+            if (target.startsWith("4") && !rowIdx){
               this.fourXXParts = dollarKey
             } else if (target.startsWith("5")){
               this.fiveXXParts = dollarKey
@@ -1063,6 +1062,7 @@
             authLabel = authLabel.replace(/  +/g, ' ')
 
             console.info("authLabel: ", authLabel)
+            console.info(">>>>>>>>>>>>", this.fourXXParts)
 
             if (dollarKey.a){
               window.clearTimeout(this.fourXXResultsTimeout)
