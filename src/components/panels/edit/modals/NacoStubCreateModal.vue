@@ -125,6 +125,7 @@
 
 
       disableAddButton() {
+        console.info("this.fourXXErrors: ", this.fourXXErrors)
 
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
@@ -353,6 +354,11 @@
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
           // console.log("additonalFields",additonalFields)
+          console.info("buildNacoStub:")
+          console.info("\t this.oneXXParts: ", this.oneXXParts)
+          console.info("\t this.fourXXParts: ", this.fourXXParts)
+          console.info("\t additonalFields: ", additonalFields)
+
           let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode, this.newLccn)
 
           this.MARCXml = results.xml
@@ -2382,7 +2388,7 @@
 
                       <template v-if="fiveXXResults.length>0 && fiveXXResults.length<=5">
                         <div v-for="r in fiveXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
-                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx" v-if="fiveXXResults.length != 1">south</span></button>
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx">south</span></button>
                         </div>
                       </template>
                       <template v-else-if="fiveXXResults.length>0 && fiveXXResults.length>5">
