@@ -364,9 +364,9 @@
           // n81022752
           // If the the ID last mode date and the folio last mod date are with 24 hours of each other, sync
           if (!this.syncNar){
-            let lastDate = new Date(lastMod)
+            let lastDate = new Date(lastMod) // ID
 
-            const diffMs = modDate - lastDate
+            const diffMs = modDate - lastDate   // FOLIO minus
             const seconds = Math.floor(diffMs / 1000);
             const minutes = Math.floor(seconds / 60);
             const hours = Math.floor(minutes / 60);
@@ -374,8 +374,7 @@
 
             // it's on the same day
             // if ( (days == 0) && (hours && hours <= 24 && hours > 0))
-            if ( (days == 0) )
-            {
+            if ( seconds && seconds >= 0 && days == 0 ){
               this.syncNar = true
             }
 
