@@ -339,8 +339,9 @@
         this.resetBcp()
         this.MARClccn = data.uri.split("/").at(-1)
 
+        let lastMod = false
         if (Object.keys(data.extra).includes('lastmods')){
-          let lastMod = data.extra.lastmods[0]
+          lastMod = data.extra.lastmods[0]
           let earlier = new Date(lastMod) < new Date("2026-08-07");
           this.syncNar = earlier
         }
@@ -353,9 +354,32 @@
           const diffMs = now - modDate;
           const seconds = Math.floor(diffMs / 1000);
           const minutes = Math.floor(seconds / 60);
-          if (!this.syncNar && minutes && minutes <= 10){
+          const hours = Math.floor(minutes / 60);
+          const days = Math.floor(hours / 24);
+
+          if (!this.syncNar && minutes && minutes <= 60 && hours == 0 && days == 0){
             this.syncNar = true
           }
+          // n2017241650
+          // n81022752
+          // If the the ID last mode date and the folio last mod date are with 24 hours of each other, sync
+          if (!this.syncNar){
+            let lastDate = new Date(lastMod) // ID
+
+            const diffMs = modDate - lastDate   // FOLIO minus
+            const seconds = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            // it's on the same day
+            // if ( (days == 0) && (hours && hours <= 24 && hours > 0))
+            if ( seconds && seconds >= 0 && days == 0 ){
+              this.syncNar = true
+            }
+
+          }
+
         } catch(err) {
           console.error("Error checking diff: ", err)
         }
