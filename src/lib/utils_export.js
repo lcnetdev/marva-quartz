@@ -2385,12 +2385,6 @@ const utilsExport = {
 	},
 
 	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
-		console.info("\n\ncreateNacoStubXML:")
-		console.info("\t oneXXParts: ", oneXXParts)
-		console.info("\t fourXXParts: ", fourXXParts)
-		console.info("\t mainTitle: ", mainTitle)
-		console.info("\t extraMarcStatements: ", extraMarcStatements)
-
 		let marcTxt = ''
 		marcTxt = marcTxt + " 111111111122222222223333333333\n"
 		marcTxt = marcTxt + "       0123456789012345678901234567890123456789\n"

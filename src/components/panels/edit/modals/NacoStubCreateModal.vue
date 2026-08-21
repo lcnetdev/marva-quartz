@@ -353,11 +353,6 @@
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
           // console.log("additonalFields",additonalFields)
-          console.info("buildNacoStub:")
-          console.info("\t this.oneXXParts: ", this.oneXXParts)
-          console.info("\t this.fourXXParts: ", this.fourXXParts)
-          console.info("\t additonalFields: ", additonalFields)
-
           let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode, this.newLccn)
 
           this.MARCXml = results.xml
@@ -594,7 +589,6 @@
          * param rowIdx = the index for the extra row
          */
         async searchAuthLabel(authLabel,field, rowIdx=false){
-          console.info("AuthSearch: ", field, "--", authLabel)
           this.searching = true
 
           if (!rowIdx){
@@ -623,18 +617,11 @@
           let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true)
           // console.log("search results",results)
           // $aFauré, Gabriel,$d1845-1924.$tBallades,$mpiano$nop. 19
-          console.info("results: ", results)
-
           let exactMatches = this.findAuthExactMatch(results, authLabel)
-          console.info("exactMatches: ", exactMatches)
-
           this.oneXXExactMatches.concat(exactMatches)
           // console.log("oneXXExactMatches", this.oneXXExactMatches)
-          console.info("oneXXExactMatches", this.oneXXExactMatches)
           let formatted = []
-          console.info("\tresults: ", results)
           for (let key of Object.keys(results)){
-            console.info("\t\tkey: ", key)
             if (key != 'metadata'){
               let toAdd = {name:results[key][0], uri:key}
               // console.log(results.metadata)
@@ -651,15 +638,11 @@
                 continue
               }
               toAdd.variantMatch = this.matchVariant(toAdd.more.variantLabels, authLabel)
-              console.info("\t\t\t toAdd: ", toAdd)
               formatted.push(toAdd)
 
             }
           }
-
           // console.log("formatted",formatted)
-          console.info("formatted",formatted)
-
           // inject rowIdx in to formatted results
           formatted.map(item => item.rowIdx=rowIdx)
 
@@ -672,13 +655,7 @@
             // this.oneXXResults = formatted
             this.oneXXResults = [...new Set([...this.oneXXResults, ...formatted])]
           }
-          console.info("\tthis.oneXXResults: ", this.oneXXResults)
-          console.info("\tthis.fourXXResults: ", this.fourXXResults)
-          console.info("\tthis.fiveXXResults: ", this.fourXXResults, "\n")
-
           this.searching = false
-
-
         },
 
         replace5XX(data){
@@ -955,13 +932,8 @@
          * @param rowIdx = the index for the extra row
          */
         checkFourXX(target=false, rowIdx=false){
-          console.info("checkFourXX: ", this.fourXX, "--", rowIdx, "--", target)
-
           if (!target) { target = this.fourXX }
           else { target = `${target.fieldTag}${target.indicators}${target.value}` }
-
-          console.info("target: ", target)
-
           this.fourXXErrors = []
           target = target.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
@@ -988,7 +960,6 @@
           }
 
           let fourXXParts = target.split(/[$‡ǂ|]/)
-          console.info("fourXXParts: ", fourXXParts)
           if (fourXXParts.length>0){
 
             let fieldTag = fourXXParts[0].slice(0,3)
@@ -1061,9 +1032,6 @@
 
             authLabel = authLabel.replace(/  +/g, ' ')
 
-            console.info("authLabel: ", authLabel)
-            console.info(">>>>>>>>>>>>", this.fourXXParts)
-
             if (dollarKey.a){
               window.clearTimeout(this.fourXXResultsTimeout)
               this.fourXXResultsTimeout = window.setTimeout(()=>{
@@ -1116,10 +1084,6 @@
           if (count == 0){
             this.fourXXErrors.push("No Subfield a entered for 4XX")
           }
-
-          console.info("this.fourXXErrors: ", this.fourXXErrors)
-
-
         },
 
         set1xxFromSearchString(lastComplexLookupString){
