@@ -30,8 +30,9 @@ export default {
 
 
         useIcon() {
-            const preferred = ['translate']
-            const notPref = ['translate']
+            const preferred = ['🗣️']
+            const notPref = ['🗣️']
+            // 🗣️translate
 
             if (this.data.code){
                 if (this.data.pref) return preferred
@@ -57,19 +58,25 @@ export default {
 
 <style scoped>
 .bcp-icon {
-    font-size: .9em
+    font-size: 1.2em
 }
 
 .pref {
-    color: green;
+    /* color: green; */
+    color: transparent;
+    text-shadow: 0 0 0 green;
 }
 
 .notPref {
-    color: gray;
+    /* color: gray; */
+    color: transparent;
+    text-shadow: 0 0 0 gray;
 }
 
 .und {
-    color: red;
+    /* color: red; */
+    color: transparent;
+    text-shadow: 0 0 0 red;
 }
 
 </style>

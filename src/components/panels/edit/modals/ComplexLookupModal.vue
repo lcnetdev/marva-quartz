@@ -337,33 +337,18 @@
       },
 
       checkHasBcp: function(val, data, key){
-        console.info("checkHasBcp")
-        console.info("\t val: ", val)
-        console.info("\t data: ", data)
-        console.info("\t key: ", key)
-
         let bcp = false
         let pref = false
         if (key == 'variantLabels'){
-          console.info("data: ", data)
           if (data.extra.vernacularMarcKeys){
             for (let k of data.extra.vernacularMarcKeys){
-
-              console.info("\t\t k: ", k.replace(/\$[a-z0-9]/g, ' '))
-              console.info("\t\t\t val: ", val)
-
               let parts = k.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
               let subA = parts.filter(p => p.includes('$a'))[0].slice(2)
               if (subA.endsWith(',')){
                 subA = subA.slice(0, -1)
               }
-
-              console.info("\t\t\t parts: ", parts)
-              console.info("\t\t\t subA: ", subA)
-
               // if (k.includes(val)){
               if (val.includes(subA)){
-                console.info("k: ", k)
                 let hasBcp = k.includes('bcp47')
                 if (hasBcp){
                   bcp = parts.filter(i => i.includes('bcp'))[0].split('(bcp47)')[1]
@@ -663,8 +648,6 @@
         const marcXML = this.xmlDoc
         let updates = this.marcData
 
-        console.info("updates: ", updates)
-
         let numEval = 0
         let totalVars = 0
         for (let key of Object.keys(updates)){
@@ -715,8 +698,6 @@
         }
         for (let idx of remove670){ s670s.splice(idx, 1) }
         this.marcData['source670s'] = s670s
-
-        console.info("targets: ", this.xmlTargets)
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
