@@ -2008,7 +2008,7 @@
 
                 <div class="button-container">
                   <button @click="submitEdit()" v-if="!validationErrors">Submit</button>
-                  <button @click="hidePreview()">Cancel</button>
+                  <button @click="hidePreview()">Go Back</button>
                 </div>
 
 
