@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.7.1] - 2026-08-28
+### Updated
+- Expand search in NAR creation to cover all 4XX & 5XX fields
+
 ## [1.7.0] - 2026-08-14
 ### Added
 - Support for BCP and Preferred Variants
