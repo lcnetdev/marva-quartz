@@ -1261,6 +1261,8 @@
               if (event.target.value.indexOf(m.lookFor) > -1){
                 event.target.value = event.target.value.replace(m.lookFor,m.replaceWith)
                 this.searchValueLocal = event.target.value
+                let extraIdx = event.target.id.split("-").at(-1)
+                this.extraMarcStatements[extraIdx].value = event.target.value
               }
             }
           }
@@ -2560,7 +2562,6 @@
                       :style="`margin-right: 1em; flex-grow: 1; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
-
                       @input="/[45]\d\d/.test(row.fieldTag) ? checkFourXX(row, index) : null"
                     ></textarea>
 
