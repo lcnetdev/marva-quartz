@@ -145,6 +145,10 @@
 
   </template>
     <div v-if="displayAutocomplete==true" ref="selectlist" :class="{'autocomplete-container':true, 'autocomplete-container-camm-mode': returnCAMModeShowAutoComplete}">
+      <div v-if="activeShortcodeAlias" class="shortcode-alias-callout">
+        <span class="material-icons shortcode-alias-callout-icon">bolt</span>
+        Shortcode alias &mdash; [Enter] will add: <strong>{{ activeShortcodeAlias.label }}</strong>
+      </div>
       <ul>
         <li v-for="(item, idx) in displayList" :data-idx="idx" v-bind:key="idx" @click="clickAdd(item)">
             <span v-if="item==activeSelect"  :data-idx="idx" class="selected">{{item}}</span>
@@ -374,6 +378,17 @@ export default {
         }
       }
       return false
+    },
+
+    // if current val matches a shortcode get the {uri,label} and show in the list that a shortcode will be used if they do press eneter now  
+    activeShortcodeAlias(){
+      if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+        return null
+      }
+      if (!this.activeValue || this.activeValue.trim() == ''){
+        return null
+      }
+      return this.preferenceStore.returnShortcodeAlias(this.uri, this.activeValue)
     },
 
 
@@ -858,6 +873,23 @@ export default {
         }
 
         this.doubleDelete = false
+
+        // check whether what the user typed matches a shortcode alias configured for this
+        // vocabulary — an alias always beats whatever happens to be highlighted in the autocomplete
+        if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+          let shortcodeAlias = this.preferenceStore.returnShortcodeAlias(this.uri, event.target.value)
+          if (shortcodeAlias){
+            this.activePlaceholderText=''
+            this.activeFilter = ''
+            this.activeValue = ''
+            this.activeSelect = ''
+            this.displayAutocomplete=false
+            event.target.value = ''
+            this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,shortcodeAlias.uri,shortcodeAlias.label)
+            event.preventDefault()
+            return
+          }
+        }
 
         let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
 
@@ -1555,6 +1587,22 @@ export default {
 
 .autocomplete-container-camm-mode{
  display: none;
+}
+
+.shortcode-alias-callout{
+  background-color: lightgoldenrodyellow;
+  color: black;
+  border: solid 1px lightslategray;
+  border-radius: 5px;
+  padding: 0.25em 0.5em;
+  margin-bottom: 0.35em;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+}
+.shortcode-alias-callout-icon{
+  font-size: 1.25em;
+  padding-right: 0.25em;
 }
 
 .component .lookup-fake-input{
