@@ -58,6 +58,9 @@
         fourXXParts: {},
         fourXXErrors: [],
         fourXXResults: [],
+        fiveXXParts: {},
+        fiveXXErrors: [],
+        fiveXXResults: [],
         fourXXResultsTimeout: null,
 
 
@@ -122,7 +125,6 @@
 
 
       disableAddButton() {
-
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
         }
@@ -152,10 +154,11 @@
           return true
         }
 
-
         if (this.validationResult && this.validationResult.validation && ['Empty subfields.', 'Empty datafields.'].includes(this.validationResult.validation[0].message)){
           return true
         }
+
+        // TODO: add check for uniqueness in 4XXs
 
         return false
       }
@@ -235,7 +238,7 @@
 
       // Check that advanced mode doesn't have 670 $b ()
       good670: function(){
-        let good = this.extraMarcStatements.some((row) => !row.value.includes('$b ()'))
+        let good = this.extraMarcStatements.some((row) => !row.value.includes('$b ()') && row.fieldTag == '670')
         return good
       },
 
@@ -580,14 +583,27 @@
 
         },
 
-        async searchAuthLabel(authLabel,field){
+        /**
+         * param authLabel = label being searched
+         * param field = tag being searched
+         * param rowIdx = the index for the extra row
+         */
+        async searchAuthLabel(authLabel,field, rowIdx=false){
           this.searching = true
 
-          // clear results
+          if (!rowIdx){
+            rowIdx = '4XX-input-main'
+          }
+
+          // clear results for this row
           if (field=='4xx'){
-            this.fourXXResults = []
+            this.fourXXResults = this.fourXXResults.filter(item => item.rowIdx != rowIdx)
+            // this.fourXXResults = []
+          } else if (field=='5xx'){
+            this.fiveXXResults = this.fiveXXResults.filter(item => item.rowIdx != rowIdx)
           }else{
-            this.oneXXResults = []
+            this.oneXXResults = this.oneXXResults.filter(item => item.rowIdx != rowIdx)
+            // this.oneXXResults = []
           }
 
 
@@ -600,8 +616,9 @@
           }
           let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true)
           // console.log("search results",results)
-
-          this.oneXXExactMatches = this.findAuthExactMatch(results, authLabel)
+          // $aFauré, Gabriel,$d1845-1924.$tBallades,$mpiano$nop. 19
+          let exactMatches = this.findAuthExactMatch(results, authLabel)
+          this.oneXXExactMatches.concat(exactMatches)
           // console.log("oneXXExactMatches", this.oneXXExactMatches)
           let formatted = []
           for (let key of Object.keys(results)){
@@ -625,18 +642,29 @@
 
             }
           }
-
           // console.log("formatted",formatted)
+          // inject rowIdx in to formatted results
+          formatted.map(item => item.rowIdx=rowIdx)
 
           if (field=='4xx'){
-            this.fourXXResults = formatted
+            // this.fourXXResults = formatted
+            this.fourXXResults = [...new Set([...this.fourXXResults, ...formatted])]
+          } else if (field=='5xx'){
+            this.fiveXXResults = [...new Set([...this.fiveXXResults, ...formatted])]
           }else{
-            this.oneXXResults = formatted
+            // this.oneXXResults = formatted
+            this.oneXXResults = [...new Set([...this.oneXXResults, ...formatted])]
           }
-
           this.searching = false
+        },
 
-
+        replace5XX(data){
+          let newValue = data.more.marcKeys[0].slice(5)
+          let idx = data.rowIdx
+          let id = `extra-input-${idx}`
+          let el = document.getElementById(id)
+          el.value = newValue
+          el.dispatchEvent(new Event('input', { bubbles: true })); // trigger the
         },
 
         checkOneXX(){
@@ -898,34 +926,40 @@
 
         },
 
-        checkFourXX(){
-
+        /**
+         *
+         * @param target = The row data for additional 4XX fields
+         * @param rowIdx = the index for the extra row
+         */
+        checkFourXX(target=false, rowIdx=false){
+          if (!target) { target = this.fourXX }
+          else { target = `${target.fieldTag}${target.indicators}${target.value}` }
           this.fourXXErrors = []
-          this.fourXX = this.fourXX.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
+          target = target.replace(/[‒‐—–―]/g, '-') // normalize different types of dashes to a standard hyphen
 
-          if (this.fourXX.length<3){ return true}
+          if (target.length<3){ return true }
 
           // check the auth label for a textmacro and update it
           let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
           if (useTextMacros && useTextMacros.length>0){
             for (let m of useTextMacros){
-              if (this.fourXX.indexOf(m.lookFor) > -1){
-                this.fourXX = this.fourXX.replace(m.lookFor,m.replaceWith)
-                this.searchValueLocal = this.fourXX
+              if (target.indexOf(m.lookFor) > -1){
+                target = target.replace(m.lookFor,m.replaceWith)
+                this.searchValueLocal = target
               }
             }
           }
 
-          if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
+          if (/[^0-9 #]/.test(target.slice(3,5))){
             this.fourXXErrors.push("There's an invalid indicator for 4XX")
           }
 
-          if (!/4[0-9]{2}/.test(this.fourXX.slice(0,3))){
-            this.fourXXErrors.push(this.fourXX.slice(0,3) + " invalid tag")
+          if (!/[45][0-9]{2}/.test(target.slice(0,3))){
+            this.fourXXErrors.push(target.slice(0,3) + " invalid tag")
             return false
           }
 
-          let fourXXParts = this.fourXX.split(/[$‡ǂ|]/)
+          let fourXXParts = target.split(/[$‡ǂ|]/)
           if (fourXXParts.length>0){
 
             let fieldTag = fourXXParts[0].slice(0,3)
@@ -940,7 +974,13 @@
                 this.fourXXErrors.push("Invalid indicator character(s)")
               }
             }
-            this.fourXXParts = {}
+
+            if (target.startsWith("4") && !rowIdx){
+              this.fourXXParts = {}
+            } else if (target.startsWith("5")){
+              this.fiveXXParts = {}
+            }
+
             let dollarParts = fourXXParts.slice(1)
 
             let dollarKey = {}
@@ -961,7 +1001,12 @@
             dollarKey.fieldTag = fieldTag
             dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
-            this.fourXXParts = dollarKey
+
+            if (target.startsWith("4") && !rowIdx){
+              this.fourXXParts = dollarKey
+            } else if (target.startsWith("5")){
+              this.fiveXXParts = dollarKey
+            }
             let authLabel = ""
             if (dollarKey.a){
               authLabel = authLabel + dollarKey.a
@@ -990,7 +1035,11 @@
             if (dollarKey.a){
               window.clearTimeout(this.fourXXResultsTimeout)
               this.fourXXResultsTimeout = window.setTimeout(()=>{
-                this.searchAuthLabel(authLabel,'4xx')
+                if (target.startsWith('4')){
+                  this.searchAuthLabel(authLabel,'4xx', rowIdx)
+                } else {
+                  this.searchAuthLabel(authLabel,'5xx', rowIdx)
+                }
               },500)
 
             }
@@ -1031,12 +1080,10 @@
             errors.push("Bad 4XX")
           }
 
-          let count = (this.fourXX.match(/\$a/g) || []).length;
+          let count = (target.match(/\$a/g) || []).length;
           if (count == 0){
             this.fourXXErrors.push("No Subfield a entered for 4XX")
           }
-
-
         },
 
         set1xxFromSearchString(lastComplexLookupString){
@@ -1214,6 +1261,8 @@
               if (event.target.value.indexOf(m.lookFor) > -1){
                 event.target.value = event.target.value.replace(m.lookFor,m.replaceWith)
                 this.searchValueLocal = event.target.value
+                let extraIdx = event.target.id.split("-").at(-1)
+                this.extraMarcStatements[extraIdx].value = event.target.value
               }
             }
           }
@@ -1613,12 +1662,24 @@
           let nonLatin = this.profileStore.returnAllNonLatinLiterals()
           for (let item of nonLatin){
             let lang = item.lang
-            if (Object.keys(this.langs).includes(lang)){
+            if (lang?.includes("zxx")){ continue }
+
+            if (lang?.includes("-")){
+              let l = lang.split("-")[0]
+              if ( l in this.langs ){
+                this.langs[l] += 1
+              } else {
+                this.langs[l] = 2
+              }
+            }
+
+            if (lang in this.langs){
               this.langs[lang] = this.langs[lang] + 1
             } else {
               this.langs[lang] = 1
             }
           }
+
           if (Object.keys(this.langs).length > 0){
             this.selectedBcp = Object.keys(this.langs).reduce((a,b) => this.langs[a] > this.langs[b] ? a : b)
           }
@@ -1951,13 +2012,24 @@
             alert("Add a non-Latin 4XX value to continue.")
             return
           }
-          let val = event.target.value
+
+          let val = false
+          if (typeof event == 'object'){
+            val = event.target.value
+          }
           this.selectedBcp = val
           if (val != 'expand'){
             this.bcp = val.toLowerCase()
             return
           }
-          let parts = this.fourXX.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+
+          let label = this.fourXX
+          this.expandBcpSelection(label)
+
+        },
+
+        expandBcpSelection: async function(label){
+          let parts = label.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
           let name = parts.filter(p => p.includes("$a"))[0]
           let bcpCodes = await utilsNetwork.fetchBCP47Codes(name)
           // add to langs
@@ -2115,19 +2187,20 @@
                   <button class="dollar-7-auto simptip-position-left" @click="addDollar7('fourXX')" data-tooltip="Add a BCP code" v-if="Object.keys(langs).length > 0">$7</button>
                   <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
                   <textarea
+                    id="4XX-input-main"
                     ref="nar-4xx"
                     v-model="fourXX"
                     placeholder="4XX##$a....$d...."
                     :style="`color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                     :class="['title', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
-                    @input="checkFourXX"
+                    @input="checkFourXX()"
                     @keydown="keydown" @keyup="keyup"
                     ></textarea>
                 </div>
               </div>
 
-              <div style="display: flex; margin-bottom: 1em;">
-                <div style="flex: 1 3;">
+              <div style="display: flex; margin-bottom: 1em; gap:1em">
+                <div style="flex: 1;">
                   <select @change="presetChange" class="preset-select">
                     <option class="preset-option" value="home">Presets</option>
                     <option class="preset-option" value="1000#">"1000 "</option>
@@ -2144,12 +2217,10 @@
                     <option class="preset-option" value="430#and 430##">"130##" &amp; "430##"</option>
                     <option class="preset-option" value="151##">"151##"</option>
                     <option class="preset-option" value="151##and 451##">"151## &amp; 451##"</option>
-
-
-
                   </select>
                 </div>
-                <div style="flex: 1 3;">
+
+                <div style="flex: 1;">
                   <select @change="transliterateChange">
                     <option value="home">Transliterate</option>
                     <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
@@ -2159,15 +2230,16 @@
                   </select>
                 </div>
               </div>
+
               <div>
-                  Set BCP
-                  <select @change="setBcp" v-model="selectedBcp">
-                    <template v-for="(value, key) in langs">
-                      <option :value="key">{{ key }}</option>
-                    </template>
-                    <option value="expand">Expand</option>
-                  </select>
-                </div>
+                Set BCP
+                <select @change="setBcp" v-model="selectedBcp">
+                  <template v-for="(value, key) in langs">
+                    <option :value="key">{{ key }}</option>
+                  </template>
+                  <option value="expand" @click="setBcp">Expand</option>
+                </select>
+              </div>
 
 
 
@@ -2267,6 +2339,41 @@
                         <summary>There are {{ fourXXResults.length }} hits on that name.</summary>
                         <div v-for="r in fourXXResults">
                           <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </details>
+                      </template>
+
+                      <template v-if="fiveXXResults.length == 1">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">5XX Heading FOUND in LCNAF file:</span>
+                        </div>
+                      </template>
+                      <template v-else-if="fiveXXResults.length > 1">
+                        <div>
+                          <span class="material-icons warning">warning</span>
+                          <span class="not-unique-text">5XX Heading FOUND <span style="font-weight: bold;">MULTIPLE</span> in LCNAF file:</span>
+                        </div>
+                      </template>
+
+
+                      <template v-if="fiveXXResults.length==0 && fiveXXParts && fiveXXParts.a && searching==false">
+                        <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">5XX: Heading NOT found in LCNAF file:</span>
+                        </div>
+                      </template>
+
+                      <template v-if="fiveXXResults.length>0 && fiveXXResults.length<=5">
+                        <div v-for="r in fiveXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx">south</span></button>
+                        </div>
+                      </template>
+                      <template v-else-if="fiveXXResults.length>0 && fiveXXResults.length>5">
+                      <details style="margin-bottom: 1em; padding-left: 2em;">
+                        <summary>There are {{ fiveXXResults.length }} hits on that name.</summary>
+                        <div v-for="r in fiveXXResults">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span> <button class="replace-button" @click="replace5XX(r)"><span class="material-icons replace-5xx">south</span></button>
                         </div>
                       </details>
                       </template>
@@ -2394,7 +2501,7 @@
                     <input :class="['literal-input', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]" placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" :style="`width:100%; margin-bottom:0.25em; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`" :disabled="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" />
 
                     <template v-if="statementOfResponsibilityOptions && statementOfResponsibilityOptions.length>0">
-                      <div style="padding: 0.2em;">
+                      <div style="padding: 0.2em; display: flex; flex-wrap: wrap">
                         Multi SOR found:
                         <template v-for="(sor, index) in statementOfResponsibilityOptions">
                           <button style="font-size: 0.75em;" @click="mainTitleNote = profileStore.checkCip() ? 'CIP title page (' + sor.trim() + ')' : 'title page (' + sor.trim() + ')'; update670()">{{ sor }}</button>
@@ -2461,15 +2568,20 @@
                     />
 
                     <textarea
+                      :id="`extra-input-${index}`"
                       v-model="row.value"
                       placeholder="$a xyz $b abc..."
                       :style="`margin-right: 1em; flex-grow: 1; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                       :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
+                      @input="/[45]\d\d/.test(row.fieldTag) ? checkFourXX(row, index) : null"
                     ></textarea>
 
+                    <div style="height: 100%;">
+                      <button v-if="/4\d\d/.test(row.fieldTag)" @click="addDollar7(row)" style="display:block;">$7</button>
+                      <button v-if="/4\d\d/.test(row.fieldTag)" @click="expandBcpSelection(row.value)" style="display:block;">Expand</button>
+                    </div>
 
-                    <button v-if="/4\d\d/.test(row.fieldTag) && Object.keys(langs).length > 0" @click="addDollar7(row)">$7</button>
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index && index != 0" @click="removeRow($event,index)" style="margin-left: 1em;">-</button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
@@ -2805,11 +2917,17 @@ select{
     background-color: red;
   }
 
-
   @keyframes grow {
     0% { transform: scale(1); }
     50% { transform: scale(2); color: blue }
     100% { transform: scale(1); }
+  }
+
+  .replace-button{
+    padding: 0;
+  }
+  .replace-5xx {
+    font-size: 1em;
   }
 
 </style>

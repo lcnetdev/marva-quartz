@@ -4460,8 +4460,10 @@ const utilsNetwork = {
         let sync = await fetch(url)
       }
       let url = `https://preprod-8080.id.loc.gov/authorities/names/${lccn}.marcxml.xml` //"https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml"
-      let marcXML = await this.fetchSimpleLookup(url)
-      return marcXML
+      // let marcXML = await this.fetchSimpleLookup(url, true)
+      let marcXml = await fetch(url, {cache: 'no-cache'})
+      let text = await marcXml.text()
+      return text
     },
 
     async fetchBCP47Codes(string, hint=false){

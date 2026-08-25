@@ -388,8 +388,9 @@
         this.resetBcp()
         this.MARClccn = data.uri.split("/").at(-1)
 
+        let lastMod = false
         if (Object.keys(data.extra).includes('lastmods')){
-          let lastMod = data.extra.lastmods[0]
+          lastMod = data.extra.lastmods[0]
           let earlier = new Date(lastMod) < new Date("2026-08-07");
           this.syncNar = earlier
         }
@@ -402,9 +403,32 @@
           const diffMs = now - modDate;
           const seconds = Math.floor(diffMs / 1000);
           const minutes = Math.floor(seconds / 60);
-          if (!this.syncNar && minutes && minutes <= 10){
+          const hours = Math.floor(minutes / 60);
+          const days = Math.floor(hours / 24);
+
+          if (!this.syncNar && minutes && minutes <= 60 && hours == 0 && days == 0){
             this.syncNar = true
           }
+          // n2017241650
+          // n81022752
+          // If the the ID last mode date and the folio last mod date are with 24 hours of each other, sync
+          if (!this.syncNar){
+            let lastDate = new Date(lastMod) // ID
+
+            const diffMs = modDate - lastDate   // FOLIO minus
+            const seconds = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            // it's on the same day
+            // if ( (days == 0) && (hours && hours <= 24 && hours > 0))
+            if ( seconds && seconds >= 0 && days == 0 ){
+              this.syncNar = true
+            }
+
+          }
+
         } catch(err) {
           console.error("Error checking diff: ", err)
         }
@@ -467,7 +491,7 @@
         let vars = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')
         for (let varIdx in Array.from(vars)){
           let variant = Array.from(vars[varIdx].children).map((item) => {
-            if(data.type != 'Hub' && item.getAttribute('code') == 'a'){
+            if(data.type != 'Hub' ){ //&& ['a', 'b'].includes(item.getAttribute('code'))
               return item.textContent
             } else if (data.type == 'Hub' && ['a', 't'].includes(item.getAttribute('code'))){
               return item.textContent
@@ -563,23 +587,37 @@
         // with the same BCP code aren't preferred
         let pref47 = {}
         let checks = []
+        let all = 0
+        let evaluated = 0
 
         for (let key of Object.keys(this.marcData)){
           let value = this.marcData[key]
+          if (typeof value == 'object'){
+            all += 1
+          }
           if (value.pref){
             if (!Object.keys(value).includes("subfield_7") || value["subfield_7"].length == 0){
-              checks.push("A name has been marked as preferred, without having a BCP code added to it. Name: " + value.displayName)
+              checks.push({level: "ERROR", message: "A name has been marked as preferred, without having a BCP code added to it. Name: " + value.displayName})
             } else {
               for(let bcp of value["subfield_7"]){
                 if (pref47[bcp] == 1){
-                  checks.push("Multiple preferred forms have the same BCPcode: " + bcp)
+                  checks.push({level: "ERROR", message: "Multiple preferred forms have the same BCPcode: " + bcp})
                 }
                 pref47[bcp] = pref47[bcp] ? pref47[bcp] + 1 : 1;
 
               }
             }
           }
+          if (value['subfield_7']){
+            evaluated += 1
+          }
         }
+
+        if (all == evaluated && !this.refEval){
+          checks.push({level: 'INFO', message:"All references have BCP codes, but the reference evaluated box wasn't checked."})
+        }
+
+
         return checks
       },
 
@@ -620,15 +658,15 @@
         this.showMarcPreview = true
         let prefChecks = this.checkPrefLabels()
 
-        this.marcData.refEval = this.refEval
         // this.marcData['note667'] = this.note667
 
         const marcXML = this.xmlDoc
         let updates = this.marcData
 
+        console.info("updates: ", updates)
+
         let numEval = 0
         let totalVars = 0
-        // TODO: check if all variants have been evaluated (have bcp codes), to have 667 to "Some non-Latin.... have been evaluated"
         for (let key of Object.keys(updates)){
           let data = updates[key]
           totalVars += 1
@@ -641,6 +679,8 @@
         if (someEval && !this.marcData.refEval){
           this.marcData.refEval = "some"
         }
+
+        this.marcData.refEval = this.refEval
 
         // add a target for any additions
         for (let idx in updates){
@@ -676,6 +716,7 @@
         for (let idx of remove670){ s670s.splice(idx, 1) }
         this.marcData['source670s'] = s670s
 
+        console.info("targets: ", this.xmlTargets)
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
@@ -693,8 +734,8 @@
         if (prefChecks.length > 0 ){
           for (let mess of prefChecks){
             this.validationResult.validation.push({
-              level: 'ERROR',
-              message: mess,
+              level: mess.level,
+              message: mess.message,
             })
           }
         }
@@ -714,7 +755,6 @@
             this.updatedRecord = this.updatedRecord + field.join(" ") + "\n"
           }
         }
-
         this.submitting = false
       },
 
@@ -762,7 +802,6 @@
           'newRow': this.marcData[this.activeIndex].newRow,
           'scripts': this.marcData[this.activeIndex].scripts ? this.marcData[this.activeIndex].scripts : [],
         }
-
 
         let key = ''
         let marcKey = this.marcData[this.activeIndex].tag + this.marcData[this.activeIndex].indicators
@@ -855,10 +894,10 @@
       dupeBcpRow: function(idx){
         let newIdx = false
         if (!idx.startsWith("##")){
-          newIdx = "##" + (Number(idx) + 1)
+          newIdx = "##" + (Number(idx) + Object.keys(this.marcData).length+1)
         } else {
           let temp = idx.replace("##", "")
-          newIdx = "##" + (Number(temp) + 1)
+          newIdx = "##" + (Number(temp) + Object.keys(this.marcData).length+1)
         }
 
         this.marcData[newIdx] = JSON.parse(JSON.stringify(this.marcData[idx]))
@@ -935,7 +974,11 @@
         this.buildNewMarcKey()
 
         window.setTimeout(async ()=>{
-          el.setSelectionRange(startPos, startPos)
+          if (event.inputType == "deleteContentBackward" ){
+            el.setSelectionRange(startPos-1, startPos-1)
+          } else {
+            el.setSelectionRange(startPos+1, startPos+1)
+          }
           this.getBcpSuggestions()
         }, 1)
       },
@@ -2057,7 +2100,7 @@
 
                 <div class="button-container">
                   <button @click="submitEdit()" v-if="!validationErrors">Submit</button>
-                  <button @click="hidePreview()">Cancel</button>
+                  <button @click="hidePreview()">Go Back</button>
                 </div>
 
 
@@ -2131,7 +2174,7 @@
                   </div>
 
                 <div class="button-container">
-                  <label for="refEval">All References Evaluated?</label>
+                  <label for="refEval" class="all-ref-check">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
                   <br><br>
                   <button @click="overrideTG = true; buildFeedbackLink()">Feedback</button>
@@ -3045,6 +3088,11 @@ input.prefCheck[type=checkbox]:checked+label {
   100% {
     opacity: .1;
   }
+}
+
+.all-ref-check {
+  font-weight: bold;
+  font-size: 1em;
 }
 
 </style>
