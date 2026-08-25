@@ -861,6 +861,20 @@ export const usePreferenceStore = defineStore('preference', {
       group: 'Lookup Field',
       range: [0.75,2]
   },
+  // shortcodes users can set up for quick entry on simple lookups — first keyed by
+  // vocabulary uri, then by the shortcode itself, e.g. {"http://id.loc.gov/vocabulary/mstatus": {"inv": {uri: "...", label: "..."}}}
+  // managed through the action button menu on those fields
+  '--o-edit-main-lookup-shortcode-aliases' : {
+      desc: 'Shortcode aliases for simple lookup fields.',
+      descShort: 'Lookup Shortcode Aliases',
+      value: {},
+      step: null,
+      type: 'object',
+      unit: null,
+      group: 'Lookup Field',
+      hide: true,
+      range: null
+  },
 
 
 
@@ -2237,6 +2251,55 @@ export const usePreferenceStore = defineStore('preference', {
     loadOrder: function(){
       let currentOrder = this.returnValue('--l-custom-order')
       return currentOrder
+    },
+
+    /**
+    * Looks up what a given shortcode expands to within a simple lookup vocabulary
+    * @param {string} lookupUri - uri of the vocabulary in play (the useValuesFrom value)
+    * @param {string} shortcode - whatever shortcode the user entered
+    * @return {object|null} - {uri,label} the alias points at, or null when none exists
+    */
+    returnShortcodeAlias: function(lookupUri, shortcode){
+      if (!lookupUri || !shortcode){ return null }
+      let aliases = this.returnValue('--o-edit-main-lookup-shortcode-aliases')
+      shortcode = shortcode.toLowerCase().trim()
+      if (aliases && aliases[lookupUri] && aliases[lookupUri][shortcode]){
+        return aliases[lookupUri][shortcode]
+      }
+      return null
+    },
+
+    /**
+    * Saves an alias tying a shortcode to a value in a simple lookup vocabulary
+    * @param {string} lookupUri - uri of the vocabulary in play (the useValuesFrom value)
+    * @param {string} shortcode - the shortcut to type into the field
+    * @param {string} uri - uri of the vocab value the shortcode resolves to
+    * @param {string} label - label of the vocab value the shortcode resolves to
+    * @return {void}
+    */
+    saveShortcodeAlias: function(lookupUri, shortcode, uri, label){
+      let aliases = this.returnValue('--o-edit-main-lookup-shortcode-aliases')
+      if (!aliases || typeof aliases != 'object' || Array.isArray(aliases)){ aliases = {} }
+      if (!aliases[lookupUri]){ aliases[lookupUri] = {} }
+      aliases[lookupUri][shortcode.toLowerCase().trim()] = {uri: uri, label: label}
+      this.setValue('--o-edit-main-lookup-shortcode-aliases', aliases)
+    },
+
+    /**
+    * Drops a shortcode alias from a simple lookup vocabulary
+    * @param {string} lookupUri - uri of the vocabulary in play (the useValuesFrom value)
+    * @param {string} shortcode - the shortcode being deleted
+    * @return {void}
+    */
+    removeShortcodeAlias: function(lookupUri, shortcode){
+      let aliases = this.returnValue('--o-edit-main-lookup-shortcode-aliases')
+      if (aliases && aliases[lookupUri] && aliases[lookupUri][shortcode]){
+        delete aliases[lookupUri][shortcode]
+        if (Object.keys(aliases[lookupUri]).length==0){
+          delete aliases[lookupUri]
+        }
+        this.setValue('--o-edit-main-lookup-shortcode-aliases', aliases)
+      }
     },
 
     deleteLayout: function(target){
