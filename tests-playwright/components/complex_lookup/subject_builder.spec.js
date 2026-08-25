@@ -248,15 +248,15 @@ test('add complex subdivision, type first part of subdivision and then select th
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
     await page.getByText('Dogs', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--history');
-    await page.getByText('History--20th century').click();
-    await expect(page.getByRole('heading')).toContainText('sh2002006165');
+    await page.getByText('History--19th century').click();
+    await expect(page.getByRole('heading')).toContainText('sh2002006167');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('Dogs--History--20th century');
+    await expect(page.locator('#app')).toContainText('Dogs--History--19th century');
     await expect(page.locator('#app')).toContainText('150 $aDogs');
     await expect(page.locator('#app')).toContainText('180 $xHistory');
-    await expect(page.locator('#app')).toContainText('182 $y20th century');
-    await expect(page.locator('#app')).toContainText('650 0 $a Dogs $x History $y 20th century');
+    await expect(page.locator('#app')).toContainText('182 $y19th century');
+    await expect(page.locator('#app')).toContainText('650 0 $a Dogs $x History $y 19th century');
 });
 
 // Test headings with Hierarchical Geographic
@@ -582,6 +582,29 @@ test('Add a literal and set type Temporal, it has the correct XML', async ({ pag
     await page.getByText('bf:Work').click();
     await expect(page.locator('#app')).toContainText('<madsrdf:Temporalxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
     await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">');
+    await expect(page.locator('#app')).toContainText('literal');
+});
+
+test('Add a literal and set type Family, it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/marva/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('l');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('literal');
+    await page.getByText('literal [Literal]').click();
+    await page.getByText('Family ($a)').click();
+    await page.getByRole('checkbox', { name: 'Provisional' }).check();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<bf:Family>');
     await expect(page.locator('#app')).toContainText('literal');
 });
 

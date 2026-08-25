@@ -51,6 +51,7 @@ import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 import { useConfigStore } from '@/stores/config'
 import { useMarvaScanStore } from '@/stores/marvaScan'
+import { useStateRecorderStore } from '@/stores/stateRecorder'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 import VueFileToolbarMenu from 'vue-file-toolbar-menu'
@@ -104,7 +105,7 @@ export default {
   },
   computed: {
 
-    ...mapStores(useProfileStore, usePreferenceStore, useMarvaScanStore),
+    ...mapStores(useProfileStore, usePreferenceStore, useMarvaScanStore, useStateRecorderStore),
 
     ...mapState(useProfileStore, ['profilesLoaded', 'activeProfile', 'rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
@@ -341,6 +342,17 @@ export default {
             ]
           },
         )
+
+        if (config.returnUrls.enableStateRecorder) {
+          menuButtonSubMenu.push(
+            { is: 'separator' },
+            {
+              text: 'Load State History',
+              icon: 'movie',
+              click: () => { this.stateRecorderStore.promptForHistoryFile() }
+            }
+          )
+        }
       }
 
       if (this.windowWidth < 1500 && config.returnUrls.displayLCOnlyFeatures) {
@@ -790,7 +802,23 @@ export default {
           }
         )
 
-
+        if (config.returnUrls.enableStateRecorder) {
+          menu.push(
+            {
+              text: this.stateRecorderStore.isRecording ? "Recording (" + this.stateRecorderStore.eventCount + ")" : "Record",
+              icon: this.stateRecorderStore.isRecording ? "stop_circle" : "radio_button_checked",
+              title: this.stateRecorderStore.isRecording ? "Stop recording and download the state history" : "Start recording state changes for debugging",
+              class: this.stateRecorderStore.isRecording ? "state-recorder-recording" : "state-recorder-idle",
+              click: () => {
+                if (this.stateRecorderStore.isRecording) {
+                  this.stateRecorderStore.stopRecording()
+                } else {
+                  this.stateRecorderStore.startRecording()
+                }
+              }
+            }
+          )
+        }
 
         if (config.returnUrls.displayLCOnlyFeatures) {
           menu.push(
@@ -1746,6 +1774,21 @@ export default {
 
 .hide-option {
   display: none !important;
+}
+
+.state-recorder-recording,
+.state-recorder-recording .icon {
+  color: red !important;
+}
+
+.state-recorder-recording .icon {
+  animation: state-recorder-pulse 1.2s infinite;
+}
+
+@keyframes state-recorder-pulse {
+  50% {
+    opacity: 0.35;
+  }
 }
 </style>
 

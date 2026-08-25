@@ -20,6 +20,18 @@
 
     <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
+    <Teleport to="body">
+      <div v-if="showRelWorkIframeModal" class="rel-work-iframe-overlay">
+        <div class="rel-work-iframe-container">
+          <div class="rel-work-iframe-header">
+            <span>{{ relWorkEditMode ? 'Edit Related Music Work' : 'Create Related Music Work' }}</span>
+            <button class="rel-work-iframe-close" @click="closeRelWorkIframeModal()">✕</button>
+          </div>
+          <iframe :src="relWorkIframeSrc" class="rel-work-iframe"></iframe>
+        </div>
+      </div>
+    </Teleport>
+
     <template #popper>
 
       <div class="action-button-menu-background" :style="'background-color: ' + preferenceStore.returnValue('--c-edit-general-action-button-menu-background-color')  + ';'">
@@ -123,8 +135,14 @@
 
 
         <template v-if="showBuildHubStub()">
-              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()" :style="buttonStyle">
-                Create Hub
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="isRelWorkExpressionLookupField() ? openRelWorkExpressionEditor() : buildHubStub()" :style="buttonStyle">
+                {{ isRelWorkExpressionLookupField() ? 'Create Related Music Work' : 'Create Hub' }}
+              </button>
+              <button v-if="isRelWorkExpressionLookupField() && returnExistingRelWorkExpressionUri()" class="" :id="`action-button-command-${fieldGuid}-b`" @click="openRelWorkExpressionEditor(returnExistingRelWorkExpressionUri())" :style="buttonStyle">
+                Create New Related Music Work Based on Existing
+              </button>
+              <button v-if="isRelWorkExpressionLookupField() && returnExistingRelWorkExpressionUri()" class="" :id="`action-button-command-${fieldGuid}-e`" @click="openRelWorkExpressionEditor(returnExistingRelWorkExpressionUri(), true)" :style="buttonStyle">
+                Edit Related Music Work
               </button>
         </template>
 
@@ -256,6 +274,10 @@
         targetInstance: null,
         currentRt: null,
 
+        showRelWorkIframeModal: false,
+        relWorkIframeSrc: null,
+        relWorkEditMode: false,
+
       }
     },
     computed: {
@@ -344,6 +366,12 @@
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
+        // in the related work expression lookup component the create actions only belong on
+        // the associated resource field, not the relationship (or any other) field next to it
+        if (this.isRelWorkExpressionLookupField() && !this.isAssociatedResourceField()){
+          return false
+        }
+
         let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
           return true
@@ -363,6 +391,163 @@
 
 
 
+
+      openRelWorkExpressionEditor(loadUri, editMode){
+        // open the minimal edit screen in an iframe, it runs the whole app stack on its own
+        // so there is no conflict with this session's stores. It gets told which profile to
+        // use via the query params (a load url and uri can also be passed when needed)
+        let profileId = this.profileStore.resolveTemplateId('lc:RT:RelatedWorkExpression')
+        let query = { profile: profileId }
+
+        this.relWorkEditMode = editMode === true
+
+        if (this.relWorkEditMode){
+          // editing the existing resource in place, it keeps its own URI and the
+          // minimal editor posts it as an update instead of a create
+          query.uri = loadUri
+          query.load = loadUri
+          query.edit = 'true'
+        } else {
+          let uri = this.mintRelWorkExpressionUri()
+          if (uri){
+            query.uri = uri
+          }
+
+          // basing the new expression off an existing one, the minimal editor will pull in
+          // that record's data as the starting point (but still use the newly minted uri)
+          if (loadUri){
+            query.load = loadUri
+          }
+        }
+
+        let route = this.$router.resolve({ name: 'EditMinimal', query: query })
+        this.relWorkIframeSrc = route.href
+        this.showRelWorkIframeModal = true
+        this.isMenuShown = false
+        // listen for the iframe telling us it posted the new resource
+        window.addEventListener('message', this.handleEditMinimalMessage)
+      },
+
+      closeRelWorkIframeModal(){
+        window.removeEventListener('message', this.handleEditMinimalMessage)
+        this.showRelWorkIframeModal = false
+        this.relWorkIframeSrc = null
+      },
+
+      /**
+       * The minimal editor iframe posted its record successfully, insert the resource it
+       * created into this field's userValue and close the iframe
+       */
+      async handleEditMinimalMessage(event){
+        if (event.origin !== window.location.origin){ return }
+        if (!event.data || event.data.type !== 'editMinimalPosted'){ return }
+        if (!this.showRelWorkIframeModal){ return }
+
+        this.closeRelWorkIframeModal()
+
+        // if the field already holds an expression (the new one was based off of it for
+        // example) don't overwrite it, add another component and put the new one there.
+        // Not when the existing resource itself was edited though, then the field keeps
+        // its component and just gets the (possibly changed) label refreshed
+        let useGuid = this.guid
+        if (!this.relWorkEditMode && this.returnExistingRelWorkExpressionUri()){
+          let newGuid = await this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], this.structure)
+          if (newGuid){
+            useGuid = newGuid
+          }
+        }
+
+        // same insert used when a lookup value is picked for the field
+        let nodeMap = {
+          collections: [],
+          genres: [],
+          rdftypes: ['Work'],
+          subjects: [],
+        }
+        this.profileStore.setValueComplex(useGuid, null, this.propertyPath, event.data.uri, event.data.label, 'Work', nodeMap, null)
+      },
+
+      /**
+       * Related work expressions get the URI of the work they hang off of plus a counter,
+       * e.g. .../works/in01260000069 -> .../works/in01260000069-001. Any expressions already
+       * on the record with that same base URI are counted so the next free number is used.
+       * @return {string|null} the URI to use for the new related work expression
+       */
+      mintRelWorkExpressionUri(){
+        let thisRt = this.profileStore.returnRtByGUID(this.guid)
+        let workUri = null
+        if (thisRt && this.profileStore.activeProfile.rt[thisRt] && this.profileStore.activeProfile.rt[thisRt].URI){
+          workUri = this.profileStore.activeProfile.rt[thisRt].URI
+        }
+        if (!workUri){
+          console.warn('Could not find the URI of the work this field belongs to, the related work expression editor will mint its own URI')
+          return null
+        }
+
+        // new records carry an eId based URI in memory (.../works/e1234567890) that only
+        // becomes the real .../works/in### identifier at export time, when buildXML swaps
+        // the eId for the marvaLocalId. Do the same swap here so the minted URI matches
+        // what actually gets posted for the parent work.
+        if (this.profileStore.activeProfile.marvaLocalId && this.profileStore.activeProfile.eId){
+          workUri = workUri.replace(this.profileStore.activeProfile.eId, this.profileStore.activeProfile.marvaLocalId)
+        }
+
+        // find the highest counter in use anywhere in the record for this base URI
+        let maxCounter = 0
+        let escaped = workUri.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        let counterRegEx = new RegExp('"' + escaped + '-(\\d+)"', 'g')
+        let recordJson = JSON.stringify(this.profileStore.activeProfile.rt)
+        for (let match of recordJson.matchAll(counterRegEx)){
+          let counter = parseInt(match[1], 10)
+          if (counter > maxCounter){
+            maxCounter = counter
+          }
+        }
+
+        return workUri + '-' + String(maxCounter + 1).padStart(3, '0')
+      },
+
+      /**
+       * If this field already holds a related work expression return its URI, it can be
+       * used as the starting data for building a new one off of it
+       * @return {string|null} the URI of the expression in the field's value
+       */
+      returnExistingRelWorkExpressionUri(){
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (!pt || !pt.userValue){ return null }
+        let match = JSON.stringify(pt.userValue).match(/"@id":\s*"(https?:\/\/[^"]*\/resources\/works\/[^"]+?)"/)
+        return match ? match[1] : null
+      },
+
+      isAssociatedResourceField(){
+        // is this specific field the bf:associatedResource lookup, checked against the
+        // field's own structure (each field in a component shares the component guid but
+        // gets its own structure/propertyPath)
+        if (this.structure && this.structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/associatedResource'){
+          return true
+        }
+        if (this.propertyPath && this.propertyPath.length > 0){
+          let last = this.propertyPath[this.propertyPath.length - 1]
+          if (last && last.propertyURI == 'http://id.loc.gov/ontologies/bibframe/associatedResource'){
+            return true
+          }
+        }
+        return false
+      },
+
+      isRelWorkExpressionLookupField(){
+        // fields whose value templates point at a RelWorkExpressionLookup template get a
+        // differently worded create action than the generic "Create Hub"
+        let refs = []
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (pt && pt.valueConstraint && pt.valueConstraint.valueTemplateRefs){
+          refs = refs.concat(pt.valueConstraint.valueTemplateRefs)
+        }
+        if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.valueTemplateRefs){
+          refs = refs.concat(this.structure.valueConstraint.valueTemplateRefs)
+        }
+        return refs.some((r) => typeof r === 'string' && r.includes('RelWorkExpressionLookup'))
+      },
 
       buildHubStub(){
         // console.log(this.guid)
@@ -1288,6 +1473,9 @@
 
 
     },
+    beforeUnmount: function(){
+      window.removeEventListener('message', this.handleEditMinimalMessage)
+    },
     watch: {
 
     }
@@ -1296,6 +1484,51 @@
 
 
 <style scoped>
+
+  .rel-work-iframe-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rel-work-iframe-container{
+    width: 85%;
+    height: 90%;
+    background-color: white;
+    border: solid 1px black;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .rel-work-iframe-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px;
+    border-bottom: solid 1px black;
+    font-weight: bold;
+    flex: 0 0 auto;
+  }
+
+  .rel-work-iframe-close{
+    cursor: pointer;
+    background-color: white;
+    border: solid 1px black;
+    border-radius: 4px;
+  }
+
+  .rel-work-iframe{
+    flex: 1 1 auto;
+    width: 100%;
+    border: none;
+  }
+
   .action-button-menu-background{
     width: 250px;
 

@@ -154,6 +154,11 @@
                       :style="`${this.preferenceStore.styleModalTextColor()}`">
                       {{ type.label }}</li>
                   </ol>
+
+                  <template v-if="showTypes">
+                    <input id="provisionalCheck" type="checkbox" v-model="provisionalHeading">
+                    <label for="provisionalCheck"  style="word-wrap:break-word">Provisional</label>
+                  </template>
                 </div>
                 <div style="flex:1">
 
@@ -838,6 +843,7 @@ export default {
         // 'madsrdf:GenreForm': { label: 'Genre ($v)', value: 'madsrdf:GenreForm', selected: false },
         'madsrdf:Geographic': { label: 'Geographic ($z)', value: 'madsrdf:Geographic', selected: false },
         'madsrdf:Temporal': { label: 'Chronological ($y)', value: 'madsrdf:Temporal', selected: false },
+        'bf:Family': { label: 'Family ($a)', value: 'bf:Family', selected: false },                      // madsrdf:family name doesn't work with the conversion
       },
 
       labelMap: {
@@ -876,7 +882,9 @@ export default {
         "sources", "sees", "lcclasses", "lcclasss", "identifiers", "broaders",
         "collections", "subjects", "marcKeys"
       ],
-      selectedSortOrder: ""
+      selectedSortOrder: "",
+
+      provisionalHeading: false,
 
     }
   },
@@ -1850,11 +1858,19 @@ export default {
         this.contextData.type = types.includes("Hub") ? "bf:Hub" : types.includes("Work") ? "bf:Work" : "madsrdf:" + types[0]
         this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
 
+        if (!Object.keys(this.pickLookup[this.pickPostion].extra).includes('collections')){
+          this.pickLookup[this.pickPostion].extra['collections'] = []
+        }
         //Check if it's a Jurisdiction, and overwrite
-        if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
+        if (this.pickLookup[this.pickPostion].extra['collections'] && this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
           this.contextData.type = "bf:Jursidiction"
           this.contextData.typeFull = "http://id.loc.gov/ontologies/bibframe/Jurisdiction"
         }
+
+        if (!Object.keys(this.pickLookup[this.pickPostion].extra).includes('collections')){
+          this.pickLookup[this.pickPostion].extra['collections'] = []
+        }
+
 
         this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
@@ -1866,9 +1882,13 @@ export default {
       this.contextData.variantLabels = [...new Set(this.contextData.variantLabels)]
 
       // filter related, so it doesn't duplicate value from earlier/later, broader
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
-      this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
+      if (this.contextData['relateds']){
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
+        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
+      } else {
+        this.contextData['relateds'] = []
+      }
 
       this.contextRequestInProgress = false
     },
@@ -2574,10 +2594,9 @@ export default {
       if (allHaveURI && allHaveType) {
         this.okayToAdd = true
       }
-      if (allHaveURI && !allHaveType && this.components.length == 1) {
-        this.okayToAdd = true
-      }
-
+      // if (allHaveURI && !allHaveType && this.components.length > 1) { // why was this here?
+      //   this.okayToAdd = true
+      // }
 
 
     },
@@ -2979,6 +2998,14 @@ export default {
         this.components = newComponents
       }
 
+      if (this.provisionalHeading){
+        for (let comp of this.components){
+          if (!comp.uri){
+            comp.provisional = true
+          }
+        }
+      }
+
       this.$emit('subjectAdded', this.components)
     },
 
@@ -3022,7 +3049,8 @@ export default {
 
       this.contextData = { nodeMap: {} }
       this.authorityLookupLocal = null,
-        this.subjectString = ''
+      this.subjectString = ''
+      this.provisionalHeading = false
 
     },
 

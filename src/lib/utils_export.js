@@ -8,6 +8,7 @@ import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
 import utilsNetwork from './utils_network';
 import utilsProfile from './utils_profile';
+import utilsParse from './utils_parse';
 
 import { parse, parse as parseEDTF } from 'edtf'
 
@@ -65,6 +66,30 @@ const utilsExport = {
   lastGoodXMLBuildProfile: null,
   lastGoodXMLBuildProfileTimestamp: null,
 
+  // keeps track of data problems already alerted about so the popup only fires once per problem per session
+  warnedDataIssues: [],
+
+  // set as the export walks the record, so warnings can say which component they happened in
+  currentComponentContext: null,
+
+  /**
+  * warn about a record/profile data problem found during export, console + a popup the first time
+  * that unique message is seen, so a bad profile fails loudly instead of crashing the XML build
+  *
+  * @param {string} msg - the warning to show
+  * @return {void}
+  */
+  warnDataIssue: function(msg){
+		if (this.currentComponentContext){
+			msg = `${msg}\n\nThis happened while building the component ${this.currentComponentContext}`
+		}
+		console.warn(msg)
+		if (this.warnedDataIssues.indexOf(msg) === -1){
+			this.warnedDataIssues.push(msg)
+			alert(`Warning - there is a problem with the record or profile data, the exported record may be missing parts:\n\n${msg}`)
+		}
+	},
+
   // all the namespaces are stored in the utils_rdf
   namespace: utilsRDF.namespace,
 
@@ -116,6 +141,13 @@ const utilsExport = {
   * @return {element}
   */
   createElByBestNS: function(elStr){
+		// guard against a missing value, like a @type that was never set because
+		// the profile's resource template is missing its resourceURI
+		if (!elStr || typeof elStr !== 'string'){
+			this.warnDataIssue(`Could not create a XML element, no name to create it with (${elStr}). Check the profile for a resource template missing its resourceURI.`)
+			return null
+		}
+
 		// HACK - bad marc2bf conversion
 		if (elStr == 'http://www.loc.gov/mads/rdf/v1#'){
 			elStr = 'http://www.loc.gov/mads/rdf/v1#Authority'
@@ -124,7 +156,12 @@ const utilsExport = {
 		elStr=elStr.replace('https://','http://')
 		// if the elString is not a expanded URI
 		if (!elStr.startsWith('http')){
-			elStr = this.UriNamespace(elStr)
+			let expanded = this.UriNamespace(elStr)
+			if (!expanded){
+				this.warnDataIssue(`Could not create the XML element "${elStr}", it does not use a known namespace prefix.`)
+				return null
+			}
+			elStr = expanded
 		}
 
 		for (let ns of Object.keys(this.namespace)){
@@ -132,7 +169,7 @@ const utilsExport = {
 				return document.createElementNS(this.namespace[ns],this.namespaceUri(elStr))
 			}
 		}
-		console.error('could not find namespace for ', elStr)
+		this.warnDataIssue(`Could not create the XML element "${elStr}", could not find a namespace for it.`)
 		return null
 	},
 
@@ -173,6 +210,9 @@ const utilsExport = {
 			} catch {
 				return false
 			}
+			if (!bnode){
+				return false
+			}
 			if (userValue['@id']){
 				bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 			}
@@ -193,8 +233,17 @@ const utilsExport = {
   * @return {boolean}
   */
 	createLiteral: function(property,userValue){
+		if (!property || typeof property !== 'string' || (!property.startsWith('http') && !this.UriNamespace(property))){
+			let value
+			try{ value = JSON.stringify(userValue) }catch{ value = String(userValue) }
+			this.warnDataIssue(`Could not build part of the record, "${property}" is not a usable property name.\n\nThe value it was trying to write: ${value}`)
+			return false
+		}
 		let p = this.createElByBestNS(property)
-
+		if (!p){
+			// createElByBestNS already warned about why
+			return false
+		}
 
 		// it should be stored under the same key
 		if (userValue[property] && property != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
@@ -590,6 +639,9 @@ const utilsExport = {
         		// extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
 
+				// keep track of what we are working on so any data problem warnings can say where they happened
+				this.currentComponentContext = `"${ptObj.propertyLabel || pt}" (${ptObj.propertyURI}) in ${rt}`
+
 				if (ptObj.deleted){
 					continue
 				}
@@ -850,6 +902,12 @@ const utilsExport = {
 
 						let bnodeLvl1 = this.createBnode(userValue, ptObj.propertyURI)
 
+						if (!pLvl1 || !bnodeLvl1){
+							this.warnDataIssue(`Could not build the "${ptObj.propertyLabel || ptObj.propertyURI}" component, it was skipped in the export.`)
+							xmlLog.push(`Could not create the lvl 1 predicate or bnode for ${ptObj.propertyURI}, skipping it`)
+							continue
+						}
+
 						xmlLog.push(`Created lvl 1 predicate: ${pLvl1.tagName} and bnode: ${bnodeLvl1.tagName}`)
 
 						/*
@@ -866,6 +924,10 @@ const utilsExport = {
 							xmlLog.push(`Looking at property : ${key1} in the userValue`)
 							// console.log('userValue',userValue)
 							let pLvl2 = this.createElByBestNS(key1)
+							if (!pLvl2){
+								xmlLog.push(`Could not create the lvl 2 predicate for ${key1}, skipping it`)
+								continue
+							}
 							if (key1 == 'http://www.loc.gov/mads/rdf/v1#componentList'){
 								pLvl2.setAttribute('rdf:parseType', 'Collection')
 							}
@@ -895,6 +957,10 @@ const utilsExport = {
 								if (!value1FirstLoop && this.needsNewPredicate(key1)){
 									// we are going to make a new predicate, same type but not the same one as the last one was attached to
 									pLvl2 = this.createElByBestNS(key1)
+									if (!pLvl2){
+										xmlLog.push(`Could not create the lvl 2 predicate for ${key1}, skipping it`)
+										continue
+									}
 									xmlLog.push(`Creating lvl 2 property : ${pLvl2.tagName} for ${JSON.stringify(value1)}`)
 								}
 
@@ -903,6 +969,10 @@ const utilsExport = {
 								if (this.isBnode(value1)){
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
+									if (!bnodeLvl2){
+										xmlLog.push(`Could not create the lvl 2 bnode for ${key1}, skipping it`)
+										continue
+									}
 
 									//carve out an exception for associated resource is a series
 									if (bnodeLvl1.tagName == 'bf:Relation' && bnodeLvl2.tagName == 'bf:Series' && pLvl2.tagName == 'bf:associatedResource'){
@@ -919,6 +989,10 @@ const utilsExport = {
                   					// now loop through its properties and see whats nested
 									for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 										let pLvl3 = this.createElByBestNS(key2)
+										if (!pLvl3){
+											xmlLog.push(`Could not create the lvl 3 predicate for ${key2}, skipping it`)
+											continue
+										}
 										// Build the note type correctly when it appears at this level
 										if (key2 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 											let cont = this.buildNoteType(bnodeLvl2, userValue[key1][0], key2, xmlLog)
@@ -940,11 +1014,19 @@ const utilsExport = {
                                                 // more nested bnode
                                                 // one more level
                                                 let bnodeLvl3 = this.createBnode(value2,key2)
+                                                if (!bnodeLvl3){
+													xmlLog.push(`Could not create the lvl 3 bnode for ${key2}, skipping it`)
+													continue
+												}
 
 												if (lastBnodeLvl3TagName == bnodeLvl3.tagName){
 													// console.log("Creating multiple bnodes of the same type in a row", bnodeLvl3.tagName)
 													// if we are doing this we need to create a new parent property to put the new one into
 													pLvl3 = this.createElByBestNS(key2)
+													if (!pLvl3){
+														xmlLog.push(`Could not create the lvl 3 predicate for ${key2}, skipping it`)
+														continue
+													}
 												}
 												lastBnodeLvl3TagName = bnodeLvl3.tagName
 
@@ -956,6 +1038,10 @@ const utilsExport = {
 
                                                 for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
                                                     let pLvl4 = this.createElByBestNS(key3) // this was key2, was that a typo or is this going to break stuff?
+                                                    if (!pLvl4){
+														xmlLog.push(`Could not create the lvl 4 predicate for ${key3}, skipping it`)
+														continue
+													}
 
 													// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
 													// if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
@@ -980,6 +1066,10 @@ const utilsExport = {
                                                         if (this.isBnode(value3)){
                                                             // one more level
                                                             let bnodeLvl4 = this.createBnode(value3,key3)
+                                                            if (!bnodeLvl4){
+																xmlLog.push(`Could not create the lvl 4 bnode for ${key3}, skipping it`)
+																continue
+															}
 
                                                             pLvl4.appendChild(bnodeLvl4)
                                                             bnodeLvl3.appendChild(pLvl4)
@@ -1131,6 +1221,10 @@ const utilsExport = {
 								xmlLog.push(`Root level sibling bnode: ${ptObj.propertyURI}`)
 								let pLvl1Sibling = this.createElByBestNS(ptObj.propertyURI)
 								let bnodeLvl1Sibling = this.createBnode(uv, ptObj.propertyURI)
+								if (!pLvl1Sibling || !bnodeLvl1Sibling){
+									xmlLog.push(`Could not create the sibling predicate or bnode for ${ptObj.propertyURI}, skipping it`)
+									continue
+								}
 								//we are only checking for a label as a nested property, we will not loop through the properties looking for stuff
 
 								if (uv['http://www.w3.org/2000/01/rdf-schema#label']){
@@ -1217,6 +1311,11 @@ const utilsExport = {
 
 								let p = this.createElByBestNS(ptObj.propertyURI)
 								let bnode = this.createElByBestNS(userValue['@type'])
+								if (!p || !bnode){
+									this.warnDataIssue(`Could not build the "${ptObj.propertyLabel || ptObj.propertyURI}" component, it was skipped in the export.`)
+									xmlLog.push(`Could not create the predicate or bnode for ${ptObj.propertyURI}, skipping it`)
+									continue
+								}
 								bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 
 								xmlLog.push(`Created ${p.tagName} property and ${bnode.tagName} bnode`)
@@ -1253,6 +1352,17 @@ const utilsExport = {
 										}
 									}else{
 										for (let value1 of userValue[key1]){
+											// the array can hold a bare literal (for example a profile default with a
+											// defaultLiteral but no defaultURI), don't loop a string like it is an object
+											if (typeof value1 === 'string' || typeof value1 === 'number'){
+												let p1 = this.createLiteral(key1, {[key1]: value1})
+												if (p1!==false) {
+													rootEl.appendChild(p1);
+													allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
+													xmlLog.push(`Creating literal at root level for ${key1} with value ${value1}`)
+												}
+												continue
+											}
 											for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 												if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 													// its a label or some other literal
@@ -1278,7 +1388,31 @@ const utilsExport = {
 								let addedResourceAsLiteral = false
 								for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
 
+									// the value can be a bare literal stored directly under the property (for example a
+									// profile default with a defaultLiteral but no defaultURI), don't loop a string like an array
+									if (typeof userValue[key1] === 'string' || typeof userValue[key1] === 'number'){
+										let p1 = this.createLiteral(key1, userValue)
+										if (p1!==false) {
+											rootEl.appendChild(p1);
+											addedResourceAsLiteral=true
+											allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
+											xmlLog.push(`Listed as rdf:Resource but treating it a a literal, Creating literal for ${key1} with value ${p1.innerHTML}`)
+										}
+										continue
+									}
+
 									for (let value1 of userValue[key1]){
+										// same bare literal check for the values inside the array
+										if (typeof value1 === 'string' || typeof value1 === 'number'){
+											let p1 = this.createLiteral(key1, {[key1]: value1})
+											if (p1!==false) {
+												rootEl.appendChild(p1);
+												addedResourceAsLiteral=true
+												allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
+												xmlLog.push(`Listed as rdf:Resource but treating it a a literal, Creating literal for ${key1} with value ${p1.innerHTML}`)
+											}
+											continue
+										}
 										for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal
@@ -1303,6 +1437,10 @@ const utilsExport = {
 									// also if it is here then there was no action taken, if it at least had a URI then add it
 									if (userValue['@id']) {
 										let p = this.createElByBestNS(ptObj.propertyURI)
+										if (!p){
+											xmlLog.push(`Could not create the predicate for ${ptObj.propertyURI}, skipping it`)
+											continue
+										}
 										p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
 										rootEl.appendChild(p)
 										componentXmlLookup[`${rt}-${pt}`] = formatXML(p.outerHTML)
@@ -1313,6 +1451,10 @@ const utilsExport = {
 							}else if (userValue['@id']){
 								// it has a URI at least, so make that
 								let p = this.createElByBestNS(ptObj.propertyURI)
+								if (!p){
+									xmlLog.push(`Could not create the predicate for ${ptObj.propertyURI}, skipping it`)
+									continue
+								}
 								p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
 								rootEl.appendChild(p)
 								componentXmlLookup[`${rt}-${pt}`] = formatXML(p.outerHTML)
@@ -1321,6 +1463,10 @@ const utilsExport = {
 
 								// does it just have a label?
 								let p = this.createElByBestNS(ptObj.propertyURI)
+								if (!p){
+									xmlLog.push(`Could not create the predicate for ${ptObj.propertyURI}, skipping it`)
+									continue
+								}
 								p.innerHTML = userValue['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
 								rootEl.appendChild(p)
 								componentXmlLookup[`${rt}-${pt}`] = formatXML(p.outerHTML)
@@ -1871,6 +2017,9 @@ const utilsExport = {
 
 	// console.info("strXmlBasic: ", strXmlBasic)
 
+	// done walking the components, clear the warning context
+	this.currentComponentContext = null
+
 	return {
 		xmlDom: rdf,
 		xmlStringFormatted: strXmlFormatted,
@@ -2257,6 +2406,8 @@ const utilsExport = {
 	},
 
 	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
+		console.info("createNacoStubXML")
+		console.info("\t extraMarcStatements: ", extraMarcStatements)
 		let marcTxt = ''
 		marcTxt = marcTxt + " 111111111122222222223333333333\n"
 		marcTxt = marcTxt + "       0123456789012345678901234567890123456789\n"
@@ -2288,31 +2439,13 @@ const utilsExport = {
 
 		let pos29 = "n"
 		// did they make a 4xx
-		if (fourXXParts && fourXXParts.a && add667){
-			pos29 = 'b'
-		}else if (fourXXParts && fourXXParts.a && !add667){
+		if (fourXXParts && fourXXParts.a){
 			pos29 = 'a'
-		}
-
-		let has667 = add667
-		// if there is a 667 in the extraMarcStatements then set it
-		for (let x of extraMarcStatements){
-			if (x.tag == '667' || x.fieldTag == '667'){
-				pos29 = 'b'
-				has667 = true
-			}
-			if (/5[0-9]{2}/.test(x.fieldTag) && pos29 == "n"){ // treat 5XX like 4XX
-				if (add667){
-					pos29 = 'b'
-				} else if (!add667){
-					pos29 = 'a'
-				}
-			}
 		}
 
 		// check again if they made a 4XX in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
-			if (( /4\d\d/.test(x.tag) || /4\d\d/.test(x.fieldTag) || /5\d\d/.test(x.tag) || /5\d\d/.test(x.fieldTag) ) && !has667){
+			if (( /4\d\d/.test(x.tag) || /4\d\d/.test(x.fieldTag) || /5\d\d/.test(x.tag) || /5\d\d/.test(x.fieldTag) )){
 				pos29 = 'a'
 			}
 		}
@@ -2347,12 +2480,11 @@ const utilsExport = {
 
 		rootEl.appendChild(field001)
 
-		let field003 = document.createElementNS(marcNamespace,"marcxml:controlfield");
-		field003.setAttribute( 'tag', '003')
-		field003.innerHTML = "DLC"
-		rootEl.appendChild(field003)
-
-		marcTextArray.push({txt: this.buildMarcTxtLine('003',' ',' ',["DLC"]), field: '003', fieldInt: 3})
+		// let field003 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		// field003.setAttribute( 'tag', '003')
+		// field003.innerHTML = "DLC"
+		// rootEl.appendChild(field003)
+		// marcTextArray.push({txt: this.buildMarcTxtLine('003',' ',' ',["DLC"]), field: '003', fieldInt: 3})
 
 
 
@@ -2533,6 +2665,7 @@ const utilsExport = {
 			fieldName4xx.setAttribute( 'tag', fourXXParts.fieldTag)
 			fieldName4xx.setAttribute( 'ind1', fourXXParts.indicators.charAt(0))
 			fieldName4xx.setAttribute( 'ind2', fourXXParts.indicators.charAt(1))
+
 			for (let key of Object.keys(fourXXParts)){
 				// only add the subfields
 				if (key.length == 1 && isAlpha(key)){
@@ -2541,13 +2674,13 @@ const utilsExport = {
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
-						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()
 						fieldName4xx.appendChild(subfield)
 						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 					}
 				}
 			}
-			
+
 			for (let key of Object.keys(fourXXParts)){
 				// only add the subfields
 				if (key.length == 1 && !isAlpha(key)){
@@ -2556,7 +2689,7 @@ const utilsExport = {
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
-						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '').trim()
 						fieldName4xx.appendChild(subfield)
 						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 					}
@@ -2574,25 +2707,6 @@ const utilsExport = {
 			}
 
 			marcTextArray.push({txt: this.buildMarcTxtLine(fourXXParts.fieldTag, fourXXParts.indicators.charAt(0).replace(" ","#"), fourXXParts.indicators.charAt(1).replace(" ","#"), fourXXSubfieldsValues), field: fourXXParts.fieldTag, fieldInt: parseInt(fourXXParts.fieldTag)})
-
-		}
-
-
-
-		if (pos29 === 'b' && !useAdvancedMode){
-
-			let field667 = document.createElementNS(marcNamespace,"marcxml:datafield");
-			field667.setAttribute( 'tag', '667')
-			field667.setAttribute( 'ind1', ' ')
-			field667.setAttribute( 'ind2', ' ')
-			let field667a = document.createElementNS(marcNamespace,"marcxml:subfield");
-			field667a.setAttribute( 'code', 'a')
-			field667a.innerHTML = "Non-Latin script references not evaluated."
-			field667.appendChild(field667a)
-
-			rootEl.appendChild(field667)
-			marcTextArray.push({txt: this.buildMarcTxtLine('667', ' ', ' ', ['$a Non-Latin script references not evaluated.']), field: '667', fieldInt: 667})
-
 
 		}
 
@@ -2646,6 +2760,21 @@ const utilsExport = {
 			rootEl.appendChild(field670)
 		}
 
+		if (add667){
+			let testNote = document.createElementNS(marcNamespace,"marcxml:datafield");
+			testNote.setAttribute( 'tag', '667')
+			testNote.setAttribute( 'ind1', ' ')
+			testNote.setAttribute( 'ind2', ' ')
+
+			let testNoteA = document.createElementNS(marcNamespace,"marcxml:subfield");
+			testNoteA.setAttribute( 'code', 'a')
+			testNoteA.innerHTML = 'Non-Latin script variants with (bcp47) in subfield 7 are for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7.'
+			testNote.appendChild(testNoteA)
+
+			marcTextArray.push({txt: this.buildMarcTxtLine('667', ' ', ' ', ['$a', testNoteA.innerHTML]), field: '667', fieldInt: 667})
+			rootEl.appendChild(testNote)
+		}
+
 		// ---- 985
 		let field985 = document.createElementNS(marcNamespace,"marcxml:datafield");
 		field985.setAttribute( 'tag', '985')
@@ -2670,6 +2799,7 @@ const utilsExport = {
 
 		if (extraMarcStatements && extraMarcStatements.length > 0){
 			for (let x of extraMarcStatements){
+				console.info("x: ", x)
 				let hasValue = false
 				if (x.fieldTag && x.fieldTag.trim() != ''){
 					let field = document.createElementNS(marcNamespace,"marcxml:datafield");
@@ -2682,7 +2812,7 @@ const utilsExport = {
 						if (key.length == 1){
 							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 							subfield.setAttribute( 'code', x[key][0])
-							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ')
+							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ').replace('\u200E', '')
 							field.appendChild(subfield)
 							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
 							hasValue = true
@@ -2730,7 +2860,288 @@ const utilsExport = {
 		console.log(xml)
 		return {xml: xml, text: marcTxt}
 
-	}
+	},
+
+
+	/**
+	 * Adjust marc authority record for BCP codes and related changes
+	 * @@param {Object} marcXML - XML Document of the record that is being adjusted
+	 * @@param {Object} updates - The updates to apply to the record
+	 * @@param {Array} target - List of lists: [MARC tag to look for, index of update to apply targat that matches next element, non-latin variant]
+	 * @return {Array} two elements, the update MARCXML and the record in JSON that can be turned in HTML for display
+	 */
+	adjustAuthRecord: function (marcXML, updates, targets) {
+		let record = marcXML.getElementsByTagName('marcxml:record')[0]
+		record = record.cloneNode(true)
+
+		// make sure leader/05 is "c"
+		let leader = record.getElementsByTagName('marcxml:leader')[0]
+		let leaderString = leader.innerHTML
+		leaderString = leaderString.substring(0,5) + 'c' + leaderString.substring(6)
+		leader.innerHTML = leaderString
+
+		let marc667List = record.querySelectorAll('[tag="667"]')
+		let marc670List = record.querySelectorAll('[tag="670"]')
+
+		// remove 003, if present
+		let field003s = record.querySelectorAll('[tag="003"]')
+		if (field003s.length > 0){
+			for (let target of field003s){
+				record.removeChild(target)
+			}
+		}
+
+
+		// Get the 667s, remove "...not evaluated..."
+		// remove
+		let target667s = []
+		for (let sixSixSeven of marc667List) {
+			if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
+				target667s.push(sixSixSeven)
+			} else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with (bcp47) in subfield 7')) {
+				target667s.push(sixSixSeven)
+			} else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with (bcp47) in subfield 7 are for PCC testing')) {
+				target667s.push(sixSixSeven)
+			} else if (sixSixSeven.innerHTML.includes('script references evaluated')) { // 667 from strawn tool
+				target667s.push(sixSixSeven)
+			}
+		}
+
+		target667s.map(item => record.removeChild(item)) // remove existing notes, and add new note
+
+		// add test note
+		let testNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+		testNote.setAttribute('tag', '667')
+		testNote.setAttribute('ind1', " ")
+		testNote.setAttribute('ind2', " ")
+		let testNoteA = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+		testNoteA.setAttribute("code", 'a')
+		testNoteA.innerHTML = "Non-Latin script variants with (bcp47) in subfield 7 are for PCC testing. Please do not remove or edit 4XX fields that contain subfield 7."
+		testNote.appendChild(testNoteA)
+		record.appendChild(testNote)
+		marc667List = record.querySelectorAll('[tag="667"]') // update the list
+
+		// update 008 and 667 if non-latin references have been evaluated
+		if (updates.refEval) {
+			if (updates.refEval == true) {
+				let zeroZeroEight = record.querySelectorAll('[tag="008"]')[0]
+				let currentValue = zeroZeroEight.innerHTML
+				let updatedValue = utilsMisc.setCharAt(currentValue, 29, 'a')
+				zeroZeroEight.innerHTML = updatedValue
+			}
+
+			if (updates.refEval == 'some') {
+				let note = "Non-Latin script variants with (bcp47) in subfield 7 have been evaluated. Others have not yet been evaluated."
+				let someNote = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+				someNote.setAttribute('tag', '667')
+				someNote.setAttribute('ind1', " ")
+				someNote.setAttribute('ind2', " ")
+				let someNoteA = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+				someNoteA.setAttribute("code", 'a')
+				someNoteA.innerHTML = note
+				someNote.appendChild(someNoteA)
+				record.appendChild(someNote)
+			}
+		}
+
+		// 670 notes
+		for (let item of updates['source670s']) {
+			let note670 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+			note670.setAttribute('tag', '670')
+			note670.setAttribute('ind1', " ")
+			note670.setAttribute('ind2', " ")
+			if (Object.keys(item).length > 0){
+				for (let sub of Object.keys(item)) {
+					if (sub != 'note') {
+						let subfield = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+						subfield.setAttribute("code", sub)
+						subfield.innerHTML = item[sub].trim()
+						note670.appendChild(subfield)
+					}
+				}
+				marc670List = record.querySelectorAll('[tag="667"]')
+				record.appendChild(note670)
+			}
+		}
+
+		// 040 if the last $d is DLC, don't add another one
+		let marc040 = record.querySelectorAll('[tag="040"]')[0]
+		let lastEl = Array.from(marc040.children).at(-1)
+		if (lastEl.textContent != "DLC" || (lastEl.getAttribute('code') == 'c' && lastEl.textContent == "DLC" )) {
+			let new040D = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+			new040D.setAttribute("code", 'd')
+			new040D.innerHTML = 'DLC'
+			marc040.appendChild(new040D)
+		}
+
+		let forDeletion = []
+
+		let langEval = []
+		let langUneval = []
+		for (let target of targets) {
+			let targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
+			let index = [].indexOf.call(record.children, targetNameXML)
+
+			// sort the subfields in alpha - numeric
+			try {
+				let sorted = Array.from(targetNameXML.children).sort((a,b) => /^[0-9]/.test(a.getAttribute('code')) - /^[0-9]/.test(b.getAttribute('code')) || a.getAttribute('code').localeCompare(b.getAttribute('code'), undefined, { numeric: true }))
+				targetNameXML.innerHTML = '';
+				sorted.forEach(child => targetNameXML.appendChild(child))
+			} catch(err){
+				console.error("Couldn't sort children of ", targetNameXML)
+			}
+
+			if (!targetNameXML) {
+				targetNameXML = { 'children': [] }
+				for (let idx of Object.keys(updates)) {
+					if (idx.startsWith("##")) { break }
+					targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[idx]
+					index = [].indexOf.call(record.children, targetNameXML)
+				}
+			}
+
+
+			// Get the existing subfields
+			let existingCodes = {}
+			let evaluated = false
+			for (let child of targetNameXML.children) {
+				let code = child.getAttribute("code")
+				if (existingCodes[code]) {
+					existingCodes[code].push(child)
+				} else {
+					existingCodes[code] = [child]
+				}
+			}
+
+			// for additions add a fake target with an idx that will match that update
+			let idx = target[1]
+			let update = updates[idx]
+
+			if (update['subfield_7']) {
+				evaluated = true
+				langEval.push(...update['subfield_7'])
+			} else {
+				langUneval.push(update['subfield_a'])
+			}
+
+
+			if (Object.keys(update).includes('delete') && update.delete) {
+				forDeletion.push(targetNameXML)
+			} else {
+				let indicators = update.indicators.split("")
+				if (!String(target[1]).startsWith("##")) {
+					targetNameXML.setAttribute("ind1", indicators[0])
+					targetNameXML.setAttribute("ind2", indicators[1])
+
+					// existingCodes not present in the update
+					let deleteCodes = Object.keys(existingCodes).map(code => {
+						if (!Object.keys(update).includes('subfield_' + code)) {
+							return code
+						}
+					})
+
+					if (update.hasBCP) {
+						// delete existing $7
+						for (let existing7 of existingCodes['7']) {
+							targetNameXML.removeChild(existing7)
+						}
+						delete existingCodes['7']
+					}
+
+					for (let key of Object.keys(update)) {
+						if (key.includes('subfield_')) {
+							let subfield = key.split("_")[1]
+							let value = update[key]
+
+							// if we're looking at the first update
+							let targets = existingCodes[subfield]
+
+							if (targets) {                // if the subfield is existing update it
+								for (let target of targets) {
+									target.innerHTML = value
+									for (let code of deleteCodes) {
+										if (code) {
+											for (let element of existingCodes[code]) {
+												if (targetNameXML.contains(element)) {
+													targetNameXML.removeChild(element)
+												}
+											}
+										}
+									}
+								}
+							} else {                     // otherwise, create it
+								if (typeof value == 'string') {
+									let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+									newSubField.setAttribute("code", subfield)
+									newSubField.innerHTML = value.trim()
+									targetNameXML.appendChild(newSubField)
+								} else {
+									for (let bcp of value) {
+										let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+										newSubField.setAttribute("code", subfield)
+										newSubField.innerHTML = bcp.trim()
+										targetNameXML.appendChild(newSubField)
+									}
+								}
+							}
+
+						}
+					}
+				} else { // it's a new field for the top element
+					let newField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+					newField.setAttribute('tag', update.tag)
+					newField.setAttribute('ind1', indicators[0])
+					newField.setAttribute('ind2', indicators[1])
+					record.appendChild(newField)
+
+					for (let [idx, key] of Object.keys(update).entries()) {
+						if (key.includes('subfield_')) {
+							let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+							let subfield = key.split("_")[1]
+							let value = update[key]
+
+
+							if (typeof value == 'string') {
+								newSubField.setAttribute("code", subfield)
+								newSubField.innerHTML = value.trim()
+								newField.appendChild(newSubField)
+							} else {
+								for (let i in value) {
+									let bcp = value[i]
+									let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+									newSubField.setAttribute("code", subfield)
+									newSubField.innerHTML = bcp.trim()
+									newField.appendChild(newSubField)
+								}
+							}
+						}
+					}
+
+				}
+			}
+			// }
+		}
+
+		// make deletions
+		for (let del of forDeletion) {
+			record.removeChild(del)
+		}
+
+		// sort the record by tag
+		let sortedChildren = Array.from(record.children).sort((a, b) => {
+			let tagA = a.getAttribute('tag');
+			let tagB = b.getAttribute('tag');
+			if (tagA < tagB) return -1;
+			if (tagA > tagB) return 1;
+			return 0;
+		});
+
+		record.innerHTML = ''; // Clear existing children
+		sortedChildren.forEach(child => record.appendChild(child))
+
+		let parsedRecord = utilsParse.parseMarcXml(record)
+		return [record, parsedRecord]
+	},
 
 }
 

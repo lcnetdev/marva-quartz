@@ -1,19 +1,23 @@
 <script>
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
+  import utilsParse from '@/lib/utils_parse';
+  import utilsMisc from '@/lib/utils_misc';
+  import utilsExport from '@/lib/utils_export';
 
   import { useConfigStore } from '@/stores/config'
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
 
   import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
+  import CopyCat from "@/views/CopyCat.vue"
 
-
+  import isoLangLib from "@/lib/iso_lang.json"
+  import LccnList from "@/lib/TG_LCCN_LIST.json"
   import utilsNetwork from '@/lib/utils_network';
 
   import { AccordionList, AccordionItem } from "vue3-rich-accordion";
   import short from 'short-uuid'
-
 
   export default {
     components: {
@@ -64,7 +68,7 @@
           "notes": "Notes",
           "nonlatinLabels": "Non-Latin Authoritative Labels",
           "variantLabels": "Variants",
-          "varianttitles": "Varants Titles",
+          "varianttitles": "Variant Titles",
           "birthdates": "Date of Birth",
           "deathdates": "Date of Death",
           "establishDates":"Established",
@@ -104,6 +108,42 @@
             "identifiers","broaders",
             "collections", "genres", "subjects", "marcKeys", "vernacularMarcKeys", "vernacularLabels", "rdftypes", "hasRelatedAuthoritys", "useFors"
         ],
+
+        // editing 4XX
+        showEdit4xxPanel: false,
+        associatedLang: null,
+        bcpCodes: {},
+        marcData: {},
+        activeIndex: 0,
+        xmlTargets: [],
+        refEval: false,
+        originalMarc: null,
+        updatedRecord: null,
+        diffRecord: [],
+        oneXXdollarD: false,
+        validating: false,
+        validationResult: {},
+
+        bcpLccn: false,
+        formattedMarc: '',
+        finalMarc: '',
+        submitting: false,
+        showMarcPreview: false,
+        validationErrors: false,
+        MARClccn: false,
+        note667: "",
+        postStatus: "",
+        authLccn: false,
+        source670s: [],
+        feedbackUrl: '',
+
+        // TG group stuff
+        overrideTG: false,
+        TGrecord: "No",
+        fbScript: '',
+        fbFourXX: '',
+        syncNar: false,
+
       }
     },
     computed: {
@@ -117,7 +157,8 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo']),
+
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'returnStructureByComponentGuid', 'isLatin', 'postNacoStub']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -149,12 +190,9 @@
       modalSelectOptionsLabels(){
         return this.modalSelectOptions.map((o)=>{return o.label})
       },
-
-
-
-
-
-
+      baseUrl() {
+        return useConfigStore().returnUrls.util
+      },
 
     },
 
@@ -170,23 +208,742 @@
       modeSelect: async function(){
         this.activeComplexSearch = []
         this.doSearch()
+      },
+
+      activeIndex: async function(){
+        await this.getBcpSuggestions()
       }
-
-
-
     },
 
     methods: {
+      showBCPButton: function(key, data){
+        let show = false
+
+        if (data.variantLabels && data.variantLabels.length > 0){
+          show = true
+          // for(let variant of data.variantLabels){
+          //   if (!this.isLatin(variant)){
+          //     show = true
+          //     break
+          //   }
+          // }
+        }
+        if (data.varianttitles){
+          for(let variant of data.varianttitles){
+            if (!this.isLatin(variant)){
+              show = true
+              break
+            }
+          }
+        }
+
+        if (!this.checkLcOnly()){ show = false }
+        if (key != 'variantLabels' && key != 'varianttitles'){ show = false}
+
+        return show
+      },
+
+      resetBcp: function(){
+        this.showEdit4xxPanel =  false
+        this.associatedLang =  null
+        this.bcpCodes =  {}
+        this.marcData =  {}
+        this.activeIndex =  0
+        this.xmlTargets =  []
+        this.refEval =  false
+        this.originalMarc =  null
+        this.updatedRecord =  null
+        this.diffRecord =  []
+        this.oneXXdollarD =  false
+
+        this.formattedMarc = ''
+        this.finalMarc = ''
+        this.submitting = false
+        this.showMarcPreview = false
+        this.validationErrors = false
+        this.note667 = ''
+        this.authLccn = false
+        this.postStatus = ""
+        this.source670s = []
+
+        // Task group
+        this.overrideTG = false
+        this.TGrecord = "No"
+        this.fbScript = ''
+        this.fbFourXX = ''
+        this.syncNar = false
+
+      },
+
+
+      updateIndicator: function(index){
+        let target = this.marcData[index]
+        if (!target.pref){
+          target.pref = true
+        } else {
+          target.pref = !target.pref
+        }
+        let val = target.pref ? '1' : ' '
+        if (this.tag != 430){
+          //ind 2 = 1
+          target.indicators = utilsMisc.setCharAt(target.indicators, 1, val)
+        }else{
+          //ind 1 = 1
+          target.indicators = utilsMisc.setCharAt(target.indicators, 0, val)
+        }
+      },
+
+      allowPreview: function(){
+        if (this.overrideTG){
+          return true
+        }
+
+        for (let item of LccnList.LccnList){
+          if (item['lccn_normalized'] == this.authLccn){
+            this.TGrecord = "Yes"
+            this.fbScript = item.script
+            return false
+          }
+        }
+
+        // check lccn against test list
+        return true
+      },
+
+      buildFeedbackLink: function(){
+        let fbLccn = ''
+        let fbUserName = ''
+        let fbOneXX = ''
+
+        if (Object.keys(this.marcData).length == 1){
+          let key = Object.keys(this.marcData)[0]
+          this.fbFourXX = this.marcData[key]["subfield_a"]
+        }
+
+        try {
+          fbLccn = Array.from(this.xmlDoc.querySelectorAll('[tag="010"]')[0].children).filter(child => child.getAttribute('code') == 'a')[0].innerHTML.trim().replaceAll(" ", "")
+          this.bcpLccn = fbLccn
+          fbUserName = usePreferenceStore().ssoUser.name
+          fbOneXX = Array.from(this.xmlDoc.querySelectorAll('[tag="' + this.tag.replace("4", "1") +'"]')[0].children).map(child => child.innerHTML).join(" ")
+
+          this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${this.fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${this.fbFourXX}&raa18f1d1801245c3bba6d58ea24c64d8=%22${this.TGrecord}%22`
+        } catch {
+          this.feedbackUrl = `https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=8MvUMsd8ykm9kv-GppWAr3zvyLgUoexPq4evslhtoM9UN1ROVUJEMUtPWUFVTUw5NDRWTTBLTkdBUC4u&r69f7a6ca1d57460bb85070741ef49ad1=${fbLccn}&rfd977bcc6181467f8e2dd8a5d232ae6a=${fbUserName}&r64ff4d13080f450080c7ce5910cbb2d2=${this.fbScript}&r5b0534e8e244466787eab4c097efb620=${fbOneXX}&ra9767296ca0540b0a1d5c5f78ed91e17=${this.fbFourXX}&raa18f1d1801245c3bba6d58ea24c64d8=%22${this.TGrecord}%22`
+        }
+
+        window.open(this.feedbackUrl, '_blank');
+      },
+
+      // initial 4XX
+      edit4XX: async function(data){
+        this.resetBcp()
+        this.MARClccn = data.uri.split("/").at(-1)
+
+        let lastMod = false
+        if (Object.keys(data.extra).includes('lastmods')){
+          lastMod = data.extra.lastmods[0]
+          let earlier = new Date(lastMod) < new Date("2026-08-07");
+          this.syncNar = earlier
+        }
+
+        // if the record is less than 10 miuntes old in FOLIO, resync
+        try{
+          let now = new Date()
+          let folioLastMod = await this.folioLastMod(this.MARClccn)
+          let modDate = new Date(folioLastMod.authority.comparison.folio.date)
+          const diffMs = now - modDate;
+          const seconds = Math.floor(diffMs / 1000);
+          const minutes = Math.floor(seconds / 60);
+          const hours = Math.floor(minutes / 60);
+          const days = Math.floor(hours / 24);
+
+          if (!this.syncNar && minutes && minutes <= 60 && hours == 0 && days == 0){
+            this.syncNar = true
+          }
+          // n2017241650
+          // n81022752
+          // If the the ID last mode date and the folio last mod date are with 24 hours of each other, sync
+          if (!this.syncNar){
+            let lastDate = new Date(lastMod) // ID
+
+            const diffMs = modDate - lastDate   // FOLIO minus
+            const seconds = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            // it's on the same day
+            // if ( (days == 0) && (hours && hours <= 24 && hours > 0))
+            if ( seconds && seconds >= 0 && days == 0 ){
+              this.syncNar = true
+            }
+
+          }
+
+        } catch(err) {
+          console.error("Error checking diff: ", err)
+        }
+
+
+        // Get MarcKey for 1XX
+        let marcKey = data.extra.marcKeys[0] || []
+        this.tag = marcKey.slice(0,3)
+        this.indicators = marcKey.slice(3,5)
+
+        // get the MARCxml
+        let marcXML = false
+        if (data.type != 'Hub'){
+          this.authLccn = this.MARClccn
+          marcXML = await this.fetchAuthXML(this.authLccn)
+        } else {
+          let idents = data.extra.identifiers || []
+          idents = idents.map(id => id.replaceAll(" ", ""))
+          let authId = [...new Set(idents)].filter(item => item.startsWith('n'))
+          this.authLccn = authId
+          marcXML = await this.fetchAuthXML(authId)
+        }
+        let parser = new DOMParser()
+        this.xmlDoc = parser.parseFromString(marcXML, "text/xml")
+        this.originalMarc = this.xmlDoc.cloneNode(true)
+        if (data.extra.languages){
+          this.associatedLang = data.extra.languages[0]//this.xmlDoc.querySelectorAll('[tag="377"]')
+          for (let lang of isoLangLib.iso639_1){
+            let l = lang.name
+            let code = lang.code
+            if (this.associatedLang && l.toLowerCase() == this.associatedLang.toLowerCase()){
+              this.associatedLang = code
+            }
+          }
+        }
+
+        // get the $d for the 1XX, as long as there is no $t
+        let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
+        let childFields = [].slice.call(oneXX.children).map(field => field.getAttribute('code'))
+        for (let child of oneXX.children){
+          if (child.getAttribute('code') == 'd' && !childFields.includes('t')){
+            this.oneXXdollarD = child.innerHTML
+          }
+        }
+
+        if (this.associatedLang && this.associatedLang.length == 1){
+          this.associatedLang = this.associatedLang[0].textContent.trim()
+        }
+        let variants = data.extra.variantLabels
+        let targetTag = "4" + this.tag.slice(1,3)
+
+        this.tag = targetTag
+
+        let zero08 = this.xmlDoc.querySelectorAll('[tag="008"]')[0]
+        let pos29 = zero08.innerHTML.charAt(29)
+        if (pos29 == 'a'){
+          this.refEval = true
+        }
+
+        let vars = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')
+        for (let varIdx in Array.from(vars)){
+          let variant = Array.from(vars[varIdx].children).map((item) => {
+            if(data.type != 'Hub' ){ //&& ['a', 'b'].includes(item.getAttribute('code'))
+              return item.textContent
+            } else if (data.type == 'Hub' && ['a', 't'].includes(item.getAttribute('code'))){
+              return item.textContent
+            }
+          })
+          variant = variant.join(" ")
+          if (variant && !this.isLatin(variant)){
+            let localMarc = {}
+            // if (!localMarc) { this.marcData[varIdx] = {}}
+            localMarc.tag = targetTag
+            localMarc.indicators = this.indicators
+            localMarc.bcpSelection = []
+            localMarc.script = []
+
+            let targetNameXML = this.xmlDoc.querySelectorAll('[tag="' + targetTag +'"]')[varIdx]
+
+            try {
+              let ind1 = targetNameXML.getAttribute('ind1')
+              let ind2 = targetNameXML.getAttribute('ind2')
+              localMarc.indicators = ind1 + ind2
+
+              if (this.tag != 430 && ind2 == 1){
+                localMarc.pref = true
+              }else if (this.tag == 430 && ind1 == 1){
+                localMarc.pref = true
+              }
+            } catch {}
+            this.xmlTargets.push([targetTag, varIdx, targetNameXML.children[0].innerHTML])
+            // for additions add a fake target with an varIdx that will match that update
+
+            for (let sub of targetNameXML.children){
+              let subfield = sub.getAttribute("code")
+              let value = sub.innerHTML
+              // localMarc.indicators = sub
+
+              if (subfield != '7'){
+                localMarc["subfield_" + subfield] = value
+              } else {
+
+                if (value == '(dpecou)Preferred variant'){
+                  localMarc["hasBCP"] = true
+                  continue
+                }
+
+                if (localMarc["subfield_7"]){
+                  localMarc["subfield_7"].push(value)
+                } else {
+                  localMarc["subfield_7"] = [value]
+                }
+              }
+            }
+
+            localMarc.displayName = ''
+            for (let sf of Object.keys(localMarc)){
+              if (sf.startsWith('subfield_')){
+                localMarc.displayName = localMarc.displayName + "$" + sf.split("_")[1] + localMarc[sf]
+              }
+            }
+            localMarc.idx = varIdx
+            this.marcData[varIdx] = localMarc
+            this.activeIndex = varIdx
+            this.buildNewMarcKey()
+
+            if(localMarc["hasBCP"]){
+              this.updateIndicator(varIdx)
+            }
+          }
+        }
+
+        if (Object.keys(this.marcData).length == 0){
+          this.addBcpRow()
+        }
+
+
+        this.activeIndex = false
+        // swap out left panel for form
+        this.showEdit4xxPanel = true
+
+      },
+
+      hideBCP: function(){
+        this.showEdit4xxPanel = false
+      },
+      hidePreview: function(){
+        delete this.marcData['refEval']
+        delete this.marcData['source670s']
+        this.showMarcPreview = false
+
+      },
+
+      checkPrefLabels: function(){
+        // check that everthing with a pref=true has a BCP code & that two names
+        // with the same BCP code aren't preferred
+        let pref47 = {}
+        let checks = []
+        let all = 0
+        let evaluated = 0
+
+        for (let key of Object.keys(this.marcData)){
+          let value = this.marcData[key]
+          if (typeof value == 'object'){
+            all += 1
+          }
+          if (value.pref){
+            if (!Object.keys(value).includes("subfield_7") || value["subfield_7"].length == 0){
+              checks.push({level: "ERROR", message: "A name has been marked as preferred, without having a BCP code added to it. Name: " + value.displayName})
+            } else {
+              for(let bcp of value["subfield_7"]){
+                if (pref47[bcp] == 1){
+                  checks.push({level: "ERROR", message: "Multiple preferred forms have the same BCPcode: " + bcp})
+                }
+                pref47[bcp] = pref47[bcp] ? pref47[bcp] + 1 : 1;
+
+              }
+            }
+          }
+          if (value['subfield_7']){
+            evaluated += 1
+          }
+        }
+
+        if (all == evaluated && !this.refEval){
+          checks.push({level: 'INFO', message:"All references have BCP codes, but the reference evaluated box wasn't checked."})
+        }
+
+
+        return checks
+      },
+
+      submitEdit: async function(){
+        this.finalMarc = this.finalMarc.replace(/(?:\r\n|\r|\n)/g, '');
+        this.finalMarc = this.finalMarc.replace(/> *</g, '><');
+
+        console.info("submitting: ", this.finalMarc)
+        this.postStatus='posting'
+        let cataloger = null
+        let results = await this.postNacoStub(this.finalMarc, this.MARClccn, true)
+
+        if (!results.pubResuts.status){
+          alert("Error posting NAR")
+          console.error("NAR post error: ", results)
+          return
+        }
+
+        if (results.pubResuts.details){
+          let details = JSON.parse(atob(results.pubResuts.details))
+          if (details.status == 'success, but with errors'){
+            alert("NAR added to BFDB, but not sent to FOLIO.")
+          }
+        }
+
+        // Reset and redo search to refresh everything
+        this.showMarcPreview = false
+        this.showEdit4xxPanel = false
+        this.activeContext = null
+        this.activeComplexSearch = []
+        this.postStatus='posted'
+        this.resetBcp()
+        this.doSearch()
+      },
+
+      previewMarc: async function(){
+        this.submitting = true
+        this.showMarcPreview = true
+        let prefChecks = this.checkPrefLabels()
+
+        // this.marcData['note667'] = this.note667
+
+        const marcXML = this.xmlDoc
+        let updates = this.marcData
+
+        console.info("updates: ", updates)
+
+        let numEval = 0
+        let totalVars = 0
+        for (let key of Object.keys(updates)){
+          let data = updates[key]
+          totalVars += 1
+          if (Object.keys(data).includes("subfield_7")){
+            numEval += 1
+          }
+        }
+
+        let someEval = (totalVars != numEval) && (numEval != 0)
+        if (someEval && !this.marcData.refEval){
+          this.marcData.refEval = "some"
+        }
+
+        this.marcData.refEval = this.refEval
+
+        // add a target for any additions
+        for (let idx in updates){
+          if (idx.startsWith("##") && updates[idx]['subfield_a']){
+            let t = [this.tag, idx, updates[idx]['subfield_a']]
+            if (!JSON.stringify(this.xmlTargets).includes(JSON.stringify(t))){
+              this.xmlTargets.push(t)
+            }
+          }
+        }
+        let targets = this.xmlTargets
+
+        // add the 670 info
+        let s670s = this.source670s
+        let remove670 = [] // empty 670s to remove
+        for (let idx in s670s){
+          let note = s670s[idx]
+          let subfields = note.note.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+          if (subfields){
+            for (let sub of subfields){
+              let tag = sub.slice(1,2)
+              let val = sub.slice(2)
+              if (val != ''){
+                note[tag] = val
+              } else {
+                remove670.push(idx)
+              }
+            }
+          } else {
+            remove670.push(idx)
+          }
+        }
+        for (let idx of remove670){ s670s.splice(idx, 1) }
+        this.marcData['source670s'] = s670s
+
+        console.info("targets: ", this.xmlTargets)
+        let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
+        this.updatedRecord = results[0]
+        let parsedRecord = results[1]
+
+        // remove namespaces
+        for (let att of this.updatedRecord.attributes){
+          this.updatedRecord.removeAttribute(att.nodeName)
+        }
+
+        let xmlUpdated = new XMLSerializer().serializeToString(this.updatedRecord)
+
+        // validate the update
+        this.validating = true
+        this.validationResult = await utilsNetwork.validateNar(xmlUpdated)
+        if (prefChecks.length > 0 ){
+          for (let mess of prefChecks){
+            this.validationResult.validation.push({
+              level: mess.level,
+              message: mess.message,
+            })
+          }
+        }
+        this.validating = false
+        this.validationErrors = false
+        if (this.validationResult.validation.some(item => item.level == 'ERROR')){
+          this.validationErrors = true
+          this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
+        }
+
+        let marcString = xmlUpdated
+        this.finalMarc = marcString
+        this.formattedMarc = await utilsNetwork.formatMarc(parsedRecord, 'record', 'html')
+        if (!this.formattedMarc){
+          this.updatedRecord = parsedRecord.leader + "\n"
+          for (let field of parsedRecord.fields){
+            this.updatedRecord = this.updatedRecord + field.join(" ") + "\n"
+          }
+        }
+        this.submitting = false
+      },
+
+      getBcpSuggestions: async function(){
+        if (!this.activeIndex){ return }
+        if (this.marcData[this.activeIndex]){
+          this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
+        }
+        if (this.marcData[this.activeIndex] && !this.marcData[this.activeIndex].bcpSelection){
+          this.marcData[this.activeIndex].bcpSelection = []
+        }
+
+        if (this.marcData[this.activeIndex] && this.marcData[this.activeIndex].bcpSelection.length == 0){
+          let currentSelection = this.marcData[this.activeIndex].subfield_7
+          let bcpList = currentSelection ? currentSelection.map(i => i.replace('(bcp47)', '')) : []
+          for (let [idx, item] of Object.entries(this.bcpCodes)){
+            let code = item.bcp47code
+            if (bcpList.includes(code)){
+              this.marcData[this.activeIndex].bcpSelection.push(Number(idx))
+            }
+          }
+        }
+      },
+
+      addBcpCode: function(idx){
+        if (this.marcData[this.activeIndex].bcpSelection && this.marcData[this.activeIndex].bcpSelection.includes(idx)){ // remove it
+          this.marcData[this.activeIndex].bcpSelection = this.marcData[this.activeIndex].bcpSelection.filter(item => item != idx)
+          this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName.replace("$7(bcp47)" + this.bcpCodes[idx].bcp47code, '')
+        } else {
+          this.marcData[this.activeIndex].bcpSelection.push(idx)
+          this.marcData[this.activeIndex].displayName = this.marcData[this.activeIndex].displayName + "$7(bcp47)" + this.bcpCodes[idx].bcp47code
+        }
+      },
+
+      buildNewMarcKey: function(){
+        // reset to make deletions easier to handle
+        this.marcData[this.activeIndex] = {
+          'tag': this.tag,
+          'indicators': this.marcData[this.activeIndex].indicators,
+          'bcpSelection': this.marcData[this.activeIndex].bcpSelection,
+          'marcKey': this.marcData[this.activeIndex].marcKey,
+          'displayName': this.marcData[this.activeIndex].displayName,
+          'hasBCP': this.marcData[this.activeIndex].hasBCP,
+          'pref': this.marcData[this.activeIndex].pref,
+          'newRow': this.marcData[this.activeIndex].newRow,
+          'scripts': this.marcData[this.activeIndex].scripts ? this.marcData[this.activeIndex].scripts : [],
+        }
+
+        let key = ''
+        let marcKey = this.marcData[this.activeIndex].tag + this.marcData[this.activeIndex].indicators
+        let userInput = this.marcData[this.activeIndex].displayName
+
+        // split up the user input and use to populate the marcData
+        let subfields = userInput.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+        if (!subfields){
+          subfields = ['']
+          this.marcData[this.activeIndex].delete = true
+        } else {
+          this.marcData[this.activeIndex].delete = false
+        }
+
+        // empty out the scripts, so they are always uptodate
+        this.marcData[this.activeIndex].scripts = []
+
+        for (let sub of subfields){
+          let field = sub.slice(1,2)
+          let value = sub.slice(2)
+          if (field != '7'){
+            this.marcData[this.activeIndex]["subfield_" + field] = value
+          } else {
+            if (!this.marcData[this.activeIndex]["subfield_7"]){
+              this.marcData[this.activeIndex]["subfield_7"] = [value]
+            } else {
+              this.marcData[this.activeIndex]["subfield_7"].push(value)
+            }
+
+            // track script information added manually
+            let scriptInfo = value.replace('(bcp47)', '')
+            if (scriptInfo.includes("-")){
+              let lang = scriptInfo.split("-")[0]
+              let script = scriptInfo.split("-")[1]
+              if (this.marcData[this.activeIndex].scripts){
+                this.marcData[this.activeIndex].scripts.push({'lang': lang, 'script': script})
+              } else {
+                this.marcData[this.activeIndex].scripts = [{'lang': lang, 'script': script}]
+              }
+            } else {
+              let lang = scriptInfo
+              let fullLang = utilsMisc.getLangScriptName(lang, 'lang')
+              try {
+                let script = utilsMisc.getLangScriptName(fullLang, 'langScript')
+                this.marcData[this.activeIndex].scripts.push({'lang': lang, 'script': script})
+              } catch {}
+            }
+          }
+        }
+
+        for (let sub of Object.keys(this.marcData[this.activeIndex])) {
+          if (sub.startsWith("subfield_") && sub != 'subfield_7'){
+            key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
+          } else if (sub == 'subfield_7'){
+            for (let sub7 of this.marcData[this.activeIndex][sub]){
+              let val = "$7" + sub7
+              key = `${key}\u200E${val}`
+            }
+          }
+        }
+
+        this.marcData[this.activeIndex]['displayName'] = key
+      },
+
+      addBcpRow: function(){
+        let lastItem = Object.keys(this.marcData).at(-1)
+        // Index for new fields will start with ##
+        let newIdx = false
+        if (lastItem && !lastItem.startsWith("##")){
+          newIdx = "##" + (Number(lastItem) + 1)
+        } else if (lastItem && lastItem.startsWith("##")){
+          let temp = lastItem.replace("##", "")
+          newIdx = "##" + (Number(temp) + 1)
+        } else {
+          newIdx = "##" + 1
+        }
+
+        this.source670s.push({'note': '$a'})
+
+        this.marcData[newIdx] = {
+          'tag': this.tag,
+          'indicators': this.indicators,
+          'bcpSelection': [],
+          'marcKey': '',
+          'displayName': '$a',
+          'newRow': true,
+          'scripts': [],
+        }
+      },
+      dupeBcpRow: function(idx){
+        let newIdx = false
+        if (!idx.startsWith("##")){
+          newIdx = "##" + (Number(idx) + Object.keys(this.marcData).length+1)
+        } else {
+          let temp = idx.replace("##", "")
+          newIdx = "##" + (Number(temp) + Object.keys(this.marcData).length+1)
+        }
+
+        this.marcData[newIdx] = JSON.parse(JSON.stringify(this.marcData[idx]))
+        this.marcData[newIdx].newRow = true
+        this.activeIndex = newIdx
+
+        this.source670s.push({'note': '$a'})
+
+      },
+
+      addDateFromOneXX: function(idx){
+        let comma = ","
+        const arabicPattern = /[\u0600-\u06FF]/;
+        let text = this.marcData[idx].displayName
+        let hasArabic = arabicPattern.test(text)
+
+        if (hasArabic){
+          comma = "،"
+        }
+
+        // make sure $d goes after dollar $a
+        let dollarD = comma + " $d" + this.oneXXdollarD
+
+        let subfields = text.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+        if (subfields.length > 1){
+          let index = subfields[0].length
+          this.marcData[idx].displayName = text.slice(0, index) + dollarD + text.slice(index)
+        } else {
+          this.marcData[idx].displayName += dollarD
+        }
+
+        this.activeIndex = idx
+        this.buildNewMarcKey()
+      },
+
+      removeAdded670: function(idx){
+        this.source670s.splice(idx, 1)
+      },
+
+      removeBcpRow: function(row){
+        this.activeIndex = Object.keys(this.marcData).at(0)
+        delete this.marcData[row]
+        let idx = false
+        for (let i in this.xmlTargets){
+          let t = this.xmlTargets[i]
+          if (t[1] == row){
+            idx = i
+          }
+        }
+        if (idx){
+          this.xmlTargets.splice(idx, 1)
+        }
+        this.source670s.pop()
+      },
+
+      fetchAuthXML: async function(lccn){
+        let r = await utilsNetwork.fetchAuthMarc(lccn, this.syncNar)
+        this.syncNar = false
+        return r
+      },
+
+      folioLastMod: async function(lccn){
+        let env = useConfigStore().returnUrls.env
+        let url = `${this.baseUrl}folio/last-updated/${env}?authLccn=${lccn}`
+        let results = await utilsNetwork.fetchFolioLastMod(url)
+
+        return results
+      },
+
+      handleInput: function(event){
+        let el = document.getElementsByClassName("active-bcp")[0]
+        const startPos = el.selectionStart
+        this.marcData[this.activeIndex].displayName = event.target.value
+        this.buildNewMarcKey()
+
+        window.setTimeout(async ()=>{
+          if (event.inputType == "deleteContentBackward" ){
+            el.setSelectionRange(startPos-1, startPos-1)
+          } else {
+            el.setSelectionRange(startPos+1, startPos+1)
+          }
+          this.getBcpSuggestions()
+        }, 1)
+      },
+
       sortResults: function(a,b){
-         if (a.label.includes('Literal')){
-          return -1
-         } else if (a.label > b.label){
-          return 1
-         } else if(a.label < b.label){
-          return -1
-         } else {
-          return 0
-         }
+        if (a.label.includes('Literal')){
+        return -1
+        } else if (a.label > b.label){
+        return 1
+        } else if(a.label < b.label){
+        return -1
+        } else {
+        return 0
+        }
       },
       checkLcOnly: function(){
         let config = useConfigStore()
@@ -296,7 +1053,7 @@
       },
 
       hasPubDate: function(data){
-        let dates = data.extra.pubdates
+        let dates = data.extra.pubdates || []
 
         if (dates && dates.length > 0){
           return dates[0]
@@ -348,6 +1105,8 @@
         this.searchValueLocal = null
         this.authorityLookupLocal = null
         this.offsetStep = 30
+
+        this.showEdit4xxPanel = false
       },
 
       // watching the search input, when it changes kick off a search
@@ -480,7 +1239,7 @@
 
 
       inputKeydown: function(event){
-        if (event.key==='ArrowDown'){
+        if (event.key === 'ArrowDown'){
           this.$refs.selectOptions.focus()
           try {
             this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
@@ -828,9 +1587,9 @@
         }
 
         // filter the Authorized NonLatin from the variants
-        if (this.activeContext && this.activeContext.extra && this.activeContext.extra['variantLabels'] && this.activeContext.extra['nonlatinLabels']){
-          this.activeContext.extra['variantLabels'] = this.activeContext.extra['variantLabels'].filter(n => !this.activeContext.extra['nonlatinLabels'].includes(n))
-        }
+        // if (this.activeContext && this.activeContext.extra && this.activeContext.extra['variantLabels'] && this.activeContext.extra['nonlatinLabels']){
+        //   this.activeContext.extra['variantLabels'] = this.activeContext.extra['variantLabels'].filter(n => !this.activeContext.extra['nonlatinLabels'].includes(n))
+        // }
         // Filter earlier/later forms of name from releated
         if (this.activeContext && this.activeContext.extra && this.activeContext.extra['relateds'] && this.activeContext.extra['hasEarlierEstablishedForms']){
           this.activeContext.extra['relateds'] = this.activeContext.extra['relateds'].filter(n => !this.activeContext.extra['hasEarlierEstablishedForms'].includes(n))
@@ -927,6 +1686,9 @@
       loadNacoStubModal(){
         // Set the current value for NAR creation
         this.lastComplexLookupString = this.searchValueLocal
+
+        let source = this.returnStructureByComponentGuid(this.guid).propertyURI
+
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',
@@ -934,7 +1696,7 @@
           fieldGuid: null,
           structure: this.structure,
           propertyPath:this.propertyPath,
-          source: "contribution"
+          source: source
         }
 
 
@@ -1065,6 +1827,19 @@
         }
         this.doSearch()
       },
+
+      openFolioRecord: function(){
+        let config = useConfigStore()
+        let lccn
+        if (this.authLccn){
+          lccn = this.authLccn
+        } else {
+          lccn = this.activeContext.uri.split("/").at(-1)
+        }
+        let url = config.returnUrls.folioBase + `/marc-authorities/authorities/?authRefType=Authorized&query=${lccn}&segment=search`
+        window.open(url, '_blank');
+      },
+
     },
 
     updated: function(event){
@@ -1161,93 +1936,210 @@
 			</div>
           <div class="complex-lookup-modal-container-parts">
 
-            <div class="complex-lookup-modal-search">
-              <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
-                <div class="toggle-btn-grp cssonly">
-                  <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/>
-                    <label onclick="" class="toggle-btn">{{opt.label}}</label>
+            <template v-if="!showEdit4xxPanel">
+              <div class="complex-lookup-modal-search">
+                <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
+                  <div class="toggle-btn-grp cssonly">
+                    <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/>
+                      <label onclick="" class="toggle-btn">{{opt.label}}</label>
+                    </div>
                   </div>
-				        </div>
 
-                <div style="height: 22px; min-height: 22px;">
-                  <div style="z-index: 100; float: left; margin-left: 10px;">
-                    Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
-                    Showing "<={{ offsetStep }}" results
-                    <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
-                    <button @click="adjustNumResults('up')">More</button>
+                  <div style="height: 22px; min-height: 22px;">
+                    <div style="z-index: 100; float: left; margin-left: 10px;">
+                      Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
+                      Showing "<={{ offsetStep }}" results
+                      <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
+                      <button @click="adjustNumResults('up')">More</button>
+                    </div>
+                    <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
+                      <span :style="`${this.preferenceStore.styleModalTextColor()}`">
+                        <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
+                          <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
+                        </a>
+                        <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
+                          <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
+                        </a>
+
+                        <span class="pagination-label" > {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last"}} </span>
+
+                        <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
+                          <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
+                        </a>
+                        <a href="#" title="last page" class="last" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="lastPage()">
+                          <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
+                        </a>
+                      </span>
+
+                    </div>
+                    <div v-else style="min-height: 27px;"></div>
                   </div>
-                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
-                    <span :style="`${this.preferenceStore.styleModalTextColor()}`">
-                      <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
-                      </a>
-                      <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
-                      </a>
 
-                      <span class="pagination-label" > {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last"}} </span>
+            <div id="container" v-if="modalSelectOptions.length >= 6">
+              <span v-if="activeComplexSearch && activeComplexSearch[0]">
 
-                      <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
-                      </a>
-                      <a href="#" title="last page" class="last" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="lastPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
-                      </a>
-                    </span>
+              </span>
+              <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
+              <label for="search-type" class="toggle-container">
+                <div>Left Anchored</div>
+                <div>Keyword</div>
+              </label>
+            </div>
 
-                  </div>
-                  <div v-else style="min-height: 27px;"></div>
+                </template>
+                <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
+                  <select v-model="modeSelect">
+                    <option  v-for="opt in modalSelectOptions">{{opt.label}}</option>
+                  </select>
+                </template>
+                <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" />
+                <button @click="forceSearch()">Search</button>
+
+                <!-- REMOVE v-if BEFORE PROD USAGE -->
+                <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
+
+                <hr style="margin-top: 5px;">
+                <div>
+                    <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
+                      <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
+                        No results found.
+                      </option>
+                      <option v-if="activeComplexSearchInProgress == true">
+                        Searching...
+                      </option>
+
+                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : isSuppressed(r) ? 'background-color:yellow' : ''" class="complex-lookup-result">  <!-- this.isSuppressed(r) ? 'color:yellow' :  -->
+                        {{ generateLabel(r) }}
+                        {{ checkFromAuth(r) ? ' (Auth)' : '' }}
+                        {{ checkFromRda(r) ? ' [RDA]' : '' }}
+                        {{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}
+                      </option>
+
+                    </select>
+                    <br>
+
                 </div>
 
-				  <div id="container" v-if="modalSelectOptions.length >= 6">
-            <span v-if="activeComplexSearch && activeComplexSearch[0]">
+              </div>
+            </template>
+            <!-- MARC Preview Panel -->
+            <template v-else-if="showMarcPreview">
+              <div class="marc-container">
+                <template v-if="validationResult.validation && postStatus != 'posting'">
+                  <h2 class='validation-header'>Validation:</h2>
+                  <div class="validation-results">
+                    <span v-for="val in validationResult.validation">
+                      <div :class="'validation-'+val.level">{{ val.message }}</div>
+                    </span>
+                  </div>
+                </template>
+                <template v-else-if="postStatus == 'posting'">
+                  <h2 class='validation-header' >Submitting</h2>
+                    <span class="validation-INFO">Submitting</span>
+                </template>
 
-            </span>
-            <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
-            <label for="search-type" class="toggle-container">
-              <div>Left Anchored</div>
-              <div>Keyword</div>
-            </label>
-				  </div>
+                <!-- this.postStatus='posting' -->
 
-              </template>
-              <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
-                <select v-model="modeSelect">
-                  <option  v-for="opt in modalSelectOptions">{{opt.label}}</option>
-                </select>
-              </template>
-              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" />
-              <button @click="forceSearch()">Search</button>
+                <div class="marc-preview-container">
+                  <h2>MARC Preview</h2>
+                  <div v-html="formattedMarc.result" class="marc-preview" v-if="!submitting"></div>
+                  <div v-else>Loading...</div>
+                  <pre class="marc-backup-display" v-if="!formattedMarc && typeof this.updatedRecord == 'string'">
+                    {{ this.updatedRecord }}
+                  </pre>
+                </div>
 
-              <!-- REMOVE v-if BEFORE PROD USAGE -->
-              <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
-              <button @click="loadHubStubModal" style="float: right;" v-if="displayHubButton() == true">Create Hub</button>
+                <div class="button-container">
+                  <button @click="submitEdit()" v-if="!validationErrors">Submit</button>
+                  <button @click="hidePreview()">Go Back</button>
+                </div>
 
-              <hr style="margin-top: 5px;">
-              <div>
-                  <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
-                    <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
-                      No results found.
-                    </option>
-                    <option v-if="activeComplexSearchInProgress == true">
-                      Searching...
-                    </option>
-
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : isSuppressed(r) ? 'background-color:yellow' : ''" class="complex-lookup-result">  <!-- this.isSuppressed(r) ? 'color:yellow' :  -->
-                      {{ generateLabel(r) }}
-                      {{ checkFromAuth(r) ? ' (Auth)' : '' }}
-                      {{ checkFromRda(r) ? ' [RDA]' : '' }}
-                      {{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}
-                    </option>
-
-                  </select>
-                  <br>
 
               </div>
+            </template>
+            <!-- BCP Panel -->
+            <template v-else>
+              <div class="authority-edit">
+
+                  <h2>Update BCP47 Language</h2>
+                  <!-- <input class="bcp-input" type="text" v-model="targetName" /> -->
+                  <!-- <div v-for="(row, index) in this.newMarcKeys" :key="index" class="advanced-row"> -->
+                    <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
+                      <template v-if="typeof row === 'object'">
+                        <input type="checkbox" class="prefCheck" :id="index + '_pref'" :name="index + '_pref'" value="row.pref" :checked="row.pref" @click="activeIndex = index; updateIndicator(index)">
+                        <label :for="index + '_pref'">Pref</label>
 
 
+                        <span class="tag-ind">{{ tag }}{{ row.indicators }}</span>: <input class="bcp-input"
+                          type="text"
+                          v-model="row.displayName"
+                          @input="handleInput"
+                          @click="activeIndex = index"
+                          @keydown="inputKeydown($event)"
+                          @focus="this.activeIndex = index"
+                          :class="{'active-bcp': this.activeIndex == index}"
+                        />
 
-            </div>
+                        <button @click="dupeBcpRow(index)" class="material-icons bcp-icon">content_copy</button>
+                        <button @click="addDateFromOneXX(index)" class="material-icons bcp-icon" v-if="oneXXdollarD && !row['subfield_d']">date_range</button>
+                        <button v-if="row.newRow" @click="removeBcpRow(index)" class="material-icons bcp-icon">delete</button>
+                      </template>
+                    </div>
+                  Add Variant: <button @click="addBcpRow" class="material-icons bcp-icon">add</button>
+
+                  <div class="bcp-selection-table">
+                    <table>
+                      <thead>
+                          <tr>
+                              <th>BCP47</th>
+                              <th>Language</th>
+                              <th>Score</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr v-for="(code, idx) of bcpCodes"  @click="addBcpCode(idx); buildNewMarcKey()" :class="{ active: marcData[activeIndex].bcpSelection && marcData[activeIndex].bcpSelection.includes(idx) }">
+                            <td>
+                              {{ code["bcp47code"] }}
+                            </td>
+                            <td>
+                              {{ code["name"] }}
+                            </td>
+                            <td>
+                              {{ code["score"] }}
+                            </td>
+                          </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="new-value-container" v-if="source670s.length > 0">
+                    <!-- 667 Note: <textarea type=text v v-model='note667' class="eval-note" /> -->
+                    <template v-for="(code, idx) of source670s">
+                      670 Note: <textarea type=text v-model='code.note' class="eval-note" />
+                      <button @click="removeAdded670(idx)" class="material-icons bcp-icon">delete</button><br>
+                    </template>
+                    <!-- <template v-for="idx in source670s">
+                      670 Note: <textarea type=text v-model='idx.note' class="eval-note" /><br>
+                      <button @click="remove670(idx)" class="material-icons bcp-icon">delete</button>
+                    </template> -->
+                  </div>
+
+                <div class="button-container">
+                  <label for="refEval" class="all-ref-check">All References Evaluated?</label>
+                  <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
+                  <br><br>
+                  <button @click="overrideTG = true; buildFeedbackLink()">Feedback</button>
+                  <button @click="previewMarc()" v-if="allowPreview()">Preview</button>
+                  <button @click="hideBCP()">Cancel</button>
+                  <template v-if="!allowPreview()">
+                    <div class="tg-note">This LCCN has been flagged by the PC TaskGroup. Please provide feedback before continuing.</div>
+                  </template>
+
+                  <!-- open in FOLIO -->
+                  <!-- <button class="folio-button" @click="openFolioRecord()">FOLIO</button> -->
+                </div>
+              </div>
+            </template>
 
 
             <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
@@ -1328,10 +2220,17 @@
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
                         <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'notes', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
-                          <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                          <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:
+
+                            <button v-if="showBCPButton(key, activeContext.extra)" class="material-icons variant-edit" @click="edit4XX(activeContext)">edit</button>
+                            <template v-if="showBCPButton(key, activeContext.extra) && this.syncNar">
+                              Syncing <span class="syncing"><span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span> </span>
+                            </template>
+                          </div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                              <span v-if="key !='sees' && key !='relateds'">{{v}}</span>
+                              <span v-if="key !='sees' && key !='relateds'">{{v}}
+                              </span>
                               <div v-else-if="key == 'relateds'">
                                 {{v}}<button class="material-icons see-search" @click="searchValueLocal = v">search</button>
                               </div>
@@ -1456,6 +2355,12 @@
                                   </li>
                                   <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
                                 </ul>
+                              </template>
+                            </template>
+                            <template v-if="!Object.keys(activeContext.extra).includes('variantLabels')">
+                              <button @click="edit4XX(activeContext)">Add 4XX</button>
+                              <template v-if="this.syncNar">
+                                Syncing <span class="syncing"><span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span> </span>
                               </template>
                             </template>
                           </AccordionItem>
@@ -1864,5 +2769,281 @@
   margin-left: 5px;
 }
 
+.variant-edit {
+  font-size: 12px;
+}
+
+/*************/
+/*************/
+/* BCP Stuff */
+/*************/
+/*************/
+
+.authority-edit {
+  padding: 8px;
+  overflow: scroll;
+}
+.bcp-selection-table {
+  max-height: 250px;
+  overflow: scroll;
+  display: block;
+}
+
+
+table {
+    border-collapse: collapse;
+    border: 2px solid rgb(140 140 140);
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+th {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+th,
+td {
+    border: 1px solid rgb(160 160 160);
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.active {
+    background-color: rgb(131, 131, 255);
+}
+
+.advanced-row {
+  width: 45w;
+  display: flex;
+  flex-flow: row;
+}
+.bcp-input{
+  width: 75%;
+  max-width: 50vw;
+  font-size: 1.3em;
+}
+.bcp-icon {
+  font-size: 16px;
+  height: 25px;
+  width: 25px;
+  margin-left: 5px;
+}
+.active-bcp{
+  border: 5px solid #28cd28;
+}
+
+.record-comp {
+  /* max-width: 80%; */
+  height: 200px;
+}
+
+.old-data {
+  /* width: 45%; */
+  height: 100px;
+  max-width: 45%;
+  /* float: left; */
+  overflow: scroll;
+}
+
+.new-data {
+  /* width: 45%; */
+  /* margin-left: 5%; */
+  height: 200px;
+  max-width: 45%;
+  /* float: right; */
+  overflow: scroll;
+}
+
+.record-data {
+  background: whitesmoke;
+}
+
+pre {
+    /* white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;      */
+
+    overflow: scroll;
+    margin-bottom: 5px;
+    /* max-width: 80%; */
+    line-height: 20px;
+}
+
+.new-marc-data{
+  width: fit-content;
+  max-width: 50vw;
+  padding: 5px;
+  border-radius: 25px;
+  background-color: whitesmoke;
+  margin-bottom: 5px;
+}
+
+.validation-INFO,
+.validation-ERROR,
+.validation-SUCCESS {
+  list-style: none;
+  width: fit-content;
+  margin-bottom: 5px;
+  padding: .75rem 1.25rem;
+  border-radius: 25px;
+}
+
+.validation-ERROR{
+  color: #721c24;
+  background-color: #f5b3b9;
+  border-color: #f5c6cb;
+}
+
+.validation-SUCCESS{
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.validation-INFO{
+  color: #ffffff;
+  background-color: #5bc0de;
+  border-color: #46b8da;
+}
+
+.marc-container {
+  height: 90vh;
+}
+.button-container,
+.new-value-container {
+  margin-top: 5px;
+  background-color: rgb(201, 199, 199);
+  padding: 5px;
+}
+
+.marc-preview-container {
+  height: 75vh;
+  overflow: scroll;
+  padding: 10px;
+  font-family: monospace;
+  margin-top: 10px;
+}
+
+div.marc.record {
+  font-family: monospace;
+}
+
+span.indicators {
+    white-space: pre;
+}
+
+.prefCheck {
+  visibility: hidden;
+}
+
+.tag-ind {
+  height: 20px;
+  margin-top: 5px;
+  white-space: pre;
+  font-family: monospace;
+}
+
+input.prefCheck[type=checkbox]+label {
+  background-color: #ccc;
+  font-style: italic;
+  padding: 1px 15px 1px 15px;
+  border-radius: 25px;
+  height: 20px;
+  margin-top: 5px;
+
+}
+
+input.prefCheck[type=checkbox]:checked+label {
+  background-color: #28cd28;
+  font-style: normal;
+  padding: 1px 15px 1px 15px;
+  border-radius: 25px;
+  height: 20px;
+  margin-top: 5px;
+}
+
+.authority-edit {
+  height: 95vh;
+}
+
+.folio-button {
+  float: right;
+}
+
+.eval-note{
+  width: 40vw;
+}
+
+.marc-backup-display {
+  width: 50vw;
+}
+
+.validation-results {
+  overflow: scroll;
+  height: 10vh;
+}
+
+.validation-header {
+  margin-bottom: 10px;
+}
+
+:deep() .subfield-7 > .subfield {
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+/* https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://codepen.io/itsmanojb/pen/xQpZbR&ved=2ahUKEwjqgeuKx5uWAxVaL1kFHSntE-QQFnoECBoQAQ&usg=AOvVaw1WE0klQuyvFRvuUTtGjyou */
+.syncing {
+  position: relative;
+  top: 10px;
+  margin-right: 2px;
+
+  span {
+    content: '';
+    animation: blink 1.5s infinite;
+    animation-fill-mode: both;
+    height: 5px;
+    width: 5px;
+    background: #3b5998;;
+    position: absolute;
+    left:0;
+    top:0;
+    border-radius: 50%;
+
+    &:nth-child(2) {
+      animation-delay: .2s;
+      margin-left: 7px;
+    }
+
+    &:nth-child(3) {
+      animation-delay: .4s;
+      margin-left: 14px;
+    }
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: .1;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .1;
+  }
+}
+
+.all-ref-check {
+  font-weight: bold;
+  font-size: 1em;
+}
 
 </style>

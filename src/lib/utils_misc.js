@@ -1,3 +1,4 @@
+import iso from './iso_lang.json'
 
 const utilsMisc = {
 
@@ -47,6 +48,16 @@ const utilsMisc = {
 
   calculateCutter (toCut,howLong) {
     var authorName = toCut
+    // https://www.loc.gov/aba/publications/FreeCSM/G100.pdf
+    authorName = authorName.replace(/Æ|æ/g, "ae")
+    authorName = authorName.replace(/α/g, "a")
+    authorName = authorName.replace(/β/g, "b")
+    authorName = authorName.replace(/ð/g, "d")
+    authorName = authorName.replace(/γ/g, "g")
+    authorName = authorName.replace(/ı/g, "i")
+    authorName = authorName.replace(/Œ|œ/g, "oe")
+    authorName = authorName.replace(/Þ|þ/g, "th")
+
     authorName = authorName.toUpperCase();
     authorName = authorName.replace(/^[0-9]/,"a");
     //replace diacritics with the letter
@@ -55,6 +66,7 @@ const utilsMisc = {
     //var authorNameLength = authorName.length;
     authorName = authorName.replace(/^QU/i,"Q");
     authorName = authorName.replace(/(^.)CH/i,"$1#");
+
     var cutter = "";
 
     for (var i=0; i<authorName.length; i++) {
@@ -62,8 +74,7 @@ const utilsMisc = {
         cutter += authorName.slice(0,1); //alert (cutter);
         cutter = cutter.replace(/a/,"A");
         //alert (authorName + " " + cutter);
-      }
-	  else if (i == 1) {
+      } else if (i == 1) {
         var initialLetter = authorName.slice(0,1); //alert (initialLetter);
         var secondLetter = authorName.slice(1,2); //alert (secondLetter);
         if (initialLetter.match(/^A|E|I|O|U$/)) {
@@ -131,7 +142,51 @@ const utilsMisc = {
         cutter = cutter.slice(0,noofdigits);
     }
     return cutter
-  }
+  },
+
+  /**
+   * Get the full name of a language or script from iso_lang.json
+   * @param {string} target - the abbreivated form to expand
+   * @param {string} type - lang or script
+   *
+   * @return {string} the full name
+   */
+  getLangScriptName(target, type){
+    let source
+    let targetKey
+    if (type == "lang"){
+      if (target.length == 2){
+        source = iso['iso639_2']
+        targetKey = 'alpha_2'
+      } else {
+        source = iso['iso639_3']
+        targetKey = 'code'
+      }
+
+    } else if (type == "script"){
+      source = iso['iso15924']
+      targetKey = 'alpha_4'
+    } else if (type == "langScript"){
+      source = iso['langScriptMap']
+      targetKey = 'lang'
+    }
+
+    for (let item of source){
+      if (item[targetKey] && item[targetKey].toLowerCase() == target.toLowerCase()){
+        if (type == "langScript"){
+          return item.code
+        }
+        return item.name
+      }
+    }
+
+  },
+
+  // set string character at index to chr
+  setCharAt: function (str, index, chr) {
+      if (index > str.length - 1) return str;
+      return str.substring(0, index) + chr + str.substring(index + 1);
+  },
 
 
 

@@ -54,12 +54,64 @@ let relatedWorkHubXml = `
 </rdf:RDF>
 `
 
+// a relation whose associatedResource is only a rdf:resource reference, no typed element to sniff
+let bareHubRefXml = `
+<rdf:RDF xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <bf:Work rdf:about="http://id.loc.gov/resources/works/in01260004730">
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/part">
+                        <rdfs:label>part</rdfs:label>
+                        <bf:code>part</bf:code>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:associatedResource rdf:resource="http://id.loc.gov/resources/hubs/1e23eb63-b7b6-d7c2-66e8-87f678bd3503"/>
+            </bf:Relation>
+        </bf:relation>
+    </bf:Work>
+</rdf:RDF>
+`
+
+let bareWorkRefXml = `
+<rdf:RDF xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <bf:Work rdf:about="http://id.loc.gov/resources/works/1111111">
+        <bf:relation>
+            <bf:Relation>
+                <bf:associatedResource rdf:resource="http://id.loc.gov/resources/works/21114633"/>
+            </bf:Relation>
+        </bf:relation>
+    </bf:Work>
+</rdf:RDF>
+`
+
+let bareHyphenatedWorkRefXml = `
+<rdf:RDF xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <bf:Work rdf:about="http://id.loc.gov/resources/works/in01260004730">
+        <bf:relation>
+            <bf:Relation>
+                <bf:associatedResource rdf:resource="http://id.loc.gov/resources/works/in01260004730-001"/>
+            </bf:Relation>
+        </bf:relation>
+    </bf:Work>
+</rdf:RDF>
+`
+
 let parser = new DOMParser();
 relatedWorkHubXml = parser.parseFromString(relatedWorkHubXml, 'application/xml');
 let processedRelatedWorkHubXml = utils_parse.sniffWorkRelationType(relatedWorkHubXml.children[0].children[0])
 
 transcribedSeriesXml = parser.parseFromString(transcribedSeriesXml, 'application/xml');
 let processedTransSeriesXml = utils_parse.sniffWorkRelationType(transcribedSeriesXml.children[0].children[0])
+
+bareHubRefXml = parser.parseFromString(bareHubRefXml, 'application/xml');
+let processedBareHubRefXml = utils_parse.sniffWorkRelationType(bareHubRefXml.children[0].children[0])
+
+bareWorkRefXml = parser.parseFromString(bareWorkRefXml, 'application/xml');
+let processedBareWorkRefXml = utils_parse.sniffWorkRelationType(bareWorkRefXml.children[0].children[0])
+
+bareHyphenatedWorkRefXml = parser.parseFromString(bareHyphenatedWorkRefXml, 'application/xml');
+let processedBareHyphenatedWorkRefXml = utils_parse.sniffWorkRelationType(bareHyphenatedWorkRefXml.children[0].children[0])
 
 describe("Relationship Sniffing", () => {
     describe("Related Work Hub Lookup", () => {
@@ -70,6 +122,21 @@ describe("Relationship Sniffing", () => {
     describe("Transcribed Series", () => {
         test("Hint should be 'lc:RT:bf2:SeriesHub'", () =>
             expect(processedTransSeriesXml.children[0].getAttribute('local:pthint')).toBe('lc:RT:bf2:SeriesHub')
+        )
+    })
+    describe("Bare hub reference (no typed element)", () => {
+        test("Hint should be 'lc:RT:bf2:RelWorkLookup'", () =>
+            expect(processedBareHubRefXml.children[0].getAttribute('local:pthint')).toBe('lc:RT:bf2:RelWorkLookup')
+        )
+    })
+    describe("Bare work reference (no typed element)", () => {
+        test("Hint should be 'lc:RT:bf2:RelWorkLookup'", () =>
+            expect(processedBareWorkRefXml.children[0].getAttribute('local:pthint')).toBe('lc:RT:bf2:RelWorkLookup')
+        )
+    })
+    describe("Bare hyphenated work reference (related work expression)", () => {
+        test("Hint should be 'lc:RT:RelWorkExpressionLookup'", () =>
+            expect(processedBareHyphenatedWorkRefXml.children[0].getAttribute('local:pthint')).toBe('lc:RT:RelWorkExpressionLookup')
         )
     })
 })

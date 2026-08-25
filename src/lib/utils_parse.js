@@ -358,6 +358,15 @@ const utilsParse = {
         let hasHub = false
         if (child.innerHTML.indexOf("bf:Hub")>-1) { hasHub = true}
 
+        // a bare <bf:associatedResource rdf:resource="..."/> reference has no typed element
+        // to sniff, so also look at the URI of the reference to tell works/hubs apart
+        for (let assocEl of child.getElementsByTagName('bf:associatedResource')){
+          let ref = assocEl.attributes['rdf:resource'] ? assocEl.attributes['rdf:resource'].value : null
+          if (!ref){ continue }
+          if (ref.indexOf('/resources/hubs/')>-1){ hasHub = true }
+          if (ref.indexOf('/resources/works/')>-1){ hasWork = true }
+        }
+
         let hasSeries = false
         if (child.innerHTML.indexOf("bf:Series")>-1){ hasSeries = true }
 
@@ -369,8 +378,16 @@ const utilsParse = {
           hasExternalLcRel = true
         }
 
+        // related work expressions hang off their work with a hyphenated counter URI,
+        // e.g. .../resources/works/in01260000081-001, those belong to the related work
+        // expression component and not the generic related work one
+        let hasHyphenatedWorkUri = false
+        if (/\/resources\/works\/[^"'<>\s]+-\d+/.test(child.innerHTML)){ hasHyphenatedWorkUri = true }
+
         if ((hasSeriesProperty || hasSeries) && hasAssociatedResource){
           child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+        }else if (hasHyphenatedWorkUri && hasAssociatedResource && hasWork){
+          child.setAttribute('local:pthint', 'lc:RT:RelWorkExpressionLookup')
         }else if (hasAssociatedResource && (hasWork || hasHub)){
           child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
         } else if (hasExternalLcRel){
@@ -427,6 +444,22 @@ const utilsParse = {
 
   specialTransforms: {
     //not used currently
+  },
+
+  /**
+  * Checks if a pt's valueTemplateRefs contains the pthint value. Depending on the profile
+  * set loaded the templates are named either lc:RT:bf2:X or lc:RT:X, so compare with the
+  * :bf2: part of the naming removed from both sides
+  *
+  * @param {array} refs - the valueTemplateRefs of the pt
+  * @param {string} hint - the local:pthint value
+  * @return {boolean}
+  */
+  ptRefsIncludeHint(refs, hint){
+    if (!refs || !hint){ return false }
+    let normalize = (v) => v.replace(':bf2:', ':')
+    let normalizedHint = normalize(hint)
+    return refs.some((r) => typeof r === 'string' && normalize(r) == normalizedHint)
   },
 
   updateAdditionalInstanceParentValues: function(profile, instanceName, newRdId){
@@ -605,6 +638,8 @@ const utilsParse = {
           console.warn("Using default template for admin metadata: ", err)
           targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
         }
+        // the loaded profiles may name their templates without the bf2 segment, use whichever exists
+        targetTemplate = useProfileStore().resolveTemplateId(targetTemplate)
 
         // adminMetadataCount
         pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
@@ -685,7 +720,7 @@ const utilsParse = {
             // if it has a hint then we need to check if we can find the right pt for it
             if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){
               // check to see if this pt has that hint value in the valueConstraint  valueTemplateRefs
-              if (ptk.valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
+              if (this.ptRefsIncludeHint(ptk.valueConstraint.valueTemplateRefs, e.attributes['local:pthint'].value)){
                 // it matches, so use this one for sure
                 // make sure to remove the hint attribute
                 // console.log("Putting into ptk:",ptk)
@@ -697,7 +732,7 @@ const utilsParse = {
                 // so look ahead and see, if there is a better match don't add it now and leave this el for that future pt
                 let foundPtToUse = false
                 for (let kCheck in pt){
-                  if (pt[kCheck].valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
+                  if (this.ptRefsIncludeHint(pt[kCheck].valueConstraint.valueTemplateRefs, e.attributes['local:pthint'].value)){
                     // console.log("found a place for you in the future :)")
                     // console.log("here",pt[kCheck])
                     foundPtToUse = true
@@ -796,6 +831,9 @@ const utilsParse = {
             // console.log("------------")
             // console.log(e.innerHTML)
             // console.log((new XMLSerializer()).serializeToString(e))
+
+            // ignore illustrativeContent from rdaregistry
+            if (e?.tagName == "bf:illustrativeContent" && e.getAttribute('rdf:resource')?.includes('rdaregistry')){ continue }
 
             // some special checks here first
             // differentiate between creator and contributor
@@ -2637,6 +2675,97 @@ const utilsParse = {
     return profile
 
 
+  },
+
+  /**
+   * marcBlob: MARC iso2709 string
+   */
+  htmlify: function(marcBlob){
+    let formattedMarcRecord = ["<div class='marc record'>"];
+    for (let [idx, line] of marcBlob.split("\n").entries()){
+      if (idx == 0){
+        let leader = "<div class='marc leader'>" + line.replace(/ /g, '&nbsp;') + '</div>';
+        formattedMarcRecord.push(leader);
+      } else {
+        let tag = String(line.slice(0,3))
+        let value = null;                 // fixed fields?
+        let indicators = null;
+        let subfields = [];               // subfields
+        let subfieldsSplit = []
+        if (line == ""){ continue }
+        if (['001', '003', '005', '006', '007', '008', ].includes(tag)){ // control fields no subfields or indiciators
+          value = line.slice(7)
+        } else {
+          let tmpIndicators = line.slice(4, 6)
+
+          indicators = [" ", " "]
+          indicators[0] = tmpIndicators.slice(0, tmpIndicators.length / 2)
+          indicators[1] = tmpIndicators.slice(tmpIndicators.length / 2, tmpIndicators.length)
+          let subfieldGroups = line.slice(7).replaceAll(/\$([a-z0-9]{1})/g, "-#-#-$1").split("-#-#-")
+
+          for (let sub of subfieldGroups){
+            if (sub != ""){
+              let field = "$" + sub.at(0)
+              let value = sub.slice(1)
+
+              subfields.push([field, value])
+            }
+          }
+        }
+
+        if (value) {
+          tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+          value = " <span class='marc value'>" + value + '</span>';
+          formattedMarcRecord.push("<div class='marc field'>" + tag + value + '</div>');
+        } else {
+          subfields = subfields.map((subfield) =>
+            "<span class='marc subfield subfield-" + subfield[0] + "'><span class='marc subfield subfield-label'>" + subfield[0] + "</span> <span class='marc subfield subfield-value'>" + subfield[1] + '</span></span>'
+          );
+          indicators = "<span class='marc indicators'><span class='marc indicators indicator-1'>" + indicators[0] + "</span><span class='marc indicators indicator-2'>" + indicators[1] + '</span></span>';
+          tag = "<span class='marc tag tag-" + tag + "'>" + tag + '</span>';
+          formattedMarcRecord.push("<div class='marc field'>" + tag + ' ' + indicators + ' ' + subfields.join(' ') + '</div>');
+        }
+
+      }
+    }
+    formattedMarcRecord.push('</div>');
+    return formattedMarcRecord.join('\r\n');
+  },
+
+  // break down the MARCXML into a record that marcjs understands
+  // marcjs parses from a string and tag needs to be before indicators, but
+  // the marcxml from ID puts it after, so we'll parse the MARCXml into the required format
+  parseMarcXml: function (marcXml) {
+      let record = { 'leader': '', 'fields': [] }
+      for (let field of marcXml.children) {
+          let type = field.tagName.replace("marcxml:", "")
+          let value = field.innerHTML
+
+          if (type == 'leader') {
+              record['leader'] = value
+          } else {
+              let tag = field.getAttribute('tag')
+              let ind1 = field.getAttribute('ind1')
+              let ind2 = field.getAttribute('ind2')
+              let subfields = field.children
+
+              let subfieldData = []
+              for (let subfield of subfields) {
+                  let code = subfield.getAttribute('code')
+                  let value = subfield.innerHTML
+                  subfieldData.push(...[code, value])
+              }
+
+              if (subfields.length == 0) {
+                  record.fields.push([tag, field.innerHTML])
+              } else {
+                  record.fields.push([tag, ind1 + ind2, ...subfieldData])
+              }
+          }
+
+      }
+
+      return record
   },
 
 

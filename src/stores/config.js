@@ -7,8 +7,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 6,
-    versionPatch: 4,
+    versionMinor: 7,
+    versionPatch: 1,
 
 
 
@@ -74,9 +74,12 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
         dev: false,
+        devFakePosting: true,
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
+        folioBase: 'https://lcsg.catalog.lcap.loc.gov',
       },
 
       externalDev:{
@@ -90,15 +93,18 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-stage/marva-starting.json',
         profiles : 'http://localhost:9401/marva/dancer/api/serve/marva-prod/profile',
         starting: 'http://localhost:9401/marva/dancer/api/serve/marva-prod/starting-points',
-        
+
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
         externalDev: true,
+        devFakePosting: true,
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
         publicEndpoints:true,
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
+        folioBase: 'https://lcsg.catalog.lcap.loc.gov',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         isBibframeDotOrg: false,
 
@@ -128,6 +134,7 @@ export const useConfigStore = defineStore('config', {
         worldCat: 'https://preprod-3001.id.loc.gov/marva/util/worldcat/',
         copyCatUpload: 'https://preprod-3001.id.loc.gov/marva/util/copycat/upload/stag', // change ports for production
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
+        folioBase: 'https://lcsg.catalog.lcap.loc.gov',
 
         folioMLCEndpoint: 'https://preprod-3001.id.loc.gov/marva/util/folio/next-mlc/staging',
 
@@ -135,6 +142,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
+        enableStateRecorder: true,
         simpleLookupLang: 'en',
 
         dancerEnabled: true,
@@ -167,6 +175,7 @@ export const useConfigStore = defineStore('config', {
 
 
         lcap: 'https://lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
+        folioBase: 'https://lcsg.catalog.lcap.loc.gov',
 
         worldCat: 'https://editor.id.loc.gov/marva/util/worldcat/',
         copyCatUpload: 'https://editor.id.loc.gov/marva/util/copycat/upload/prod',
@@ -174,6 +183,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
+        enableStateRecorder: false,
         simpleLookupLang: 'en',
       },
 
@@ -191,6 +201,7 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         publicEndpoints:true,
         displayLCOnlyFeatures: false,
+        enableStateRecorder: false,
         simpleLookupLang: 'en',
         isBibframeDotOrg: true,
 
@@ -335,7 +346,9 @@ export const useConfigStore = defineStore('config', {
   // to allow editing of nested works for example
   exludeDeepHierarchy: [
     'http://id.loc.gov/ontologies/bibframe/adminMetadata',
-    'http://id.loc.gov/ontologies/bibframe/subject'
+    'http://id.loc.gov/ontologies/bibframe/subject',
+    'http://id.loc.gov/ontologies/bibframe/mediumComponent',
+    'http://id.loc.gov/ontologies/bibframe/ensemble'
 
   ],
 
@@ -460,11 +473,11 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2023548750',label:"Subject Test", idUrl:'https://id.loc.gov/resources/instances/2023548750.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'66082276',label:"Non-latin Rare", idUrl:'https://id.loc.gov/resources/instances/66082276.html', profile:'Rare Matereials',profileId:'lc:RT:bf2:RareMat:Instance'},
 
+    {lccn:'in01260004891',label:"Related music works test (Sonatas from manuscript sources. IV)", idUrl:'https://id.loc.gov/resources/instances/in01260004891.html', profile:'Notated Music',profileId:'lc:RT:bf2:NotatedMusic:Instance'},
+
 
 
   ],
-
-
 
   lookupConfig: {
     "http://id.loc.gov/authorities/childrensSubjects" : {
@@ -759,6 +772,31 @@ export const useConfigStore = defineStore('config', {
     //   "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
     //   }
     // ]},
+    "https://preprod-8299.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8299.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
+      }
+    ]},
+    "https://preprod-8080.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
+      }
+    ]},
+    "https://preprod.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
+      }
+    ]},
+    "https://preprod-8295.id.loc.gov/resources/music-related-works/" : {"name":"Mus Rel Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2?q=<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>"},
+        "Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2?q=?<QUERY>&memberOf=http://id.loc.gov/resources/works/collection_music&count=25&offset=<OFFSET>","all":true},
+      }
+    ]},
+
 
     "https://preprod-8080.id.loc.gov/resources/hubs" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {

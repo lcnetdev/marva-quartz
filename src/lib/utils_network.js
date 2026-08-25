@@ -520,7 +520,6 @@ const utilsNetwork = {
 
       url = url + "&blastdacache=" + Date.now()
 
-      console.info("url: ", url)
 
       let result = await fetch(
         url,
@@ -2778,10 +2777,16 @@ const utilsNetwork = {
         ]);
 
         // break out the complex searches because they can take a while and slow down all results
-        [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
-            this.searchComplex(searchPayloadSubjectsComplex, false),
-            this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
-        ]);
+        if (searchPayloadSubjectsComplex.searchValue != searchPayloadSubjectsComplexSearchVal.searchValue){
+          [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
+              this.searchComplex(searchPayloadSubjectsComplex, false),
+              this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
+          ]);
+        } else {
+          [resultsSubjectsComplex] = await Promise.all([
+              this.searchComplex(searchPayloadSubjectsComplex, false),
+          ]);
+        }
 
         if (complexSub[0]){
           [resultsSubjectsComplexSubdivision1] = await Promise.all([
@@ -2959,8 +2964,6 @@ const utilsNetwork = {
       }
 
       this.subjectSearchActive = false
-
-      // console.info("results: ", results)
 
       return results
     },
@@ -3250,20 +3253,10 @@ const utilsNetwork = {
 
 
   worldCatSearch: async function(query, index, type, offset, limit, marc=false){
-    console.info("worldCatSearch")
-    console.info("     query: ", query)
-    console.info("     index: ", index)
-    console.info("     type: ", type)
-    console.info("     offset: ", offset)
-    console.info("     limit: ", limit)
-    console.info("     marc: ", marc)
-
     // consonsole.info("useConfigStore().returnUrls >>", useConfigStore().returnUrls)
     let baseUrl = useConfigStore().returnUrls.worldCat
 
     let url = baseUrl + "search/"
-
-    console.info("url: ", url)
 
     const rawResponse = await fetch(url, {
       method: 'POST',
@@ -3282,8 +3275,6 @@ const utilsNetwork = {
       })
     })
 
-    console.info("rawResponse: ", rawResponse)
-
     return rawResponse.json()
 
   },
@@ -3300,9 +3291,8 @@ const utilsNetwork = {
 
   publishNar: async function(xml){
 
-
+    let cataloger = usePreferenceStore().ssoUser.email.split('@')[0]
     let url = useConfigStore().returnUrls.publishNar
-
     let uuid = translator.toUUID(translator.new())
 
     const rawResponse = await fetch(url, {
@@ -3310,6 +3300,7 @@ const utilsNetwork = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Cat-Id': cataloger + "@loc.gov",
         ...getAuthHeaders()
       },
       body: JSON.stringify({marcxml:xml})
@@ -3319,14 +3310,9 @@ const utilsNetwork = {
     // console.log(content);
 
     if (content && content.publish && content.publish.status && content.publish.status == 'published'){
-
-      return {status:true, postLocation: (content.postLocation) ? content.postLocation : null }
-
+      return {status:true, postLocation: (content.postLocation) ? content.postLocation : null, details: (content.publish.details) ? content.publish.details : null }
     }else{
-
       // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
-
-
       return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2), msgObj: content.publish}
     }
   },
@@ -3340,9 +3326,6 @@ const utilsNetwork = {
    */
   addCopyCat: async function(xml){
     let url = useConfigStore().returnUrls.copyCatUpload
-
-    console.info("posting to ", url)
-
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -3381,6 +3364,16 @@ const utilsNetwork = {
     }
 
     let url = useConfigStore().returnUrls.publish
+
+    // in local dev there is no real MarkLogic to post into, so ask the developer which
+    // outcome they want to test and fake the matching response from the backend
+    if (useConfigStore().returnUrls.devFakePosting){
+      if (window.confirm("DEV MODE: posting does not really happen in this environment.\n\nPress OK to fake a SUCCESSFUL post, Cancel to fake a FAILED post.")){
+        return {status:true, postLocation: null}
+      }else{
+        return {status:false, postLocation: null, msg: JSON.stringify({status:'error', server: url, message: 'Faked post failure (dev mode)'},null,2)}
+      }
+    }
 
     let uuid = translator.toUUID(translator.new())
 
@@ -4454,6 +4447,72 @@ const utilsNetwork = {
 
       const content = await rawResponse.json();
 
+      return content
+    },
+
+    async fetchAuthMarc(lccn, syncNar = false){
+      // let url = "https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml" // TODO: 8080 for production
+      if (syncNar){
+        let url = `https://preprod-8080.id.loc.gov/controllers/xqapi-temp-fetch-and-load.xqy?lccn=${lccn}`
+        // let url = `https://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/name?lccn=${lccn}&serialization=json`
+        // let url = `https://10.52.149.98:8001/foliar/api/fetch_and_load/name?lccn=${lccn}&serialization=json`
+        // let options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}
+        let sync = await fetch(url)
+      }
+      let url = `https://preprod-8080.id.loc.gov/authorities/names/${lccn}.marcxml.xml` //"https://preprod-8080.id.loc.gov/authorities/names/" + lccn + ".marcxml.xml"
+      // let marcXML = await this.fetchSimpleLookup(url, true)
+      let marcXml = await fetch(url, {cache: 'no-cache'})
+      let text = await marcXml.text()
+      return text
+    },
+
+    async fetchBCP47Codes(string, hint=false){
+      // 8288
+      let url = "https://preprod-8080.id.loc.gov/controllers/xqapi-determine-bcp47.xqy?serialization=application/json&string=" + encodeURIComponent(string) + "&includelatn=false"
+      if (hint){
+        url = url + "&hint=" + hint
+      }
+      let resp = await this.fetchSimpleLookup(url)
+
+      return resp
+    },
+
+    async fetchFolioLastMod(url){
+      try {
+        let resp = await fetch(url)
+        if (!resp.ok) {
+          let text = await resp.text()
+          throw new Error(text || `HTTP ${resp.status}`)
+        }
+        return await resp.json()
+      } catch (e) {
+        throw new Error("Failed to fetch FOLIO's LastMod: ", e)
+      }
+    },
+
+    async formatMarc(xml, sType, tType){
+      if (!xml){
+        return ""
+      }
+
+      let url = useConfigStore().returnUrls.util + 'marcformat'
+
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify({
+          mrc: xml,
+          sourceType: sType,
+          targetType: tType,
+        })
+      });
+
+      if (rawResponse.status == 404) { return false}
+      const content = await rawResponse.json();
       return content
     },
 

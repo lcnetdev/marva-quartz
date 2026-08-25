@@ -1,5 +1,5 @@
 <template>
- <span class="trigger-open">{{displayLabelValue}}</span>
+ <span class="trigger-open">{{displayLabelValue || URI}}</span>
 </template>
 
 <script>
@@ -62,7 +62,7 @@ export default {
                 this.URI = this.URI.slice(0, -1)
               }
 
-              let URL = this.URI + '.madsrdf_raw.json' //'.nt'
+              let URL = this.URI + '.nt'
               URL = URL.replace('http://','https://')
 
               let cache = sessionStorage.getItem(URL);
