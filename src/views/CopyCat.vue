@@ -794,8 +794,6 @@ export default {
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
-      console.info("strXmlBasic: ", strXmlBasic)
-
       this.posting = true
       this.postResults = {}
 
@@ -832,8 +830,6 @@ export default {
       }
       this.existingLCCN = false
       this.existingISBN = false
-
-      console.info("url: ", this.urlToLoad)
 
       try {
         this.loadUrl(profile)

@@ -2385,6 +2385,8 @@ const utilsExport = {
 	},
 
 	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
+		console.info("createNacoStubXML")
+		console.info("\t extraMarcStatements: ", extraMarcStatements)
 		let marcTxt = ''
 		marcTxt = marcTxt + " 111111111122222222223333333333\n"
 		marcTxt = marcTxt + "       0123456789012345678901234567890123456789\n"
@@ -2461,7 +2463,6 @@ const utilsExport = {
 		// field003.setAttribute( 'tag', '003')
 		// field003.innerHTML = "DLC"
 		// rootEl.appendChild(field003)
-
 		// marcTextArray.push({txt: this.buildMarcTxtLine('003',' ',' ',["DLC"]), field: '003', fieldInt: 3})
 
 
@@ -2777,6 +2778,7 @@ const utilsExport = {
 
 		if (extraMarcStatements && extraMarcStatements.length > 0){
 			for (let x of extraMarcStatements){
+				console.info("x: ", x)
 				let hasValue = false
 				if (x.fieldTag && x.fieldTag.trim() != ''){
 					let field = document.createElementNS(marcNamespace,"marcxml:datafield");
