@@ -614,12 +614,15 @@
             this.searching = false
             return false
           }
+
           let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true)
           // console.log("search results",results)
           // $aFauré, Gabriel,$d1845-1924.$tBallades,$mpiano$nop. 19
-          let exactMatches = this.findAuthExactMatch(results, authLabel)
-          this.oneXXExactMatches.concat(exactMatches)
-          // console.log("oneXXExactMatches", this.oneXXExactMatches)
+          if (field=='1xx'){
+            let exactMatches = this.findAuthExactMatch(results, authLabel)
+            this.oneXXExactMatches = exactMatches
+            // console.log("oneXXExactMatches", this.oneXXExactMatches)
+          }
           let formatted = []
           for (let key of Object.keys(results)){
             if (key != 'metadata'){
