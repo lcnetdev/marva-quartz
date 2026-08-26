@@ -280,7 +280,7 @@
       },
 
 
-      updateIndicator: function(index){
+      updateIndicator: function(index, row=false){
         let target = this.marcData[index]
         if (!target.pref){
           target.pref = true
@@ -289,12 +289,28 @@
         }
         let val = target.pref ? '1' : ' '
         if (this.tag != 430){
+          if (target.indicators.length < 2){ target.indicators = target.indicators + " " }
           //ind 2 = 1
           target.indicators = utilsMisc.setCharAt(target.indicators, 1, val)
         }else{
+          if (target.indicators.length < 2){ target.indicators = " " + target.indicators }
           //ind 1 = 1
           target.indicators = utilsMisc.setCharAt(target.indicators, 0, val)
         }
+        if(row){
+          row.indicators = target.indicators
+          if (target.pref) { row.pref = true }
+        }
+      },
+
+      goodIndicators: function(){
+        let indGood = true
+        for (let idx in Object.keys(this.marcData)){
+          let update = this.marcData[idx]
+          if (update && update.indicators.length != 2) return false
+        }
+
+        return true
       },
 
       allowPreview: function(){
@@ -2101,11 +2117,17 @@
                   <!-- <div v-for="(row, index) in this.newMarcKeys" :key="index" class="advanced-row"> -->
                     <div v-for="(row, index) in this.marcData" :key="index" class="advanced-row">
                       <template v-if="typeof row === 'object'">
-                        <input type="checkbox" class="prefCheck" :id="index + '_pref'" :name="index + '_pref'" value="row.pref" :checked="row.pref" @click="activeIndex = index; updateIndicator(index)">
+                        <input type="checkbox" class="prefCheck" :id="index + '_pref'" :name="index + '_pref'" value="row.pref" :checked="row.pref" @click="activeIndex = index; updateIndicator(index, row)">
                         <label :for="index + '_pref'">Pref</label>
 
-
-                        <span class="tag-ind">{{ tag }}{{ row.indicators }}</span>: <input class="bcp-input"
+                        <span class="tag-ind">{{ tag }}&nbsp;</span><input
+                          :class="['bcp-input-inidicators', {'invalid-indicators': row.indicators.length != 2, 'valid-indicators': row.indicators.length == 2}]"
+                          type="text"
+                          v-model="row.indicators"
+                          minlength="2"
+                          maxlength="2"
+                          required
+                        >:&nbsp;<input class="bcp-input"
                           type="text"
                           v-model="row.displayName"
                           @input="handleInput"
@@ -2170,11 +2192,16 @@
                   </span>
                   <br>
                   <a target="_blank" href="https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/Edit%20Authority%20Language%20Info.md">Documentation</a>
-
+                  <template v-if="!goodIndicators()">
+                        <div>
+                          <span class="material-icons unique-icon">cancel</span>
+                          <span class="not-unique-text">Missing Indicator</span>
+                        </div>
+                  </template>
 
                   <br><br>
                   <button @click="overrideTG = true; buildFeedbackLink()">Feedback</button>
-                  <button @click="previewMarc()" v-if="allowPreview()">Preview</button>
+                  <button @click="previewMarc()" v-if="allowPreview()" :disabled=!goodIndicators()>Preview</button>
                   <button @click="hideBCP()">Cancel</button>
                   <template v-if="!allowPreview()">
                     <div class="tg-note">This LCCN has been flagged by the PC TaskGroup. Please provide feedback before continuing.</div>
@@ -2872,6 +2899,13 @@ td {
   max-width: 50vw;
   font-size: 1.3em;
 }
+
+.bcp-input-inidicators {
+  width: 30px;
+  max-width: 50vw;
+  font-size: 1.3em;
+}
+
 .bcp-icon {
   font-size: 16px;
   height: 25px;
@@ -3086,6 +3120,7 @@ input.prefCheck[type=checkbox]:checked+label {
   }
 }
 
+.all-ref-check,
 .class-ref-check {
   font-weight: bold;
   font-size: 1em;
@@ -3093,6 +3128,13 @@ input.prefCheck[type=checkbox]:checked+label {
 
 .help-info {
   font-size: 1em;
+}
+
+.valid-indicators{
+  background-color: palegreen;
+}
+.invalid-indicators{
+  background-color: rgb(255, 113, 113);
 }
 
 </style>
