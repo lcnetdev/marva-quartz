@@ -678,12 +678,11 @@
           }
         }
 
+        this.marcData.refEval = this.refEval
         let someEval = (totalVars != numEval) && (numEval != 0)
         if (someEval && !this.marcData.refEval){
           this.marcData.refEval = "some"
         }
-
-        this.marcData.refEval = this.refEval
 
         // add a target for any additions
         for (let idx in updates){
