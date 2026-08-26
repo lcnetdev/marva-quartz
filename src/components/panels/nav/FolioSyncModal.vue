@@ -1,9 +1,12 @@
 <script>
   import { useProfileStore } from '@/stores/profile'
+  import { usePreferenceStore } from '@/stores/preference'
   import { useConfigStore } from '@/stores/config'
   import { mapStores, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
+
+  import utilsNetwork from '@/lib/utils_network';
 
   export default {
     components: {
@@ -26,12 +29,15 @@
         result: null,
         bibSyncConfirm: false,
         authSyncConfirm: false,
+        pushNarConfirm: false,
       }
     },
 
     computed: {
-      ...mapStores(useProfileStore, useConfigStore),
-      ...mapWritableState(useProfileStore, ['showFolioSyncModal']),
+      ...mapStores(useProfileStore, useConfigStore, usePreferenceStore),
+
+      ...mapWritableState(useProfileStore, ['showFolioSyncModal', 'postNacoStub']),
+      ...mapWritableState(usePreferenceStore, ['featureFlags']),
 
       env() {
         return this.configStore.returnUrls.env === 'production' ? 'production' : 'staging'
@@ -85,6 +91,7 @@
         this.result = null
         this.bibSyncConfirm = false
         this.authSyncConfirm = false
+        this.pushNarConfirm = false
 
         let params = new URLSearchParams()
         if (bib) params.set('bibLccn', bib)
@@ -132,6 +139,31 @@
         let lccn = this.result.authority.lccn
         window.open(`http://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/name?lccn=${encodeURIComponent(lccn)}&serialization=json`, '_blank')
         this.authSyncConfirm = false
+      },
+
+      async pushNar() {
+        let lccn = this.authLccn.trim()
+        // get the MARC
+        let marc = await utilsNetwork.fetchAuthMarc(lccn, false)
+        console.info(lccn, ": ", marc)
+
+        let results = false //await this.postNacoStub(marc, lccn, true)
+
+        if (!results) return
+
+        if (!results.pubResuts.status){
+          alert("Error posting NAR")
+          console.error("NAR post error: ", results)
+          return
+        }
+
+        if (results.pubResuts.details){
+          let details = JSON.parse(atob(results.pubResuts.details))
+          if (details.status == 'success, but with errors'){
+            alert("NAR added to BFDB, but not sent to FOLIO.")
+            return
+          }
+        }
       },
 
       newerClass(newerIn) {
@@ -261,6 +293,19 @@
                 </div>
               </div>
             </div>
+
+            <!-- Push to FOLIO -->
+            <div class="folio-sync-action" v-if="this.featureFlags.includes('push-nar')">
+              <button v-if="!pushNarConfirm" @click="pushNarConfirm = true" class="folio-force-btn">Push NAR to FOLIO</button>
+              <div v-if="pushNarConfirm" class="folio-confirm">
+                <span>Are you sure you want to send the NAR ID to FOLIO?</span>
+                <div class="folio-confirm-btns">
+                  <button @click="pushNar()" class="folio-yes-btn">Yes</button>
+                  <button @click="pushNarConfirm = false" class="folio-cancel-btn">Cancel</button>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
