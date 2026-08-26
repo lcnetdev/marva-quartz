@@ -618,9 +618,6 @@
 
         const marcXML = this.xmlDoc
         let updates = this.marcData
-
-        console.info("updates: ", updates)
-
         let numEval = 0
         let totalVars = 0
         for (let key of Object.keys(updates)){
@@ -672,7 +669,6 @@
         for (let idx of remove670){ s670s.splice(idx, 1) }
         this.marcData['source670s'] = s670s
 
-        console.info("targets: ", this.xmlTargets)
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
