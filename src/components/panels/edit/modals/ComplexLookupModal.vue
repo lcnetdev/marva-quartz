@@ -974,7 +974,7 @@
         let parent = event.target.parentElement
         let prefButton = parent.children[1]
         let tag = parent.children[2].textContent.trim()
-        let idx = prefButton.getAttribute('for').split('_')[0].replace("##")
+        let idx = prefButton.getAttribute('for').split('_')[0] //.replace("##")
 
         // reset this for cases when something was deleted
         this.marcData[idx].pref = false
