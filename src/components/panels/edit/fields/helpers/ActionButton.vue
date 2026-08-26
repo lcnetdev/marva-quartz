@@ -20,6 +20,8 @@
 
     <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
+    <ShortcodeAliasModal v-if="displayShortcodeAliasModal" :structure="structure" v-model="displayShortcodeAliasModal" @hideShortcodeAliasModal="displayShortcodeAliasModal=false"/>
+
     <Teleport to="body">
       <div v-if="showRelWorkIframeModal" class="rel-work-iframe-overlay">
         <div class="rel-work-iframe-container">
@@ -100,6 +102,11 @@
 
         <template v-if="type=='lookupSimple'">
 
+          <button class="" :id="`action-button-command-${fieldGuid}-5`" @click="openShortcodeAliasModal()" :style="buttonStyle">
+            <span class="button-shortcut-label">5</span>
+            Set Shortcode Alias
+          </button>
+          <hr>
 
         </template>
         <template v-if="type=='lookupComplex' || structure.parent.includes(':Identifiers')">
@@ -229,6 +236,7 @@
 
   import AutoDewey from "@/components/panels/edit/modals/AutoDeweyModal.vue";
   import InstanceSelectionModal from "@/components/panels/edit/modals/InstanceSelectionModal.vue";
+  import ShortcodeAliasModal from "@/components/panels/edit/modals/ShortcodeAliasModal.vue";
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
   import { useConfigStore } from '@/stores/config'
@@ -243,6 +251,7 @@
     components: {
     AutoDewey,
     InstanceSelectionModal,
+    ShortcodeAliasModal,
   },
     props: {
       type: String,
@@ -273,6 +282,8 @@
         instances: {},
         targetInstance: null,
         currentRt: null,
+
+        displayShortcodeAliasModal: false,
 
         showRelWorkIframeModal: false,
         relWorkIframeSrc: null,
@@ -352,6 +363,11 @@
       hideInstanceSelectionModal: function(){
         this.instances = {}
         this.displayInstanceSelectionModal = false;
+      },
+
+      openShortcodeAliasModal: function(){
+        this.isMenuShown = false
+        this.displayShortcodeAliasModal = true
       },
       hideDeweyModal:function (){
         this.displayDewey = false

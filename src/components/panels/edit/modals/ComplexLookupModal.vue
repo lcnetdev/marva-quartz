@@ -10,6 +10,7 @@
   import { VueFinalModal } from 'vue-final-modal'
 
   import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
+  import BcpIndicator from "@/components/panels/edit/fields/helpers/BcpIndicator.vue";
   import CopyCat from "@/views/CopyCat.vue"
 
   import isoLangLib from "@/lib/iso_lang.json"
@@ -24,7 +25,8 @@
       VueFinalModal,
       AuthTypeIcon,
       AccordionList,
-      AccordionItem
+      AccordionItem,
+      BcpIndicator,
     },
     props: {
       // structure of the field that owns this modal
@@ -334,6 +336,38 @@
         }
 
         window.open(this.feedbackUrl, '_blank');
+      },
+
+      checkHasBcp: function(val, data, key){
+        let bcp = false
+        let pref = false
+        if (key == 'variantLabels'){
+          if (data.extra.vernacularMarcKeys){
+            for (let k of data.extra.vernacularMarcKeys){
+              let parts = k.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+              let subA = parts.filter(p => p.includes('$a'))[0].slice(2)
+              if (subA.endsWith(',')){
+                subA = subA.slice(0, -1)
+              }
+              // if (k.includes(val)){
+              if (val.includes(subA)){
+                let hasBcp = k.includes('bcp47')
+                if (hasBcp){
+                  bcp = parts.filter(i => i.includes('bcp'))[0].split('(bcp47)')[1]
+                  let tag = k.slice(0,3)
+                  if (tag == '430'){
+                    pref = Array.from(k).at(3) == "1"
+                  } else {
+                    pref = Array.from(k).at(4) == "1"
+                  }
+                  return {'code': bcp, 'pref': pref}
+                }
+              }
+            }
+          }
+        }
+
+        return {'code': false, 'pref': false}
       },
 
       // initial 4XX
@@ -2240,7 +2274,7 @@
                           </div>
                           <ul :class="['details-list', {'note-data': key == 'notes'}]">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                              <span v-if="key !='sees' && key !='relateds'">{{v}}
+                              <span v-if="key !='sees' && key !='relateds'">{{v}}<BcpIndicator :data="checkHasBcp(v, activeContext, key)" />
                               </span>
                               <div v-else-if="key == 'relateds'">
                                 {{v}}<button class="material-icons see-search" @click="searchValueLocal = v">search</button>
