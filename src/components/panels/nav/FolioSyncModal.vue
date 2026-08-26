@@ -147,7 +147,7 @@
         let marc = await utilsNetwork.fetchAuthMarc(lccn, false)
         console.info(lccn, ": ", marc)
 
-        let results = false //await this.postNacoStub(marc, lccn, true)
+        let results = await this.postNacoStub(marc, lccn, true)
 
         if (!results) return
 
@@ -172,6 +172,19 @@
         return 'folio-newer-same'
       },
     },
+
+    mounted(){
+      let lccn = window.location.search.split('=')[1]
+      if (!lccn){ return }
+      console.info("lccn: ", lccn)
+      // authLccn
+      console.info("mounted: ", lccn)
+      if (lccn.startsWith('n')){
+        this.authLccn = lccn
+      } else {
+        this.bibLccn = lccn
+      }
+    }
   }
 </script>
 
