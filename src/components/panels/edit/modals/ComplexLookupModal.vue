@@ -119,6 +119,7 @@
         activeIndex: 0,
         xmlTargets: [],
         refEval: false,
+        refJust: false,
         originalMarc: null,
         updatedRecord: null,
         diffRecord: [],
@@ -253,6 +254,7 @@
         this.activeIndex =  0
         this.xmlTargets =  []
         this.refEval =  false
+        this.refJust = false
         this.originalMarc =  null
         this.updatedRecord =  null
         this.diffRecord =  []
@@ -562,6 +564,7 @@
       },
       hidePreview: function(){
         delete this.marcData['refEval']
+        delete this.marcData['refJust']
         delete this.marcData['source670s']
         this.showMarcPreview = false
 
@@ -643,11 +646,12 @@
         this.showMarcPreview = true
         let prefChecks = this.checkPrefLabels()
 
+        this.marcData.refEval = this.refEval
+        this.marcData.refJust = this.refJust
         // this.marcData['note667'] = this.note667
 
         const marcXML = this.xmlDoc
         let updates = this.marcData
-
         let numEval = 0
         let totalVars = 0
         for (let key of Object.keys(updates)){
@@ -698,6 +702,7 @@
         }
         for (let idx of remove670){ s670s.splice(idx, 1) }
         this.marcData['source670s'] = s670s
+
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
         let parsedRecord = results[1]
@@ -2157,6 +2162,16 @@
                 <div class="button-container">
                   <label for="refEval" class="all-ref-check">All References Evaluated?</label>
                   <input type="checkbox" id="refEval" name="refEval" value="false" v-model="refEval">
+                  <br></br>
+                  <label for="refJust" class="class-ref-check">All References Justified?</label>
+                  <input type="checkbox" id="refJust" name="refJust" value="false" v-model="refJust">
+                  <span class="simptip-position-bottom" data-tooltip='Remove the note "Machine-derived non-Latin script reference project."'>
+                    <span class="help-info material-icons">help</span>
+                  </span>
+                  <br>
+                  <a target="_blank" href="https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/Edit%20Authority%20Language%20Info.md">Documentation</a>
+
+
                   <br><br>
                   <button @click="overrideTG = true; buildFeedbackLink()">Feedback</button>
                   <button @click="previewMarc()" v-if="allowPreview()">Preview</button>
@@ -3071,8 +3086,12 @@ input.prefCheck[type=checkbox]:checked+label {
   }
 }
 
-.all-ref-check {
+.class-ref-check {
   font-weight: bold;
+  font-size: 1em;
+}
+
+.help-info {
   font-size: 1em;
 }
 
