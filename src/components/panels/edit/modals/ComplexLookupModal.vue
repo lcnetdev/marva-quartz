@@ -969,6 +969,25 @@
         return results
       },
 
+      handleIndicator: function(event){
+        let value = event.target.value
+        let parent = event.target.parentElement
+        let prefButton = parent.children[1]
+        let tag = parent.children[2].textContent.trim()
+        let idx = prefButton.getAttribute('for').split('_')[0].replace("##")
+
+        // reset this for cases when something was deleted
+        this.marcData[idx].pref = false
+
+        if (tag == '430' && value.length == 2 && value.at(0) == 1){
+          this.marcData[idx].pref = true
+        } else if (value.length == 2) {
+          if (value.at(-1) == 1){
+            this.marcData[idx].pref = true
+          }
+        }
+
+      },
       handleInput: function(event){
         let el = document.getElementsByClassName("active-bcp")[0]
         const startPos = el.selectionStart
@@ -2126,6 +2145,7 @@
                           v-model="row.indicators"
                           minlength="2"
                           maxlength="2"
+                          @input="handleIndicator"
                           required
                         >:&nbsp;<input class="bcp-input"
                           type="text"
