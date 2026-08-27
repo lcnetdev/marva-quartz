@@ -174,8 +174,16 @@
     },
 
     mounted(){
-      let lccn = window.location.search.split('=')[1]
+      // http://localhost:5173/marva/?lccn=n81133834 #foliosync
+      // ?lccn=ntest#foliosync
+      console.info("window.location: ", window.location)
+      let search = window.location.search
+      const params = new URLSearchParams(search)
+      console.info("params: ", params)
+
+      let lccn = params.get('lccn').trim()
       if (!lccn){ return }
+
       console.info("lccn: ", lccn)
       // authLccn
       console.info("mounted: ", lccn)
