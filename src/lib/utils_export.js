@@ -2872,7 +2872,7 @@ const utilsExport = {
 		// remove
 		let target667s = []
 		for (let sixSixSeven of marc667List) {
-			if (/>non-latin script reference[s ]{1}/gi.test(sixSixSeven.innerHTML)) {
+			if (/>non-latin script reference[s]? not evaluated/gi.test(sixSixSeven.innerHTML)) {
 				target667s.push(sixSixSeven)
 			} else if (sixSixSeven.innerHTML.includes('Non-Latin script variants with (bcp47) in subfield 7')) {
 				target667s.push(sixSixSeven)

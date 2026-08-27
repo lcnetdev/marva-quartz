@@ -742,7 +742,7 @@
         }
         this.validating = false
         this.validationErrors = false
-        if (this.validationResult.validation.some(item => item.level == 'ERROR')){
+        if (this.validationResult.validation && this.validationResult.validation.some(item => item.level == 'ERROR')){
           this.validationErrors = true
           this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
         }
