@@ -892,6 +892,11 @@
           'scripts': [],
         }
       },
+
+      add670: function(){
+        this.source670s.push({'note': '$a'})
+      },
+
       dupeBcpRow: function(idx){
         let newIdx = false
         if (!idx.startsWith("##")){
@@ -951,7 +956,7 @@
         if (idx){
           this.xmlTargets.splice(idx, 1)
         }
-        this.source670s.pop()
+        // this.source670s.pop()
       },
 
       fetchAuthXML: async function(lccn){
@@ -2188,6 +2193,7 @@
                     </table>
                   </div>
 
+                  <button @click="add670">Add 670</button>
                   <div class="new-value-container" v-if="source670s.length > 0">
                     <!-- 667 Note: <textarea type=text v v-model='note667' class="eval-note" /> -->
                     <template v-for="(code, idx) of source670s">
