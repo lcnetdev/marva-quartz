@@ -2039,6 +2039,7 @@
           for (let bcp of bcpCodes){
             this.langs[bcp.bcp47code] = bcp.score
           }
+          this.selectedBcp = null
         },
 
         // return a list BCP codes tied to preferred variants
