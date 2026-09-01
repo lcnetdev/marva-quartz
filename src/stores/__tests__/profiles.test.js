@@ -217,3 +217,61 @@ describe('methods', () => {
 
 })
 
+
+describe('duplicateComponent', () => {
+  const rt = 'lc:RT:bf2:Monograph:Instance'
+  const ptId = 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers'
+  const identifiedBy = 'http://id.loc.gov/ontologies/bibframe/identifiedBy'
+
+  // grab the fresh copy — it gets slotted in right after the one we started from
+  const duplicate = async (profile, pt) => {
+    const newGuid = await useProfileStore().duplicateComponent(pt['@guid'], pt)
+    const newPtId = profile.rt[rt].ptOrder[profile.rt[rt].ptOrder.indexOf(ptId) + 1]
+    const newPt = profile.rt[rt].pt[newPtId]
+    expect(newPt['@guid']).toBe(newGuid)
+    return newPt
+  }
+
+  it('keeps the identifier type from a loaded record for the new blank component', async () => {
+    let profile = JSON.parse(JSON.stringify(mockMonographProfile))
+    useProfileStore().activeProfile = profile
+    const pt = profile.rt[rt].pt[ptId]
+    // this one came from a loaded record, so the type sits in the userValue and the UI never set activeType
+    expect(pt.activeType).toBeUndefined()
+    expect(pt.userValue[identifiedBy][0]['@type']).toBe('http://id.loc.gov/ontologies/bibframe/Local')
+
+    const newPt = await duplicate(profile, pt)
+
+    const values = newPt.userValue[identifiedBy]
+    expect(values.length).toBe(1)
+    expect(values[0]['@type']).toBe('http://id.loc.gov/ontologies/bibframe/Local')
+    // it's a blank component — nothing but the type made the trip
+    expect(Object.keys(values[0])).toEqual(['@type'])
+    // just like a record-loaded component: the type is only in the userValue
+    expect(newPt.activeType).toBeUndefined()
+  })
+
+  it('prefers the activeType set by switching templates in the UI', async () => {
+    let profile = JSON.parse(JSON.stringify(mockMonographProfile))
+    useProfileStore().activeProfile = profile
+    const pt = profile.rt[rt].pt[ptId]
+    pt.activeType = 'http://id.loc.gov/ontologies/bibframe/Isbn'
+
+    const newPt = await duplicate(profile, pt)
+
+    expect(newPt.userValue[identifiedBy][0]['@type']).toBe('http://id.loc.gov/ontologies/bibframe/Isbn')
+  })
+
+  it('does not carry over a type that is not one of the templates', async () => {
+    let profile = JSON.parse(JSON.stringify(mockMonographProfile))
+    useProfileStore().activeProfile = profile
+    const pt = profile.rt[rt].pt[ptId]
+    pt.userValue[identifiedBy][0]['@type'] = 'http://example.org/NotAnIdentifier'
+
+    const newPt = await duplicate(profile, pt)
+
+    const values = newPt.userValue[identifiedBy] || []
+    expect(values.some((v) => v && v['@type'])).toBe(false)
+    expect(newPt.activeType).toBeUndefined()
+  })
+})

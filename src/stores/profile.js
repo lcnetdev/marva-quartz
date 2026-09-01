@@ -5217,6 +5217,37 @@ export const useProfileStore = defineStore('profile', {
 
 
         /**
+        * Figures out which rdf type a component is on right now, so a fresh blank copy of it
+        * can start with the same template picked (ISBN rather than the default LCCN, say)
+        *
+        * Switching templates in the UI puts `activeType` on the pt, but a loaded record only
+        * fills in the @type inside the userValue. So fall back to that when needed, as long
+        * as it lines up with one of the templates in the component's valueTemplateRefs.
+        *
+        * @param {object} pt - the property template (component) to look at
+        * @return {string|null} the type URI to go with, or null when nothing usable turns up
+        */
+        returnPtActiveType: function (pt) {
+            if (!pt) { return null }
+            if (pt.activeType) { return pt.activeType }
+
+            let refs = (pt.valueConstraint && Array.isArray(pt.valueConstraint.valueTemplateRefs)) ? pt.valueConstraint.valueTemplateRefs : []
+            // nothing to decide if there's just the one template
+            if (refs.length < 2) { return null }
+
+            let values = (pt.userValue && pt.propertyURI) ? pt.userValue[pt.propertyURI] : null
+            if (!Array.isArray(values) || values.length == 0 || !values[0] || !values[0]['@type']) { return null }
+            let type = values[0]['@type']
+
+            for (let ref of refs) {
+                if (this.rtLookup[ref] && this.rtLookup[ref].resourceURI === type) {
+                    return type
+                }
+            }
+            return null
+        },
+
+        /**
         * Duplicate / create new component
         *
         * @param {string} componentGuid - the guid of the component (the parent of all fields)
@@ -5293,10 +5324,13 @@ export const useProfileStore = defineStore('profile', {
 
                     }
 
-                    if (newPt.activeType) {
+                    // stick with whatever template was picked on the original component,
+                    // so an ISBN stays an ISBN instead of snapping back to the default (LCCN)
+                    let useType = this.returnPtActiveType(pt)
+                    if (useType) {
                         newPt.userValue[newPt.propertyURI] = [
                             {
-                                '@type': newPt.activeType
+                                '@type': useType
                             }
                         ]
                     }
@@ -5412,10 +5446,13 @@ export const useProfileStore = defineStore('profile', {
                         '@root': newPt.propertyURI
                     }
 
-                    if (newPt.activeType) {
+                    // stick with whatever template was picked on the original component,
+                    // so an ISBN stays an ISBN instead of snapping back to the default (LCCN)
+                    let useType = this.returnPtActiveType(pt)
+                    if (useType) {
                         newPt.userValue[newPt.propertyURI] = [
                             {
-                                '@type': newPt.activeType
+                                '@type': useType
                             }
                         ]
                     }
