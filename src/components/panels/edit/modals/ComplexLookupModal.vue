@@ -999,11 +999,7 @@
         this.buildNewMarcKey()
 
         window.setTimeout(async ()=>{
-          if (event.inputType == "deleteContentBackward" ){
-            el.setSelectionRange(startPos-1, startPos-1)
-          } else {
-            el.setSelectionRange(startPos+1, startPos+1)
-          }
+          el.setSelectionRange(startPos, startPos)
           this.getBcpSuggestions()
         }, 1)
       },
