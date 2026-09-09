@@ -388,6 +388,7 @@
 
       // initial 4XX
       edit4XX: async function(data){
+        // n83171205
         this.resetBcp()
         this.MARClccn = data.uri.split("/").at(-1)
 
@@ -531,7 +532,11 @@
               // localMarc.indicators = sub
 
               if (subfield != '7'){
-                localMarc["subfield_" + subfield] = value
+                if (localMarc["subfield_" + subfield]){
+                  localMarc["subfield_" + subfield].push(value)
+                } else {
+                  localMarc["subfield_" + subfield] = [value]
+                }
               } else {
 
                 if (value == '(dpecou)Preferred variant'){
@@ -547,10 +552,17 @@
               }
             }
 
+
             localMarc.displayName = ''
             for (let sf of Object.keys(localMarc)){
               if (sf.startsWith('subfield_')){
-                localMarc.displayName = localMarc.displayName + "$" + sf.split("_")[1] + localMarc[sf]
+                if (localMarc[sf].length == 1){
+                  localMarc.displayName = localMarc.displayName + "$" + sf.split("_")[1] + localMarc[sf]
+                } else {
+                  for (let subVal of localMarc[sf]){
+                    localMarc.displayName = localMarc.displayName + "$" + sf.split("_")[1] + subVal
+                  }
+                }
               }
             }
             localMarc.idx = varIdx
@@ -824,7 +836,11 @@
           let field = sub.slice(1,2)
           let value = sub.slice(2)
           if (field != '7'){
-            this.marcData[this.activeIndex]["subfield_" + field] = value
+            if (!this.marcData[this.activeIndex]["subfield_" + field]){
+              this.marcData[this.activeIndex]["subfield_" + field] = [value]
+            } else {
+              this.marcData[this.activeIndex]["subfield_" + field].push(value)
+            }
           } else {
             if (!this.marcData[this.activeIndex]["subfield_7"]){
               this.marcData[this.activeIndex]["subfield_7"] = [value]
@@ -852,10 +868,12 @@
             }
           }
         }
-
+        // n83171205
         for (let sub of Object.keys(this.marcData[this.activeIndex])) {
           if (sub.startsWith("subfield_") && sub != 'subfield_7'){
-            key = key + "$" + sub.split("_")[1] + this.marcData[this.activeIndex][sub]
+            for (let val of this.marcData[this.activeIndex][sub]){
+              key = key + "$" + sub.split("_")[1] + val
+            }
           } else if (sub == 'subfield_7'){
             for (let sub7 of this.marcData[this.activeIndex][sub]){
               let val = "$7" + sub7

@@ -2994,7 +2994,6 @@ const utilsExport = {
 			// for additions add a fake target with an idx that will match that update
 			let idx = target[1]
 			let update = updates[idx]
-
 			if (update['subfield_7']) {
 				evaluated = true
 				langEval.push(...update['subfield_7'])
@@ -3030,13 +3029,12 @@ const utilsExport = {
 						if (key.includes('subfield_')) {
 							let subfield = key.split("_")[1]
 							let value = update[key]
-
 							// if we're looking at the first update
 							let targets = existingCodes[subfield]
-
 							if (targets) {                // if the subfield is existing update it
-								for (let target of targets) {
-									target.innerHTML = value
+								// this might not get all of the values, eg. when there is 1 BCP code already in the record and they add another one. The addition will never get added.
+								for (let targetIdx in targets) {
+									targets[targetIdx].innerHTML = value[targetIdx]
 									for (let code of deleteCodes) {
 										if (code) {
 											for (let element of existingCodes[code]) {
@@ -3047,6 +3045,16 @@ const utilsExport = {
 										}
 									}
 								}
+								if (subfield == '7' && targets.length != value.length){
+									let missingVals = value.slice(targets.length)
+									for (let val of missingVals){
+										let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+										newSubField.setAttribute("code", subfield)
+										newSubField.innerHTML = val.trim()
+										targetNameXML.appendChild(newSubField)
+									}
+								}
+
 							} else {                     // otherwise, create it
 								if (typeof value == 'string') {
 									let newSubField = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
