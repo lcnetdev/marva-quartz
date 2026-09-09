@@ -58,6 +58,8 @@ const utilsMisc = {
     authorName = authorName.replace(/Œ|œ/g, "oe")
     authorName = authorName.replace(/Þ|þ/g, "th")
 
+    authorName = authorName.replace(/Ø|ø/g, "o") // doesn't get caught by diacritic replacement
+
     authorName = authorName.toUpperCase();
     authorName = authorName.replace(/^[0-9]/,"a");
     //replace diacritics with the letter
