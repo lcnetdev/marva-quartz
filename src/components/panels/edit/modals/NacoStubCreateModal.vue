@@ -2031,6 +2031,7 @@
 
         },
 
+        // TODO update tests
         expandBcpSelection: async function(label){
           let parts = label.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
           let name = parts.filter(p => p.includes("$a"))[0]
