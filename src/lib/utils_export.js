@@ -1994,7 +1994,7 @@ const utilsExport = {
 
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-	// console.info("strXmlBasic: ", strXmlBasic)
+	console.info("strXmlBasic: ", strXmlBasic)
 
 	// done walking the components, clear the warning context
 	this.currentComponentContext = null
@@ -2960,15 +2960,6 @@ const utilsExport = {
 			let targetNameXML = record.querySelectorAll('[tag="' + target[0] + '"]')[target[1]]
 			let index = [].indexOf.call(record.children, targetNameXML)
 
-			// sort the subfields in alpha - numeric
-			try {
-				let sorted = Array.from(targetNameXML.children).sort((a,b) => /^[0-9]/.test(a.getAttribute('code')) - /^[0-9]/.test(b.getAttribute('code')) || a.getAttribute('code').localeCompare(b.getAttribute('code'), undefined, { numeric: true }))
-				targetNameXML.innerHTML = '';
-				sorted.forEach(child => targetNameXML.appendChild(child))
-			} catch(err){
-				console.error("Couldn't sort children of ", targetNameXML)
-			}
-
 			if (!targetNameXML) {
 				targetNameXML = { 'children': [] }
 				for (let idx of Object.keys(updates)) {
@@ -3106,6 +3097,25 @@ const utilsExport = {
 				}
 			}
 			// }
+
+			// sort the subfields in alpha - numeric
+			try {
+				//no2022031130
+				if (targetNameXML){
+					let idx = target[1]
+					let update = updates[idx]
+					let incomingOrder = update['fieldOrder']
+					console.info("incomingOrder: ", incomingOrder)
+					// let sorted = Array.from(targetNameXML.children).sort((a,b) => /^[0-9]/.test(a.getAttribute('code')) - /^[0-9]/.test(b.getAttribute('code')) || a.getAttribute('code').localeCompare(b.getAttribute('code'), undefined, { numeric: true }))
+					let sorted = Array.from(targetNameXML.children).sort((a,b) => incomingOrder.indexOf(a.getAttribute('code')) -  incomingOrder.indexOf(b.getAttribute('code')) )
+					console.info("sorted: ", sorted)
+
+					targetNameXML.innerHTML = '';
+					sorted.forEach(child => targetNameXML.appendChild(child))
+				}
+			} catch(err){
+				console.error("Couldn't sort children of ", targetNameXML, " err: ", err)
+			}
 		}
 
 		// make deletions
