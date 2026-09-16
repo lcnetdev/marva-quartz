@@ -130,7 +130,7 @@
           if (!this.lookupUri){ return false }
           this.loading = true
 
-          if (this.lookupUri.includes('suggest2')){
+          if (this.lookupUri.includes('suggest2') || this.lookupUri == 'http://preprod.id.loc.gov/vocabulary/organizations'){
             this.usesSuggest = true
             let uriParts = this.lookupUri.split("/suggest2?q=")
             let keyword = (this.searchValue.trim() != '') ? this.searchValue.trim() : uriParts[1]
