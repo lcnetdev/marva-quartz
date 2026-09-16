@@ -380,7 +380,7 @@ export default {
       return false
     },
 
-    // if current val matches a shortcode get the {uri,label} and show in the list that a shortcode will be used if they do press eneter now  
+    // if current val matches a shortcode get the {uri,label} and show in the list that a shortcode will be used if they do press eneter now
     activeShortcodeAlias(){
       if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
         return null
