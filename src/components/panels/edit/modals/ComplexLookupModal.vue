@@ -730,6 +730,16 @@
         for (let idx of remove670){ s670s.splice(idx, 1) }
         this.marcData['source670s'] = s670s
 
+        // freeze the order of subfields for the field
+        //no2022031130
+        for (let key of Object.keys(this.marcData)){
+          let field = this.marcData[key]
+          if (typeof field == 'object' && Object.keys(field).length > 0){
+            let order = field["displayName"].match(/\$([a-z0-9])/g)
+            field['fieldOrder'] = order.map((o) => o.replace("$", ""))
+          }
+        }
+
         let results = utilsExport.adjustAuthRecord(this.xmlDoc, this.marcData, this.xmlTargets)
         this.updatedRecord = results[0]
         let parsedRecord = results[1]

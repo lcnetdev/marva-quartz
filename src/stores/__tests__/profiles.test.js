@@ -158,7 +158,7 @@ describe('methods', () => {
       update = update.replace(/[\n\r\s\s]+/g, ' ')
 
       expect(update).toContain('<marcxml:datafield tag="400" ind1="1" ind2="1">')
-      expect(update).toContain('<marcxml:subfield code="a">트웨인, 마크</marcxml:subfield><marcxml:subfield code="7">(bcp47)ko</marcxml:subfield>')
+      expect(update).toContain('<marcxml:subfield code="a">트웨인, 마크</marcxml:subfield> <marcxml:subfield code="7">(bcp47)ko</marcxml:subfield>')
     });
 
     it('Update NAR DELETE 4XX', async () => {
