@@ -125,7 +125,7 @@
 
           </form>
         </div>
-        <span class="lang-display" v-if="lValue['@language'] && lValue['@language'] !== null">{{ lValue['@language'] }}</span>
+        <span class="lang-display" v-if="lValue['@language'] && lValue['@language'] !== null" @click="this.actionButtonCommand('setLiteralLang')">{{ lValue['@language'] }}</span>
         <span v-if="structure.propertyLabel == 'ISBN'" :data-tooltip="isValidIsbn(lValue.value) ? 'VALID ISBN' : 'INVALID ISBN'" :class="['simptip-position-left', 'material-icons', 'isbn-check', {'isbn-valid': isValidIsbn(lValue.value)}, {'isbn-invalid': !isValidIsbn(lValue.value)}]">{{ isValidIsbn(lValue.value) ? 'check_circle' : 'cancel' }}</span>
 
         <Transition name="action">
@@ -1252,6 +1252,7 @@ export default {
 
 
     },
+
   },
   computed: {
     // other computed properties
@@ -1469,6 +1470,8 @@ fieldset{
 
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-background-color')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-font-color')");
+
+  cursor: pointer;
 }
 
 .inline-mode-editable-span-input{
