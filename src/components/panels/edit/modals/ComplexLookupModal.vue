@@ -734,7 +734,7 @@
         //no2022031130
         for (let key of Object.keys(this.marcData)){
           let field = this.marcData[key]
-          if (typeof field == 'object' && Object.keys(field).length > 0){
+          if (typeof field == 'object' && Object.keys(field).length > 0 && field["displayName"]){
             let order = field["displayName"].match(/\$([a-z0-9])/g)
             field['fieldOrder'] = order.map((o) => o.replace("$", ""))
           }
