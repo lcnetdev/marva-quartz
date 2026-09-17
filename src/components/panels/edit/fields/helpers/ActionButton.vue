@@ -64,11 +64,11 @@
         </template>
 
         <template v-if="['lc:RT:bf2:WorkTitle', 'lc:RT:bf2:InstanceTitle', 'lc:RT:bf2:Title:VarTitle', 'lc:RT:bf2:ParallelTitle'].includes(structure.parentId)">
-          <button  class="" :id="`action-button-command-${fieldGuid}-4`" @click="sendToOtherProfile()" :style="buttonStyle">
+          <button  class="" :id="`action-button-command-${fieldGuid}-4`" @click="sendToOtherProfile(this.guid)" :style="buttonStyle">
             <span class="button-shortcut-label">4</span>
             Send to {{ this.profileStore.returnRtByGUID(this.guid).includes(":Work") ? "Instance" : (Object.keys(this.profileStore.activeProfile.rt).length > 2 ? "Work/Instance" : "Work") }}
           </button>
-          <button  class="" @click="sendToOtherProfile(null, true)" :style="buttonStyle" v-if="this.profileStore.returnRtByGUID(this.guid).includes(':Instance')">
+          <button  class="" @click="sendToOtherProfile(this.guid, null, true)" :style="buttonStyle" v-if="this.profileStore.returnRtByGUID(this.guid).includes(':Instance')">
             Send Subtitle to Work Variant
           </button>
         </template>
@@ -295,7 +295,7 @@
       ...mapStores(usePreferenceStore),
       ...mapStores(useProfileStore),
       ...mapState(usePreferenceStore, ['scriptShifterOptions','catInitals']),
-      ...mapState(useProfileStore, ['activeProfile']),
+      ...mapState(useProfileStore, ['activeProfile', 'sendToOtherProfile']),
 
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
@@ -1114,269 +1114,9 @@
       setInstance: function(data){
         this.targetInstance = data
         this.displayInstanceSelectionModal = false
-        this.sendToOtherProfile(data)
+        this.sendToOtherProfile(this,guid, data)
       },
 
-      /**
-       * Send the information in a component between Work and Instances
-       * Can be used in either direction.
-       * @param target = When there's more than 1 instance, says which instance  to insert into
-       * @param variant = Create a varianet title
-       */
-      sendToOtherProfile: async function(target=null, variant=false){
-        const Rts = Object.keys(this.profileStore.activeProfile.rt)
-        let thisRt = this.profileStore.returnRtByGUID(this.guid)
-        this.currentRt = thisRt
-
-        //get the structure that will be copied over
-        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
-
-        //Structure that will get the changes and be passed on
-        const activeStructure = JSON.parse(JSON.stringify(structure))
-
-
-        let subTitleCheck = false
-        let subTitle = false
-        let subTitleLang = false
-        let subTitleGuid = false
-        if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){ //if source == instance && there's a subtitle
-          let userValue = activeStructure.userValue
-          let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
-          if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
-            subTitleCheck = true
-            console.log("This is the subtitle:",title["http://id.loc.gov/ontologies/bibframe/subtitle"])
-            subTitle = []
-            subTitleLang = []
-            // grab any highlighted text before it gets cleared by the click
-            let highlightedText = window.getSelection ? window.getSelection().toString().trim() : ''
-            window.getSelection().removeAllRanges()
-
-            for (let sub of title["http://id.loc.gov/ontologies/bibframe/subtitle"]){
-              subTitle.push(sub["http://id.loc.gov/ontologies/bibframe/subtitle"])
-              subTitleLang.push(sub["@language"])
-            }
-            // if user had highlighted text and it exists in one of the subtitles, use that instead
-            if (highlightedText.length > 0){
-              for (let sub of title["http://id.loc.gov/ontologies/bibframe/subtitle"]){
-                if (sub["http://id.loc.gov/ontologies/bibframe/subtitle"].includes(highlightedText)){
-                  subTitle = [highlightedText]
-                  if (this.isAllNonLatin(highlightedText) == false){
-                    subTitleLang = false
-                  }
-                  break
-                }
-              }
-            }
-            subTitleGuid = title["http://id.loc.gov/ontologies/bibframe/subtitle"][0]["@guid"]
-          }
-        }
-
-        if (variant && !subTitle){
-          alert("There is no subtitle to send.")
-          return
-        }
-
-        if (!variant){
-          subTitleCheck = false
-        }
-
-        //This works when there is only 1 of each
-        let oldRt = thisRt
-        let newRt
-        let sTitle = false // subtitle taken from work main title after ` : `
-
-        if (Rts.length == 2){
-          newRt = Rts.filter((rt) => rt != thisRt)
-        }
-
-        // this doesn't need to be treated differently for multiple instances
-        if (thisRt.includes(":Work")){
-          activeStructure.preferenceId = activeStructure.preferenceId.replace(":Work", ":Instance")
-        } else {
-          activeStructure.preferenceId = activeStructure.preferenceId.replace(":Instance", ":Work")
-        }
-
-        if (Rts.length > 2 && target != null && target != "all"){
-          newRt = target
-        }
-        if (Rts.length > 2 && target == "all"){
-          newRt = Rts.filter((rt) => rt != thisRt)
-        }
-
-        // if there are multiple instance, but no target, get the target and restart
-        if (Rts.length > 2 && target == null){
-          for (let rt of Rts.filter((r) => r != thisRt)){
-            this.instances[rt] = this.activeProfile.rt[rt]
-          }
-          this.displayInstanceSelectionModal = true
-          return
-        }
-
-        if (!Array.isArray(newRt)){ // when does this happen?
-
-          activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
-          activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
-
-          this.profileStore.changeGuid(activeStructure)
-
-          //Moving Instance -> Work, cut out bf:subtitle, but add it to the title
-          let userValue = activeStructure.userValue
-          if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
-            let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
-            if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
-              // add subTitle to mainTitle
-              let mTitle = title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
-              title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle + " : " + subTitle
-
-              delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
-            }
-          }
-
-          // make adjustment for subtitles in instance
-          if (newRt.includes(":Work")){
-            let additionalTitleStructure = false
-            if (subTitleCheck){
-              additionalTitleStructure = JSON.parse(JSON.stringify(activeStructure))
-              // get a new GUID
-              this.profileStore.changeGuid(additionalTitleStructure)
-              // update the type
-              additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
-              //update the value
-              additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
-              //Add it
-              this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
-            }
-          }
-
-          //do the main change
-          if (!subTitleCheck){
-            let userValue = activeStructure.userValue
-            if (sTitle){
-              // Add the Work subtitle to the instance's "Other title information"
-              activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"] = [
-                {
-                  "@guid": short.generate(),
-                  "http://id.loc.gov/ontologies/bibframe/subtitle": sTitle
-                }
-              ]
-              // Remove subtitle from mainTitle for instance titles
-              let mTitle = activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
-              activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle.replace(" : " + sTitle, "")
-            }
-            this.profileStore.parseActiveInsert(activeStructure, thisRt)
-          }
-        } else {
-          for (let rt of newRt){
-            activeStructure.parent = activeStructure.parent.replace(oldRt, rt)
-            activeStructure.parentId = activeStructure.parentId.replace(oldRt, rt) // when there's more than 1 instance this is the most important change.
-
-            this.profileStore.changeGuid(activeStructure)
-
-            //Moving Instance -> Work, cut out bf:subtitle
-            let userValue = activeStructure.userValue
-            if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
-              let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
-              if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
-                // add subTitle to mainTitle
-                let mTitle = title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
-                title["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle + " : " + subTitle
-
-                delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
-              }
-            } else { // check if the work title has a subtitle
-              let mTitle = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
-              if (mTitle.includes(" : ")){
-                let titleParts = mTitle.split(" : ")
-                mTitle = titleParts[0]
-                sTitle = titleParts[1]
-              }
-            }
-
-            // make adjustment for subtitles in instance
-            if (rt.includes(":Work")){
-              let additionalTitleStructure = false
-              if (subTitleCheck){
-                additionalTitleStructure = JSON.parse(JSON.stringify(activeStructure))
-                // get a new GUID
-                this.profileStore.changeGuid(additionalTitleStructure)
-                // update the type
-                additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
-                //update the value
-
-                let mainTitleArray = additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
-                let template = JSON.parse(JSON.stringify(mainTitleArray[0]))
-                if (Array.isArray(subTitle)){
-                  for (let i = 0; i < subTitle.length; i++){
-                    if (mainTitleArray[i]){
-                      mainTitleArray[i]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle[i]
-                    } else {
-                      let newEntry = JSON.parse(JSON.stringify(template))
-                      newEntry["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle[i]
-                      mainTitleArray.push(newEntry)
-                    }
-                    // add in the language if there is one
-                    if (subTitleLang[i]){
-                      mainTitleArray[i]["@language"] = subTitleLang[i]
-                    }
-                  }
-
-                } else {
-                  mainTitleArray[0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
-                }
-
-                // if there are more mainTitles than subtitles, trim to match
-                let expectedLength = Array.isArray(subTitle) ? subTitle.length : 1
-                if (mainTitleArray.length > expectedLength){
-                  additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mainTitleArray.slice(0, expectedLength)
-                }
-                // and delete the @language if there
-                // if subTitleLang === false then it is a substring selection so remove the lang
-                if (subTitleLang === false && additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["@language"]){
-                  delete additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["@language"]
-                }
-                // and delete anything that is not a http://id.loc.gov/ontologies/bibframe/mainTitle
-                for (let key in additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]){
-                  if (key != "http://id.loc.gov/ontologies/bibframe/mainTitle" && key != "@type" && key != "@guid"){
-                    delete additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0][key]
-                  }
-                }
-                //Add it
-                this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
-              }
-            }
-
-            //do the main change
-            if (!subTitleCheck){
-              let userValue = activeStructure.userValue
-              if (sTitle){
-                // Add the Work subtitle to the instance's "Other title information"
-                activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"] = [
-                  {
-                    "@guid": short.generate(),
-                    "http://id.loc.gov/ontologies/bibframe/subtitle": sTitle
-                  }
-                ]
-                // Remove subtitle from mainTitle for instance titles
-                let mTitle = activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
-                activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = mTitle.replace(" : " + sTitle, "")
-              }
-
-              this.profileStore.parseActiveInsert(activeStructure, thisRt)
-            }
-          }
-        }
-
-        //if it's a variant or parallel title, delete the original
-        const type = activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"]
-        if (["http://id.loc.gov/ontologies/bibframe/ParallelTitle", "http://id.loc.gov/ontologies/bibframe/VariantTitle"].includes(type)){
-          this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
-        }
-        //Force XML update
-        this.profileStore.dataChanged()
-      },
-
-
-      // show the button for de/promotion
       isContribComponent: function(){
         let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
 
