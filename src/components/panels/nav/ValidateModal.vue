@@ -34,9 +34,9 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,useConfigStore),
-      ...mapState(useProfileStore, ['activeProfile', 'activeComponent']),
+      ...mapState(useProfileStore, ['activeProfile', 'activeComponent', 'sendToOtherProfile', 'activeProfile']),
       // ...mapState(usePreferenceStore, ['debugModalData']),
-      ...mapWritableState(useProfileStore, ['showValidateModal', 'activeComponent']),
+      ...mapWritableState(useProfileStore, ['showValidateModal', 'activeComponent', 'activeProfile']),
 
     },
 
@@ -137,6 +137,33 @@
             console.warn("Couldn't jump to component: ", processedMessage[1])
           }
         },
+
+        // source is source of title that will be copied over
+        // target is in processedMessage
+        copyTitle: function(source, processedMessage){
+          let jumpTarget = this.profileStore.returnComponentByPropertyLabel(processedMessage[1], processedMessage[2])
+          if (!jumpTarget){
+            jumpTarget = this.profileStore.returnStructureByGUID(processedMessage[1])
+          }
+          let sourceGuid = false
+          let targetGuid = processedMessage[1]
+
+          for ( let rt of Object.keys(this.activeProfile.rt) ){
+            if (rt.indexOf(source) > -1){
+              let pts = this.activeProfile.rt[rt].pt
+              for (let ptLabel of Object.keys(pts)){
+                if (ptLabel == 'id_loc_gov_ontologies_bibframe_title__title_information'){
+                  let pt = pts[ptLabel]
+                  sourceGuid = pt['@guid']
+                  break
+                }
+
+              }
+            }
+          }
+
+          this.sendToOtherProfile(sourceGuid, targetGuid)
+        }
     },
 
     mounted() {}
@@ -181,6 +208,12 @@
                       <li :class="['level-' + level, {'action-jump': message[1]}]" @click="jumpToComponent(message)">
                         <span v-if="message[1]" :class="['material-icons']">move_down</span>
                         {{ level }}: {{ message[0] }}
+                        <button class="btn-copy-title" v-if="message[0].includes('No Work/Expression Title') && !validationMessage.map((m) => m.message[0].includes('No Instance Title')).some(value => value === true) "
+                        @click.stop="copyTitle(':Instance', message)"
+                        >Copy Title from Instance</button>
+                        <button class="btn-copy-title" v-if="message[0].includes('No Instance Title') && !validationMessage.map((m) => m.message[0].includes('No Work/Expression Title')).some(value => value === true) "
+                        @click.stop="copyTitle(':Work', message)"
+                        >Copy Title from Work</button>
                       </li>
                     </template>
                   </ul>
@@ -300,5 +333,9 @@
   }
   .action-jump {
     cursor: pointer;
+  }
+
+  .btn-copy-title {
+    font-size: 1em;
   }
 </style>
