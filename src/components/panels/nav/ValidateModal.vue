@@ -137,6 +137,10 @@
             console.warn("Couldn't jump to component: ", processedMessage[1])
           }
         },
+
+        copyTitle: function(source){
+
+        }
     },
 
     mounted() {}
@@ -181,6 +185,12 @@
                       <li :class="['level-' + level, {'action-jump': message[1]}]" @click="jumpToComponent(message)">
                         <span v-if="message[1]" :class="['material-icons']">move_down</span>
                         {{ level }}: {{ message[0] }}
+                        <button v-if="message[1].includes('No Work/Expression Title')"
+                        @click="copyTitle('instance')"
+                        >test</button>
+                        <button v-if="message[1].includes('No Instance Title')"
+                        @click="copyTitle('instance')"
+                        >test</button>
                       </li>
                     </template>
                   </ul>

@@ -6569,7 +6569,7 @@ export const useProfileStore = defineStore('profile', {
             }
 
             for (let rt of this.activeProfile.rtOrder) {
-                if (rt.indexOf(":Work") > -1) {
+                if ( rt.indexOf(":Work") > -1 || rt.indexOf(":Instance") > -1) {
                     for (let pt of this.activeProfile.rt[rt].ptOrder) {
                         pt = this.activeProfile.rt[rt].pt[pt]
                         if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/title") {
