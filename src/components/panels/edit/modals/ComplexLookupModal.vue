@@ -764,10 +764,17 @@
         }
         this.validating = false
         this.validationErrors = false
-        if (this.validationResult.validation && this.validationResult.validation.some(item => item.level == 'ERROR')){
+        // if (this.validationResult.validation && this.validationResult.validation.some(item => item.level == 'ERROR')){
+        //   this.validationErrors = true
+        //   // no2021014705
+        //   this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
+        //   console.info("this.validationResult.validation: ", this.validationResult.validation)
+        // }
+        if (this.validationResult.validation && this.validationResult.validation.some(item => item.message.includes("BCP"))){
           this.validationErrors = true
-          this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
+          this.validationResult.validation && this.validationResult.validation.some(item => item.message.includes("BCP"))
         }
+
 
         let marcString = xmlUpdated
         this.finalMarc = marcString
