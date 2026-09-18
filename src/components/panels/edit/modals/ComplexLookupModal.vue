@@ -764,15 +764,12 @@
         }
         this.validating = false
         this.validationErrors = false
-        // if (this.validationResult.validation && this.validationResult.validation.some(item => item.level == 'ERROR')){
-        //   this.validationErrors = true
-        //   // no2021014705
-        //   this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
-        //   console.info("this.validationResult.validation: ", this.validationResult.validation)
-        // }
-        if (this.validationResult.validation && this.validationResult.validation.some(item => item.message.includes("BCP"))){
+        // strip out this error. It's fine for updated NARs
+        this.validationResult.validation = this.validationResult.validation.filter((e) => e.message != "'053' ind2 isn't 0.")
+        if (this.validationResult.validation && this.validationResult.validation.some(item => item.level == 'ERROR')){
           this.validationErrors = true
-          this.validationResult.validation && this.validationResult.validation.some(item => item.message.includes("BCP"))
+          // no2021014705
+          this.validationResult.validation = this.validationResult.validation.filter(item => item.level == 'ERROR')
         }
 
 
