@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useProfileStore } from './profile'
+import { useConfigStore } from './config'
 import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
@@ -2409,6 +2410,42 @@ export const usePreferenceStore = defineStore('preference', {
 
     },
 
+
+    /**
+    * Public demo carve out for bibframe.org. True when running on bibframe.org and the user's
+    * name (catInitals) or cat code contains one of the strings listed in the bibframeDotOrg
+    * config `demoFeatureUsers` (case-insensitive).
+    * @return {boolean}
+    */
+    isBibframeDotOrgDemoUser(){
+      const configUrls = useConfigStore().returnUrls
+      if (!configUrls || !configUrls.isBibframeDotOrg) return false
+      const demoUsers = (configUrls.demoFeatureUsers || []).map(u => String(u).toLowerCase()).filter(u => u)
+      const initials = this.catInitals ? this.catInitals.toLowerCase() : ''
+      const code = this.catCode ? this.catCode.toLowerCase() : ''
+      return demoUsers.some(u =>
+        (initials && initials.includes(u)) ||
+        (code && code.includes(u))
+      )
+    },
+
+    /**
+    * Whether a feature that is restricted in some regions is available to the current user.
+    * On bibframe.org the features listed in the bibframeDotOrg config `restrictedFeatures` are
+    * hidden unless the user is a demo user (see isBibframeDotOrgDemoUser), in which case the
+    * feature is enabled and the normal permission check is bypassed.
+    * In every other region the normal permission check result is returned unchanged.
+    * @param {string} feature - the feature key, e.g. 'marvaScan', 'subjectFinder', 'linkedData'
+    * @param {boolean} normallyAllowed - result of the feature's usual permission check (default true)
+    * @return {boolean}
+    */
+    featureAvailable(feature, normallyAllowed = true){
+      const configUrls = useConfigStore().returnUrls
+      if (!configUrls || !configUrls.isBibframeDotOrg) return normallyAllowed
+      const restricted = configUrls.restrictedFeatures || []
+      if (!restricted.includes(feature)) return normallyAllowed
+      return this.isBibframeDotOrgDemoUser()
+    },
 
     isNarTester(){
 

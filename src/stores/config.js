@@ -205,6 +205,13 @@ export const useConfigStore = defineStore('config', {
         simpleLookupLang: 'en',
         isBibframeDotOrg: true,
 
+        // Features that are hidden / disabled on bibframe.org unless the user is a demo user (see demoFeatureUsers)
+        restrictedFeatures: ['marvaScan', 'subjectFinder', 'linkedData'],
+        // Public demo carve out: if the user's name (catInitals) or cat code contains one of these
+        // strings (case-insensitive) the restrictedFeatures are enabled for them, bypassing the
+        // normal per-user feature flag / permission checks.
+        demoFeatureUsers: ['nypl'],
+
         dancerEnabled: true,
         dancerWorkspaceList: "https://bibframe.org/dancer/api/serve/workspaces/",
 

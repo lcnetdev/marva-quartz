@@ -68,7 +68,7 @@
           <Marc/>
 
         </pane>
-        <pane v-if="panelDisplay.linkedData"
+        <pane v-if="panelDisplay.linkedData && preferenceStore.featureAvailable('linkedData')"
           :class="{'edit-main-splitpane-marc': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar'), 'edit-layout-linked-data':  createLayoutMode}"
           :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
         >
