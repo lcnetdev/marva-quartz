@@ -194,6 +194,7 @@ export const useConfigStore = defineStore('config', {
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
+        shelfListing: 'https://id.loc.gov/',
         bfdb : 'https://id.loc.gov/',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
