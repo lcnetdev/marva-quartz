@@ -121,6 +121,7 @@ export default {
     }
 
     this.preferenceStore.initalize(this.configStore.returnUrls)
+    this.configStore.loadAnalyticsScript()
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
 

@@ -213,6 +213,9 @@ export const useConfigStore = defineStore('config', {
         // normal per-user feature flag / permission checks.
         demoFeatureUsers: ['nypl'],
 
+        // Adobe Launch analytics script, injected at startup only for this region (see loadAnalyticsScript)
+        analyticsScript: 'https://assets.adobedtm.com/f94f5647937d/05ab40b58039/launch-60d4ca033ceb.min.js',
+
         dancerEnabled: true,
         dancerWorkspaceList: "https://bibframe.org/dancer/api/serve/workspaces/",
 
@@ -983,6 +986,22 @@ export const useConfigStore = defineStore('config', {
         url = url.replace('http://id.loc.gov/',urls.bfdb)
       }
       return url
+    },
+
+    /**
+    * Injects the region's analytics script tag into the document head, if the
+    * current region config defines one (currently only bibframeDotOrg does).
+    *
+    * @return {void} -
+    */
+    loadAnalyticsScript() {
+      let src = this.returnUrls.analyticsScript
+      if (!src || typeof document === 'undefined') return
+      if (document.querySelector(`script[src="${src}"]`)) return
+      let script = document.createElement('script')
+      script.src = src
+      script.async = true
+      document.head.appendChild(script)
     },
 
     /**
