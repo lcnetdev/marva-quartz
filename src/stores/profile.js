@@ -8197,6 +8197,9 @@ export const useProfileStore = defineStore('profile', {
             }
             // console.log(":linkedDatalinkedData",linkedData)
 
+            // isbns we have already sent to google books, so we don't query the same one twice
+            let googleQueriedIsbns = new Set()
+
             for (let isbn of linkedData.isbn) {
 
                 let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
@@ -8223,20 +8226,25 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-                if (baseData.results.isbns && baseData.results.isbns.length > 0) {
-                    let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
-                    googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
-                    // console.log("googleBookData",googleBookData)
+                // fire google books with the record's own isbn plus anything worldcat found, regardless of the worldcat result
+                let googleIsbns = [...new Set([isbn].concat(baseData.results.isbns || []))].filter((v) => v && !googleQueriedIsbns.has(v))
+                googleIsbns.forEach((v) => googleQueriedIsbns.add(v))
 
-                    googleBookData.filter((v) => (v.dataType == 'toc'))
+                if (googleIsbns.length > 0) {
+                    try {
+                        let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(googleIsbns)
+                        googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
+                        // console.log("googleBookData",googleBookData)
 
-                    linkedData.subtitle = linkedData.subtitle.concat(googleBookData.filter((v) => (v.dataType == 'subtitle')));
-                    linkedData.noteContent = linkedData.noteContent.concat(googleBookData.filter((v) => (v.dataType == 'description')));
-                    linkedData.noteTOC = linkedData.noteTOC.concat(googleBookData.filter((v) => (v.dataType == 'toc')));
-                    linkedData.thumbnail = linkedData.thumbnail.concat(googleBookData.filter((v) => (v.dataType == 'thumbnail')));
-                    linkedData.lcsh = linkedData.lcsh.concat(googleBookData.filter((v) => (v.dataType == 'subject')));
-
-
+                        linkedData.subtitle = linkedData.subtitle.concat(googleBookData.filter((v) => (v.dataType == 'subtitle')));
+                        linkedData.noteContent = linkedData.noteContent.concat(googleBookData.filter((v) => (v.dataType == 'description')));
+                        linkedData.noteTOC = linkedData.noteTOC.concat(googleBookData.filter((v) => (v.dataType == 'toc')));
+                        linkedData.thumbnail = linkedData.thumbnail.concat(googleBookData.filter((v) => (v.dataType == 'thumbnail')));
+                        linkedData.lcsh = linkedData.lcsh.concat(googleBookData.filter((v) => (v.dataType == 'subject')));
+                    } catch (e) {
+                        // google books is not critical either, keep going
+                        console.warn("buildLinkedData: google books lookup error", e)
+                    }
                 }
 
                 // if we got a hit on one of the isbns we can stop

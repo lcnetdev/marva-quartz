@@ -3742,12 +3742,35 @@ const utilsNetwork = {
       return { status: r.status, data: r.status === 503 ? null : await r.json() }
     },
 
+    /**
+    * Ask the util service for WorldCat metadata related to an ISBN.
+    * A WorldCat failure is not critical, on any error (network, non-200, non-JSON body,
+    * or missing credentials on the backend) an empty result is returned so the rest of
+    * the linked data build (Google Books, contributors, etc.) can continue.
+    * @param {string} isbn
+    * @return {object} - {status, results:{isbns:[], records:[]}}
+    */
     async linkedDataBaseRelated(isbn){
       let returnUrls = useConfigStore().returnUrls
-      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn, { headers: getAuthHeaders() })
-      let data = await r.json()
-      console.log("linkedDataBaseRelated data:",data)
-      return data
+      let empty = { status: { status: 'error' }, results: { isbns: [], records: [] } }
+      try {
+        let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn, { headers: getAuthHeaders() })
+        if (!r.ok){
+          console.warn("linkedDataBaseRelated: worldcat request failed", r.status)
+          return empty
+        }
+        let data = await r.json()
+        console.log("linkedDataBaseRelated data:",data)
+        if (!data || !data.results){
+          return empty
+        }
+        if (!Array.isArray(data.results.isbns)){ data.results.isbns = [] }
+        if (!Array.isArray(data.results.records)){ data.results.records = [] }
+        return data
+      } catch (e) {
+        console.warn("linkedDataBaseRelated: worldcat lookup error", e)
+        return empty
+      }
     },
 
 
