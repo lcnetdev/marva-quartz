@@ -195,6 +195,8 @@ export const useConfigStore = defineStore('config', {
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
         shelfListing: 'https://id.loc.gov/',
+        // path (relative to shelfListing) of the shelf list browse endpoint, other regions use the default 'lds/browse.xqy'
+        shelfListingPath: 'controllers/xqapi-shelflist.xqy',
         bfdb : 'https://id.loc.gov/',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',

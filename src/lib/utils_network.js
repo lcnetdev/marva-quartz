@@ -3564,7 +3564,9 @@ const utilsNetwork = {
       } else {
         searchTerm = search.toUpperCase()
       }
-      let urlSearch = "lds/browse.xqy?bq=" + searchTerm +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
+      // the browse endpoint path can be overridden per region (bibframe.org uses a different endpoint)
+      let browsePath = useConfigStore().returnUrls.shelfListingPath || "lds/browse.xqy"
+      let urlSearch = browsePath + "?bq=" + searchTerm +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
 
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
