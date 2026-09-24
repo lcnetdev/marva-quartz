@@ -1,7 +1,7 @@
 <template>
 
 
-  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true">
+  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && !switchInBanner">
 
       <div style="text-align: right;">
         <button @click="userActiveResourceName = profileName" v-for="profileName in this.activeProfile.rtOrder" :class="{'activeResourceButton': (activeResourceName === profileName)}">
@@ -15,14 +15,14 @@
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-hub': (profileName.split(':').slice(-1)[0] == 'Hub'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
-          <template v-if="instanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
-          <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
+          <template v-if="panelInstanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
+          <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
                 <div class="instanceInfoWrapper" :title="instanceOfWork(profileName) ? 'Instance of: ' + instanceOfWork(profileName) : null">
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                    <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance?</button>
+                    <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
                 </div>
           </template>
-          <template v-if="profileName.includes(':Item') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
+          <template v-if="profileName.includes(':Item') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
                 <div class="instanceInfoWrapper">
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
@@ -63,22 +63,49 @@
 
 
           </template>
-      <template v-if="instanceMode == false">
-        <template v-if="profileName.includes(':Work') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
+      <template v-if="panelInstanceMode == false">
+        <template v-if="profileName.includes(':Work') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
             <div class="instanceInfoWrapper">
                 <span class="instanceIdentifer">Work: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <label v-if="switchInBanner" class="resource-switch" title="Switch Resource">
+                    <span class="material-icons">swap_horiz</span>
+                    <span class="resource-switch-label">Switch Resource</span>
+                    <span class="material-icons resource-switch-arrow">expand_more</span>
+                    <select @change="switchResource($event)" aria-label="Switch Resource">
+                        <option value="" disabled selected>Switch Resource</option>
+                        <option v-for="switchName in activeProfile.rtOrder" :key="switchName" :value="switchName" :disabled="switchName == activeResourceName">{{ resourceTypeLabel(switchName) }}: {{ activeProfile.rt[switchName].URI.split("/").at(-1) }}</option>
+                    </select>
+                </label>
             </div>
         </template>
-        <template v-if="profileName.includes(':Instance') && !this.dualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
+        <template v-if="profileName.includes(':Instance') && !panelDualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
             <div class="instanceInfoWrapper" :title="instanceOfWork(profileName) ? 'Instance of: ' + instanceOfWork(profileName) : null">
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance!</button>
+                <label v-if="switchInBanner" class="resource-switch" title="Switch Resource">
+                    <span class="material-icons">swap_horiz</span>
+                    <span class="resource-switch-label">Switch Resource</span>
+                    <span class="material-icons resource-switch-arrow">expand_more</span>
+                    <select @change="switchResource($event)" aria-label="Switch Resource">
+                        <option value="" disabled selected>Switch Resource</option>
+                        <option v-for="switchName in activeProfile.rtOrder" :key="switchName" :value="switchName" :disabled="switchName == activeResourceName">{{ resourceTypeLabel(switchName) }}: {{ activeProfile.rt[switchName].URI.split("/").at(-1) }}</option>
+                    </select>
+                </label>
+                <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
             </div>
         </template>
 
-        <template v-if="profileName.includes(':Item') && !this.dualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
+        <template v-if="profileName.includes(':Item') && !panelDualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
             <div class="instanceInfoWrapper">
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <label v-if="switchInBanner" class="resource-switch" title="Switch Resource">
+                    <span class="material-icons">swap_horiz</span>
+                    <span class="resource-switch-label">Switch Resource</span>
+                    <span class="material-icons resource-switch-arrow">expand_more</span>
+                    <select @change="switchResource($event)" aria-label="Switch Resource">
+                        <option value="" disabled selected>Switch Resource</option>
+                        <option v-for="switchName in activeProfile.rtOrder" :key="switchName" :value="switchName" :disabled="switchName == activeResourceName">{{ resourceTypeLabel(switchName) }}: {{ activeProfile.rt[switchName].URI.split("/").at(-1) }}</option>
+                    </select>
+                </label>
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
             </div>
         </template>
@@ -98,7 +125,7 @@
                     <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
                       <!-- if createLayoutMode is active, and there is an active layout, show everything -->
                       <div v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent]), 'hide-component': ((preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hideSubject) || (preferenceStore.returnValue('--b-edit-main-hide-non-lc-class-numbers') && activeProfile.rt[profileName].pt[profileCompoent].hideClassNum))}">
-                        <template v-if="this.dualEdit == false">
+                        <template v-if="panelDualEdit == false">
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
                             <div class="component-label 2" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf')}">
                               <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
@@ -116,7 +143,7 @@
 
                           </template>
                         </template>
-                        <template v-if="this.dualEdit == true">
+                        <template v-if="panelDualEdit == true">
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && (profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1 )">
                             <div class="component-label 3" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf')}">
                             <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
@@ -155,7 +182,7 @@
                           :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
 
                         <!-- If it's not in dual mode add the instances too -->
-                        <Main v-if="this.dualEdit == false && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)"
+                        <Main v-if="panelDualEdit == false && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)"
                           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                           :level="0"
                           :id="activeProfile.rt[profileName].pt[profileCompoent].id"
@@ -183,8 +210,8 @@
 
 
 
-      <select style="margin-left:40px; margin-bottom:0px" @change="addProperty($event,profileName)" v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true">
-        <option value="home" selected>Add Property</option>
+      <select class="add-property-select" @change="addProperty($event,profileName)" v-if="showAddProperty(profileName)">
+        <option value="home" selected>Add {{ resourceTypeLabel(profileName) }} Property</option>
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder">
           <option :value="profileCompoent" v-if="activeProfile.rt[profileName].pt[profileCompoent].canBeHidden == true" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</option>
         </template>
@@ -242,10 +269,38 @@
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
       ...mapWritableState(useProfileStore, ['emptyComponents', 'copyCatMode']),
 
+      // with the resource switch preference on, each panel (including both Dual Edit columns) shows one selected resource
+      switchMode(){
+        return this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true
+      },
+      panelDualEdit(){
+        return this.dualEdit && !this.switchMode
+      },
+      panelInstanceMode(){
+        return this.instanceMode && !this.switchMode
+      },
+      // in switch mode the Work/Instance toggle lives in the selected resource's banner
+      switchInBanner(){
+        if (!this.switchMode || this.panelDualEdit){
+          return false
+        }
+        let name = this.activeResourceName
+        if (!name || !/:(Work|Instance|Item)/.test(name)){
+          return false
+        }
+        return !this.layoutActiveFilter || Object.keys(this.layoutActiveFilter['properties']).includes(name)
+      },
       activeResourceName(){
 
         if (this.userActiveResourceName===null){
           if (this.activeProfile && this.activeProfile.rtOrder){
+            // the Dual Edit instance column starts on the first instance
+            if (this.instanceMode){
+              let firstInstance = this.activeProfile.rtOrder.find((rt) => rt.includes(':Instance') || rt.includes(':Item'))
+              if (firstInstance){
+                return firstInstance
+              }
+            }
             return this.activeProfile.rtOrder[0]
           }
         }else{
@@ -389,6 +444,40 @@
             }
         },
 
+        // the ad hoc "Add Property" dropdown only belongs in the panel that shows this resource's fields
+        showAddProperty: function(profileName){
+          if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') !== true){
+            return false
+          }
+          if (!this.showResourceBanner(profileName)){
+            return false
+          }
+          if (this.panelDualEdit){
+            let isInstance = profileName.includes(':Instance') || profileName.includes(':Item')
+            return this.panelInstanceMode ? isInstance : !isInstance
+          }
+          return true
+        },
+        switchResource: function(event){
+          if (event.target.value){
+            this.userActiveResourceName = event.target.value
+          }
+          // keep showing "Switch Resource" once the switch is made
+          event.target.value = ''
+        },
+        resourceTypeLabel: function(profileName){
+          if (profileName.includes(':Work')){
+            return 'Work'
+          }
+          if (profileName.includes(':Hub')){
+            return 'Hub'
+          }
+          return this.instanceLabel(profileName)
+        },
+        // with the resource switch preference on, only the selected resource shows its banner
+        showResourceBanner: function(profileName){
+          return this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') !== true || profileName == this.activeResourceName
+        },
         instanceOfWork: function(profileName){
           let pt = this.activeProfile.rt[profileName].pt
           let key = Object.keys(pt).find((k) => pt[k].propertyURI == 'http://id.loc.gov/ontologies/bibframe/instanceOf')
@@ -588,8 +677,8 @@ div:has(> .instanceInfoWrapper) {
     border: solid 1px var(--section-tint);
 }
 
-div:not(:empty) + div:has(> .instanceInfoWrapper) {
-    margin-top: 50px;
+div:has(> .instanceInfoWrapper) + div:has(> .instanceInfoWrapper) {
+    margin-top: 20px;
 }
 
 div.instanceInfoWrapper {
@@ -623,10 +712,17 @@ div.instanceInfoWrapper {
     div.instanceInfoWrapper .instanceIdentifer {
         color: white;
     }
+    div.instanceInfoWrapper .resource-switch {
+        border-color: rgba(255, 255, 255, 0.6);
+        color: white;
+    }
+    div.instanceInfoWrapper .resource-switch:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
 }
 
 .instanceDeleteButton {
-    min-width: 0;
+    min-width: 4.5em;
     overflow: hidden;
     text-overflow: ellipsis;
     margin: -2px 0 -2px auto;
@@ -665,6 +761,62 @@ div.instanceInfoWrapper {
   color: white;
   transform: translateY(1px);
   box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
+
+.resource-switch{
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+    margin: -2px 0 -2px auto;
+    padding: 0 2px 0 6px;
+    border: solid 1px rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.resource-switch .material-icons{
+    flex-shrink: 0;
+    font-size: 1.1em;
+}
+
+.resource-switch-label{
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8em;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 1px 0;
+}
+
+/* the real select sits invisibly over the whole pill, so any part of it opens the list */
+.resource-switch select{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.resource-switch:focus-within{
+    outline: solid 2px currentColor;
+    outline-offset: 1px;
+}
+
+.resource-switch + .instanceDeleteButton{
+    margin-left: 0;
+}
+
+.add-property-select{
+    display: block;
+    max-width: 100%;
+    margin: 0 0 6px;
 }
 
 .component-label-instance-of{
