@@ -1762,7 +1762,15 @@ export const usePreferenceStore = defineStore('preference', {
       // save current route path so we can redirect back after SSO
       // strip the base path since router.push will add it back
       let basePath = import.meta.env.BASE_URL || '/'
-      let currentPath = window.location.pathname + window.location.hash
+
+      // keep the query string too, links like /?action=load&url=...&profile=... rely on it
+      // to auto load a record once the user comes back from the login round trip.
+      // drop any stale token param, the login callback supplies a fresh one.
+      let params = new URLSearchParams(window.location.search)
+      params.delete('token')
+      let search = params.toString() ? '?' + params.toString() : ''
+
+      let currentPath = window.location.pathname + search + window.location.hash
       if (currentPath.startsWith(basePath)){
         currentPath = '/' + currentPath.slice(basePath.length)
       }
