@@ -107,11 +107,11 @@ export default {
   position: absolute;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");
   z-index: 1;
-  top: -4px;
-  left: 2px;
+  top: 3px;
+  left: 6px;
+  line-height: 1.2;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
   pointer-events: none;
-  margin-top: 1px;
 }
 
 .label-bold{

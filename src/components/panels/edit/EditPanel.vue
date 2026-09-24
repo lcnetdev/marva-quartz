@@ -17,13 +17,13 @@
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-hub': (profileName.split(':').slice(-1)[0] == 'Hub'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
           <template v-if="instanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
           <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
-                <div>
+                <div class="instanceInfoWrapper" :title="instanceOfWork(profileName) ? 'Instance of: ' + instanceOfWork(profileName) : null">
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance?</button>
                 </div>
           </template>
           <template v-if="profileName.includes(':Item') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
-                <div>
+                <div class="instanceInfoWrapper">
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
                 </div>
@@ -36,7 +36,7 @@
                     <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
 
                       <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
-                        <div class="component-label 1" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">
+                        <div class="component-label 1" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf')}">
                             <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -64,8 +64,13 @@
 
           </template>
       <template v-if="instanceMode == false">
-        <template v-if="profileName.includes(':Instance') && !this.dualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
+        <template v-if="profileName.includes(':Work') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
             <div class="instanceInfoWrapper">
+                <span class="instanceIdentifer">Work: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+            </div>
+        </template>
+        <template v-if="profileName.includes(':Instance') && !this.dualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
+            <div class="instanceInfoWrapper" :title="instanceOfWork(profileName) ? 'Instance of: ' + instanceOfWork(profileName) : null">
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance!</button>
             </div>
@@ -95,7 +100,7 @@
                       <div v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent]), 'hide-component': ((preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hideSubject) || (preferenceStore.returnValue('--b-edit-main-hide-non-lc-class-numbers') && activeProfile.rt[profileName].pt[profileCompoent].hideClassNum))}">
                         <template v-if="this.dualEdit == false">
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
-                            <div class="component-label 2" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">
+                            <div class="component-label 2" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf')}">
                               <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                               <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" :value="profileName" :checked="layoutActiveFilter && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])" />
                               {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -113,7 +118,7 @@
                         </template>
                         <template v-if="this.dualEdit == true">
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && (profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1 )">
-                            <div class="component-label 3" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">
+                            <div class="component-label 3" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf')}">
                             <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -384,6 +389,18 @@
             }
         },
 
+        instanceOfWork: function(profileName){
+          let pt = this.activeProfile.rt[profileName].pt
+          let key = Object.keys(pt).find((k) => pt[k].propertyURI == 'http://id.loc.gov/ontologies/bibframe/instanceOf')
+          let linked = key && pt[key].userValue ? pt[key].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf'] : null
+          let uri = linked && linked[0] ? linked[0]['@id'] : null
+          if (!uri){
+            // export links every instance to the record's work
+            let workRt = this.activeProfile.rtOrder.find((rt) => rt.includes(':Work'))
+            uri = workRt ? this.activeProfile.rt[workRt].URI : null
+          }
+          return uri ? uri.split('/').at(-1) : null
+        },
         instanceLabel: function(profileName){
           if (profileName.includes(":Item")){
             return "Item"
@@ -516,48 +533,142 @@
 }
 
 .edit-panel-work{
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')") !important;
+  --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')");
+  background-color: white !important;
+  display: flow-root;
+  border-radius: 4px;
 }
 
 .edit-panel-hub{
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')") !important;
-  padding-bottom: 5em;
+  --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')");
+  background-color: white !important;
+  display: flow-root;
+  border-radius: 4px;
 }
 
 .edit-panel-instance{
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')") !important;
-  padding-bottom: 5em;
+  --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')");
+  background-color: white !important;
+  display: flow-root;
+  border-radius: 4px;
 }
+.edit-panel-hub:last-child,
+.edit-panel-instance:last-child,
+.edit-panel-instance-secondary:last-child,
+.edit-panel-item:last-child{
+  margin-bottom: 5em;
+}
+
 .edit-panel-item{
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')") !important;
+  --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')");
+  background-color: white !important;
+  display: flow-root;
+  border-radius: 4px;
 }
 .edit-panel-instance-secondary{
-
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance-secondary')") !important;
-
+  --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance-secondary')");
+  background-color: white !important;
+  display: flow-root;
+  border-radius: 4px;
 }
 
 .component-label{
   font-size: 0.85em;
+  padding: 2px 5px;
+  background-color: var(--section-tint);
+  border: solid 1px oklch(from var(--section-tint) calc(l - 0.14) calc(c + 0.015) h / 1);
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
 }
 .label-bold{
   font-weight: bold;
 }
 
+div:has(> .instanceInfoWrapper) {
+    padding: 0 6px;
+    border: solid 1px var(--section-tint);
+}
+
+div:not(:empty) + div:has(> .instanceInfoWrapper) {
+    margin-top: 50px;
+}
+
 div.instanceInfoWrapper {
-    padding: 5px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px 8px;
+    padding: 7px 10px;
+    margin: 0 -6px 8px;
+    background-color: var(--section-tint);
 }
 
 .instanceIdentifer {
+    /* shrink the title first; the button only shrinks once the title is at its minimum */
+    flex-shrink: 1000;
+    min-width: 3em;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-weight: bold;
+    white-space: nowrap;
     color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+}
 
+@supports (color: oklch(from red l c h)) {
+    div:has(> .instanceInfoWrapper) {
+        border-color: oklch(from var(--section-tint) calc(l - 0.34) calc(c + 0.05) h / 1);
+    }
+    div.instanceInfoWrapper {
+        background-color: oklch(from var(--section-tint) calc(l - 0.34) calc(c + 0.05) h / 1);
+    }
+    div.instanceInfoWrapper .instanceIdentifer {
+        color: white;
+    }
 }
 
 .instanceDeleteButton {
-    float: right;
-    margin-right: 5px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: -2px 0 -2px auto;
+    white-space: nowrap;
+    font-size: 0.8em;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 1px 8px;
+    border: solid 1px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    background-color: white;
+    color: #b3261e;
+    cursor: pointer;
+  transition: background-color 0.1s, box-shadow 0.1s, transform 0.05s;
+}
+
+.instanceDeleteButton:hover {
+  background-color: #b3261e;
+  border-color: #baa8a8;
+  color: white;
+}
+
+.instanceDeleteButton:active {
+  background-color: #8e1b15;
+  border-color: #8e1b15;
+  color: white;
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
+.instanceDeleteButton:focus-visible {
+  outline: solid 2px white;
+  outline-offset: 1px;
+  background-color: #8e1b15;
+  border-color: #8e1b15;
+  color: white;
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
+.component-label-instance-of{
+    display: none;
 }
 
 .inline-icon {

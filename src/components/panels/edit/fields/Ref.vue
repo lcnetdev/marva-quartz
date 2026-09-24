@@ -510,8 +510,7 @@ export default {
 <style scoped>
 select{
   width: 100%;
-  border-bottom: none;
-  border-top: none;
+  border: none;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
   background-color: transparent;
 }
