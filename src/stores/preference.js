@@ -1707,15 +1707,29 @@ export const usePreferenceStore = defineStore('preference', {
         }
         this.jwt = storedToken
         this.ssoUser = payload
-        // Populate catInitals from SSO claims
-        this.catInitals = payload.name || payload.email || 'SSO User'
-        window.localStorage.setItem('marva-catInitals', this.catInitals)
         if (payload.guest) {
           // Anonymous guest token (PUBLIC_GUEST_MODE, e.g. bibframe.org demo):
-          // auto-assign a cataloging code from the guest id — never prompt.
-          this.catCode = 'G' + String(payload.username || '').replace(/^guest-/, '')
-          window.localStorage.setItem('marva-catCode', this.catCode)
+          // auto-assign a name and cataloging code from the guest id — never prompt.
+          // Only fill in what is missing, so a name / code the user changed in the
+          // account modal survives page reloads instead of being overwritten by the token.
+          let storedInitals = window.localStorage.getItem('marva-catInitals')
+          if (storedInitals && storedInitals.trim() != ''){
+            this.catInitals = storedInitals
+          } else {
+            this.catInitals = payload.name || payload.email || 'SSO User'
+            window.localStorage.setItem('marva-catInitals', this.catInitals)
+          }
+          let storedGuestCatCode = window.localStorage.getItem('marva-catCode')
+          if (storedGuestCatCode && storedGuestCatCode.trim() != ''){
+            this.catCode = storedGuestCatCode
+          } else {
+            this.catCode = 'G' + String(payload.username || '').replace(/^guest-/, '')
+            window.localStorage.setItem('marva-catCode', this.catCode)
+          }
         } else {
+          // Populate catInitals from SSO claims
+          this.catInitals = payload.name || payload.email || 'SSO User'
+          window.localStorage.setItem('marva-catInitals', this.catInitals)
           // Restore catCode from localStorage only, never from JWT
           let storedCatCode = window.localStorage.getItem('marva-catCode')
           if (storedCatCode && storedCatCode.trim() != ''){
