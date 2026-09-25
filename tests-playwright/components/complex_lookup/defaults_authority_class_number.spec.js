@@ -17,7 +17,8 @@ test('Load a class number from a NAR', async ({ page }) => {
   await page.getByRole('button', { name: 'Close' }).click();
   await page.locator('[id="edit_lc:RT:bf2:Monograph:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"] div').filter({ hasText: 'Classification numberClassWeb' }).getByRole('textbox').click();
 
-  await page.getByRole('button', { name: 'bolt' }).click();
+  // scope to this component: the previously focused field's action button is still fading out
+  await page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]').getByRole('button', { name: 'bolt' }).click();
   await page.getByRole('button', { name: 'Insert Default Values' }).click();
   await expect(page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]')).toContainText('Library of Congress');
   await expect(page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]')).toContainText('used by assigner');
