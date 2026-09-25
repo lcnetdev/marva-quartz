@@ -3,6 +3,10 @@
 import { test, expect } from '@playwright/test';
 import { preferences } from '../../configs/subjectBuilderConfig.json'
 
+// Move the caret one word left. Chromium/Firefox use Control+Arrow on Linux/Windows and Alt+Arrow on macOS;
+// Meta+Arrow (what ControlOrMeta gives on a Mac) jumps to the line start instead.
+const WORD_LEFT = process.platform === 'darwin' ? 'Alt+ArrowLeft' : 'Control+ArrowLeft'
+
 /**
  * Preferences sets panel display:
  * xml: true
@@ -145,20 +149,20 @@ test('Write the entire string before validation', async ({ page }) => {
     await page.getByText('History', { exact: true }).nth(1).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     // playwright plugin does not work well with the mouse
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press(WORD_LEFT);
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press(WORD_LEFT);
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press(WORD_LEFT);
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press(WORD_LEFT);
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press(WORD_LEFT);
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press(WORD_LEFT);
     // await page.getByText('Dogs', { exact: true }).first().click();
     await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press(WORD_LEFT);
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press(WORD_LEFT);
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');
     await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');  // clicking doesn't work for some reason
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
     await expect(page.locator('#app')).toContainText('Dogs--Portugal--Porto--History');
@@ -186,10 +190,10 @@ test('Validate string as each piece is written', async ({ page }) => {
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
     await page.getByText('Dogs', { exact: true }).first().click();
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal‑‑porto');
     await page.getByText('Portugal--Porto', { exact: true }).first().click();
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+1');  // clicking doesn't work for some reason
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+1');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal‑‑Porto--history');
     await page.getByText('History', { exact: true }).nth(1).click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
@@ -278,7 +282,7 @@ test('Build heading "Dogs--geo", but the geo headings is typed before selecting 
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal--porto');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');  // clicking doesn't work for some reason
     await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('n50006403-781');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
@@ -308,7 +312,7 @@ test('Build heading "Dogs--geo", but the geo headings is typed after selecting "
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
     await page.getByText('Dogs', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('sh85038796');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal‑‑porto');
     await page.getByText('Portugal--Porto', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('n50006403-781');
@@ -340,10 +344,10 @@ test('Build heading "Dogs--geo", but the geo headings is typed after selecting "
 //     await expect(page.getByRole('heading')).toContainText('sh85038796');
 //     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
 //     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
-//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');
 //     await page.getByText('Portugal', { exact: true }).first().click();
 //     await expect(page.getByRole('heading')).toContainText('n80049716');
-//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');  // clicking doesn't work for some reason
 
 //     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal‑‑porto');
 //     await page.getByText('Portugal--Porto', { exact: true }).click();
@@ -376,12 +380,12 @@ test('Build heading "Dogs--geo", but the geo headings is typed after selecting "
 //     await expect(page.getByRole('heading')).toContainText('sh85038796');
 //     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
 //     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
-//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');
 //     await page.getByText('Portugal', { exact: true }).first().click();
 //     await expect(page.getByRole('heading')).toContainText('n80049716');
 
 //     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal--porto');
-//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+//     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');  // clicking doesn't work for some reason
 
 //     await page.getByText('Portugal--Porto', { exact: true }).click();
 //     await expect(page.getByRole('heading')).toContainText('n50006403-781');
@@ -413,7 +417,7 @@ test('Build heading "Dogs--geo", but the second part isn\'t hierarchicalGeograph
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
 
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+3');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--atlantic o');
     await page.getByText('Atlantic Ocean', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('sh85009201-781');
@@ -442,7 +446,7 @@ test('Add a CYAC heading, it has the correct XML', async ({ page }) => {
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('9');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('pigs');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+2');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+2');
     await page.getByText('Pigs', { exact: true }).first().click();
     await expect(page.getByRole('heading')).toContainText('Pigs');
     await expect(page.getByRole('heading')).toContainText('sj96006230');
@@ -468,7 +472,7 @@ test('Add a HUB heading, it has the correct XML', async ({ page }) => {
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('e');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('euripides. medea');
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+4');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+4');
     await expect(page.getByRole('dialog')).toContainText('Euripides. Medea (Auth) [RDA]');
     await page.getByText('Euripides. Medea (Auth) [RDA]').first().click();
     await expect(page.getByRole('heading')).toContainText('Euripides. Medea');
@@ -496,9 +500,9 @@ test('Add a HUB heading wita subdivision, it has the correct XML', async ({ page
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('e');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('euripides. medea');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+4');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+4');
     await page.getByText('Euripides. Medea (Auth)').first().click();
-    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+1');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+Control+1');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Euripides. Medea--interviews');
     await page.getByText('Interviews', { exact: true }).nth(0).click();
     await expect(page.getByRole('dialog')).toContainText('Topic');
