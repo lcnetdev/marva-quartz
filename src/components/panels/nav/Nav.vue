@@ -1822,6 +1822,11 @@ export default {
   right: 100%;
 }
 
+/* keep the menu's hover zone inside the window so opening it doesn't add scrollbars */
+.bar .nav-overflow-menu > .menu > .extended-hover-zone {
+  right: 0;
+}
+
 .current-profile {
   /* background: var(--bar-button-hover-bkg, #f1f3f4); */
 
