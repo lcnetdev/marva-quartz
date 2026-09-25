@@ -1195,6 +1195,15 @@ export default {
           // }
         }
 
+        // account for the space above the value reserved for the field label
+        let svgTop = -5
+        let literalField = textEl ? textEl.closest('.literal-field') : null
+        if (literalField){
+          let labelSpace = parseFloat(getComputedStyle(literalField).paddingTop) || 0
+          length = length + labelSpace / (svgHeight / 480)
+          svgTop = svgTop + labelSpace / 2
+        }
+
 
         let svgEl = document.getElementById('literal-lines-' + elGuid)
 
@@ -1211,7 +1220,7 @@ export default {
               }
             </style>
 
-            <svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="-2 -7.417834 70 480" width="${svgWidth}" height="${svgHeight}" class="paired-line">
+            <svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="-2 -7.417834 70 480" width="${svgWidth}" height="${svgHeight}" class="paired-line" style="top: ${svgTop}px">
               <defs>
                 <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -3 6 6" markerWidth="6" markerHeight="6" color="black">
                   <g>
@@ -1557,8 +1566,14 @@ fieldset{
   pointer-events: none;
 
   z-index: 1;
-  top: -4px;
-  left: 2px;
+  top: 3px;
+  left: 6px;
+  line-height: 1.2;
+}
+
+.literal-field:has(> .lookup-fake-input-label){
+  padding-top: 8px;
+  padding-left: 4px;
 }
 
 .literal-field:has( + .lang-display) > form > textarea.script-text{

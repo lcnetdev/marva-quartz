@@ -773,8 +773,9 @@ export default {
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
   pointer-events: none;
   z-index: 1;
-  top: -4px;
-  left: 2px;
+  top: 3px;
+  left: 6px;
+  line-height: 1.2;
 
 
 }
