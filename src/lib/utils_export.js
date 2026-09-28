@@ -1650,8 +1650,6 @@ const utilsExport = {
 				}
 			}
 
-			console.info("tleLookup: ", tleLookup)
-
 			for (let URI in tleLookup['Work']){
 				if (workModified){
 					tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])

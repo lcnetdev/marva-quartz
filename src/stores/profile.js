@@ -1844,6 +1844,12 @@ export const useProfileStore = defineStore('profile', {
                 }
 
                 // they changed something
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){ // if the load hash matches the edited hash, the user has undone something flip userModified back to false
+                    pt.userModified = false
+                    pt.dataLoaded=true
+                }
+
                 this.dataChanged()
 
             } else {
@@ -1882,6 +1888,11 @@ export const useProfileStore = defineStore('profile', {
                 pt.dataLoaded = false
 
                 // they changed something
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){
+                    pt.userModified = false
+                    pt.dataLoaded = true
+                }
                 this.dataChanged()
 
             } else {
@@ -2454,6 +2465,12 @@ export const useProfileStore = defineStore('profile', {
                 // console.log(JSON.stringify(pt.userValue))
 
                 // they changed something
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){ // if the load hash matches the edited hash, the user has undone something flip userModified back to false
+                    pt.userModified = false
+                    pt.dataLoaded = true
+                }
+
                 this.dataChanged()
             } else {
                 console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -3166,7 +3183,11 @@ export const useProfileStore = defineStore('profile', {
 
                 }
                 // they changed something
-
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){
+                    pt.userModified = false
+                    pt.dataLoaded = true
+                }
                 this.dataChanged()
 
             } else {
@@ -3507,6 +3528,11 @@ export const useProfileStore = defineStore('profile', {
                 }
 
                 // they changed something
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){
+                    pt.userModified = false
+                    pt.dataLoaded = true
+                }
                 this.dataChanged()
 
                 // console.log("USERVALUE IS",userValue)
@@ -7622,6 +7648,7 @@ export const useProfileStore = defineStore('profile', {
             delete found['xmlHash']
             delete found['xmlSource']
             delete found['userModified']
+            delete found['userHash']
             delete found['activeType']
             delete found['missingProfile']
             delete found['valueConstraint']['editable']
@@ -7646,6 +7673,7 @@ export const useProfileStore = defineStore('profile', {
             delete libraryComponent['remark']
             delete libraryComponent['parent']
             delete libraryComponent['userModified']
+            delete libraryComponent['userHash']
             delete libraryComponent['xmlHash']
             delete libraryComponent['xmlSource']
             delete libraryComponent['missingProfile']
@@ -8943,15 +8971,9 @@ export const useProfileStore = defineStore('profile', {
          * @param variant = Create a varianet title
          */
         sendToOtherProfile: async function(guid, target=null, variant=false){
-            console.info("guid: ", guid)
-            console.info("target: ", target)
             const Rts = Object.keys(this.activeProfile.rt)
             let thisRt = this.returnRtByGUID(guid)
             this.currentRt = thisRt
-
-            console.info("this.activeProfile, ", this.activeProfile)
-            console.info("guid, ", guid)
-            console.info("thisRt, ", thisRt)
 
             //get the structure that will be copied over
             let structure = this.returnStructureByComponentGuid(guid)
