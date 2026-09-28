@@ -1630,7 +1630,9 @@ const utilsExport = {
 
 			let workModified = false
 			let instModified = false
+			let hubModified = false
 			for (let rt in profile.rt){
+				console.info("rt: ", rt)
 				for(let pt in profile.rt[rt].pt){
 					let data = profile.rt[rt].pt[pt]
 					if (data.userModified){
@@ -1640,12 +1642,15 @@ const utilsExport = {
 						} else if (rt.includes(":Instance")){
 							instModified = true
 							break
+						} else if (rt.includes(":Hub")){
+							hubModified = true
+							break
 						}
 					}
 				}
 			}
 
-			console.info("workModified: ", workModified, "--", profile.newResource)
+			console.info("tleLookup: ", tleLookup)
 
 			for (let URI in tleLookup['Work']){
 				if (workModified){
@@ -1655,6 +1660,11 @@ const utilsExport = {
 			for (let URI in tleLookup['Instance']){
 				if (instModified){
 					tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				}
+			}
+			for (let URI in tleLookup['Hub']){
+				if (hubModified){
+					tleLookup['Hub'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
 				}
 			}
 		}
