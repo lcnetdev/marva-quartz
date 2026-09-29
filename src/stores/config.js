@@ -7,8 +7,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 7,
-    versionPatch: 2,
+    versionMinor: 8,
+    versionPatch: 0,
 
 
 
