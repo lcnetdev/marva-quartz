@@ -1628,11 +1628,42 @@ const utilsExport = {
 		if (!profile.newResource){ // don't show the `new` small admin field. Status=new should be in the big block
 			let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
 
+			let workModified = false
+			let instModified = false
+			let hubModified = false
+			for (let rt in profile.rt){
+				console.info("rt: ", rt)
+				for(let pt in profile.rt[rt].pt){
+					let data = profile.rt[rt].pt[pt]
+					if (data.userModified){
+						if (rt.includes(":Work")){
+							workModified = true
+							break
+						} else if (rt.includes(":Instance")){
+							instModified = true
+							break
+						} else if (rt.includes(":Hub")){
+							hubModified = true
+							break
+						}
+					}
+				}
+			}
+
 			for (let URI in tleLookup['Work']){
-				tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				if (workModified){
+					tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				}
 			}
 			for (let URI in tleLookup['Instance']){
-				tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				if (instModified){
+					tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				}
+			}
+			for (let URI in tleLookup['Hub']){
+				if (hubModified){
+					tleLookup['Hub'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				}
 			}
 		}
 

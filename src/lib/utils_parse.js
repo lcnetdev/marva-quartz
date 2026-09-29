@@ -2127,6 +2127,7 @@ const utilsParse = {
         if (Object.keys(profile.rt[pkey].pt[key].userValue).length>1){
           // there could be one property for all components, the @root id
           profile.rt[pkey].pt[key].dataLoaded=true
+          profile.rt[pkey].pt[key].userHash=hashCode(JSON.stringify(profile.rt[pkey].pt[key].userValue))
 
           // check if this could be a hidden subject
           let comp = profile.rt[pkey].pt[key]
