@@ -257,6 +257,11 @@
     computed: {
       // other computed properties
       // ...
+      // the panel background behind the components; reuses the unfocused field color so it follows the theme (Main.vue treats transparent as white too)
+      panelBackgroundColor(){
+        let c = this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')
+        return (c && c != 'transparent') ? c : 'white'
+      },
       ...mapStores(usePreferenceStore),
       ...mapStores(useProfileStore),
 
@@ -623,21 +628,21 @@
 
 .edit-panel-work{
   --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')");
-  background-color: white !important;
+  background-color: v-bind(panelBackgroundColor) !important;
   display: flow-root;
   border-radius: 4px;
 }
 
 .edit-panel-hub{
   --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')");
-  background-color: white !important;
+  background-color: v-bind(panelBackgroundColor) !important;
   display: flow-root;
   border-radius: 4px;
 }
 
 .edit-panel-instance{
   --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')");
-  background-color: white !important;
+  background-color: v-bind(panelBackgroundColor) !important;
   display: flow-root;
   border-radius: 4px;
 }
@@ -650,13 +655,13 @@
 
 .edit-panel-item{
   --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')");
-  background-color: white !important;
+  background-color: v-bind(panelBackgroundColor) !important;
   display: flow-root;
   border-radius: 4px;
 }
 .edit-panel-instance-secondary{
   --section-tint: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance-secondary')");
-  background-color: white !important;
+  background-color: v-bind(panelBackgroundColor) !important;
   display: flow-root;
   border-radius: 4px;
 }
