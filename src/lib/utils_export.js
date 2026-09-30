@@ -1632,7 +1632,6 @@ const utilsExport = {
 			let instModified = false
 			let hubModified = false
 			for (let rt in profile.rt){
-				console.info("rt: ", rt)
 				for(let pt in profile.rt[rt].pt){
 					let data = profile.rt[rt].pt[pt]
 					if (data.userModified){

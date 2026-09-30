@@ -59,7 +59,7 @@
 
 
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
-        <div :class="['literal-field', {'read-only': structure.propertyLabel=='Local identifier'}]">
+        <div :class="['literal-field', {'read-only': structure.propertyLabel=='Local identifier', 'simptip-position-top': showToolTip}]" :data-tooltip="showToolTip ? structure.propertyLabel : ''">
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">{{structure.propertyLabel}}</div>
           </template>
@@ -83,6 +83,7 @@
                     :data-guid="lValue['@guid']"
                     :data-parent="guid"
                     :disabled="readOnly"
+                    :placeholder='showPlaceholder ? structure.propertyLabel : ""'
                     ></textarea>
                 </div>
               </div>
@@ -98,7 +99,7 @@
               </template>
               <template v-else>
                 <textarea
-                  :class="['literal-textarea', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'script-text': preferenceStore.returnValue('--n-edit-main-literal-font-size-script') != '1em'}]"
+                  :class="['literal-textarea', 'can-select',{'simptip-position-right': !preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels'), 'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'script-text': preferenceStore.returnValue('--n-edit-main-literal-font-size-script') != '1em'}]"
                   :spellcheck="preferenceStore.returnValue('--b-edit-main-spellcheck')"
                   v-model="lValue.value"
                   v-on:keydown.enter.prevent="submitField"
@@ -114,6 +115,8 @@
                   :data-parent="guid"
                   :disabled="readOnly"
                   :readonly="structure.propertyLabel=='Local identifier'"
+                  :placeholder='showPlaceholder ? structure.propertyLabel : ""'
+                  :data-tooltip='structure.propertyLabel'
                   ></textarea>
               </template>
 
@@ -1278,6 +1281,21 @@ export default {
       return `${this.structure['@guid']}--${this.guid}`
     },
 
+    showPlaceholder(){
+      let parent = this.profileStore.returnStructureByGUID(this.guid)
+      if (parent.propertyLabel == this.structure.propertyLabel) { return false }
+
+      return !this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')
+    },
+
+    showToolTip(){
+      let parent = this.profileStore.returnStructureByGUID(this.guid)
+      if (parent.propertyLabel == this.structure.propertyLabel) { return false }
+
+      let values = this.profileStore.returnLiteralValueFromProfile(this.guid,this.propertyPath)
+      return !this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && values
+    },
+
     literalValues(){
       // profileStore.setActiveField()
       let values = this.profileStore.returnLiteralValueFromProfile(this.guid,this.propertyPath)
@@ -1677,6 +1695,11 @@ textarea:hover{
 
 .isbn-valid {
     color: green;
+}
+
+.simptip-position-top:before,
+.simptip-position-top:after {
+  left: 5% !important;
 }
 
 </style>

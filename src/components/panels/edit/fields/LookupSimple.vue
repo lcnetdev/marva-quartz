@@ -53,7 +53,8 @@
 
       <form autocomplete="off" @submit.prevent="null" >
 
-        <div class="lookup-fake-input" @click="focusClick()" v-if="showField">
+        <!-- <div class="lookup-fake-input" @click="focusClick()" v-if="showField"> -->
+        <div :class="['lookup-fake-input', {'simptip-position-top': showToolTip}]" :data-tooltip="showToolTip ? structure.propertyLabel : ''" @click="focusClick()" v-if="showField">
 
 
 
@@ -78,7 +79,9 @@
                   </div>
                 </div>
                 <div class="lookup-fake-input-text" style="display: inline-block;">
-                  <input v-model="activeValue" class="inline-lookup-input can-select 2" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" :placeholder="activePlaceholderText" />
+                  <input v-model="activeValue" class="inline-lookup-input can-select 2" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly"
+                    :placeholder='(showPlaceholder && activePlaceholderText != "") ? activePlaceholderText : (showPlaceholder ? structure.propertyLabel : "")'
+                  />
                 </div>
 
               </div>
@@ -117,8 +120,11 @@
               </draggable>
             </div>
             <div class="lookup-fake-input-text">
-              <input v-model="activeValue" class="inline-lookup-input can-select 3" ref="lookupInput" :data-guid="structure['@guid']" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" :placeholder="activePlaceholderText" />
+              <input v-model="activeValue" class="inline-lookup-input can-select 3" ref="lookupInput" :data-guid="structure['@guid']" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly"
+                :placeholder='(showPlaceholder && activePlaceholderText != "") ? activePlaceholderText : (showPlaceholder ? structure.propertyLabel : "")'
+              />
             </div>
+
 
 
           </template>
@@ -315,6 +321,20 @@ export default {
 
     ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
     ...mapState(useProfileStore, ['dataChanged']),
+
+    showPlaceholder(){
+      let parent = this.profileStore.returnStructureByGUID(this.guid)
+      if (parent.propertyLabel == this.structure.propertyLabel) { return false }
+
+      return !this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && this.simpleLookupValues.length == 0
+    },
+
+    showToolTip(){
+      let parent = this.profileStore.returnStructureByGUID(this.guid)
+      if (parent.propertyLabel == this.structure.propertyLabel) { return false }
+
+      return !this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && this.simpleLookupValues.length != 0
+    },
 
     getSimpleLookupValues(){
       // profileStore.setActiveField()
@@ -1414,7 +1434,7 @@ export default {
 }
 
 .inline-lookup-input::placeholder{
-  font-size: 0.75em;;
+  /* font-size: 0.75em; */
 }
 
 
@@ -1488,7 +1508,7 @@ export default {
 
 .lookup-fake-input-entities{
   flex-shrink: 1;
-  padding: 0.2em;
+  padding: 0.1em;
   margin-top: 5px;
 }
 
@@ -1615,4 +1635,11 @@ export default {
 .draggable-value:active {
   cursor: grabbing;
 }
+
+.simptip-position-top:before,
+.simptip-position-top:after {
+  left: 5% !important;
+}
+
+
 </style>
