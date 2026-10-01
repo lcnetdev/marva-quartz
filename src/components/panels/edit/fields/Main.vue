@@ -425,31 +425,33 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_contribution"] > div.level-1 > div.
 {
   width: 100%;
 }
+div[id*="Work_id_loc_gov_ontologies_bibframe_contribution"] > div.level-1 > div.COMPLEX > :deep(form),
+div[id*="Work_id_loc_gov_ontologies_bibframe_contribution"] > div.level-1 > div.COMPLEX > :deep(form) > div
+{
+  height: 100%;
+}
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_title__title_information"] > div.LITERAL:last-child
+div[id*="Work_id_loc_gov_ontologies_bibframe_title__title_information"] > div.LITERAL.level-1.child-component:last-child
 {
   border-left: 1px solid gray;
   width: 100%;
 }
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_title__title_information"] > div.LITERAL:nth-last-child(2)
+div[id*="Work_id_loc_gov_ontologies_bibframe_title__title_information"] > div.LITERAL.level-1.child-component:nth-last-child(2)
 {
-  width: 15%;
+  width: 20%;
 }
 
 /* contents. Literal is on it's own line, other's share line */
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"]{
   flex-wrap: wrap;
 }
-
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.LITERAL.level-1.child-component {
   width: 100%;
 }
-
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component > div.SIMPLE.level-1.child-component,
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.level-1.child-component {
   width: 50%;
-  /* flex: 1; */
 }
 
 /* Singltons */
@@ -461,7 +463,7 @@ div.SIMPLE.level-0 > :deep(form:only-child)
 
 
 /* Two components literal and simple */
-div.REF.level-0 > div.LITERAL.level-1:not(:first-child)
+div.REF.level-0 > div.LITERAL.level-1:not(:first-child) + div.SIMPLE
 {
   width: 80%;
 }
