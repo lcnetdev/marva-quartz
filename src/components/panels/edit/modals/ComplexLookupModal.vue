@@ -469,6 +469,15 @@
           }
         }
 
+        let six70s = this.xmlDoc.querySelectorAll('[tag="670"]')
+        for (let varIdx in Array.from(six70s)){
+        // for (let field of six70s){
+          let field = six70s[varIdx]
+          let children = field.children
+          let value = Array.from(children).map((item) => "$" + item.getAttribute('code') + item.textContent).join(' ')
+          this.source670s.push({'note': value, 'field': varIdx})
+        }
+
         // get the $d for the 1XX, as long as there is no $t
         let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
         let childFields = [].slice.call(oneXX.children).map(field => field.getAttribute('code'))
