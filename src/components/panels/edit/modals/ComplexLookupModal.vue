@@ -2242,6 +2242,7 @@
                       <button @click="remove670(idx)" class="material-icons bcp-icon">delete</button>
                     </template> -->
                   </div>
+                  <button @click="add670">Add 670</button>
 
                 <div class="button-container">
                   <label for="refEval" class="all-ref-check">All References Evaluated?</label>
