@@ -2955,10 +2955,10 @@ const utilsExport = {
 		// 670 notes
 		for (let item of updates['source670s']) {
 			if (item.field){ // update existing
+				let target = marc670List[item.field]
+				target.innerHTML = ''
 				for (let sub of Object.keys(item)){
 					if (!['note','field'].includes(sub)){
-						let target = marc670List[item.field]
-						target.innerHTML = ''
 						let subfield = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
 						subfield.setAttribute("code", sub)
 						subfield.innerHTML = item[sub].trim()
