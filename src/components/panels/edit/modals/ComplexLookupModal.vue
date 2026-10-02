@@ -797,7 +797,14 @@
       getBcpSuggestions: async function(){
         if (!this.activeIndex){ return }
         if (this.marcData[this.activeIndex]){
-          this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
+          let value = ''
+          for (const [key, val] of Object.entries(this.marcData[this.activeIndex])) {
+            if (key.startsWith('subfield_')){
+              value = value + " " + val
+            }
+          }
+          // n81018409
+          this.bcpCodes = await utilsNetwork.fetchBCP47Codes(value, this.associatedLang)
         }
         if (this.marcData[this.activeIndex] && !this.marcData[this.activeIndex].bcpSelection){
           this.marcData[this.activeIndex].bcpSelection = []
