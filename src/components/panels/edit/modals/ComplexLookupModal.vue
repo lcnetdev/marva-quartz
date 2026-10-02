@@ -219,14 +219,6 @@
     },
 
     methods: {
-      checkOverflow: function(){
-
-        let target = document.getElementsByClassName('authority-edit')
-        console.info("target: ", target[0])
-
-        return target
-
-      },
       showBCPButton: function(key, data){
         let show = false
 
