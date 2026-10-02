@@ -469,6 +469,15 @@
           }
         }
 
+        let six70s = this.xmlDoc.querySelectorAll('[tag="670"]')
+        for (let varIdx in Array.from(six70s)){
+        // for (let field of six70s){
+          let field = six70s[varIdx]
+          let children = field.children
+          let value = Array.from(children).map((item) => "$" + item.getAttribute('code') + item.textContent).join(' ')
+          this.source670s.push({'note': value, 'field': varIdx})
+        }
+
         // get the $d for the 1XX, as long as there is no $t
         let oneXX = this.xmlDoc.querySelectorAll('[tag="' + this.tag +'"]')[0]
         let childFields = [].slice.call(oneXX.children).map(field => field.getAttribute('code'))
@@ -788,7 +797,14 @@
       getBcpSuggestions: async function(){
         if (!this.activeIndex){ return }
         if (this.marcData[this.activeIndex]){
-          this.bcpCodes = await utilsNetwork.fetchBCP47Codes(this.marcData[this.activeIndex]["subfield_a"], this.associatedLang)
+          let value = ''
+          for (const [key, val] of Object.entries(this.marcData[this.activeIndex])) {
+            if (key.startsWith('subfield_')){
+              value = value + " " + val
+            }
+          }
+          // n81018409
+          this.bcpCodes = await utilsNetwork.fetchBCP47Codes(value, this.associatedLang)
         }
         if (this.marcData[this.activeIndex] && !this.marcData[this.activeIndex].bcpSelection){
           this.marcData[this.activeIndex].bcpSelection = []
@@ -2221,7 +2237,7 @@
                     </table>
                   </div>
 
-                  <button @click="add670">Add 670</button>
+                  <!-- <button @click="add670">Add 670</button> -->
                   <div class="new-value-container" v-if="source670s.length > 0">
                     <!-- 667 Note: <textarea type=text v v-model='note667' class="eval-note" /> -->
                     <template v-for="(code, idx) of source670s">
@@ -2232,7 +2248,9 @@
                       670 Note: <textarea type=text v-model='idx.note' class="eval-note" /><br>
                       <button @click="remove670(idx)" class="material-icons bcp-icon">delete</button>
                     </template> -->
+                    <button @click="add670">Add 670</button>
                   </div>
+
 
                 <div class="button-container">
                   <label for="refEval" class="all-ref-check">All References Evaluated?</label>

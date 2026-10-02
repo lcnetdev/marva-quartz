@@ -2954,21 +2954,34 @@ const utilsExport = {
 
 		// 670 notes
 		for (let item of updates['source670s']) {
-			let note670 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
-			note670.setAttribute('tag', '670')
-			note670.setAttribute('ind1', " ")
-			note670.setAttribute('ind2', " ")
-			if (Object.keys(item).length > 0){
-				for (let sub of Object.keys(item)) {
-					if (sub != 'note') {
+			if (item.field){ // update existing
+				for (let sub of Object.keys(item)){
+					if (!['note','field'].includes(sub)){
+						let target = marc670List[item.field]
+						target.innerHTML = ''
 						let subfield = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
 						subfield.setAttribute("code", sub)
 						subfield.innerHTML = item[sub].trim()
-						note670.appendChild(subfield)
+						target.appendChild(subfield)
 					}
 				}
-				marc670List = record.querySelectorAll('[tag="667"]')
-				record.appendChild(note670)
+			} else { // create new 670
+				let note670 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+				note670.setAttribute('tag', '670')
+				note670.setAttribute('ind1', " ")
+				note670.setAttribute('ind2', " ")
+				if (Object.keys(item).length > 0){
+					for (let sub of Object.keys(item)) {
+						if (sub != 'note') {
+							let subfield = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+							subfield.setAttribute("code", sub)
+							subfield.innerHTML = item[sub].trim()
+							note670.appendChild(subfield)
+						}
+					}
+					marc670List = record.querySelectorAll('[tag="667"]')
+					record.appendChild(note670)
+				}
 			}
 		}
 
