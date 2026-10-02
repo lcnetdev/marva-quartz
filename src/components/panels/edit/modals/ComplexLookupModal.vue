@@ -219,6 +219,14 @@
     },
 
     methods: {
+      checkOverflow: function(){
+
+        let target = document.getElementsByClassName('authority-edit')
+        console.info("target: ", target[0])
+
+        return target
+
+      },
       showBCPButton: function(key, data){
         let show = false
 
@@ -2237,7 +2245,7 @@
                     </table>
                   </div>
 
-                  <button @click="add670">Add 670</button>
+                  <!-- <button @click="add670">Add 670</button> -->
                   <div class="new-value-container" v-if="source670s.length > 0">
                     <!-- 667 Note: <textarea type=text v v-model='note667' class="eval-note" /> -->
                     <template v-for="(code, idx) of source670s">
@@ -2248,8 +2256,9 @@
                       670 Note: <textarea type=text v-model='idx.note' class="eval-note" /><br>
                       <button @click="remove670(idx)" class="material-icons bcp-icon">delete</button>
                     </template> -->
+                    <button @click="add670">Add 670</button>
                   </div>
-                  <button @click="add670">Add 670</button>
+
 
                 <div class="button-container">
                   <label for="refEval" class="all-ref-check">All References Evaluated?</label>
