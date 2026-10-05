@@ -49,7 +49,8 @@
   <!-- <div>Complext Lookup ({{propertyPath.map((x)=>{return x.propertyURI}).join('->')}})</div> -->
       <form autocomplete="off" v-on:submit.prevent >
 
-        <div class="lookup-fake-input" @click="focusClick()">
+        <div :class="['lookup-fake-input', {'simptip-position-top': showToolTip}]" :data-tooltip="showToolTip ? structure.propertyLabel : ''" @click="focusClick()">
+        <!-- <div class="lookup-fake-input" @click="focusClick()"> -->
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && complexLookupValues.length==0"  class="lookup-fake-input-label" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">{{structure.propertyLabel}}</div>
@@ -77,7 +78,9 @@
                       </div>
                     </div>
 
-                    <input style="width:auto" @keyup="navKey" class="can-select" :data-field-guid="guid" :data-guid="structure['@guid']" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
+                    <input style="width:auto" @keyup="navKey" class="can-select" :data-field-guid="guid" :data-guid="structure['@guid']" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly"
+                      :placeholder='showPlaceholder ? structure.propertyLabel : ""'
+                    />
                     <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
                   </div>
                 </div>
@@ -112,7 +115,9 @@
             </div>
 
             <div class="lookup-fake-input-text">
-              <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" :data-field-guid="guid" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
+              <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" :data-field-guid="guid" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly"
+                :placeholder='showPlaceholder ? structure.propertyLabel : ""'
+              />
                 <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
             </div>
           </template>
@@ -276,7 +281,20 @@ export default {
 
     ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
 
+    showPlaceholder(){
+      // avoid duplicating when there's only 1 component and it matches the overall label
+      let parent = this.profileStore.returnStructureByGUID(this.guid)
+      if (parent.propertyLabel == this.structure.propertyLabel) { return false }
 
+      return !this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && this.complexLookupValues.length == 0
+    },
+
+    showToolTip(){
+      let parent = this.profileStore.returnStructureByGUID(this.guid)
+      if (parent.propertyLabel == this.structure.propertyLabel) { return false }
+
+      return !this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && this.complexLookupValues.length != 0
+    },
 
     complexLookupValues(){
       try{
@@ -911,5 +929,9 @@ export default {
   padding: unset;
 }
 
+.simptip-position-top:before,
+.simptip-position-top:after {
+  left: 5% !important;
+}
 
 </style>
