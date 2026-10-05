@@ -493,6 +493,20 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"
   width: 50%;
 }
 
+/* Related work not held by LC  */
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] {
+  flex-wrap: wrap;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] > div.REF {
+  width: 100%;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] > div.REF:nth-child(n+1) {
+  width: 50%;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] > div.REF > div.LITERAL {
+  flex: 1 1 50%;
+}
+
 
 
 
