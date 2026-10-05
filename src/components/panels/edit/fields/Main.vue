@@ -393,8 +393,6 @@ export default {
 
 
 <style scoped>
-
-
 .inline-mode{
   background-color: white;
   display: inline;
@@ -409,60 +407,42 @@ export default {
 
 .child-component {
   border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
-}
-
-.REF.level-1 {
   margin-bottom: 0px;
 }
 
-
-div[id*="Work_id_loc_gov_ontologies_bibframe_contribution"] > :deep(div > select),
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"] > :deep(select),
-div[id*="Work_id_loc_gov_ontologies_bibframe_subject__subjects"] > :deep(select),
-div[id*="Work_id_loc_gov_ontologies_bibframe_title__title_information"] > :deep(select),
-div[id*="Instance_id_loc_gov_ontologies_bibframe_title__title_information"] > :deep(select)
-{
-  width: fit-content;
+/* <select> 100% when they are independent*/
+div.component > :deep(select) {
+  width: fit-content !important;
+  /* width: 100%; */
 }
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_contribution"] > div.level-1 > div.COMPLEX
-{
-  width: 100%;
-}
-div[id*="Work_id_loc_gov_ontologies_bibframe_contribution"] > div.level-1 > div.COMPLEX > :deep(form),
-div[id*="Work_id_loc_gov_ontologies_bibframe_contribution"] > div.level-1 > div.COMPLEX > :deep(form) > div
-{
-  height: 100%;
+/* <select> fit to content when they are nested with another component*/
+div.component > * > :deep(select) {
+  width: fit-content !important;
+  /* width: 100%; */
 }
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_title__title_information"] > div.LITERAL.level-1.child-component:last-child
-{
-  border-left: 1px solid gray;
-  width: 100%;
+div.COMPLEX {
+  flex: 1 1 50%;
+}
+div.SIMPLE {
+  flex: 1 1 33%;
 }
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_title__title_information"] > div.LITERAL.level-1.child-component:nth-last-child(2)
-{
-  width: 20%;
+div.LITERAL {
+  flex: 1 1 80%;
 }
 
-/* contents. Literal is on it's own line, other's share line */
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"]{
-  flex-wrap: wrap;
-}
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.LITERAL.level-1.child-component {
-  width: 100%;
-}
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component > div.SIMPLE.level-1.child-component,
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.level-1.child-component {
-  width: 50%;
+/* non-sort */
+div[id*="id_loc_gov_ontologies_bibframe_title__title_information"].component > :deep(div.LITERAL:nth-child(2)) {
+  flex: 1 1 20% !important;
 }
 
 /* Classification, drop down and literals on one line, simple on the next */
 div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]{
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"] > :deep(select) {
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].component > :deep(select){
   width: 100% !important;
 }
 div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0 > :deep(div.LITERAL) {
@@ -473,64 +453,31 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numb
   flex: 1 0 33%;
 }
 
-/* Singltons */
-div.COMPLEX.level-1:only-child,
-div.SIMPLE.level-0 > :deep(form:only-child)
-{
-  width: 100% !important;
+/* contents. Literal is on it's own line, other's share line */
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"]{
+  flex-wrap: wrap;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.LITERAL.level-1.child-component {
+  flex: 1 1 100%;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component > div.SIMPLE.level-1.child-component,
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.level-1.child-component {
+  flex: 1 1 50%;
 }
 
 
-/* Two components literal and simple */
-div.REF.level-0 > div.LITERAL.level-1:not(:first-child) + div.SIMPLE
-{
-  width: 80%;
-}
-
-div.REF.level-0 > div.SIMPLE
-{
-  width: 20%;
-}
-
-/* both simple */
-div.REF.level-0 > div.SIMPLE.level-1
-{
-  width: calc(100% / sibling-count())
-}
-
-/* both literals */
-div.REF.level-0 > div.REF.level-1.child-component > div.LITERAL
-{
-  width: 100%;
-}
-
-/* complex , simple */
-div.REF.level-0.component > div.COMPLEX,
-div.REF.level-0.component > div.SIMPLE {
-  width: calc(100% / sibling-count())
-}
-
-/* Two components both lookups */
-div.COMPLEX.level-0 > :deep(form),
-div.SIMPLE.level-0 > :deep(form),
-div.LITERAL.level-0 > :deep(div),
-div.REF.level-0 > div.LITERAL
-{
-  width: calc(100% / sibling-count())
-}
-
-/* subject input */
-div.REF.level-0.component > div.REF.level-1.component.child-component > div.COMPLEX.level-2.child-component{
-  width: 100%;
-}
 
 
 </style>
 
 <style>
 
-.lookup-fake-input-entities{
+div.component > form,
+div.component > * > form {
+  height: 100%;
+  width: 100%;
   align-content: center;
 }
+
 
 </style>
