@@ -1,120 +1,129 @@
 <template>
-    !!{{ lccFeatureData }}!!
-    <div class="classweb-links">
-        <a style="color:black" v-if="lccFeatureData.classNumber"
-            :href="'https://' + classWebURL() + '/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan=' + lccFeatureData.classNumber + '&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'"
-            target="_blank">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br />
-        <a style="color:black" v-if="lccFeatureData.classNumber"
-            :href="'https://' + classWebURL() + '/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + lccFeatureData.classNumber"
-            target="_blank">ClassWeb Browse: {{ lccFeatureData.classNumber }}</a><br />
-        <a style="color:black" v-if="lccFeatureData.firstSubject"
-            :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=' + lccFeatureData.firstSubject"
-            target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br />
-        <a style="color:black" v-if="lccFeatureData.secondSubject"
-            :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=' + lccFeatureData.secondSubject"
-            target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a><br />
-    </div>
+    <div class="cutter-container">
+        <div class="cutter-calc">
+            <fieldset
+                v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length > 0) || lccFeatureData.title || lccFeatureData.firstSubject">
+                <legend>Cutter Calculator</legend>
+                <template v-if="lccFeatureData.contributors">
 
-    <div class="cutter-calc">
-        <fieldset
-            v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length > 0) || lccFeatureData.title || lccFeatureData.firstSubject">
-            <legend>Cutter Calculator</legend>
-            <template v-if="lccFeatureData.contributors">
+                    <template v-if="lccFeatureData.contributors[0]">
+                        <div>
+                            <span style="font-weight: bold;">{{ lccFeatureData.contributors[0].label.substring(0,
+                                parseInt(cutterCalcLength)) }}</span>
+                            <span>{{ lccFeatureData.contributors[0].label.substring(parseInt(cutterCalcLength))
+                            }}</span>
+                            <input type="text"
+                                :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].label, cutterCalcLength).substring(0, cutterCalcLength)">
+                            <a style="font-size: 0.85em; padding-left: 0.5em;"
+                                @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(lccFeatureData.contributors[0].label, cutterCalcLength).substring(0, cutterCalcLength))"
+                                href="#">Use</a>
+                        </div>
 
-                <template v-if="lccFeatureData.contributors[0]">
+                        <div>
+                            <span style="font-weight: bold;">{{
+                                lccFeatureData.contributors[0].secondLetterLabel.substring(0,
+                                    parseInt(cutterCalcLength))
+                            }}</span>
+                            <span>{{
+                                lccFeatureData.contributors[0].secondLetterLabel.substring(parseInt(cutterCalcLength))
+                            }}</span>
+                            <input type="text"
+                                :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].secondLetterLabel, cutterCalcLength).substring(0, cutterCalcLength)">
+                            <a style="font-size: 0.85em; padding-left: 0.5em;"
+                                @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(lccFeatureData.contributors[0].secondLetterLabel, cutterCalcLength).substring(0, cutterCalcLength))"
+                                href="#">Use</a>
+                        </div>
+
+                    </template>
+                    <template v-if="lccFeatureData.contributors[1]">
+                        <div>
+                            <span style="font-weight: bold;">{{ lccFeatureData.contributors[1].label.substring(0,
+                                cutterCalcLength) }}</span>
+                            <span>{{ lccFeatureData.contributors[1].label.substring(parseInt(cutterCalcLength))
+                            }}</span>
+                            <input type="text"
+                                :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[1].label, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
+                            <a style="font-size: 0.85em; padding-left: 0.5em;"
+                                @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(lccFeatureData.contributors[1].label, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength)))"
+                                href="#">Use</a>
+                        </div>
+                    </template>
+                    <template v-if="lccFeatureData.title">
+                        <div>
+                            <span style="font-weight: bold;">{{ lccFeatureData.title.substring(0,
+                                parseInt(cutterCalcLength)) }}</span>
+                            <span>{{ lccFeatureData.title.substring(parseInt(cutterCalcLength),
+                                parseInt(cutterCalcLength) + 12) }}</span>
+                            <input type="text"
+                                :value="usePeriodInCutter() + calculateCutter(lccFeatureData.title, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
+                            <a style="font-size: 0.85em; padding-left: 0.5em;"
+                                @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(lccFeatureData.title, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength)))"
+                                href="#">Use</a>
+                        </div>
+                    </template>
+
                     <div>
-                        <span style="font-weight: bold;">{{ lccFeatureData.contributors[0].label.substring(0,
-                            parseInt(cutterCalcLength)) }}</span>
-                        <span>{{ lccFeatureData.contributors[0].label.substring(parseInt(cutterCalcLength)) }}</span>
-                        <input type="text"
-                            :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].label, cutterCalcLength).substring(0, cutterCalcLength)">
-                        <a style="font-size: 0.85em; padding-left: 0.5em;"
-                            @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(lccFeatureData.contributors[0].label, cutterCalcLength).substring(0, cutterCalcLength))"
-                            href="#">Use</a>
-                    </div>
-
-                    <div>
-                        <span style="font-weight: bold;">{{
-                            lccFeatureData.contributors[0].secondLetterLabel.substring(0, parseInt(cutterCalcLength))
+                        <span style="font-weight: bold;">{{ freeFormCutter.substring(0, parseInt(cutterCalcLength))
                         }}</span>
-                        <span>{{ lccFeatureData.contributors[0].secondLetterLabel.substring(parseInt(cutterCalcLength))
+                        <span>{{ freeFormCutter.substring(parseInt(cutterCalcLength), parseInt(cutterCalcLength) + 12)
                         }}</span>
+                        <input placeholder="Free Form Cutter Input" v-model="freeFormCutter">
                         <input type="text"
-                            :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].secondLetterLabel, cutterCalcLength).substring(0, cutterCalcLength)">
+                            :value="usePeriodInCutter() + calculateCutter(freeFormCutter, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
                         <a style="font-size: 0.85em; padding-left: 0.5em;"
-                            @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(lccFeatureData.contributors[0].secondLetterLabel, cutterCalcLength).substring(0, cutterCalcLength))"
-                            href="#">Use</a>
-                    </div>
-
-                </template>
-                <template v-if="lccFeatureData.contributors[1]">
-                    <div>
-                        <span style="font-weight: bold;">{{ lccFeatureData.contributors[1].label.substring(0, cutterCalcLength) }}</span>
-                        <span>{{ lccFeatureData.contributors[1].label.substring(parseInt(cutterCalcLength)) }}</span>
-                        <input type="text"
-                            :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[1].label, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
-                        <a style="font-size: 0.85em; padding-left: 0.5em;"
-                            @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(lccFeatureData.contributors[1].label, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength)))"
-                            href="#">Use</a>
-                    </div>
-                </template>
-                <template v-if="lccFeatureData.title">
-                    <div>
-                        <span style="font-weight: bold;">{{ lccFeatureData.title.substring(0,
-                            parseInt(cutterCalcLength)) }}</span>
-                        <span>{{ lccFeatureData.title.substring(parseInt(cutterCalcLength), parseInt(cutterCalcLength) +
-                            12) }}</span>
-                        <input type="text"
-                            :value="usePeriodInCutter() + calculateCutter(lccFeatureData.title, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
-                        <a style="font-size: 0.85em; padding-left: 0.5em;"
-                            @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(lccFeatureData.title, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength)))"
+                            @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(freeFormCutter, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength)))"
                             href="#">Use</a>
                     </div>
                 </template>
 
                 <div>
-                    <span style="font-weight: bold;">{{ freeFormCutter.substring(0, parseInt(cutterCalcLength))
-                    }}</span>
-                    <span>{{ freeFormCutter.substring(parseInt(cutterCalcLength), parseInt(cutterCalcLength) + 12)
-                    }}</span>
-                    <input placeholder="Free Form Cutter Input" v-model="freeFormCutter">
-                    <input type="text"
-                        :value="usePeriodInCutter() + calculateCutter(freeFormCutter, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
-                    <a style="font-size: 0.85em; padding-left: 0.5em;"
-                        @click.prevent="setLccInfo(lccFeatureData.cutterGuid, calculateCutter(freeFormCutter, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength)))"
-                        href="#">Use</a>
-                </div>
-            </template>
-
-            <div>
-                <input type="range" v-model="cutterCalcLength" id="cutterCalcLength" name="cutterCalcLength" min="0"
-                    max="6" step="1" />
-                <label for="cutterCalcLength" style="font-size: 0.8em; vertical-align: text-top;">Calc Length ({{
-                    cutterCalcLength
+                    <input type="range" v-model="cutterCalcLength" id="cutterCalcLength" name="cutterCalcLength" min="0"
+                        max="6" step="1" />
+                    <label for="cutterCalcLength" style="font-size: 0.8em; vertical-align: text-top;">Calc Length ({{
+                        cutterCalcLength
                     }})</label>
+                </div>
+
+
+            </fieldset>
+        </div>
+
+        <div class="links">
+            <div class="classweb-links">
+                <a style="color:black" v-if="lccFeatureData.classNumber"
+                    :href="'https://' + classWebURL() + '/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan=' + lccFeatureData.classNumber + '&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'"
+                    target="_blank">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br />
+                <a style="color:black" v-if="lccFeatureData.classNumber"
+                    :href="'https://' + classWebURL() + '/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + lccFeatureData.classNumber"
+                    target="_blank">ClassWeb Browse: {{ lccFeatureData.classNumber }}</a><br />
+                <a style="color:black" v-if="lccFeatureData.firstSubject"
+                    :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=' + lccFeatureData.firstSubject"
+                    target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br />
+                <a style="color:black" v-if="lccFeatureData.secondSubject"
+                    :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=' + lccFeatureData.secondSubject"
+                    target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a><br />
             </div>
 
+            <div class="external-links">
+                <ul>
+                    <template v-for="(item, idx) in preferences">
+                        <li v-if="item[1] && preferenceStore.returnValue(item[1]) != ''">
+                            <a :href="preferenceStore.returnValue(item[1])" target="_blank">
+                                {{ preferenceStore.returnValue(item[0]) != "" ? preferenceStore.returnValue(item[0]) :
+                                preferenceStore.returnValue(item[1]) }}
+                                <span class="material-icons" style="font-size: 14px;">open_in_new</span>
+                            </a>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </div>
 
-        </fieldset>
+        <div class="shelflist-search">
+            <button @click="openShelfListSearch">Shelf List Search</button>
+        </div>
     </div>
 
-    <div class="external-links">
-        <ul>
-            <template v-for="(item, idx) in preferences">
-                <li v-if="item[1] && preferenceStore.returnValue(item[1]) != ''">
-                    <a :href="preferenceStore.returnValue(item[1])" target="_blank">
-                        {{ preferenceStore.returnValue(item[0]) != "" ? preferenceStore.returnValue(item[0]) :
-                            preferenceStore.returnValue(item[1]) }}
-                        <span class="material-icons" style="font-size: 14px;">open_in_new</span>
-                    </a>
-                </li>
-            </template>
-        </ul>
-    </div>
-
-    <div class="shelflist-search">
-        <button @click="openShelfListSearch">Shelf List Search</button>
-    </div>
 </template>
 
 
@@ -140,7 +149,27 @@ export default {
         structure: Object,
     },
 
-    methods: { },
+    methods: {
+        classWebURL() {
+            let url = "classweb.org"
+            if (useConfigStore().returnUrls.env == 'staging') {
+                url = "test." + url
+            }
+            return url
+        },
+
+        usePeriodInCutter() {
+            if (this.lccFeatureData && this.lccFeatureData.classNumber && this.lccFeatureData.classNumber.indexOf(".") > -1) {
+                return ''
+            } else {
+                return '.'
+            }
+        },
+
+        calculateCutter(toCut, howLong) {
+            return utilsMisc.calculateCutter(toCut, howLong)
+        },
+    },
     computed: {
         // other computed properties
         // ...
@@ -155,9 +184,16 @@ export default {
 
         lccFeatureData() {
             this.lccFeatureDataCounter
+            console.info("lccFeatureData")
+            console.info("\t lccFeatureProperties: ", this.lccFeatureProperties)
+            console.info("\t target: ", this.propertyPath)
+            console.info("\t if?: ", this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length - 1].propertyURI))
+
+
             if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length - 1].propertyURI) > -1) {
 
                 let data = this.profileStore.returnLccInfo(this.guid, this.structure)
+                console.info("\t data: ", data)
                 // console.log("HERE for LCC data", data,  this.guid, this.structure)
 
                 // if it is a MLC number we dont need to show the extra interface
@@ -175,26 +211,65 @@ export default {
     },
 
 
-    watch: { },
+    watch: {},
 
     data: function () {
         return {
             activeGuid: this.guid,
             freeFormCutter: '',
             lccFeatureDataCounter: 0,
-
             hasNoData: false,
             showField: true,
-
+            preferences: {},
             cutterCalcLength: 3,
         }
     },
 
-    mounted: function () { },
+    mounted: function () {
+        //get the preferences to load into the page
+        for (let k in this.styleDefault) {
+            if (k.includes("shelflist-link")) {
+                let o = Object.assign({}, this.styleDefault[k])
+                if (o.index in this.preferences) {
+                    //save `k` so the information in the page will match the preferences in real time
+                    this.preferences[o.index].push(k)
+                } else {
+                    this.preferences[o.index] = [k]
+                }
+            }
+        }
+    },
     created: function () {
         this.cutterCalcLength = this.preferenceStore.returnValue('--b-shelflist-cutter-length')
     },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.cutter-container {
+    display: flex;
+}
+
+.cutter-calc {
+
+}
+
+.links {
+    padding: 5px;
+}
+
+.external-links>ul>li {
+    list-style: none;
+}
+
+.external-links>ul {
+    padding: 0px;
+}
+
+.shelflist-search {
+    flex: 1 1 0%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>

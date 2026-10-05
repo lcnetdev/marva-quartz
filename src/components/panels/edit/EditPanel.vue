@@ -195,8 +195,8 @@
 
                         <ClassTools v-if="profileCompoent.includes('classification__classification_numbers')"
                           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
-                          propertyPath="{}"
-                          structure="{}"
+                          :propertyPath='[ { "level": 0, "propertyURI": "http://id.loc.gov/ontologies/bibframe/classification" }, { "level": 1, "propertyURI": "http://id.loc.gov/ontologies/bibframe/itemPortion" } ]'
+                          :structure="profileStore.returnStructureByComponentGuid(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])"
                         />
 
                         <!-- There's a hidden subject -->
