@@ -400,7 +400,7 @@ export default {
 
 }
 
-.component {
+.component.level-0{
   width: 100%;
   display: flex;
 }
@@ -413,13 +413,15 @@ export default {
 /* <select> 100% when they are independent*/
 div.component > :deep(select) {
   width: fit-content !important;
-  /* width: 100%; */
 }
 
 /* <select> fit to content when they are nested with another component*/
 div.component > * > :deep(select) {
   width: fit-content !important;
-  /* width: 100%; */
+}
+
+div.REF{
+  display: flex;
 }
 
 div.COMPLEX {
@@ -434,6 +436,7 @@ div.LITERAL {
 }
 
 /* non-sort */
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:nth-child(1)) ,
 div[id*="id_loc_gov_ontologies_bibframe_title__title_information"].component > :deep(div.LITERAL:nth-child(2)) {
   flex: 1 1 20% !important;
 }
@@ -463,6 +466,31 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.L
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component > div.SIMPLE.level-1.child-component,
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.level-1.child-component {
   flex: 1 1 50%;
+}
+
+/* input transcribed series */
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] {
+  flex-wrap: wrap;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1:first-child{
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].level-0  > div.REF.level-1:nth-child(2),
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.LITERAL.level-1.child-component,
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1.child-component > div.LITERAL.level-2 {
+  flex: 1 1 33%;
+}
+
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1 > div.REF.level-2:nth-child(1) {
+  display: flex;
+  width: 100%;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1 > div.REF.level-2.component.child-component:nth-child(3) {
+  display: flex;
+  width: 50%;
 }
 
 
