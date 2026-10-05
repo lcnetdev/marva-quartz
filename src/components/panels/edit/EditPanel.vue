@@ -193,6 +193,12 @@
                             </template>
                         </div>
 
+                        <ClassTools v-if="profileCompoent.includes('classification__classification_numbers')"
+                          :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                          propertyPath="{}"
+                          structure="{}"
+                        />
+
                         <!-- There's a hidden subject -->
                         <template v-if="(preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hideSubject) || (preferenceStore.returnValue('--b-edit-main-hide-non-lc-class-numbers') && activeProfile.rt[profileName].pt[profileCompoent].hideClassNum)">
                           <div v-if="numberHiddenShown(activeProfile).hiddenSubject > 0 || numberHiddenShown(activeProfile).hiddenClassNumbers > 0"></div>
@@ -228,7 +234,7 @@
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
   import InlineModeAddField from "@/components/panels/edit/fields/helpers/InlineModeAddField.vue";
-
+import ClassTools  from "@/components/panels/edit/modals/helpers/ClassificationTools.vue"
 
 
   // import Main from "@/components/panels/edit/fields/Main.vue";
@@ -236,7 +242,7 @@
 
 
   export default {
-    components: {InlineModeAddField  },
+    components: {InlineModeAddField, ClassTools  },
     props: {
 
       instanceMode: Boolean,

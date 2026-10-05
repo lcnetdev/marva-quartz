@@ -1,4 +1,5 @@
 <template>
+    !!{{ lccFeatureData }}!!
     <div class="classweb-links">
         <a style="color:black" v-if="lccFeatureData.classNumber"
             :href="'https://' + classWebURL() + '/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan=' + lccFeatureData.classNumber + '&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'"
@@ -35,9 +36,9 @@
                     <div>
                         <span style="font-weight: bold;">{{
                             lccFeatureData.contributors[0].secondLetterLabel.substring(0, parseInt(cutterCalcLength))
-                            }}</span>
+                        }}</span>
                         <span>{{ lccFeatureData.contributors[0].secondLetterLabel.substring(parseInt(cutterCalcLength))
-                            }}</span>
+                        }}</span>
                         <input type="text"
                             :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].secondLetterLabel, cutterCalcLength).substring(0, cutterCalcLength)">
                         <a style="font-size: 0.85em; padding-left: 0.5em;"
@@ -48,8 +49,7 @@
                 </template>
                 <template v-if="lccFeatureData.contributors[1]">
                     <div>
-                        <span style="font-weight: bold;">{{ lccFeatureData.contributors[1].label.substring(0,
-                            cutterCalcLength) }}</span>
+                        <span style="font-weight: bold;">{{ lccFeatureData.contributors[1].label.substring(0, cutterCalcLength) }}</span>
                         <span>{{ lccFeatureData.contributors[1].label.substring(parseInt(cutterCalcLength)) }}</span>
                         <input type="text"
                             :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[1].label, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
@@ -74,9 +74,9 @@
 
                 <div>
                     <span style="font-weight: bold;">{{ freeFormCutter.substring(0, parseInt(cutterCalcLength))
-                        }}</span>
+                    }}</span>
                     <span>{{ freeFormCutter.substring(parseInt(cutterCalcLength), parseInt(cutterCalcLength) + 12)
-                        }}</span>
+                    }}</span>
                     <input placeholder="Free Form Cutter Input" v-model="freeFormCutter">
                     <input type="text"
                         :value="usePeriodInCutter() + calculateCutter(freeFormCutter, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
@@ -91,7 +91,7 @@
                     max="6" step="1" />
                 <label for="cutterCalcLength" style="font-size: 0.8em; vertical-align: text-top;">Calc Length ({{
                     cutterCalcLength
-                }})</label>
+                    }})</label>
             </div>
 
 
@@ -104,7 +104,7 @@
                 <li v-if="item[1] && preferenceStore.returnValue(item[1]) != ''">
                     <a :href="preferenceStore.returnValue(item[1])" target="_blank">
                         {{ preferenceStore.returnValue(item[0]) != "" ? preferenceStore.returnValue(item[0]) :
-                            preferenceStore.returnValue(item[1])}}
+                            preferenceStore.returnValue(item[1]) }}
                         <span class="material-icons" style="font-size: 14px;">open_in_new</span>
                     </a>
                 </li>
@@ -116,3 +116,85 @@
         <button @click="openShelfListSearch">Shelf List Search</button>
     </div>
 </template>
+
+
+<script>
+
+import { useProfileStore } from '@/stores/profile'
+import { usePreferenceStore } from '@/stores/preference'
+import { useConfigStore } from '@/stores/config'
+
+import { mapStores, mapState, mapWritableState } from 'pinia'
+
+import utilsMisc from '@/lib/utils_misc'
+import utilsNetwork from '@/lib/utils_network'
+
+
+export default {
+    name: "ClassTools",
+    components: {},
+
+    props: {
+        guid: String,
+        propertyPath: Array,
+        structure: Object,
+    },
+
+    methods: { },
+    computed: {
+        // other computed properties
+        // ...
+        // gives access to this.counterStore and this.userStore
+        ...mapStores(useProfileStore),
+        ...mapStores(usePreferenceStore),
+
+        ...mapState(useConfigStore, ['scriptShifterLangCodes', 'lccFeatureProperties']),
+        ...mapWritableState(useProfileStore, ['showShelfListingModal', 'activeField', 'activeProfile', 'literalLangShow', 'literalLangInfo', 'dataChangedTimestamp', 'activeShelfListData', 'pairedLitearlIndicatorLookup']),
+        ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks', 'showPrefModal', 'showPrefModalgroup', 'styleDefault', 'showPrefModalGroup', 'fontFamilies', 'returnValue']),
+
+
+        lccFeatureData() {
+            this.lccFeatureDataCounter
+            if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length - 1].propertyURI) > -1) {
+
+                let data = this.profileStore.returnLccInfo(this.guid, this.structure)
+                // console.log("HERE for LCC data", data,  this.guid, this.structure)
+
+                // if it is a MLC number we dont need to show the extra interface
+                if (data && data.classNumber && data.classNumber.startsWith("MLC")) { return false }
+
+                if (data.contributors && data.contributors.length > 0) {
+                    data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
+                }
+
+                return data
+            }
+            return false
+        },
+
+    },
+
+
+    watch: { },
+
+    data: function () {
+        return {
+            activeGuid: this.guid,
+            freeFormCutter: '',
+            lccFeatureDataCounter: 0,
+
+            hasNoData: false,
+            showField: true,
+
+            cutterCalcLength: 3,
+        }
+    },
+
+    mounted: function () { },
+    created: function () {
+        this.cutterCalcLength = this.preferenceStore.returnValue('--b-shelflist-cutter-length')
+    },
+};
+</script>
+
+<style scoped></style>

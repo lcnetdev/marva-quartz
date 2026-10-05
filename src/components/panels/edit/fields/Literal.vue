@@ -239,8 +239,6 @@
     </template>
   </template>
 
-
-
 </template>
 
 <script>
@@ -311,17 +309,6 @@ function setCurrentCursorPosition(chars,el) {
         }
     }
 };
-
-
-
-
-
-
-
-
-
-
-
 
 
 
