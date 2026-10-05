@@ -454,6 +454,20 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.l
   width: 50%;
 }
 
+/* Classification, drop down and literals on one line, simple on the next */
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]{
+  flex-wrap: wrap;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"] > :deep(select) {
+  width: 100% !important;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0 > :deep(div.LITERAL) {
+  width: 50%;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0 > :deep(div.SIMPLE.level-1.child-component) {
+  width: 50% !important;
+}
+
 /* Singltons */
 div.COMPLEX.level-1:only-child,
 div.SIMPLE.level-0 > :deep(form:only-child)
