@@ -407,6 +407,10 @@ export default {
   display: flex;
 }
 
+.child-component {
+  border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+}
+
 .REF.level-1 {
   margin-bottom: 0px;
 }
@@ -462,10 +466,11 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numb
   width: 100% !important;
 }
 div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0 > :deep(div.LITERAL) {
-  width: 50%;
+  flex: 1 0 50%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0 > :deep(div.SIMPLE.level-1.child-component) {
-  width: 50% !important;
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0 > :deep(div.level-1:nth-child(n+4))
+{
+  flex: 1 0 33%;
 }
 
 /* Singltons */
@@ -512,6 +517,11 @@ div.LITERAL.level-0 > :deep(div),
 div.REF.level-0 > div.LITERAL
 {
   width: calc(100% / sibling-count())
+}
+
+/* subject input */
+div.REF.level-0.component > div.REF.level-1.component.child-component > div.COMPLEX.level-2.child-component{
+  width: 100%;
 }
 
 
