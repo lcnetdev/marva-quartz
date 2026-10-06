@@ -48,7 +48,7 @@
       :guid="guid"
       :readOnly="readOnly"
     />
-    <div v-if="level == 0 && componentType=='REF'" class="button-holder">
+    <div v-if="level == 0 && preferenceStore.returnValue('--b-edit-main-compact')" class="button-holder">
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="removeComponent(parentId, id)">delete</span>
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="addComponent(parentId, id)">add</span>
     </div>
@@ -421,8 +421,33 @@ export default {
 }
 
 .child-component.compact {
-  border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
   margin-bottom: 0px;
+}
+
+div.REF.compact,
+div.REF.compact > :deep(*),
+div.REF.compact > * > :deep(*),
+div.REF.compact > * > * > :deep(*)
+{
+  border: none;
+}
+
+div.REF.level-0.compact {
+  /* border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  margin: -1px; */
+  outline: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+}
+div.compact > .child-component:not(:first-child)
+{
+  /* border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  margin: -1px; */
+  outline: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+}
+
+
+.child-component.compact:not(:first-child) {
+  /* border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')"); */
 }
 
 /* <select> 100% when they are independent*/
@@ -436,14 +461,19 @@ div.component.compact > * > :deep(select) {
 }
 
 div.REF.compact{
+  /* border-top: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1); */
+}
+
+div.REF.compact{
   display: flex;
+  flex: 1 1 auto;
 }
 
 div.COMPLEX.compact {
   flex: 1 1 48%;
 }
 div.SIMPLE.compact {
-  flex: 1 1 33%;
+  flex: 1 1 32%;
 }
 
 div.LITERAL.compact {
@@ -468,7 +498,7 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numb
 }
 div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0.compact > :deep(div.level-1:nth-child(n+4))
 {
-  flex: 1 0 33%;
+  flex: 1 0 32%;
 }
 
 /* contents. Literal is on it's own line, other's share line */
@@ -496,7 +526,7 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"
 div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].level-0.compact  > div.REF.level-1:nth-child(2),
 div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.LITERAL.level-1.child-component,
 div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1.child-component > div.LITERAL.level-2 {
-  flex: 1 1 33%;
+  flex: 1 1 32%;
 }
 
 div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2:nth-child(1) {
@@ -526,9 +556,13 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"].compac
 div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"].compact {
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"].compact > *,
-div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"].compact > * {
+div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"].compact > div.child-component,
+div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"].compact > div.child-component {
   flex: 1 1 48%;
+}
+
+div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
+  width: 100%;
 }
 
 @container edit-panel-work (width < 700px) {
@@ -550,14 +584,38 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"].compact > *
   .child-component.compact {
     border-left: none;
   }
+
+  div.REF.compact{
+    border-top: none;
+  }
+  .button-holder {
+    border: none;
+  }
+
+}
+
+:deep() .lookup-fake-input{
+  height: 100%;
 }
 
 .button-holder {
+  /* height: fit-content; */
   display: inline-grid;
+  place-items: center;
+  /* border-top: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1) !important;
+  border-left: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1) !important;
+  margin-top: -1px;
+  margin-left: -1px; */
+  outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1) !important;
+
+}
+.button-holder > span{
+  margin: 0px;
 }
 
+
 .inline-icon {
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
   margin-right: 15px;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
