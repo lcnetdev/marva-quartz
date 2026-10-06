@@ -7,6 +7,7 @@
     <!-- {{ structure.preferenceId }} {{ guid }} -->
     <!-- {{ preferenceId }} -->
     <!-- {{ userModified }} -->
+    <!-- {{ id }} -->
     <Ref
       v-if="componentType === 'REF'"
       :propertyPath="buildPropertyPath(propertyPath)"
@@ -47,9 +48,12 @@
       :guid="guid"
       :readOnly="readOnly"
     />
+    <div v-if="level == 0 && componentType=='REF'" class="button-holder">
+      <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="removeComponent(parentId, id)">delete</span>
+      <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="addComponent(parentId, id)">add</span>
+    </div>
 
     <!-- {{structure}} -->
-
   </div>
 
 
@@ -193,7 +197,7 @@ export default {
 
     // gives read access to this.count and this.double
     // ...mapState(usePreferenceStore, ['profilesLoaded']),
-    // ...mapState(useProfileStore, ['profilesLoaded','activeProfile']),
+    ...mapState(useProfileStore, ['activeProfile']),
 
     componentType() {
       // these meta componets are structural things, like add new instances/items. etc
@@ -286,6 +290,17 @@ export default {
 
 
   methods: {
+    addComponent: function(profileName, profileCompoent){
+      let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
+      let structure = this.activeProfile.rt[profileName].pt[profileCompoent]
+      this.profileStore.duplicateComponent(guid, structure)
+      // this.sendFocusHome()
+    },
+
+    removeComponent: function(profileName, profileCompoent){
+      let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
+      this.profileStore.deleteComponent(guid)
+    },
 
     buildPropertyPath: function(currentPath){
       if (!currentPath){
@@ -537,6 +552,38 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"] > * {
   }
 }
 
+.button-holder {
+  display: inline-grid;
+}
+
+.inline-icon {
+  font-size: 16px;
+  cursor: pointer;
+  margin-right: 15px;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  opacity: .4;
+}
+
+.inline-icon.work:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')");
+}
+
+.inline-icon.instance:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')");
+}
+
+.inline-icon.item:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')");
+}
+
+.inline-icon.preview:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')");
+}
+
 </style>
 
 <style>
@@ -572,6 +619,5 @@ div.component > * > form {
   width: 100%;
   align-content: center;
 }
-
 
 </style>
