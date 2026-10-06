@@ -642,6 +642,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [true,false]
     },
+    '--b-edit-main-compact' : {
+          desc: "Compact fields tries to put inputs onto 1 line.",
+          descShort: 'Compact',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+    },
 
 
 

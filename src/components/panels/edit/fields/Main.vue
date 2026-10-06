@@ -1,7 +1,7 @@
 <template>
 
 
-  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[componentType, 'level-'+level, {'component': (level == 0 || componentType=='REF'), 'child-component': (level != 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode'))}]" :id="`edit_${parentId}_${id}`">
+  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[componentType, 'level-'+level, {'component': (level == 0 || componentType=='REF'), 'child-component': (level != 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'compact': preferenceStore.returnValue('--b-edit-main-compact')}]" :id="`edit_${parentId}_${id}`">
     <!-- {{ level }} {{componentType}} -->
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
     <!-- {{ structure.preferenceId }} {{ guid }} -->
@@ -49,8 +49,8 @@
       :readOnly="readOnly"
     />
     <div v-if="level == 0 && componentType=='REF'" class="button-holder">
-      <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="removeComponent(parentId, id)">delete</span>
-      <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="addComponent(parentId, id)">add</span>
+      <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="removeComponent(parentId, id)">delete</span>
+      <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="addComponent(parentId, id)">add</span>
     </div>
 
     <!-- {{structure}} -->
@@ -406,7 +406,6 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .inline-mode{
   background-color: white;
@@ -415,139 +414,140 @@ export default {
 
 }
 
-.component.level-0{
+
+.component.level-0.compact{
   width: 100%;
   display: flex;
 }
 
-.child-component {
+.child-component.compact {
   border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
   margin-bottom: 0px;
 }
 
 /* <select> 100% when they are independent*/
-div.component > :deep(select) {
+div.component.compact > :deep(select) {
   width: fit-content;
 }
 
 /* <select> fit to content when they are nested with another component*/
-div.component > * > :deep(select) {
+div.component.compact > * > :deep(select) {
   width: fit-content;
 }
 
-div.REF{
+div.REF.compact{
   display: flex;
 }
 
-div.COMPLEX {
-  flex: 1 1 50%;
+div.COMPLEX.compact {
+  flex: 1 1 48%;
 }
-div.SIMPLE {
+div.SIMPLE.compact {
   flex: 1 1 33%;
 }
 
-div.LITERAL {
+div.LITERAL.compact {
   flex: 1 1 80%;
 }
 
 /* non-sort */
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:nth-child(1)) ,
-div[id*="id_loc_gov_ontologies_bibframe_title__title_information"].component > :deep(div.LITERAL:nth-child(2)) {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:nth-child(1)) ,
+div[id*="id_loc_gov_ontologies_bibframe_title__title_information"].component.compact > :deep(div.LITERAL:nth-child(2)) {
   flex: 1 1 20% !important;
 }
 
 /* Classification, drop down and literals on one line, simple on the next */
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]{
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].compact{
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].component > :deep(select){
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].component.compact > :deep(select){
   width: 100% !important;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0 > :deep(div.LITERAL) {
-  flex: 1 0 50%;
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0.compact > :deep(div.LITERAL) {
+  flex: 1 0 48%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0 > :deep(div.level-1:nth-child(n+4))
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0.compact > :deep(div.level-1:nth-child(n+4))
 {
   flex: 1 0 33%;
 }
 
 /* contents. Literal is on it's own line, other's share line */
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"]{
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact{
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.LITERAL.level-1.child-component {
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact > div.LITERAL.level-1.child-component {
   flex: 1 1 100%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component > div.SIMPLE.level-1.child-component,
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"] > div.level-1.child-component {
-  flex: 1 1 50%;
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component.compact > div.SIMPLE.level-1.child-component,
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact > div.level-1.child-component {
+  flex: 1 1 48%;
 }
 
 /* input transcribed series */
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact {
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1:first-child{
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1:first-child{
   display: flex;
   flex-wrap: wrap;
   width: 100%;
 }
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].level-0  > div.REF.level-1:nth-child(2),
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.LITERAL.level-1.child-component,
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1.child-component > div.LITERAL.level-2 {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].level-0.compact  > div.REF.level-1:nth-child(2),
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.LITERAL.level-1.child-component,
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1.child-component > div.LITERAL.level-2 {
   flex: 1 1 33%;
 }
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1 > div.REF.level-2:nth-child(1) {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2:nth-child(1) {
   display: flex;
   width: 100%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"] > div.REF.level-1 > div.REF.level-2.component.child-component:nth-child(3) {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2.component.child-component:nth-child(3) {
   display: flex;
-  width: 50%;
+  width: 48%;
 }
 
 /* Related work not held by LC  */
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"].compact {
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] > div.REF {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"].compact > div.REF {
   width: 100%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] > div.REF:nth-child(n+1) {
-  width: 50%;
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"].compact > div.REF:nth-child(n+1) {
+  width: 48%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] > div.REF > div.LITERAL {
-  flex: 1 1 50%;
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"].compact > div.REF > div.LITERAL {
+  flex: 1 1 48%;
 }
 /* Event/Capture & dissertation */
-div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"],
-div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"] {
+div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"].compact,
+div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"].compact {
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"] > *,
-div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"] > * {
-  flex: 1 1 50%;
+div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"].compact > *,
+div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"].compact > * {
+  flex: 1 1 48%;
 }
 
 @container edit-panel-work (width < 700px) {
-  div.REF,
-  div.REF > *,
-  .component.level-0,
-  div.REF.level-0.component,
-  div.REF.component.level-0 {
+  div.REF.compact,
+  div.REF.compact > *,
+  .component.level-0.compact,
+  div.REF.level-0.component.compact,
+  div.REF.component.level-0.compact {
     /* background-color: red !important; */
     display: inline-block !important;
     flex: unset !important;
     width: 100% !important;
   }
 
-  div.component[data-v-006b508b] > div.REF.level-1 > select {
+  div.component[data-v-006b508b].compact > div.REF.level-1 > select {
     width: 100% !important;
   }
 
-  .child-component {
+  .child-component.compact {
     border-left: none;
   }
 }
@@ -587,31 +587,6 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"] > * {
 </style>
 
 <style>
-
-@container edit-panel-work (width < 700px) {
-  div.REF,
-  div.REF > *,
-
-  :deep() div[id*="edit_lc:RT:bf2"].REF.level-0,
-  :deep() .component.level-0,
-  .component :deep(.level-0),
-  .component.level-0:deep(),
-  div :deep(.component.level-0),
-
-  /* .component.level-0[data-v-006b508b] */
-  /* .component.level-0[data-v-006b508b] */
-
-  .component.level-0,
-  div.REF.level-0.component,
-  div.REF.component.level-0,
-  :deep(.component.level-0),
-  :deep() .component.level-0 {
-    background-color: red !important;
-    display: inline-block !important;
-    flex: unset !important;
-    width: 100% !important;
-  }
-}
 
 div.component > form,
 div.component > * > form {
