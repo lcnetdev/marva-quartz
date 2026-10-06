@@ -412,12 +412,12 @@ export default {
 
 /* <select> 100% when they are independent*/
 div.component > :deep(select) {
-  width: fit-content !important;
+  width: fit-content;
 }
 
 /* <select> fit to content when they are nested with another component*/
 div.component > * > :deep(select) {
-  width: fit-content !important;
+  width: fit-content;
 }
 
 div.REF{
@@ -506,13 +506,65 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_
 div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"] > div.REF > div.LITERAL {
   flex: 1 1 50%;
 }
+/* Event/Capture & dissertation */
+div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"],
+div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"] {
+  flex-wrap: wrap;
+}
+div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"] > *,
+div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"] > * {
+  flex: 1 1 50%;
+}
 
+@container edit-panel-work (width < 700px) {
+  div.REF,
+  div.REF > *,
+  .component.level-0,
+  div.REF.level-0.component,
+  div.REF.component.level-0 {
+    /* background-color: red !important; */
+    display: inline-block !important;
+    flex: unset !important;
+    width: 100% !important;
+  }
 
+  div.component[data-v-006b508b] > div.REF.level-1 > select {
+    width: 100% !important;
+  }
 
+  .child-component {
+    border-left: none;
+  }
+}
 
 </style>
 
 <style>
+
+@container edit-panel-work (width < 700px) {
+  div.REF,
+  div.REF > *,
+
+  :deep() div[id*="edit_lc:RT:bf2"].REF.level-0,
+  :deep() .component.level-0,
+  .component :deep(.level-0),
+  .component.level-0:deep(),
+  div :deep(.component.level-0),
+
+  /* .component.level-0[data-v-006b508b] */
+  /* .component.level-0[data-v-006b508b] */
+
+  .component.level-0,
+  div.REF.level-0.component,
+  div.REF.component.level-0,
+  :deep(.component.level-0),
+  :deep() .component.level-0 {
+    background-color: red !important;
+    display: inline-block !important;
+    flex: unset !important;
+    width: 100% !important;
+  }
+}
 
 div.component > form,
 div.component > * > form {
