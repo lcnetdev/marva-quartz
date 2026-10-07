@@ -865,6 +865,165 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
+/* ------------------------------------------------------------ one record per page */
+
+.wf-pages {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #e9ebee;
+}
+.wf-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* the record line, across the top of the page, with the page turning in front of it */
+.wf-page-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.35em 0.75em;
+  background: var(--wf-head-background);
+  border-bottom: solid 2px var(--wf-field-border-color);
+  flex: 0 0 auto;
+}
+.wf-page.wf-record-done .wf-page-nav {
+  background-color: #e6f4ea;
+}
+.wf-page-turn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1em;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 4px;
+  background: #fff;
+  color: inherit;
+}
+.wf-page-turn:hover:not(:disabled) {
+  border-color: var(--wf-accent-color);
+}
+.wf-page-turn .material-icons {
+  font-size: 1.4em;
+}
+.wf-page-jump {
+  max-width: 18em;
+  padding: 0.25em 0.3em;
+  font: inherit;
+  font-size: 0.9em;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 4px;
+  background: #fff;
+  color: inherit;
+}
+.wf-page-count {
+  font-size: 0.85em;
+  color: var(--wf-muted-color);
+  white-space: nowrap;
+  padding-right: 0.5em;
+  border-right: solid 1px var(--wf-line-color);
+}
+.wf-page-record {
+  flex: 1;
+  min-width: 0;
+}
+/* across the top there is room, the id and the state icons follow the title instead of being pushed to the far side */
+.wf-page-record .wf-record-title {
+  flex: 0 1 auto;
+  font-size: 1.05em;
+}
+
+.wf-page-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.75em;
+}
+/* one table per component, stacked */
+.wf-page-table {
+  width: 100%;
+  border-top: solid 2px var(--wf-field-border-color);
+  border-left: solid 2px var(--wf-field-border-color);
+}
+.wf-page-table + .wf-page-table {
+  margin-top: 0.5em;
+}
+/* the component, down the left of its band, kept as narrow as the words allow */
+.wf-page-component-col {
+  width: 6.5em;
+}
+.wf-table th.wf-page-component {
+  padding: 0.3em 0.4em;
+  white-space: normal;
+  vertical-align: top;
+  font-weight: bold;
+  line-height: 1.25;
+}
+.wf-page-component .wf-head-rt {
+  display: block;
+  margin: 0 0 0.1em 0;
+}
+.wf-page-component-label {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.wf-page-status {
+  padding: 1.5em;
+  color: var(--wf-muted-color);
+  font-style: italic;
+}
+.wf-page-status .material-icons {
+  font-size: 1.2em;
+  vertical-align: text-bottom;
+}
+/* the record's buttons, along the bottom */
+.wf-page-actions {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 0.25em;
+  padding: 0.5em 0.75em;
+  background: var(--wf-head-background);
+  border-top: solid 1px var(--wf-line-color);
+}
+.wf-page-actions .wf-action {
+  font-size: 1em;
+  padding: 0.25em 0.75em;
+}
+.wf-page-actions .v-popper {
+  display: inline-block;
+}
+
+/* the spreadsheet / pages choice in Options */
+.wf-layout-toggle {
+  display: flex;
+  gap: 0.4em;
+  margin: 0.3em 0 0.6em 0;
+}
+/* literal colours: the menu is in a popper outside .wf-root, where the --wf-* variables are not set */
+.wf-layout-toggle .wf-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.95em;
+  border-color: #b9bec6;
+}
+.wf-layout-toggle .wf-button-primary {
+  background: #1a73e8;
+  border-color: #1a73e8;
+}
+.wf-layout-toggle .material-icons {
+  font-size: 1.2em;
+}
+.wf-options-heading {
+  margin-top: 0.5em;
+  padding-top: 0.5em;
+  border-top: 1px solid #e5e7eb;
+}
+
 /* ------------------------------------------------------------ notices and dialogs */
 
 .wf-messages {

@@ -151,7 +151,7 @@ export const useWorkflowStore = defineStore('workflow', {
 
     // the widths the user dragged columns to, by the kind of column so it is used in every sheet
     columnWidths: {},
-    // per workflow choices, workflow id -> { autoFormat: 'print'|'ebook' } see storage.js
+    // per workflow choices, workflow id -> { autoFormat: 'print'|'ebook', layout: 'pages' } see storage.js
     preferences: {},
 
   }),
@@ -286,10 +286,40 @@ export const useWorkflowStore = defineStore('workflow', {
     * @return {void}
     */
     setAutoFormat(workflowId, format){
-      if (format){
-        this.preferences[workflowId] = Object.assign({}, this.preferences[workflowId], { autoFormat: format })
+      this.setWorkflowPreference(workflowId, 'autoFormat', format || null)
+    },
+
+    /**
+    * How the records of a workflow are shown: the spreadsheet, or one record at a time
+    * @param {string} workflowId
+    * @return {string} - 'sheet' | 'pages'
+    */
+    returnLayout(workflowId){
+      let pref = this.preferences[workflowId]
+      return (pref && pref.layout === 'pages') ? 'pages' : 'sheet'
+    },
+
+    /**
+    * @param {string} workflowId
+    * @param {string} layout - 'sheet' | 'pages'
+    * @return {void}
+    */
+    setLayout(workflowId, layout){
+      this.setWorkflowPreference(workflowId, 'layout', (layout === 'pages') ? 'pages' : null)
+    },
+
+    /**
+    * Remember (or forget, with null) one of the per workflow choices
+    * @param {string} workflowId
+    * @param {string} key
+    * @param {*} value - null takes the choice out
+    * @return {void}
+    */
+    setWorkflowPreference(workflowId, key, value){
+      if (value !== null){
+        this.preferences[workflowId] = Object.assign({}, this.preferences[workflowId], { [key]: value })
       } else if (this.preferences[workflowId]){
-        delete this.preferences[workflowId].autoFormat
+        delete this.preferences[workflowId][key]
         if (Object.keys(this.preferences[workflowId]).length == 0){ delete this.preferences[workflowId] }
       }
       workflowStorage.savePreferences(JSON.parse(JSON.stringify(this.preferences)))

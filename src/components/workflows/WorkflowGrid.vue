@@ -65,9 +65,9 @@
 import { mapStores } from 'pinia'
 import { useWorkflowStore } from '@/stores/workflow'
 
+import sheetKeyboard from "@/components/workflows/sheetKeyboard";
 import WorkflowRecord from "@/components/workflows/WorkflowRecord.vue";
 import { countRecordLines, columnHint } from '@/lib/workflows/fields'
-import { SCANNER_MAX_KEY_GAP, SCANNER_MIN_LENGTH, isScannerCharacter } from '@/lib/workflows/scanner'
 
 const MIN_SCALE = 0.3
 const MAX_SCALE = 2
@@ -79,6 +79,8 @@ const RECORD_COLUMN = '@record'
 
 export default {
   name: "WorkflowGrid",
+  // enter / typing / delete / escape on the selected cell, the moving around is navigationKey below
+  mixins: [sheetKeyboard],
   components: { WorkflowRecord },
   emits: ['scale'],
   provide(){
@@ -193,57 +195,14 @@ export default {
     },
 
     /**
-    * Is the keyboard talking to the sheet, and not to the scan box, a field or a modal
+    * The keys that move the selection around the sheet
+    * @return {boolean} - was the key taken
     */
-    keyboardIsForSheet(){
+    navigationKey(event){
       let ws = this.workflowStore
-      if (!ws.activeSession || ws.editingCell || ws.busy || ws.prompts.length > 0 || ws.postError){ return false }
-      let el = document.activeElement
-      if (el && el !== document.body && el.closest && el.closest('input, textarea, select, button, [contenteditable], .vfm, .v-popper__popper, .wf-dialog')){ return false }
-      return true
-    },
-
-    /**
-    * Enter in an open cell is done with the cell: it closes and goes back to being selected.
-    * This runs on the capture phase, before the field in the cell sees the key, because the
-    * fields handle enter themselves (and stop it going any further). The field still gets to do
-    * its own enter work first (picking a suggestion, etc), the cell is closed right after.
-    */
-    keydownCapture(event){
-      let ws = this.workflowStore
-      if (!ws.editingCell || event.key !== 'Enter'){ return }
-      if (event.shiftKey || event.ctrlKey || event.metaKey || event.altKey){ return }
-      // only enter inside the open cell itself, not in a modal it opened
-      let td = (event.target && event.target.closest) ? event.target.closest('td.wf-cell-editing') : null
-      if (!td){ return }
-      window.setTimeout(() => {
-        if (!ws.editingCell){ return }
-        ws.stopEditing()
-        if (document.activeElement && document.activeElement.blur){ document.activeElement.blur() }
-      }, 100)
-    },
-
-    keydown(event){
-      let ws = this.workflowStore
-      // a cell is open but the keyboard is not in its field (the focus got lost somewhere
-      // along the way), enter and escape still close the cell
-      if (ws.editingCell && (event.key === 'Enter' || event.key === 'Escape')){
-        let el = document.activeElement
-        if (!el || el === document.body || (el.closest && el.closest('.wf-viewport') && !el.closest('.wf-cell-editing'))){
-          event.preventDefault()
-          ws.stopEditing()
-          return
-        }
-      }
-      // a cell is opening from typing but its field has not taken the focus yet, keep collecting the typing for it
-      if (this.opening && event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey){
-        event.preventDefault()
-        this.opening.text += event.key
-        return
-      }
-      if (!this.keyboardIsForSheet()){ return }
       let lines = this.selectableLines()
-      if (lines.length == 0 || this.columnCount == 0){ return }
+      // nothing to move around on an empty sheet
+      if (lines.length == 0){ return true }
 
       let sel = ws.selectedCell
       let index = sel ? lines.findIndex((l) => { return l.rowId === sel.rowId && l.line === sel.line }) : -1
@@ -255,7 +214,7 @@ export default {
           event.preventDefault()
           this.select(lines[0], 0)
         }
-        return
+        return true
       }
 
       let lastCol = this.columnCount - 1
@@ -265,19 +224,19 @@ export default {
         case 'ArrowUp':
           event.preventDefault()
           this.select(lines[Math.max(0, index - 1)], col)
-          return
+          return true
         case 'ArrowDown':
           event.preventDefault()
           this.select(lines[Math.min(lines.length - 1, index + 1)], col)
-          return
+          return true
         case 'ArrowLeft':
           event.preventDefault()
           this.select(lines[index], Math.max(0, col - 1))
-          return
+          return true
         case 'ArrowRight':
           event.preventDefault()
           this.select(lines[index], Math.min(lastCol, col + 1))
-          return
+          return true
         case 'Tab':
           event.preventDefault()
           if (event.shiftKey){
@@ -287,37 +246,29 @@ export default {
             if (col < lastCol){ this.select(lines[index], col + 1) }
             else if (index < lines.length - 1){ this.select(lines[index + 1], 0) }
           }
-          return
+          return true
         case 'PageUp':
           event.preventDefault()
           this.select(lines[Math.max(0, index - PAGE_LINES)], col)
-          return
+          return true
         case 'PageDown':
           event.preventDefault()
           this.select(lines[Math.min(lines.length - 1, index + PAGE_LINES)], col)
-          return
+          return true
         case 'Home':
           event.preventDefault()
           // ctrl + home goes to the very first cell
           this.select(withModifier ? lines[0] : lines[index], 0, 'start')
-          return
+          return true
         case 'End':
           event.preventDefault()
           // the point of End is to get at the row's action buttons, bring the end of the sheet into view
           this.select(withModifier ? lines[lines.length - 1] : lines[index], lastCol, 'end')
-          return
-        case 'Enter':
-        case 'F2':
-          event.preventDefault()
-          this.openSelected()
-          return
-        case 'Escape':
-          ws.selectedCell = null
-          return
+          return true
         // w / s jump a whole record up / down, to its first line, staying in the same column
         case 'w':
         case 's': {
-          if (withModifier || event.altKey){ break }
+          if (withModifier || event.altKey){ return false }
           event.preventDefault()
           let current = lines[index].rowId
           let target = null
@@ -337,12 +288,12 @@ export default {
             }
           }
           if (target !== null){ this.select(lines[target], col) }
-          return
+          return true
         }
         // a / d jump a whole component (group of columns) left / right on the same row
         case 'a':
         case 'd': {
-          if (withModifier || event.altKey){ break }
+          if (withModifier || event.altKey){ return false }
           event.preventDefault()
           let starts = this.groupStarts()
           // the group lands at the left of the view so the whole component can be read
@@ -358,58 +309,10 @@ export default {
               this.select(lines[index], lastCol, 'end')
             }
           }
-          return
-        }
-        case 'Delete':
-        case 'Backspace': {
-          event.preventDefault()
-          // the cell knows what is in it and how to take it out
-          let td = this.selectedCellElement()
-          if (td){ td.dispatchEvent(new CustomEvent('wf-clear')) }
-          return
+          return true
         }
       }
-
-      // typing into a selected cell opens it and the typing goes into the field
-      if (event.key.length === 1 && !withModifier && !event.altKey){
-        event.preventDefault()
-        this.typeOnSelected(event)
-      }
-    },
-
-    /**
-    * A character was typed with a cell selected but not open. It could be a person starting to type
-    * into the cell, or a barcode scanner going off while the cell happens to be selected. The keys
-    * are held for a moment: a run of them faster than anyone types, long enough to be a barcode,
-    * is left to the scan detection (WorkflowSession), anything else opens the cell and goes into it.
-    */
-    typeOnSelected(event){
-      let now = performance.now()
-      let pending = this.pendingTyping
-      if (pending && (now - pending.last) <= SCANNER_MAX_KEY_GAP && isScannerCharacter(event)){
-        pending.text += event.key
-        pending.last = now
-      } else {
-        if (pending){
-          // what came before was slow typing by a person, it goes in first
-          window.clearTimeout(pending.timer)
-          this.flushTyping()
-        }
-        pending = this.pendingTyping = { text: event.key, last: now, timer: null }
-      }
-      window.clearTimeout(pending.timer)
-      pending.timer = window.setTimeout(() => { this.flushTyping() }, SCANNER_MAX_KEY_GAP + 20)
-    },
-
-    flushTyping(){
-      let pending = this.pendingTyping
-      this.pendingTyping = null
-      if (!pending){ return }
-      if (pending.text.length >= SCANNER_MIN_LENGTH){
-        // a scanner typed this, the scan detection loads the record
-        return
-      }
-      this.openSelected(pending.text)
+      return false
     },
 
     /**
@@ -438,52 +341,6 @@ export default {
       this.selectingHere = !this.workflowStore.isSelected(line.rowId, line.line, col)
       this.workflowStore.selectCell(line.rowId, line.line, col)
       this.$nextTick(() => { this.scrollSelectedIntoView(align) })
-    },
-
-    selectedCellElement(){
-      return this.$refs.viewport.querySelector('td.wf-cell-selected, td.wf-cell-editing')
-    },
-
-    /**
-    * Open the selected cell for editing, the same as clicking on it, and type the key into it if there is one
-    * @param {string} key - the character(s) that were typed to open the cell
-    */
-    openSelected(key){
-      if (key){ this.opening = { text: key } }
-      // the selection may have just moved, let it be drawn first
-      this.$nextTick(() => {
-        let td = this.selectedCellElement()
-        if (!td){ this.opening = null; return }
-        // a click on the selected cell is what opens it
-        this.wasPanning = false
-        td.click()
-        if (key){ this.typeIntoOpenCell() }
-      })
-    },
-
-    /**
-    * Put what was typed (this.opening.text, which keeps growing while the cell opens) into the
-    * field of the opening cell, once the field is there and has the focus
-    */
-    typeIntoOpenCell(){
-      // the field shows up and takes the focus a moment later, then the typing can go in
-      let tries = 0
-      let typeIt = () => {
-        let field = document.activeElement
-        if (field && field.closest && field.closest('.wf-cell-editing') && (field.tagName == 'INPUT' || field.tagName == 'TEXTAREA')){
-          let text = this.opening ? this.opening.text : ''
-          this.opening = null
-          if (text && (!document.execCommand || !document.execCommand('insertText', false, text))){
-            field.setRangeText(text, field.selectionStart, field.selectionEnd, 'end')
-            field.dispatchEvent(new Event('input', { bubbles: true }))
-          }
-        } else if (tries++ < 10){
-          window.setTimeout(typeIt, 30)
-        } else {
-          this.opening = null
-        }
-      }
-      window.setTimeout(typeIt, 30)
     },
 
     /**
@@ -640,17 +497,10 @@ export default {
 
   },
   mounted(){
-    // not reactive, bookkeeping for typing on a selected cell (see typeOnSelected / openSelected) and for select()
-    this.pendingTyping = null
-    this.opening = null
+    // not reactive, bookkeeping for select()
     this.selectingHere = false
-    window.addEventListener('keydown', this.keydownCapture, true)
-    window.addEventListener('keydown', this.keydown)
   },
   beforeUnmount(){
-    if (this.pendingTyping){ window.clearTimeout(this.pendingTyping.timer) }
-    window.removeEventListener('keydown', this.keydownCapture, true)
-    window.removeEventListener('keydown', this.keydown)
     window.removeEventListener('mousemove', this.resizeMove)
     window.removeEventListener('mouseup', this.resizeEnd)
     window.removeEventListener('mousemove', this.mouseMove)

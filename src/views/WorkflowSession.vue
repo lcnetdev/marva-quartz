@@ -23,12 +23,23 @@
               <dl>
                 <dt>Click</dt><dd>select a cell, click it again to edit</dd>
                 <dt>Right click</dt><dd>the field's actions menu</dd>
-                <dt>Drag</dt><dd>move around the sheet</dd>
+                <template v-if="layout == 'sheet'"><dt>Drag</dt><dd>move around the sheet</dd></template>
                 <dt>Ctrl / &#8984; + wheel</dt><dd>zoom</dd>
-                <dt>Column edge</dt><dd>drag to resize, double click to reset</dd>
+                <template v-if="layout == 'sheet'"><dt>Column edge</dt><dd>drag to resize, double click to reset</dd></template>
               </dl>
               <div class="wf-fields-menu-heading">Keyboard, with a cell selected</div>
-              <dl>
+              <dl v-if="layout == 'pages'">
+                <dt>Arrows, Tab</dt><dd>move one cell</dd>
+                <dt>A / D</dt><dd>previous / next field group</dd>
+                <dt>W / S, Page Up / Down</dt><dd>previous / next record</dd>
+                <dt>Home / End</dt><dd>start / end of the line</dd>
+                <dt>Ctrl + Home / End</dt><dd>first / last cell of the page</dd>
+                <dt>Enter, F2, typing</dt><dd>edit the cell</dd>
+                <dt>Enter / Esc</dt><dd>finish editing</dd>
+                <dt>Delete, Backspace</dt><dd>clear the cell</dd>
+                <dt>Esc</dt><dd>deselect</dd>
+              </dl>
+              <dl v-else>
                 <dt>Arrows, Tab</dt><dd>move one cell</dd>
                 <dt>A / D</dt><dd>previous / next field group</dd>
                 <dt>W / S</dt><dd>previous / next record</dd>
@@ -100,7 +111,17 @@
           <button class="wf-bar-button" title="Options for this workflow"><span class="material-icons">tune</span>Options</button>
           <template #popper>
             <div class="wf-options-menu">
-              <div class="wf-fields-menu-heading">When a scan matches several records</div>
+              <div class="wf-fields-menu-heading">Layout</div>
+              <div class="wf-layout-toggle">
+                <button :class="['wf-button', {'wf-button-primary': layout == 'sheet'}]" @click="setLayout('sheet')" title="Every record is a row of one big sheet">
+                  <span class="material-icons">grid_on</span>Spreadsheet
+                </button>
+                <button :class="['wf-button', {'wf-button-primary': layout == 'pages'}]" @click="setLayout('pages')" title="One record at a time, its fields stacked down the page">
+                  <span class="material-icons">article</span>One record per page
+                </button>
+              </div>
+
+              <div class="wf-fields-menu-heading wf-options-heading">When a scan matches several records</div>
               <template v-if="autoFormat">
                 <p>The <strong>{{ autoFormat }}</strong> record is taken without asking (when exactly one of the matches is {{ autoFormat }}).</p>
                 <button class="wf-button" @click="workflowStore.setAutoFormat(session.workflowId, null)">Ask me which record each time</button>
@@ -128,6 +149,8 @@
     <div v-if="!workflowStore.enabled" class="wf-notice">Workflows are not turned on for your account.</div>
     <div v-else-if="notFound" class="wf-notice">That workflow session could not be found. <router-link :to="{ name: 'Workflows' }">Back to Workflows</router-link></div>
     <div v-else-if="!session" class="wf-notice">Loading...</div>
+    <!-- the records as a spreadsheet, or one to a page (Options) -->
+    <WorkflowPages v-else-if="layout == 'pages'" ref="grid" @click="gridClick" @scale="zoom = $event" />
     <WorkflowGrid v-else ref="grid" @click="gridClick" @scale="zoom = $event" />
 
     <!-- errors show up large in the middle of the page first so they are not missed, then settle into the corner with the rest -->
@@ -211,6 +234,7 @@ import { workflowThemeStyle } from '@/lib/workflows/theme'
 import { columnHint } from '@/lib/workflows/fields'
 
 import WorkflowGrid from "@/components/workflows/WorkflowGrid.vue";
+import WorkflowPages from "@/components/workflows/WorkflowPages.vue";
 import WorkflowNameDialog from "@/components/workflows/WorkflowNameDialog.vue";
 import Debug from "@/components/panels/edit/modals/DebugModal.vue";
 import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
@@ -221,7 +245,7 @@ import '@/assets/workflows.css'
 
 export default {
   name: "WorkflowSession",
-  components: { WorkflowGrid, WorkflowNameDialog, Debug, LiteralLang },
+  components: { WorkflowGrid, WorkflowPages, WorkflowNameDialog, Debug, LiteralLang },
   data(){
     return {
       scanValue: '',
@@ -272,6 +296,11 @@ export default {
     // the format this workflow always takes, if the user chose one
     autoFormat(){
       return this.session ? this.workflowStore.returnAutoFormat(this.session.workflowId) : null
+    },
+
+    // 'sheet' (the spreadsheet) or 'pages' (one record at a time), chosen in Options
+    layout(){
+      return this.session ? this.workflowStore.returnLayout(this.session.workflowId) : 'sheet'
     },
 
     doneCount(){
@@ -348,6 +377,17 @@ export default {
       await this.workflowStore.renameSession(session.id, name)
       document.title = 'Marva | ' + session.name
       this.focusScan()
+    },
+
+    /**
+    * Switch between the spreadsheet and one record per page, remembered for this workflow
+    * @param {string} layout - 'sheet' | 'pages'
+    */
+    setLayout(layout){
+      if (!this.session || layout === this.layout){ return }
+      this.workflowStore.stopEditing()
+      this.workflowStore.setLayout(this.session.workflowId, layout)
+      this.zoom = 1
     },
 
     /**

@@ -29,7 +29,8 @@
  *
  * 4. Per user preferences                              {util}workflows/preferences
  *      { columnWidths: { "<component id>|<column key>": widthInPixels },   // dragged column widths, by kind of column
- *        workflows: { "<workflow id>": { autoFormat: 'print'|'ebook' } } }  // "always select this version" answers
+ *        workflows: { "<workflow id>": { autoFormat: 'print'|'ebook',      // "always select this version" answers
+ *                                        layout: 'pages' } } }              // one record per page instead of the spreadsheet
  *
  * NOT STORED YET
  * --------------
