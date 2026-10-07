@@ -435,14 +435,16 @@ div.REF.compact > * > * > :deep(*)
 div.REF.level-0.compact {
   /* border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
   margin: -1px; */
-  outline: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  /* outline: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')"); */
+  outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1);
 }
 div.compact > .child-component:not(:first-child)
 {
   /* border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
   border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
   margin: -1px; */
-  outline: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  /* outline: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')"); */
+  outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1);
 }
 
 
@@ -460,11 +462,7 @@ div.component.compact > * > :deep(select) {
   width: fit-content;
 }
 
-div.REF.compact{
-  /* border-top: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1); */
-}
-
-div.REF.compact{
+div.REF.compact {
   display: flex;
   flex: 1 1 auto;
 }
@@ -477,34 +475,48 @@ div.SIMPLE.compact {
 }
 
 div.LITERAL.compact {
-  flex: 1 1 80%;
+  flex: 1 1 70%;
+}
+
+div.compact.LITERAL.level-1:has(+ div.compact.REF.level-1){
+  flex: 1 1 30%;
+}
+
+div.LITERAL.compact.level-1 + div.REF.compact.level-1:has(> div.LITERAL.compact.level-2):nth-child(2) {
+  flex: 1 1 50%;
 }
 
 /* non-sort */
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:nth-child(1)) ,
-div[id*="id_loc_gov_ontologies_bibframe_title__title_information"].component.compact > :deep(div.LITERAL:nth-child(2)) {
-  flex: 1 1 20% !important;
+div.compact > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:has( > div > div > div > form > select)) ,
+div.component.compact > :deep(div.LITERAL:nth-child(2):has( > div > div > div > form > select)) {
+  flex: 0 1 20% !important;
 }
 
-/* Classification, drop down and literals on one line, simple on the next */
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].compact{
+/* complex titles */
+div.component.compact:has(> :nth-child(5)){
   flex-wrap: wrap;
 }
+div.component.compact > div.level-1:nth-child(n+3) {
+  flex: 1 1 48%;
+}
+
+
+/* Classification & provision activity, drop down and literals on one line, simple on the next */
+div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component.compact > :deep(select),
 div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].component.compact > :deep(select){
   width: 100% !important;
 }
+div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component.compact > :deep(div.LITERAL),
 div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0.compact > :deep(div.LITERAL) {
   flex: 1 0 48%;
 }
+div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component.compact > :deep(div.level-1:nth-child(n+4)),
 div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0.compact > :deep(div.level-1:nth-child(n+4))
 {
-  flex: 1 0 32%;
+  flex: 1 1 30%;
 }
 
 /* contents. Literal is on it's own line, other's share line */
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact{
-  flex-wrap: wrap;
-}
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact > div.LITERAL.level-1.child-component {
   flex: 1 1 100%;
 }
@@ -514,9 +526,6 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact
 }
 
 /* input transcribed series */
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact {
-  flex-wrap: wrap;
-}
 div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1:first-child{
   display: flex;
   flex-wrap: wrap;
@@ -529,12 +538,11 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"
   flex: 1 1 32%;
 }
 
+
 div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2:nth-child(1) {
-  display: flex;
   width: 100%;
 }
 div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2.component.child-component:nth-child(3) {
-  display: flex;
   width: 48%;
 }
 
