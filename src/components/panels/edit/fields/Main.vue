@@ -48,14 +48,13 @@
       :guid="guid"
       :readOnly="readOnly"
     />
-    <div v-if="level == 0 && preferenceStore.returnValue('--b-edit-main-compact')" class="button-holder">
+    <div v-if="level == 0 && preferenceStore.returnValue('--b-edit-main-compact') && showCompactButtons" class="button-holder">
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="removeComponent(parentId, id)">delete</span>
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="addComponent(parentId, id)">add</span>
     </div>
 
     <!-- {{structure}} -->
   </div>
-
 
 </template>
 
@@ -99,8 +98,6 @@ import LookupComplex from "@/components/panels/edit/fields/LookupComplex.vue";
 import LookupSimple from "@/components/panels/edit/fields/LookupSimple.vue";
 import Literal from "@/components/panels/edit/fields/Literal.vue";
 import RdfTypeSelector from "@/components/panels/edit/fields/RdfTypeSelector.vue";
-
-
 
 
 export default {
@@ -149,6 +146,7 @@ export default {
 
 
       displayDebug: false,
+      showCompactButtons: false,
 
 
       // useKey: short.generate(),
@@ -279,17 +277,29 @@ export default {
 
   },
 
+  watch :{
+    showCompactButtons(){
+      this.checkCompactButtons()
+    }
+  },
 
-
-  // computed: mapState({
-
-  //   settingsDisplayMode: 'settingsDisplayMode',
-  //   settingsLeftMenuEnriched: 'settingsLeftMenuEnriched',
-
-  // }),
-
+  mounted(){
+    let el = document.getElementsByClassName('edit-panel-work')[0]
+    if (el){
+      if (el.offsetWidth < 700) { this.showCompactButtons = false }
+    }
+    this.showCompactButtons = true
+  },
 
   methods: {
+    checkCompactButtons: function(){
+      console.info("checking")
+      let el = document.getElementsByClassName('edit-panel-work')[0]
+      if (el){
+        if (el.offsetWidth < 700) { this.showCompactButtons = false }
+      }
+      this.showCompactButtons = true
+    },
     addComponent: function(profileName, profileCompoent){
       let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
       let structure = this.activeProfile.rt[profileName].pt[profileCompoent]
@@ -433,17 +443,10 @@ div.REF.compact > * > * > :deep(*)
 }
 
 div.REF.level-0.compact {
-  /* border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
-  margin: -1px; */
-  /* outline: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')"); */
   outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1);
 }
 div.compact > .child-component:not(:first-child)
 {
-  /* border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
-  border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
-  margin: -1px; */
-  /* outline: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')"); */
   outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1);
 }
 
@@ -487,8 +490,9 @@ div.LITERAL.compact.level-1 + div.REF.compact.level-1:has(> div.LITERAL.compact.
 }
 
 /* non-sort */
-div.compact > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:has( > div > div > div > form > select)) ,
-div.component.compact > :deep(div.LITERAL:nth-child(2):has( > div > div > div > form > select)) {
+div.compact > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:has( > div > div > div > form > select)),
+div.component.compact > :deep(div.LITERAL:nth-child(2):has( > div > div > div > form > select)),
+div.compact > div.LITERAL.level-1:first-child:has( > div > div > div > form > select){
   flex: 0 1 20% !important;
 }
 
@@ -573,9 +577,9 @@ div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
   width: 100%;
 }
 
-@container edit-panel-work (width < 700px) {
+@container edit-panel-work (width < 500px) {
   div.REF.compact,
-  div.REF.compact > *,
+  div.REF.compact > *:not(.button-holder),
   .component.level-0.compact,
   div.REF.level-0.component.compact,
   div.REF.component.level-0.compact {
@@ -583,9 +587,10 @@ div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
     display: inline-block !important;
     flex: unset !important;
     width: 100% !important;
+    outline: unset !important;
   }
 
-  div.component[data-v-006b508b].compact > div.REF.level-1 > select {
+  div.component.compact > div.REF.level-1 > select {
     width: 100% !important;
   }
 
@@ -598,6 +603,33 @@ div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
   }
   .button-holder {
     border: none;
+  }
+
+  /* quick buttons after the last item, on same line */
+  div.compact.level-0 > :deep(form),
+  div.compact.level-0 > div:nth-last-child(2){
+    width: 97% !important;
+  }
+
+  div.compact.level-0 > div.button-holder{
+    width: 3% !important;
+    outline: unset !important;
+    display: inline-block;
+    vertical-align: top;
+    border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
+  }
+  /* Single fields need to be flex to get them on the same line */
+  div.compact.level-0:not(:nth-child(n+3)){
+    display:flex !important;
+  }
+
+  .component {
+    border: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1) !important;
+    border-top: none !important;
+  }
+  .component > :deep(select),
+  .component :deep(.lookup-fake-input) {
+    border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
   }
 
 }

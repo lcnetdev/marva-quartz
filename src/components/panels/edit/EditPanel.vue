@@ -29,7 +29,7 @@
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ) )">
-                <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
+                <div class="component-container" v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
                     :key="profileCompoent">
                   <template v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
