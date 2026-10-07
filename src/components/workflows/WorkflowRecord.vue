@@ -16,6 +16,7 @@
             :group="group"
             :pt="(line[group.key] && !line[group.key].ghost) ? line[group.key].pt : null"
             :cell="line[group.key] ? (line[group.key].cells[column.key] || null) : null"
+            :lineCells="line[group.key] ? line[group.key].cells : null"
             :column="column"
             :firstInGroup="colIdx == 0"
             :line="lineIdx"

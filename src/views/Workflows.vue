@@ -1,5 +1,5 @@
 <template>
-  <div class="wf-root" :style="themeStyle">
+  <div class="wf-root">
 
     <div class="wf-bar">
       <router-link :to="{ name: 'Load' }" title="Back to the load screen"><span class="material-icons">arrow_back</span><span class="wf-bar-back">Marva</span></router-link>
@@ -72,7 +72,7 @@ import { useWorkflowStore } from '@/stores/workflow'
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 
-import { workflowThemeStyle } from '@/lib/workflows/theme'
+import { workflowTheme, applyWorkflowTheme, removeWorkflowTheme } from '@/lib/workflows/theme'
 
 import WorkflowBuilder from "@/components/workflows/WorkflowBuilder.vue";
 import WorkflowNameDialog from "@/components/workflows/WorkflowNameDialog.vue";
@@ -94,9 +94,13 @@ export default {
     ...mapStores(useWorkflowStore, usePreferenceStore),
     ...mapState(useProfileStore, ['profilesLoaded']),
 
-    themeStyle(){
-      return workflowThemeStyle(this.preferenceStore)
+    // the colors, from the editor's preferences, see lib/workflows/theme.js. Watched below and put on the document
+    theme(){
+      return workflowTheme(this.preferenceStore)
     },
+  },
+  watch: {
+    theme(){ applyWorkflowTheme(this.preferenceStore) },
   },
   methods: {
 
@@ -160,7 +164,11 @@ export default {
   },
   mounted(){
     document.title = 'Marva | Workflows'
+    applyWorkflowTheme(this.preferenceStore)
     this.workflowStore.init()
+  },
+  beforeUnmount(){
+    removeWorkflowTheme()
   },
 }
 </script>

@@ -3,10 +3,13 @@
 
   Everything for the workflow screens lives in this file and is prefixed with wf- so it
   stays out of the way of the editor's css. The colors come from the editor's color
-  preferences (see lib/workflows/theme.js), the values here are only the fallbacks.
+  preferences (see lib/workflows/theme.js), which sets them as variables on <html> while
+  a workflow screen is open. The values here are only the fallbacks. They are on :root
+  (not .wf-root) because the menus are poppers rendered outside of the screen.
 */
 
-.wf-root {
+:root {
+  /* from the preferences */
   --wf-nav-background: #2c3e50;
   --wf-nav-color: #ffffff;
   --wf-work-color: #e8f0fe;
@@ -19,23 +22,108 @@
   --wf-modal-background: #ffffff;
   --wf-modal-accent: #f0f0f0;
   --wf-modal-color: #1f2328;
+  --wf-linked-icon-color: #1c7d76;
+  --wf-button-background: #ffffff;
+  --wf-button-color: #1f2328;
 
+  /* mixed from the text color and the page, see DERIVED in theme.js */
+  --wf-page-background: #ffffff;
+  --wf-canvas-background: #e9ebee;
   --wf-line-color: #d5d9df;
   --wf-na-color: #eceef1;
   --wf-na-hatch-color: #d6dae0;
-  --wf-linked-icon-color: #1c7d76;
   --wf-head-background: #f6f7f9;
   --wf-muted-color: #6b7280;
-  --wf-accent-color: #1a73e8;
-  --wf-good-color: #1e8e3e;
-  --wf-bad-color: #c5221f;
 
+  /* the status colors have no preference to follow, they come in a set for a light page and one for a dark page (below) */
+  --wf-accent-color: #1a73e8;
+  --wf-on-accent-color: #ffffff;
+  --wf-good-color: #1e8e3e;
+  --wf-good-text: #166534;
+  --wf-good-tint: #e6f4ea;
+  --wf-good-tint-soft: #f0fdf4;
+  --wf-good-border: #86efac;
+  --wf-good-mark: #22c55e;
+  --wf-bad-color: #c5221f;
+  --wf-bad-text: #991b1b;
+  --wf-bad-tint: #fee2e2;
+  --wf-bad-border: #fca5a5;
+  --wf-warn-text: #92400e;
+  --wf-warn-tint: #fef3c7;
+  --wf-warn-border: #fcd34d;
+  --wf-info-text: #1e3a8a;
+  --wf-info-strong: #1d4ed8;
+  --wf-info-tint: #eff6ff;
+  --wf-info-border: #93c5fd;
+  --wf-neutral-text: #4b5563;
+  --wf-neutral-tint: #e5e7eb;
+  --wf-protect-text: #5b21b6;
+  --wf-protect-tint: #ede9fe;
+  --wf-ghost-background: #f8fafc;
+  --wf-ghost-hatch: #e0f2fe;
+  --wf-ghost-text: #475569;
+  --wf-flash-color: #ffe082;
+  --wf-toast-background: #1f2328;
+  --wf-toast-color: #ffffff;
+  --wf-busy-overlay: rgba(255, 255, 255, 0.55);
+  --wf-shadow-color: rgba(0, 0, 0, 0.25);
+}
+/* the page is dark (theme.js decided from the page color): lighter accents, and tints that are a wash of color over dark */
+:root.wf-dark {
+  --wf-accent-color: #8ab4f8;
+  --wf-on-accent-color: #0b1a33;
+  --wf-good-color: #5dd27a;
+  --wf-good-text: #a7f3c0;
+  --wf-good-tint: rgba(34, 197, 94, 0.2);
+  --wf-good-tint-soft: rgba(34, 197, 94, 0.12);
+  --wf-good-border: rgba(134, 239, 172, 0.5);
+  --wf-good-mark: #4ade80;
+  --wf-bad-color: #f28b82;
+  --wf-bad-text: #fecaca;
+  --wf-bad-tint: rgba(239, 68, 68, 0.22);
+  --wf-bad-border: rgba(252, 165, 165, 0.5);
+  --wf-warn-text: #fde68a;
+  --wf-warn-tint: rgba(245, 158, 11, 0.22);
+  --wf-warn-border: rgba(252, 211, 77, 0.5);
+  --wf-info-text: #bfdbfe;
+  --wf-info-strong: #93c5fd;
+  --wf-info-tint: rgba(59, 130, 246, 0.2);
+  --wf-info-border: rgba(147, 197, 253, 0.5);
+  --wf-neutral-text: #c9cdd3;
+  --wf-neutral-tint: rgba(255, 255, 255, 0.12);
+  --wf-protect-text: #d8ccfe;
+  --wf-protect-tint: rgba(139, 92, 246, 0.25);
+  --wf-ghost-background: rgba(59, 130, 246, 0.08);
+  --wf-ghost-hatch: rgba(147, 197, 253, 0.25);
+  --wf-ghost-text: #9fb3c8;
+  --wf-flash-color: #8a6d00;
+  --wf-toast-background: #e8eaed;
+  --wf-toast-color: #1f2328;
+  --wf-busy-overlay: rgba(0, 0, 0, 0.55);
+  --wf-shadow-color: rgba(0, 0, 0, 0.6);
+}
+
+.wf-root {
   display: flex;
   flex-direction: column;
   height: 100vh;
   color: var(--wf-text-color);
   font-size: 14px;
-  background: #fff;
+  background: var(--wf-page-background);
+}
+
+/* the menus (floating-vue poppers) follow the screen's colors while a workflow screen is open */
+html.wf-theme .v-popper--theme-dropdown .v-popper__inner {
+  background: var(--wf-modal-background);
+  color: var(--wf-modal-color);
+  border-color: var(--wf-line-color);
+  box-shadow: 0 6px 30px var(--wf-shadow-color);
+}
+html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-inner {
+  border-color: var(--wf-modal-background);
+}
+html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
+  border-color: var(--wf-line-color);
 }
 
 .wf-root button {
@@ -112,15 +200,15 @@
   align-items: center;
   gap: 0.25em;
   padding: 0.3em 0.6em;
-  border: solid 1px rgba(127, 127, 127, 0.6);
+  border: solid 1px var(--wf-field-border-color);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1f2328;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
   font-size: 0.95em;
   white-space: nowrap;
 }
 .wf-bar-button:hover:not(:disabled) {
-  background: #fff;
+  border-color: var(--wf-accent-color);
 }
 .wf-bar-zoom {
   display: inline-flex;
@@ -138,11 +226,11 @@
 .wf-scan {
   display: inline-flex;
   align-items: center;
-  background: #fff;
+  background: var(--wf-button-background);
   border-radius: 4px;
   padding: 0 0.4em;
-  color: #1f2328;
-  border: solid 2px transparent;
+  color: var(--wf-button-color);
+  border: solid 2px var(--wf-field-border-color);
 }
 .wf-scan:focus-within {
   border-color: var(--wf-accent-color);
@@ -154,9 +242,10 @@
   padding: 0.35em 0.4em;
   width: 19em;
   background: transparent;
+  color: inherit;
 }
 
-/* the fields menu, it is rendered in a floating-vue popper outside of .wf-root */
+/* the fields menu, it is rendered in a floating-vue popper outside of .wf-root (the variables are on :root, see the top) */
 .wf-fields-menu {
   padding: 0.5em 0.75em;
   max-height: 70vh;
@@ -174,7 +263,7 @@
 }
 .wf-fields-menu-rt {
   font-size: 0.75em;
-  color: #6b7280;
+  color: var(--wf-muted-color);
   text-transform: uppercase;
 }
 .wf-fields-menu-group {
@@ -190,13 +279,14 @@
 }
 .wf-drag-handle {
   font-size: 1.1em;
-  color: #b0b5bd;
+  color: var(--wf-muted-color);
+  opacity: 0.6;
   cursor: grab;
   margin-left: -0.3em;
   user-select: none;
 }
 .wf-drag-handle:hover {
-  color: #6b7280;
+  opacity: 1;
 }
 .wf-drag-source {
   opacity: 0.4;
@@ -220,14 +310,14 @@
 }
 .wf-fields-menu-count {
   font-size: 0.7em;
-  color: #6b7280;
+  color: var(--wf-muted-color);
   vertical-align: middle;
 }
 /* the subfields of a component, in the Fields menu and the workflow builder */
 .wf-fields-menu-columns {
   margin: 0 0 0.3em 1.6em;
   padding-left: 0.6em;
-  border-left: 2px solid #e5e7eb;
+  border-left: 2px solid var(--wf-line-color);
 }
 .wf-fields-menu-columns label {
   display: flex;
@@ -244,13 +334,13 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #6b7280;
+  color: var(--wf-muted-color);
   padding: 0.2em 0;
 }
 .wf-fields-menu-add {
   margin-top: 0.6em;
   padding-top: 0.6em;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--wf-line-color);
 }
 .wf-fields-menu-filter {
   width: 100%;
@@ -258,12 +348,14 @@
   margin: 0.25em 0 0.4em 0;
   padding: 0.3em 0.5em;
   font: inherit;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--wf-field-border-color);
   border-radius: 3px;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
 }
 .wf-fields-menu-rt-heading {
   font-size: 0.75em;
-  color: #6b7280;
+  color: var(--wf-muted-color);
   text-transform: uppercase;
   padding: 0.4em 0 0.1em 0;
 }
@@ -280,16 +372,16 @@
   white-space: nowrap;
 }
 .wf-fields-menu-item:hover {
-  background: #eef2f7;
+  background: var(--wf-na-color);
 }
 .wf-fields-menu-item .material-icons {
   font-size: 1.1em;
-  color: #2563eb;
+  color: var(--wf-accent-color);
 }
 .wf-fields-menu-empty {
   padding: 0.3em 0;
   font-size: 0.9em;
-  color: #6b7280;
+  color: var(--wf-muted-color);
 }
 .wf-bar-help {
   padding: 0.3em 0.35em;
@@ -311,11 +403,11 @@
 }
 .wf-help-menu dd {
   margin: 0;
-  color: #4b5563;
+  color: var(--wf-muted-color);
 }
 .wf-help-menu p {
   margin: 0.3em 0 0 0;
-  color: #4b5563;
+  color: var(--wf-muted-color);
 }
 
 /* the MARC preview popover on a record's MARC button */
@@ -334,7 +426,7 @@
   white-space: pre;
 }
 .wf-marc-version {
-  color: #6b7280;
+  color: var(--wf-muted-color);
   font-size: 0.85em;
   margin-bottom: 0.4em;
 }
@@ -347,7 +439,7 @@
   white-space: pre-wrap;
 }
 .wf-marc-error {
-  color: #c5221f;
+  color: var(--wf-bad-color);
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 12px;
   max-width: 40em;
@@ -381,18 +473,18 @@
   border-radius: 3px;
   white-space: nowrap;
 }
-.wf-cip-confirmed { background: #dcfce7; color: #166534; }
-.wf-cip-unconfirmed { background: #fef3c7; color: #92400e; }
-.wf-cip-error { background: #fee2e2; color: #991b1b; }
-.wf-cip-none { background: #e5e7eb; color: #4b5563; }
-.wf-cip-protected { background: #ede9fe; color: #5b21b6; }
+.wf-cip-confirmed { background: var(--wf-good-tint); color: var(--wf-good-text); }
+.wf-cip-unconfirmed { background: var(--wf-warn-tint); color: var(--wf-warn-text); }
+.wf-cip-error { background: var(--wf-bad-tint); color: var(--wf-bad-text); }
+.wf-cip-none { background: var(--wf-neutral-tint); color: var(--wf-neutral-text); }
+.wf-cip-protected { background: var(--wf-protect-tint); color: var(--wf-protect-text); }
 .wf-cip-count {
   white-space: nowrap;
   font-weight: 600;
-  color: #1d4ed8;
+  color: var(--wf-info-strong);
 }
 .wf-cip-count-done {
-  color: #166534;
+  color: var(--wf-good-text);
   font-weight: normal;
 }
 .wf-cip-retry {
@@ -401,14 +493,15 @@
   padding: 0 0.4em;
   border: solid 1px var(--wf-field-border-color);
   border-radius: 3px;
-  background: #fff;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
   cursor: pointer;
 }
 
 /* a cell whose value is what WorldCat has */
 .wf-table td.wf-cell-verified {
-  background: #f0fdf4;
-  box-shadow: inset 3px 0 0 #22c55e;
+  background: var(--wf-good-tint-soft);
+  box-shadow: inset 3px 0 0 var(--wf-good-mark);
 }
 
 /* what WorldCat has, under the record's value */
@@ -420,24 +513,24 @@
   padding: 0.1em 0.3em;
   border-radius: 3px;
   font-size: 0.9em;
-  border: 1px dashed #93c5fd;
-  background: #eff6ff;
-  color: #1e3a8a;
+  border: 1px dashed var(--wf-info-border);
+  background: var(--wf-info-tint);
+  color: var(--wf-info-text);
 }
 .wf-suggest-differs {
-  border-color: #fcd34d;
-  background: #fffbeb;
-  color: #78350f;
+  border-color: var(--wf-warn-border);
+  background: var(--wf-warn-tint);
+  color: var(--wf-warn-text);
 }
 .wf-suggest-warn {
-  border-color: #fca5a5;
-  background: #fef2f2;
-  color: #7f1d1d;
+  border-color: var(--wf-bad-border);
+  background: var(--wf-bad-tint);
+  color: var(--wf-bad-text);
 }
 .wf-suggest-remove {
-  border-color: #d1d5db;
-  background: #f9fafb;
-  color: #374151;
+  border-color: var(--wf-line-color);
+  background: var(--wf-na-color);
+  color: var(--wf-neutral-text);
 }
 .wf-suggest-icon {
   font-size: 1.1em;
@@ -470,17 +563,17 @@
   font-size: 1.15em;
 }
 .wf-suggest-accept {
-  color: #15803d;
+  color: var(--wf-good-color);
   font-weight: 600;
 }
 .wf-suggest-accept:hover:not(:disabled) {
-  background: #dcfce7;
+  background: var(--wf-good-tint);
 }
 .wf-suggest-dismiss {
-  color: #6b7280;
+  color: var(--wf-muted-color);
 }
 .wf-suggest-dismiss:hover {
-  background: #e5e7eb;
+  background: var(--wf-neutral-tint);
 }
 
 /* a selected cell shows what WorldCat offers in full, so it can be read before it is taken */
@@ -505,12 +598,12 @@
 /* a line only WorldCat has, or a blank line of the record WorldCat can fill */
 .wf-table td.wf-cell-wholeline,
 .wf-table td.wf-cell-ghost {
-  background: #f8fafc;
-  background-image: repeating-linear-gradient(45deg, transparent 0 7px, #e0f2fe 7px 8px);
+  background: var(--wf-ghost-background);
+  background-image: repeating-linear-gradient(45deg, transparent 0 7px, var(--wf-ghost-hatch) 7px 8px);
   cursor: default;
 }
 .wf-ghost-value {
-  color: #475569;
+  color: var(--wf-ghost-text);
   font-style: italic;
 }
 .wf-ghost-actions {
@@ -521,8 +614,8 @@
   margin-left: 0.3em;
 }
 .wf-ghost-actions .wf-suggest-accept {
-  border: 1px solid #86efac;
-  background: #f0fdf4;
+  border: 1px solid var(--wf-good-border);
+  background: var(--wf-good-tint-soft);
   font-size: 0.85em;
 }
 
@@ -532,7 +625,7 @@
   position: relative;
   flex: 1 1 auto;
   overflow: hidden;
-  background: #e9ebee;
+  background: var(--wf-canvas-background);
   cursor: grab;
   user-select: none;
 }
@@ -668,10 +761,60 @@
   font-size: 0.8em;
   color: var(--wf-muted-color);
 }
+/* the title and the id copy themselves with a click, and say so for a moment (the notice lays over
+   the text itself, the cells clip anything that sticks out) */
+.wf-copyable {
+  position: relative;
+  display: inline-block;
+  cursor: copy;
+  border-radius: 3px;
+}
+.wf-copyable:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+.wf-copied::after {
+  content: attr(data-copied);
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  border-radius: 3px;
+  background: var(--wf-good-color);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-style: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+  animation: wf-copied-pop 1.4s ease-out forwards;
+}
+@keyframes wf-copied-pop {
+  0% { opacity: 0; transform: scale(0.85); }
+  12% { opacity: 1; transform: scale(1); }
+  70% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+/* the WorldCat badge opens the record in WorldCat */
+.wf-cip-link {
+  text-decoration: none;
+  cursor: pointer;
+}
+.wf-cip-link:hover {
+  text-decoration: underline;
+}
 
-.wf-record-done td,
+.wf-record-done td {
+  background-color: var(--wf-good-tint);
+}
+/* the frozen record column slides over the sheet, so the tint (see-through on a dark page) goes over a solid background */
 .wf-record-done th.wf-record-header {
-  background-color: #e6f4ea;
+  background: linear-gradient(var(--wf-good-tint), var(--wf-good-tint)), var(--wf-head-background);
 }
 .wf-record-done .wf-cell:not(.wf-cell-editing) {
   opacity: 0.6;
@@ -680,7 +823,7 @@
   animation: wf-flash 0.5s 4;
 }
 @keyframes wf-flash {
-  50% { background: #ffe082; }
+  50% { background: var(--wf-flash-color); }
 }
 
 .wf-table td.wf-record-status {
@@ -804,9 +947,9 @@
   padding: 0.05em 0.4em;
   border: solid 1px var(--wf-field-border-color);
   border-radius: 4px;
-  background: #fff;
+  background: var(--wf-button-background);
   font-size: 0.85em;
-  color: inherit;
+  color: var(--wf-button-color);
 }
 .wf-action .material-icons {
   font-size: 1.25em;
@@ -815,7 +958,7 @@
   border-color: var(--wf-accent-color);
 }
 .wf-action-on {
-  background: #e6f4ea;
+  background: var(--wf-good-tint);
   border-color: var(--wf-good-color);
   color: var(--wf-good-color);
 }
@@ -854,7 +997,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--wf-busy-overlay);
   cursor: wait;
 }
 .wf-busy > div {
@@ -862,7 +1005,7 @@
   color: var(--wf-modal-color);
   padding: 0.75em 1.5em;
   border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 16px var(--wf-shadow-color);
 }
 
 /* ------------------------------------------------------------ one record per page */
@@ -873,7 +1016,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: #e9ebee;
+  background: var(--wf-canvas-background);
 }
 .wf-page {
   flex: 1 1 auto;
@@ -892,7 +1035,7 @@
   flex: 0 0 auto;
 }
 .wf-page.wf-record-done .wf-page-nav {
-  background-color: #e6f4ea;
+  background: linear-gradient(var(--wf-good-tint), var(--wf-good-tint)), var(--wf-head-background);
 }
 .wf-page-turn {
   display: inline-flex;
@@ -900,8 +1043,8 @@
   padding: 0.1em;
   border: solid 1px var(--wf-field-border-color);
   border-radius: 4px;
-  background: #fff;
-  color: inherit;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
 }
 .wf-page-turn:hover:not(:disabled) {
   border-color: var(--wf-accent-color);
@@ -916,8 +1059,8 @@
   font-size: 0.9em;
   border: solid 1px var(--wf-field-border-color);
   border-radius: 4px;
-  background: #fff;
-  color: inherit;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
 }
 .wf-page-count {
   font-size: 0.85em;
@@ -1003,17 +1146,11 @@
   gap: 0.4em;
   margin: 0.3em 0 0.6em 0;
 }
-/* literal colours: the menu is in a popper outside .wf-root, where the --wf-* variables are not set */
 .wf-layout-toggle .wf-button {
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
   font-size: 0.95em;
-  border-color: #b9bec6;
-}
-.wf-layout-toggle .wf-button-primary {
-  background: #1a73e8;
-  border-color: #1a73e8;
 }
 .wf-layout-toggle .material-icons {
   font-size: 1.2em;
@@ -1021,7 +1158,7 @@
 .wf-options-heading {
   margin-top: 0.5em;
   padding-top: 0.5em;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--wf-line-color);
 }
 
 /* ------------------------------------------------------------ notices and dialogs */
@@ -1043,19 +1180,22 @@
   gap: 0.4em;
   padding: 0.6em 1em;
   border-radius: 6px;
-  background: #1f2328;
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  background: var(--wf-toast-background);
+  color: var(--wf-toast-color);
+  box-shadow: 0 4px 16px var(--wf-shadow-color);
   cursor: pointer;
 }
 .wf-message .material-icons {
   font-size: 1.3em;
 }
+/* the error and warning toasts keep their strong colors on any theme, they are meant to stand out */
 .wf-message-error {
-  background: var(--wf-bad-color);
+  background: #c5221f;
+  color: #fff;
 }
 .wf-message-warning {
   background: #b35c00;
+  color: #fff;
 }
 
 .wf-dialog-overlay {
@@ -1071,7 +1211,7 @@
   background: var(--wf-modal-background);
   color: var(--wf-modal-color);
   border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 40px var(--wf-shadow-color);
   padding: 1.25em 1.5em;
   width: min(46em, 92vw);
   max-height: 86vh;
@@ -1096,15 +1236,15 @@
   padding: 0.4em 0.9em;
   border: solid 1px var(--wf-field-border-color);
   border-radius: 4px;
-  background: #fff;
-  color: #1f2328;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
   font-size: 1em;
 }
 .wf-button-primary,
 .wf-dialog-buttons button.wf-button-primary {
   background: var(--wf-accent-color);
   border-color: var(--wf-accent-color);
-  color: #fff;
+  color: var(--wf-on-accent-color);
 }
 .wf-candidate {
   display: flex;
@@ -1130,8 +1270,8 @@
   border: solid 1px var(--wf-field-border-color);
   border-radius: 4px;
   padding: 0 0.45em;
-  background: #fff;
-  color: #1f2328;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
 }
 .wf-candidate-label {
   flex: 1;
@@ -1162,11 +1302,11 @@
   font-size: 0.85em;
   padding: 0 0.4em;
   border-radius: 3px;
-  background: #e5e7eb;
-  color: #1f2328;
+  background: var(--wf-neutral-tint);
+  color: var(--wf-neutral-text);
 }
-.wf-candidate-format-print { background: #dcfce7; }
-.wf-candidate-format-ebook { background: #dbeafe; }
+.wf-candidate-format-print { background: var(--wf-good-tint); color: var(--wf-good-text); }
+.wf-candidate-format-ebook { background: var(--wf-info-tint); color: var(--wf-info-text); }
 .wf-candidate-warn {
   color: var(--wf-bad-color);
 }
@@ -1342,6 +1482,8 @@
   border: solid 1px var(--wf-field-border-color);
   border-radius: 4px;
   box-sizing: border-box;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
 }
 .wf-builder-columns {
   display: flex;
@@ -1361,13 +1503,13 @@
   height: 18em;
   overflow-y: auto;
   padding: 0.35em 0.5em;
-  background: #fff;
-  color: #1f2328;
+  background: var(--wf-modal-background);
+  color: var(--wf-modal-color);
 }
 .wf-builder-list-rt {
   font-size: 0.75em;
   text-transform: uppercase;
-  color: #6b7280;
+  color: var(--wf-muted-color);
   margin: 0.5em 0 0.15em 0;
   font-weight: bold;
 }

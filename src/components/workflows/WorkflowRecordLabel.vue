@@ -3,8 +3,9 @@
     <!-- what record this is, and where it stands: in the sheet's frozen column, or across the top of a page -->
     <div class="wf-record-line" :title="(row.label || row.scanned) + (row.lccn ? ' (' + row.lccn + ')' : '')">
       <span class="wf-record-number">{{ index + 1 }}</span>
-      <span class="wf-record-title">{{ row.label || row.scanned }}</span>
-      <span class="wf-record-id">{{ row.lccn || row.scanned }}</span>
+      <!-- the title and the id copy themselves with a click -->
+      <span :class="['wf-record-title', 'wf-copyable', {'wf-copied': copied == 'title'}]" title="Click to copy the title" @click.stop="copy('title', row.label || row.scanned)" data-copied="Title copied">{{ row.label || row.scanned }}</span>
+      <span :class="['wf-record-id', 'wf-copyable', {'wf-copied': copied == 'id'}]" :title="'Click to copy ' + (row.lccn ? 'the LCCN' : 'this')" @click.stop="copy('id', row.lccn || row.scanned)" data-copied="Copied">{{ row.lccn || row.scanned }}</span>
       <span v-if="row.posted" class="material-icons wf-record-state wf-state-posted" title="Posted">mark_email_read</span>
       <span v-else-if="row.postFailed" class="material-icons wf-record-state wf-state-error" title="The last post failed">error</span>
       <span v-if="row.saving" class="material-icons wf-record-state" title="Saving...">sync</span>
@@ -20,10 +21,10 @@
         <span class="material-icons wf-spin">sync</span> Looking up WorldCat...
       </template>
       <template v-else-if="row.enrichment.status == 'ready'">
-        <span :class="['wf-cip-badge', row.enrichment.source.lccnConfirmed ? 'wf-cip-confirmed' : 'wf-cip-unconfirmed']" :title="cipTitle">
+        <a :class="['wf-cip-badge', 'wf-cip-link', row.enrichment.source.lccnConfirmed ? 'wf-cip-confirmed' : 'wf-cip-unconfirmed']" :title="cipTitle + '\n\nClick to open in WorldCat'" :href="'https://worldcat.org/oclc/' + row.enrichment.source.oclcNumber" target="_blank" rel="noopener" @click.stop="worldcatClick($event)">
           <span class="material-icons">{{ row.enrichment.source.lccnConfirmed ? 'fact_check' : 'help_outline' }}</span>
           WorldCat {{ row.enrichment.source.oclcNumber }}
-        </span>
+        </a>
         <span v-if="suggestionCount.open > 0" class="wf-cip-count" :title="suggestionCount.open + ' suggestions to look at, ' + suggestionCount.verified + ' fields match'">{{ suggestionCount.open }} to review</span>
         <span v-else class="wf-cip-count wf-cip-count-done" :title="suggestionCount.verified + ' fields match WorldCat'">{{ suggestionCount.verified }} match</span>
       </template>
@@ -44,6 +45,8 @@ import { useWorkflowStore } from '@/stores/workflow'
 
 export default {
   name: "WorkflowRecordLabel",
+  // in the sheet the label is in the frozen column, a click that ends a drag of the sheet is not a click on it
+  inject: { wfGridWasPanning: { default: () => { return () => { return false } } } },
   props: {
     row: Object,
     index: Number,
@@ -51,6 +54,13 @@ export default {
     protections: Array,
     // {open, verified} what the WorldCat comparison came to, see recordLines
     suggestionCount: Object,
+  },
+  data(){
+    return {
+      // which of the title / id was just copied, for the "copied" animation
+      copied: null,
+      copiedTimer: null,
+    }
   },
   computed: {
     ...mapStores(useWorkflowStore),
@@ -63,6 +73,34 @@ export default {
       for (let m of src.messages){ parts.push(m) }
       return parts.join('\n')
     },
+  },
+  methods: {
+    /**
+    * Put the text on the clipboard and say so for a moment
+    * @param {string} what - 'title' | 'id'
+    * @param {string} text
+    * @return {void}
+    */
+    async copy(what, text){
+      if (this.wfGridWasPanning() || !text){ return }
+      try {
+        await navigator.clipboard.writeText(text)
+      } catch (e) {
+        this.workflowStore.notify('Could not copy to the clipboard', 'error')
+        return
+      }
+      window.clearTimeout(this.copiedTimer)
+      this.copied = what
+      this.copiedTimer = window.setTimeout(() => { this.copied = null }, 1400)
+    },
+
+    worldcatClick(event){
+      // the link opens in a new tab on its own, unless the click was the end of a drag
+      if (this.wfGridWasPanning()){ event.preventDefault() }
+    },
+  },
+  beforeUnmount(){
+    window.clearTimeout(this.copiedTimer)
   },
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <td :class="cellClass" :data-line="line" :data-col="colIndex" :title="(suggestion && suggestion.status == 'match') ? (suggestion.note || 'Matches WorldCat') : null" @click="click" @contextmenu.prevent="contextMenu" @wf-clear="clearValue" ref="cell">
+  <td :class="cellClass" :data-line="line" :data-col="colIndex" :title="cellTitle" @click="click" @contextmenu.prevent="contextMenu" @wf-clear="clearValue" ref="cell">
 
     <!-- a line WorldCat has and the record doesn't: shown faintly, the first cell offers to add the whole component -->
     <template v-if="ghost">
@@ -102,6 +102,8 @@ export default {
     pt: Object,
     // the resolved cell from resolveComponentCells, null if the column does not apply
     cell: Object,
+    // all the cells of the component on this line, to say which template it is using when this column is not part of it
+    lineCells: Object,
     column: Object,
     firstInGroup: Boolean,
     // where the cell is in the sheet, for the selection and keyboard movement
@@ -117,6 +119,21 @@ export default {
   computed: {
     ...mapStores(useWorkflowStore, useProfileStore),
     ...mapState(useProfileStore, ['rtLookup']),
+
+    /**
+    * The tooltip of the cell: why a grey cell can't be used, or that a value matches WorldCat
+    * @return {string|null}
+    */
+    cellTitle(){
+      if (this.suggestion && this.suggestion.status == 'match'){ return this.suggestion.note || 'Matches WorldCat' }
+      // the column is a field of another template of this component (Other title information on a Work title)
+      if (!this.ghost && this.pt && !this.cell && this.lineCells){
+        let typeCell = Object.values(this.lineCells).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
+        let label = typeCell ? typeCell.active.resourceLabel : null
+        return label ? ('"' + this.column.label + '" is not a field of "' + label + '", change the Type to use it') : ('"' + this.column.label + '" is not a field of the template this component is using')
+      }
+      return null
+    },
 
     isEditing(){
       let e = this.workflowStore.editingCell

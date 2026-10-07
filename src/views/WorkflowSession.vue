@@ -1,5 +1,5 @@
 <template>
-  <div class="wf-root" :style="themeStyle">
+  <div class="wf-root">
 
     <div class="wf-bar">
       <router-link :to="{ name: 'Workflows' }" title="Back to the list of workflows"><span class="material-icons">arrow_back</span><span class="wf-bar-back">Workflows</span></router-link>
@@ -230,7 +230,7 @@ import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 import { useConfigStore } from '@/stores/config'
 
-import { workflowThemeStyle } from '@/lib/workflows/theme'
+import { workflowTheme, applyWorkflowTheme, removeWorkflowTheme } from '@/lib/workflows/theme'
 import { columnHint } from '@/lib/workflows/fields'
 
 import WorkflowGrid from "@/components/workflows/WorkflowGrid.vue";
@@ -275,8 +275,9 @@ export default {
     ...mapWritableState(useProfileStore, ['literalLangShow']),
     ...mapWritableState(usePreferenceStore, ['showDebugModal']),
 
-    themeStyle(){
-      return workflowThemeStyle(this.preferenceStore)
+    // the colors, from the editor's preferences, see lib/workflows/theme.js. Watched below and put on the document
+    theme(){
+      return workflowTheme(this.preferenceStore)
     },
 
     session(){
@@ -334,6 +335,8 @@ export default {
     },
   },
   watch: {
+    // the user changed their colors in the preferences while the sheet is open
+    theme(){ applyWorkflowTheme(this.preferenceStore) },
     prompt(){ this.alwaysPick = false },
     // the profiles are loaded by App.vue, the session can't be opened until they are there
     profilesLoaded: { immediate: true, handler(){ this.open() } },
@@ -639,6 +642,7 @@ export default {
     },
   },
   mounted(){
+    applyWorkflowTheme(this.preferenceStore)
     // not reactive, it is only bookkeeping for the scanner detection
     this.scanner = { buffer: '', last: 0, target: null, timer: null }
     // on the capture phase so a scan is seen (and its enter stopped) before the field with the focus gets it
@@ -652,6 +656,7 @@ export default {
     window.removeEventListener('keydown', this.globalKeydown)
     window.removeEventListener('beforeunload', this.beforeUnload)
     this.workflowStore.closeSession()
+    removeWorkflowTheme()
   },
 }
 </script>

@@ -35,6 +35,7 @@
                 :group="group"
                 :pt="(lines[lineIdx][group.key] && !lines[lineIdx][group.key].ghost) ? lines[lineIdx][group.key].pt : null"
                 :cell="lines[lineIdx][group.key] ? (lines[lineIdx][group.key].cells[column.key] || null) : null"
+                :lineCells="lines[lineIdx][group.key] ? lines[lineIdx][group.key].cells : null"
                 :column="column"
                 :firstInGroup="colIdx == 0"
                 :line="lineIdx"
