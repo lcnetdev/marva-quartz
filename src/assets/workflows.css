@@ -1,0 +1,1366 @@
+/*
+  Workflows
+
+  Everything for the workflow screens lives in this file and is prefixed with wf- so it
+  stays out of the way of the editor's css. The colors come from the editor's color
+  preferences (see lib/workflows/theme.js), the values here are only the fallbacks.
+*/
+
+.wf-root {
+  --wf-nav-background: #2c3e50;
+  --wf-nav-color: #ffffff;
+  --wf-work-color: #e8f0fe;
+  --wf-instance-color: #fef3e2;
+  --wf-item-color: #eaf7ea;
+  --wf-field-color: #ffffff;
+  --wf-field-border-color: #b9bec6;
+  --wf-field-focus-color: #fff9c4;
+  --wf-text-color: #1f2328;
+  --wf-modal-background: #ffffff;
+  --wf-modal-accent: #f0f0f0;
+  --wf-modal-color: #1f2328;
+
+  --wf-line-color: #d5d9df;
+  --wf-na-color: #eceef1;
+  --wf-na-hatch-color: #d6dae0;
+  --wf-linked-icon-color: #1c7d76;
+  --wf-head-background: #f6f7f9;
+  --wf-muted-color: #6b7280;
+  --wf-accent-color: #1a73e8;
+  --wf-good-color: #1e8e3e;
+  --wf-bad-color: #c5221f;
+
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  color: var(--wf-text-color);
+  font-size: 14px;
+  background: #fff;
+}
+
+.wf-root button {
+  cursor: pointer;
+}
+.wf-root button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* ------------------------------------------------------------ top bar */
+
+.wf-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  padding: 0.4em 0.75em;
+  background: var(--wf-nav-background);
+  color: var(--wf-nav-color);
+  flex: 0 0 auto;
+}
+.wf-bar a {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+/* only the word is underlined on hover, not the arrow */
+.wf-bar a:hover .wf-bar-back {
+  text-decoration: underline;
+}
+.wf-bar-back {
+  margin-left: 0.25em;
+}
+/* the sheet's name, click it to rename */
+.wf-bar-title-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: bold;
+  font-size: 1.1em;
+  cursor: pointer;
+  text-align: left;
+}
+.wf-bar-title-button:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+.wf-bar-title {
+  font-weight: bold;
+  font-size: 1.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 22em;
+}
+.wf-bar-count {
+  opacity: 0.8;
+  white-space: nowrap;
+}
+.wf-bar-spacer {
+  flex: 1;
+}
+.wf-bar .material-icons {
+  font-size: 1.3em;
+  vertical-align: middle;
+}
+.wf-bar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.3em 0.6em;
+  border: solid 1px rgba(127, 127, 127, 0.6);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2328;
+  font-size: 0.95em;
+  white-space: nowrap;
+}
+.wf-bar-button:hover:not(:disabled) {
+  background: #fff;
+}
+.wf-bar-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+}
+.wf-bar-zoom .wf-bar-button {
+  padding: 0.3em 0.35em;
+}
+.wf-bar-zoom-value {
+  min-width: 3.2em;
+  justify-content: center;
+}
+
+.wf-scan {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0 0.4em;
+  color: #1f2328;
+  border: solid 2px transparent;
+}
+.wf-scan:focus-within {
+  border-color: var(--wf-accent-color);
+}
+.wf-scan input {
+  border: none;
+  outline: none;
+  font-size: 1.05em;
+  padding: 0.35em 0.4em;
+  width: 19em;
+  background: transparent;
+}
+
+/* the fields menu, it is rendered in a floating-vue popper outside of .wf-root */
+.wf-fields-menu {
+  padding: 0.5em 0.75em;
+  max-height: 70vh;
+  overflow-y: auto;
+  min-width: 16em;
+  font-size: 14px;
+}
+.wf-fields-menu label {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.2em 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wf-fields-menu-rt {
+  font-size: 0.75em;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+.wf-fields-menu-group {
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+}
+.wf-fields-menu-group > label {
+  flex: 1;
+}
+.wf-fields-menu-group .wf-icon-button .material-icons {
+  font-size: 1.1em;
+}
+.wf-drag-handle {
+  font-size: 1.1em;
+  color: #b0b5bd;
+  cursor: grab;
+  margin-left: -0.3em;
+  user-select: none;
+}
+.wf-drag-handle:hover {
+  color: #6b7280;
+}
+.wf-drag-source {
+  opacity: 0.4;
+}
+/* where the dragged row will land */
+.wf-fields-menu-group {
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+}
+.wf-drop-before {
+  border-top-color: var(--wf-accent-color);
+}
+.wf-drop-after {
+  border-bottom-color: var(--wf-accent-color);
+}
+.wf-fields-menu-hint {
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.5em;
+}
+.wf-fields-menu-count {
+  font-size: 0.7em;
+  color: #6b7280;
+  vertical-align: middle;
+}
+/* the subfields of a component, in the Fields menu and the workflow builder */
+.wf-fields-menu-columns {
+  margin: 0 0 0.3em 1.6em;
+  padding-left: 0.6em;
+  border-left: 2px solid #e5e7eb;
+}
+.wf-fields-menu-columns label {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.1em 0;
+  font-size: 0.92em;
+  font-weight: normal;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wf-fields-menu-heading {
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  padding: 0.2em 0;
+}
+.wf-fields-menu-add {
+  margin-top: 0.6em;
+  padding-top: 0.6em;
+  border-top: 1px solid #e5e7eb;
+}
+.wf-fields-menu-filter {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.25em 0 0.4em 0;
+  padding: 0.3em 0.5em;
+  font: inherit;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+}
+.wf-fields-menu-rt-heading {
+  font-size: 0.75em;
+  color: #6b7280;
+  text-transform: uppercase;
+  padding: 0.4em 0 0.1em 0;
+}
+.wf-fields-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.2em 0.3em;
+  margin-left: -0.3em;
+  border-radius: 3px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wf-fields-menu-item:hover {
+  background: #eef2f7;
+}
+.wf-fields-menu-item .material-icons {
+  font-size: 1.1em;
+  color: #2563eb;
+}
+.wf-fields-menu-empty {
+  padding: 0.3em 0;
+  font-size: 0.9em;
+  color: #6b7280;
+}
+.wf-bar-help {
+  padding: 0.3em 0.35em;
+}
+.wf-help-menu {
+  padding: 0.6em 0.9em;
+  font-size: 13px;
+  max-width: 26em;
+}
+.wf-help-menu dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.15em 0.8em;
+  margin: 0.3em 0 0.8em 0;
+}
+.wf-help-menu dt {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.wf-help-menu dd {
+  margin: 0;
+  color: #4b5563;
+}
+.wf-help-menu p {
+  margin: 0.3em 0 0 0;
+  color: #4b5563;
+}
+
+/* the MARC preview popover on a record's MARC button */
+.wf-marc-popover {
+  max-width: min(60vw, 70em);
+  max-height: 70vh;
+  overflow: auto;
+  padding: 0.5em 0.75em;
+  font-size: 13px;
+}
+.wf-marc-text {
+  margin: 0;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre;
+}
+.wf-marc-version {
+  color: #6b7280;
+  font-size: 0.85em;
+  margin-bottom: 0.4em;
+}
+.wf-marc-loading,
+.wf-marc-error {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.5em;
+  white-space: pre-wrap;
+}
+.wf-marc-error {
+  color: #c5221f;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  max-width: 40em;
+}
+.wf-spin {
+  animation: wf-spin 1s linear infinite;
+}
+@keyframes wf-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------ CIP: the WorldCat comparison */
+
+/* in the record column: where the comparison stands */
+.wf-cip {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 0.2em;
+  font-size: 0.8em;
+  color: var(--wf-muted-color);
+}
+.wf-cip .material-icons {
+  font-size: 1.2em;
+}
+.wf-cip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  padding: 0 0.4em;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.wf-cip-confirmed { background: #dcfce7; color: #166534; }
+.wf-cip-unconfirmed { background: #fef3c7; color: #92400e; }
+.wf-cip-error { background: #fee2e2; color: #991b1b; }
+.wf-cip-none { background: #e5e7eb; color: #4b5563; }
+.wf-cip-protected { background: #ede9fe; color: #5b21b6; }
+.wf-cip-count {
+  white-space: nowrap;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+.wf-cip-count-done {
+  color: #166534;
+  font-weight: normal;
+}
+.wf-cip-retry {
+  font: inherit;
+  font-size: 0.95em;
+  padding: 0 0.4em;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* a cell whose value is what WorldCat has */
+.wf-table td.wf-cell-verified {
+  background: #f0fdf4;
+  box-shadow: inset 3px 0 0 #22c55e;
+}
+
+/* what WorldCat has, under the record's value */
+.wf-suggest {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  margin-top: 0.15em;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+  border: 1px dashed #93c5fd;
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+.wf-suggest-differs {
+  border-color: #fcd34d;
+  background: #fffbeb;
+  color: #78350f;
+}
+.wf-suggest-warn {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+.wf-suggest-remove {
+  border-color: #d1d5db;
+  background: #f9fafb;
+  color: #374151;
+}
+.wf-suggest-icon {
+  font-size: 1.1em;
+  flex: 0 0 auto;
+}
+.wf-suggest-values {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wf-suggest-accept,
+.wf-suggest-dismiss {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1em;
+  padding: 0 0.25em;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  line-height: 1.3;
+}
+.wf-suggest-accept .material-icons,
+.wf-suggest-dismiss .material-icons {
+  font-size: 1.15em;
+}
+.wf-suggest-accept {
+  color: #15803d;
+  font-weight: 600;
+}
+.wf-suggest-accept:hover:not(:disabled) {
+  background: #dcfce7;
+}
+.wf-suggest-dismiss {
+  color: #6b7280;
+}
+.wf-suggest-dismiss:hover {
+  background: #e5e7eb;
+}
+
+/* a selected cell shows what WorldCat offers in full, so it can be read before it is taken */
+.wf-table td.wf-cell-selected .wf-ghost-value,
+.wf-table td.wf-cell-selected .wf-suggest {
+  white-space: normal;
+  align-items: flex-start;
+}
+.wf-table td.wf-cell-selected .wf-ghost-value .wf-value-text,
+.wf-table td.wf-cell-selected .wf-suggest-values {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+}
+.wf-table td.wf-cell-selected .wf-ghost-actions {
+  float: none;
+  justify-content: flex-end;
+  margin: 0 0 0.2em 0;
+}
+
+/* a line only WorldCat has, or a blank line of the record WorldCat can fill */
+.wf-table td.wf-cell-wholeline,
+.wf-table td.wf-cell-ghost {
+  background: #f8fafc;
+  background-image: repeating-linear-gradient(45deg, transparent 0 7px, #e0f2fe 7px 8px);
+  cursor: default;
+}
+.wf-ghost-value {
+  color: #475569;
+  font-style: italic;
+}
+.wf-ghost-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+  float: right;
+  margin-left: 0.3em;
+}
+.wf-ghost-actions .wf-suggest-accept {
+  border: 1px solid #86efac;
+  background: #f0fdf4;
+  font-size: 0.85em;
+}
+
+/* ------------------------------------------------------------ the sheet */
+
+.wf-viewport {
+  position: relative;
+  flex: 1 1 auto;
+  overflow: hidden;
+  background: #e9ebee;
+  cursor: grab;
+  user-select: none;
+}
+.wf-viewport.wf-panning {
+  cursor: grabbing;
+}
+.wf-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.wf-table {
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--wf-field-color);
+}
+.wf-table th,
+.wf-table td {
+  border-right: solid 1px var(--wf-line-color);
+  border-bottom: solid 1px var(--wf-line-color);
+  padding: 0.2em 0.45em;
+  vertical-align: top;
+  text-align: left;
+  font-weight: normal;
+  overflow: hidden;
+  background-clip: padding-box;
+}
+
+/* the frozen header row and record column are pushed back into view as the sheet is dragged */
+.wf-stick-top {
+  position: relative;
+  z-index: 3;
+  transform: translateY(var(--wf-stick-y, 0px));
+}
+.wf-stick-left {
+  position: relative;
+  z-index: 2;
+  transform: translateX(var(--wf-stick-x, 0px));
+}
+.wf-stick-top.wf-stick-left {
+  z-index: 4;
+  transform: translate(var(--wf-stick-x, 0px), var(--wf-stick-y, 0px));
+}
+
+.wf-table th.wf-head {
+  background: var(--wf-head-background);
+  font-size: 0.85em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+.wf-table th.wf-head-record,
+.wf-table th.wf-head-actions {
+  font-weight: bold;
+}
+.wf-table th.wf-head-group {
+  font-weight: bold;
+  border-left: solid 2px var(--wf-field-border-color);
+}
+.wf-table th.wf-head-work { background: var(--wf-work-color); }
+.wf-table th.wf-head-instance { background: var(--wf-instance-color); }
+.wf-table th.wf-head-item { background: var(--wf-item-color); }
+.wf-head-rt {
+  font-size: 0.8em;
+  font-weight: normal;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-right: 0.5em;
+}
+/* tells apart subfields that share a label, by the template they belong to */
+.wf-head-hint {
+  font-size: 0.85em;
+  font-weight: normal;
+  color: var(--wf-muted-color);
+  margin-left: 0.4em;
+}
+.wf-head-hide {
+  float: right;
+  border: none;
+  background: transparent;
+  padding: 0;
+  opacity: 0.35;
+  line-height: 1;
+}
+.wf-head-hide:hover {
+  opacity: 1;
+}
+.wf-head-hide .material-icons {
+  font-size: 1.2em;
+}
+
+.wf-table .wf-cell-group-start {
+  border-left: solid 2px var(--wf-field-border-color);
+}
+.wf-table tr.wf-line-first > td,
+.wf-table tr.wf-line-first > th {
+  border-top: solid 2px var(--wf-field-border-color);
+}
+
+/* the record column */
+.wf-table th.wf-record-header {
+  background: var(--wf-head-background);
+  cursor: default;
+}
+.wf-record-line {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+}
+.wf-record-number {
+  font-size: 0.8em;
+  color: var(--wf-muted-color);
+}
+.wf-record-state.material-icons {
+  font-size: 1.2em;
+}
+.wf-state-posted { color: var(--wf-good-color); }
+.wf-state-error { color: var(--wf-bad-color); }
+.wf-state-dirty { color: var(--wf-muted-color); }
+.wf-record-title {
+  flex: 1;
+  min-width: 0;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wf-record-id {
+  font-size: 0.8em;
+  color: var(--wf-muted-color);
+}
+
+.wf-record-done td,
+.wf-record-done th.wf-record-header {
+  background-color: #e6f4ea;
+}
+.wf-record-done .wf-cell:not(.wf-cell-editing) {
+  opacity: 0.6;
+}
+.wf-record-flash th.wf-record-header {
+  animation: wf-flash 0.5s 4;
+}
+@keyframes wf-flash {
+  50% { background: #ffe082; }
+}
+
+.wf-table td.wf-record-status {
+  color: var(--wf-muted-color);
+  font-style: italic;
+  vertical-align: middle;
+}
+.wf-table td.wf-record-status-error {
+  color: var(--wf-bad-color);
+  font-style: normal;
+}
+.wf-record-status .material-icons {
+  font-size: 1.2em;
+  vertical-align: text-bottom;
+}
+
+/* cells */
+.wf-table td.wf-cell {
+  cursor: cell;
+  word-break: break-word;
+}
+.wf-table td.wf-cell:hover:not(.wf-cell-na):not(.wf-cell-editing) {
+  background: var(--wf-field-focus-color);
+}
+.wf-table td.wf-cell-na {
+  background: var(--wf-na-color);
+  cursor: inherit;
+}
+/* every other record gets diagonal lines through its empty cells so the eye can tell the records apart */
+.wf-table tbody.wf-record:nth-of-type(even) td.wf-cell-na {
+  background-image: repeating-linear-gradient(45deg, transparent 0 7px, var(--wf-na-hatch-color) 7px 8px);
+}
+.wf-table td.wf-cell-editing {
+  position: relative;
+  z-index: 6;
+  overflow: visible;
+  padding: 0;
+  cursor: auto;
+  user-select: text;
+  outline: solid 2px var(--wf-accent-color);
+  outline-offset: -1px;
+  background: var(--wf-field-focus-color);
+}
+.wf-editor {
+  min-height: 1.6em;
+}
+/* rows are kept as short as possible, a value only shows its first line until the cell is opened */
+.wf-value {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* the text is what gets cut short, the language and status icon after it stay in view */
+.wf-value-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wf-value-lang,
+.wf-value-status {
+  flex: 0 0 auto;
+}
+.wf-value + .wf-value {
+  border-top: dotted 1px var(--wf-line-color);
+}
+/* the action button is not shown in the sheet, the right mouse button opens its menu. It is only
+   hidden from view, it has to stay in the page because the menu is opened through it and placed next to it */
+.wf-editor button.action-button {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+/* the link status icons at the end of a value, same icons and colours as the editor's ValidationIcon */
+.wf-value-status {
+  font-size: 1.15em;
+  vertical-align: text-bottom;
+  margin-left: 0.25em;
+  line-height: 1;
+}
+.wf-value-status-verified { color: var(--wf-linked-icon-color); }
+.wf-value-status-done_all { color: green; }
+.wf-value-status-warning { color: green; }
+.wf-value-status-help { color: orange; }
+.wf-value-status-report { color: rebeccapurple; }
+.wf-value-status-controlled { color: var(--wf-good-color); font-size: 1em; }
+.wf-value-lang {
+  font-size: 0.75em;
+  color: var(--wf-muted-color);
+  margin-left: 0.4em;
+  border: solid 1px var(--wf-line-color);
+  border-radius: 3px;
+  padding: 0 0.25em;
+}
+.wf-type-select {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.wf-type-unset {
+  color: var(--wf-muted-color);
+}
+
+/* the buttons at the end of the row */
+.wf-table td.wf-record-actions {
+  vertical-align: middle;
+  white-space: nowrap;
+  cursor: default;
+}
+.wf-record-actions .v-popper {
+  display: inline-block;
+}
+.wf-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  margin-right: 0.3em;
+  padding: 0.05em 0.4em;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 4px;
+  background: #fff;
+  font-size: 0.85em;
+  color: inherit;
+}
+.wf-action .material-icons {
+  font-size: 1.25em;
+}
+.wf-action:hover:not(:disabled) {
+  border-color: var(--wf-accent-color);
+}
+.wf-action-on {
+  background: #e6f4ea;
+  border-color: var(--wf-good-color);
+  color: var(--wf-good-color);
+}
+.wf-action-remove {
+  border-color: transparent;
+  background: transparent;
+  opacity: 0.5;
+  margin-right: 0;
+}
+.wf-action-remove:hover {
+  opacity: 1;
+}
+
+.wf-empty {
+  position: absolute;
+  inset: 0;
+  top: 5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  color: var(--wf-muted-color);
+  font-size: 1.2em;
+  pointer-events: none;
+}
+.wf-empty .material-icons {
+  font-size: 4em;
+  opacity: 0.5;
+}
+
+.wf-busy {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: wait;
+}
+.wf-busy > div {
+  background: var(--wf-modal-background);
+  color: var(--wf-modal-color);
+  padding: 0.75em 1.5em;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* ------------------------------------------------------------ notices and dialogs */
+
+.wf-messages {
+  position: fixed;
+  right: 1em;
+  bottom: 1em;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5em;
+  max-width: 30em;
+}
+.wf-message {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.6em 1em;
+  border-radius: 6px;
+  background: #1f2328;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+.wf-message .material-icons {
+  font-size: 1.3em;
+}
+.wf-message-error {
+  background: var(--wf-bad-color);
+}
+
+.wf-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wf-dialog {
+  background: var(--wf-modal-background);
+  color: var(--wf-modal-color);
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  padding: 1.25em 1.5em;
+  width: min(46em, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+}
+.wf-dialog h2 {
+  margin: 0 0 0.25em 0;
+  font-size: 1.25em;
+}
+.wf-dialog p {
+  margin: 0 0 0.75em 0;
+  color: var(--wf-muted-color);
+}
+.wf-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5em;
+  margin-top: 1em;
+}
+.wf-dialog-buttons button,
+.wf-button {
+  padding: 0.4em 0.9em;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 4px;
+  background: #fff;
+  color: #1f2328;
+  font-size: 1em;
+}
+.wf-button-primary,
+.wf-dialog-buttons button.wf-button-primary {
+  background: var(--wf-accent-color);
+  border-color: var(--wf-accent-color);
+  color: #fff;
+}
+.wf-candidate {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  width: 100%;
+  text-align: left;
+  padding: 0.6em 0.75em;
+  margin-bottom: 0.4em;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 6px;
+  background: var(--wf-modal-accent);
+  color: inherit;
+  font-size: 1em;
+}
+.wf-candidate:hover,
+.wf-candidate:focus {
+  border-color: var(--wf-accent-color);
+  outline: none;
+}
+.wf-candidate-key {
+  font-weight: bold;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 4px;
+  padding: 0 0.45em;
+  background: #fff;
+  color: #1f2328;
+}
+.wf-candidate-label {
+  flex: 1;
+}
+.wf-candidate-source {
+  font-weight: bold;
+  font-size: 0.85em;
+}
+.wf-candidate a {
+  color: var(--wf-accent-color);
+}
+.wf-candidate-recommended {
+  border-color: var(--wf-accent-color);
+  box-shadow: 0 0 0 1px var(--wf-accent-color);
+}
+.wf-candidate-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+  margin-top: 0.25em;
+  font-size: 0.8em;
+  color: var(--wf-muted-color);
+}
+.wf-candidate-format {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  padding: 0 0.4em;
+  border-radius: 3px;
+  background: #e5e7eb;
+  color: #1f2328;
+}
+.wf-candidate-format-print { background: #dcfce7; }
+.wf-candidate-format-ebook { background: #dbeafe; }
+.wf-candidate-warn {
+  color: var(--wf-bad-color);
+}
+.wf-candidate-note .material-icons {
+  font-size: 1.1em;
+  vertical-align: text-bottom;
+  margin-right: 0.15em;
+}
+.wf-dialog-buttons-split {
+  justify-content: space-between;
+  align-items: center;
+}
+.wf-always-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.9em;
+  font-weight: normal;
+  cursor: pointer;
+}
+.wf-options-menu {
+  padding: 0.5em 0.75em;
+  max-width: 22em;
+  font-size: 14px;
+}
+.wf-options-menu p {
+  margin: 0.4em 0;
+}
+.wf-candidate-likely {
+  color: var(--wf-accent-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+}
+.wf-candidate-likely .material-icons {
+  font-size: 1.1em;
+}
+.wf-dialog pre {
+  background: var(--wf-modal-accent);
+  padding: 0.75em;
+  border-radius: 6px;
+  max-height: 40vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.85em;
+}
+
+/* ------------------------------------------------------------ the list of workflows */
+
+.wf-home {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.5em 2em;
+  display: flex;
+  gap: 3em;
+  align-items: flex-start;
+}
+.wf-home-column {
+  flex: 1;
+  min-width: 0;
+}
+.wf-home-column-wide {
+  flex: 1.5;
+}
+.wf-home h1 {
+  font-size: 1.4em;
+  margin: 0 0 0.75em 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.wf-home h1 .wf-button {
+  margin-left: auto;
+  font-size: 0.65em;
+}
+.wf-card {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding: 0.8em 1em;
+  margin-bottom: 0.6em;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 8px;
+  background: var(--wf-field-color);
+}
+.wf-card-main {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.wf-card:hover {
+  border-color: var(--wf-accent-color);
+}
+.wf-card-name {
+  font-weight: bold;
+  font-size: 1.05em;
+}
+.wf-card-tag {
+  font-size: 0.7em;
+  font-weight: normal;
+  text-transform: uppercase;
+  border: solid 1px var(--wf-line-color);
+  border-radius: 3px;
+  padding: 0 0.35em;
+  margin-left: 0.5em;
+  color: var(--wf-muted-color);
+  vertical-align: middle;
+}
+.wf-card-desc,
+.wf-card-meta {
+  color: var(--wf-muted-color);
+  font-size: 0.9em;
+}
+.wf-card-fields {
+  font-size: 0.85em;
+  margin-top: 0.25em;
+}
+.wf-card-actions {
+  display: flex;
+  gap: 0.35em;
+}
+.wf-icon-button {
+  border: none;
+  background: transparent;
+  padding: 0.2em;
+  color: var(--wf-muted-color);
+  border-radius: 4px;
+  line-height: 1;
+}
+.wf-icon-button:hover:not(:disabled) {
+  color: var(--wf-text-color);
+  background: var(--wf-na-color);
+}
+.wf-home-empty,
+.wf-notice {
+  color: var(--wf-muted-color);
+  padding: 1em 0;
+}
+.wf-notice {
+  padding: 3em;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+/* ------------------------------------------------------------ naming a sheet */
+
+.wf-name-dialog {
+  width: 28em;
+  max-width: 90vw;
+}
+.wf-name-dialog label.wf-builder-field {
+  display: block;
+  margin-bottom: 0.9em;
+  font-weight: bold;
+}
+
+/* ------------------------------------------------------------ the workflow builder */
+
+.wf-builder label.wf-builder-field {
+  display: block;
+  margin-bottom: 0.9em;
+  font-weight: bold;
+}
+.wf-builder-field input[type="text"],
+.wf-builder-field select {
+  display: block;
+  width: 100%;
+  margin-top: 0.25em;
+  padding: 0.4em 0.5em;
+  font-size: 1em;
+  font-weight: normal;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.wf-builder-columns {
+  display: flex;
+  gap: 1.25em;
+}
+.wf-builder-columns > div {
+  flex: 1;
+  min-width: 0;
+}
+.wf-builder h3 {
+  margin: 0 0 0.35em 0;
+  font-size: 1em;
+}
+.wf-builder-list {
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 6px;
+  height: 18em;
+  overflow-y: auto;
+  padding: 0.35em 0.5em;
+  background: #fff;
+  color: #1f2328;
+}
+.wf-builder-list-rt {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin: 0.5em 0 0.15em 0;
+  font-weight: bold;
+}
+.wf-builder-list label,
+.wf-builder-selected {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.15em 0;
+  font-weight: normal;
+}
+.wf-builder-list label {
+  cursor: pointer;
+}
+.wf-builder-selected span.wf-builder-selected-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wf-builder-selected .wf-fields-menu-rt {
+  width: 4.5em;
+  flex: 0 0 auto;
+}
+.wf-builder-enrichment {
+  display: flex;
+  gap: 0.5em;
+  align-items: baseline;
+  margin-bottom: 0.25em;
+  font-weight: normal;
+}
+.wf-builder-enrichment small {
+  color: var(--wf-muted-color);
+}
+
+/* ------------------------------------------------------------ the editor's fields inside a cell */
+
+/*
+  The cell being edited holds the same field components the full editor uses. In the sheet
+  they are restyled to read as text with icons that fills the cell, not the boxed values
+  and floating labels they have in the editor (the column header already says what the field is)
+*/
+.wf-editor .lookup-fake-input {
+  display: block !important;
+  padding: 0.2em 0.45em !important;
+  border: none !important;
+  background-color: transparent !important;
+  box-sizing: border-box;
+}
+.wf-editor .lookup-fake-input-label {
+  display: none !important;
+}
+.wf-editor .lookup-fake-input-entities {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.wf-editor .selected-value-container {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 0.35em;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 0 0.15em 0;
+  border: none !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  white-space: normal !important;
+}
+.wf-editor .selected-value-container span,
+.wf-editor .selected-value-container a {
+  font-weight: normal !important;
+  color: inherit !important;
+}
+.wf-editor .selected-value-container-title,
+.wf-editor .selected-value-container > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+/* the x that removes the value */
+.wf-editor .selected-value-container-action span,
+.wf-editor .selected-value-container > span[style*="border-left"] {
+  border-left: none !important;
+  padding: 0 0.3em !important;
+  color: var(--wf-muted-color) !important;
+}
+.wf-editor .selected-value-container-action span:hover,
+.wf-editor .selected-value-container > span[style*="border-left"]:hover {
+  color: var(--wf-bad-color) !important;
+}
+.wf-editor .selected-value-icon {
+  border-left: none !important;
+  margin-left: 0 !important;
+  padding: 0 0.3em !important;
+}
+.wf-editor .lookup-fake-input-text {
+  margin: 0 !important;
+}
+.wf-editor .lookup-fake-input-text input {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  font-size: inherit !important;
+  background-color: transparent !important;
+}
+.wf-editor .literal-holder,
+.wf-editor .literal-field {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.wf-editor textarea.literal-textarea {
+  display: block;
+  width: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none;
+  background-color: transparent !important;
+  font-size: inherit !important;
+  line-height: inherit;
+  box-sizing: border-box;
+}
+/* the hidden action button shouldn't take room from the value, park it in the corner for its menu to open from */
+.wf-editor .literal-action,
+.wf-editor .lookup-action {
+  position: absolute;
+  top: 0;
+  right: 0;
+  /* it sits over the top right of the value, where the x that removes a value is, so clicks have to pass through it */
+  pointer-events: none;
+}
+
+/* the edge of a column header that is dragged to resize the column */
+.wf-col-resize {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 7px;
+  cursor: col-resize;
+  z-index: 1;
+}
+.wf-col-resize:hover,
+.wf-col-resize:active {
+  background: var(--wf-accent-color);
+  opacity: 0.6;
+}
+
+/* the selected cell, it is outlined but not open */
+.wf-table td.wf-cell-selected {
+  position: relative;
+  z-index: 5;
+  outline: solid 2px var(--wf-accent-color);
+  outline-offset: -2px;
+}

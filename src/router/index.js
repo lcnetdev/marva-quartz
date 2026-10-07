@@ -51,6 +51,17 @@ const router = createRouter({
       component: Load
 
     },
+    // the workflows screens are behind a feature flag and are only loaded when they are used
+    {
+      path: "/workflows",
+      name: "Workflows",
+      component: () => import("../views/Workflows.vue"),
+    },
+    {
+      path: "/workflows/:sessionId",
+      name: "WorkflowSession",
+      component: () => import("../views/WorkflowSession.vue"),
+    },
     {
       path: "/marvalog/:searchId",
       name: "MarvaLog",

@@ -465,8 +465,11 @@ const utilsProfile = {
   * @param {string} recordId - the userValue
   * @return {object} - the profile
   */
-  loadRecordFromBackend: async function(recordId){
-    let xml = await utilsNetwork.loadSavedRecord(recordId)
+  loadRecordFromBackend: async function(recordId, xml = null){
+    // the saved XML can be passed in when the caller already fetched it (the workflows sheet fetches several records at once)
+    if (!xml){
+      xml = await utilsNetwork.loadSavedRecord(recordId)
+    }
     let meta = this.returnMetaFromSavedXML(xml)
     utilsParse.parseXml(meta.xml)
     // alert(parseBfdb.hasItem)

@@ -370,6 +370,25 @@
                   </div>
                 </div>
 
+                <div v-if="workflowStore.enabled" class="load-workflows">
+                  <h2 style="margin-bottom: 10px;">
+                    <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"
+                      class="material-icons">account_tree</span>
+                    <span>Workflows</span>
+                  </h2>
+                  <div style="padding:5px;">
+                    Work through many records at once in a spreadsheet, scanning or typing identifiers to add them.
+                  </div>
+                  <div class="load-buttons">
+                    <router-link :to="{ name: 'Workflows' }" custom v-slot="{ navigate }">
+                      <button class="load-button load-workflows-button" @click="navigate" title="Edit many records at once in a spreadsheet">
+                        <span class="material-icons">account_tree</span>
+                        <span>Open Workflows</span>
+                      </button>
+                    </router-link>
+                  </div>
+                </div>
+
                 <div v-if="showTestData" style="margin-top: 1em;">
                   <table id="test-data-table">
                     <tr class="test-data" v-for="t in testData">
@@ -401,6 +420,7 @@ import 'splitpanes/dist/splitpanes.css'
 import { usePreferenceStore } from '@/stores/preference'
 import { useConfigStore } from '@/stores/config'
 import { useProfileStore } from '@/stores/profile'
+import { useWorkflowStore } from '@/stores/workflow'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
@@ -475,6 +495,7 @@ export default {
     // gives access to this.counterStore and this.userStore
     ...mapStores(usePreferenceStore),
     ...mapStores(useProfileStore),
+    ...mapStores(useWorkflowStore),
     ...mapState(usePreferenceStore, ['styleDefault', 'panelDisplay']),
     ...mapState(useConfigStore, ['testData']),
     ...mapState(useProfileStore, ['startingPoints', 'profiles', 'copyCatMode']),
@@ -1796,6 +1817,21 @@ span.delete-icon.material-icons:hover{
 .load-button:hover {
   border: solid 1px var(--c-black);
   background-color: var(--c-white-soft);
+}
+
+.load-workflows {
+  margin-top: 3em;
+}
+
+.load-workflows-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.25em 0.75em;
+}
+
+.load-workflows-button .material-icons {
+  font-size: 1.1em;
 }
 
 .header {
