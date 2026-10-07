@@ -2,8 +2,9 @@
  * Workflows: the keyboard on the selected cell, shared by the two views of a session, the
  * sheet (WorkflowGrid) and the pages (WorkflowPages). What is the same in both is here:
  * opening the cell (enter, F2, typing into it), clearing it, deselecting, and the handling of
- * enter while a cell is open. Moving the selection around is the view's own, it implements
- * `navigationKey(event)` and returns true when it took the key.
+ * enter while a cell is open, copying it (ctrl+c) and pasting onto it (the paste event). Moving
+ * the selection around is the view's own, it implements `navigationKey(event)` and returns true
+ * when it took the key.
  *
  * The component provides `columnCount`, and it is the element the cells are drawn in ($el).
  */
@@ -19,7 +20,7 @@ export default {
     */
     keyboardIsForSheet(){
       let ws = useWorkflowStore()
-      if (!ws.activeSession || ws.editingCell || ws.busy || ws.prompts.length > 0 || ws.postError){ return false }
+      if (!ws.activeSession || ws.editingCell || ws.busy || ws.prompts.length > 0 || ws.postError || ws.columnPaste){ return false }
       let el = document.activeElement
       if (el && el !== document.body && el.closest && el.closest('input, textarea, select, button, [contenteditable], .vfm, .v-popper__popper, .wf-dialog')){ return false }
       return true
@@ -66,11 +67,36 @@ export default {
       if (!this.keyboardIsForSheet()){ return }
       if (this.columnCount == 0){ return }
 
+      let withModifier = event.ctrlKey || event.metaKey
+
+      // escape: first stops a copy that is going, then lets go of the column or the cell
+      if (event.key === 'Escape'){
+        if (ws.copying){ ws.stopCopying(); return }
+        if (ws.selectedColumn){ ws.selectedColumn = null; return }
+      }
+      // ctrl+c on a cell copies it, on a column it does nothing (the paste is what a column is selected for)
+      if (withModifier && !event.altKey && (event.key === 'c' || event.key === 'C')){
+        if (ws.selectedColumn){ event.preventDefault(); return }
+        if (ws.selectedCell){
+          event.preventDefault()
+          let td = this.selectedCellElement()
+          if (td){ td.dispatchEvent(new CustomEvent('wf-copy')) }
+        }
+        return
+      }
+      // ctrl+v arrives as the paste event, see paste below
+      if (withModifier && !event.altKey && (event.key === 'v' || event.key === 'V')){ return }
+      // ctrl+z / shift+ctrl+z (or ctrl+y): undo / redo the last change to a record
+      if (withModifier && !event.altKey && (event.key === 'z' || event.key === 'Z' || event.key === 'y' || event.key === 'Y')){
+        event.preventDefault()
+        ws.undo(event.shiftKey || event.key === 'y' || event.key === 'Y')
+        return
+      }
+
       // moving around is the view's own
       if (this.navigationKey(event)){ return }
       if (!ws.selectedCell){ return }
 
-      let withModifier = event.ctrlKey || event.metaKey
       switch (event.key){
         case 'Enter':
         case 'F2':
@@ -132,6 +158,32 @@ export default {
       this.openSelected(pending.text)
     },
 
+    /**
+    * Something was pasted while the sheet has the keyboard. If the text is a cell that was copied
+    * here it goes into the selected cell, or down the selected column. Other text is left alone.
+    */
+    paste(event){
+      let ws = useWorkflowStore()
+      if (!this.keyboardIsForSheet()){ return }
+      if (!ws.selectedCell && !ws.selectedColumn){ return }
+      let text = (event.clipboardData) ? event.clipboardData.getData('text/plain') : ''
+      let payload = ws.pastedPayload(text)
+      if (!payload){
+        if (text){ ws.notify('Only a cell copied from the sheet can be pasted here', 'info') }
+        return
+      }
+      event.preventDefault()
+      if (ws.selectedColumn){
+        if (this.columnForPaste){
+          let target = this.columnForPaste(ws.selectedColumn)
+          if (target){ ws.askColumnPaste(target.group, target.column, payload) }
+        }
+        return
+      }
+      let td = this.selectedCellElement()
+      if (td){ td.dispatchEvent(new CustomEvent('wf-paste', { detail: payload })) }
+    },
+
     selectedCellElement(){
       return this.$el.querySelector('td.wf-cell-selected, td.wf-cell-editing')
     },
@@ -184,10 +236,12 @@ export default {
     this.opening = null
     window.addEventListener('keydown', this.keydownCapture, true)
     window.addEventListener('keydown', this.keydown)
+    window.addEventListener('paste', this.paste)
   },
   beforeUnmount(){
     if (this.pendingTyping){ window.clearTimeout(this.pendingTyping.timer) }
     window.removeEventListener('keydown', this.keydownCapture, true)
     window.removeEventListener('keydown', this.keydown)
+    window.removeEventListener('paste', this.paste)
   },
 }

@@ -31,7 +31,7 @@
           </tr>
           <tr>
             <template v-for="group in visibleGroups" :key="group.key">
-              <th v-for="(column, colIdx) in group.columns" :key="group.key + column.key" :class="['wf-head', 'wf-head-field', 'wf-stick-top', {'wf-cell-group-start': colIdx == 0}]" :title="column.label + (columnHint(group.allColumns, column) ? ' (' + columnHint(group.allColumns, column) + ')' : '')">
+              <th v-for="(column, colIdx) in group.columns" :key="group.key + column.key" :class="['wf-head', 'wf-head-field', 'wf-stick-top', {'wf-cell-group-start': colIdx == 0, 'wf-head-selected': workflowStore.isColumnSelected(group.key, column.key)}]" :title="column.label + (columnHint(group.allColumns, column) ? ' (' + columnHint(group.allColumns, column) + ')' : '') + '\nClick to select the column, a copied cell can then be pasted down it'" @click="headerClick(group, column)">
                 {{ column.label }}<span v-if="columnHint(group.allColumns, column)" class="wf-head-hint">{{ columnHint(group.allColumns, column) }}</span>
                 <span class="wf-col-resize" title="Drag to resize, double click to reset" @mousedown.stop.prevent="startResize($event, widthKey(group, column), columnWidth(group, column))" @dblclick.stop="workflowStore.setColumnWidth(widthKey(group, column), null)"></span>
               </th>
@@ -57,6 +57,37 @@
 
     <div v-if="workflowStore.busy" class="wf-busy">
       <div>{{ workflowStore.busy }}</div>
+    </div>
+
+    <!-- a copied cell was pasted onto a selected column: how should it go down the column -->
+    <div v-if="columnPaste" class="wf-dialog-overlay" @mousedown.stop @click.self="workflowStore.columnPaste = null">
+      <div class="wf-dialog wf-column-paste" @mousedown.stop>
+        <h2>Paste down "{{ columnPaste.column.label }}"</h2>
+        <p>
+          Pasting <strong class="wf-column-paste-value">{{ columnPaste.payload.text }}</strong> into the
+          {{ columnPaste.group.component.label }} &rsaquo; {{ columnPaste.column.label }} of every record:
+          {{ columnPaste.populated }} {{ columnPaste.populated == 1 ? 'cell has' : 'cells have' }} a value,
+          {{ columnPaste.empty }} {{ columnPaste.empty == 1 ? 'is' : 'are' }} empty<template v-if="columnPaste.skipped > 0">,
+          {{ columnPaste.skipped }} {{ columnPaste.skipped == 1 ? 'takes' : 'take' }} another kind of value and will be skipped</template>.
+        </p>
+        <div class="wf-column-paste-choices">
+          <button class="wf-button" @click="workflowStore.pasteIntoColumn('overwrite')" :disabled="columnPaste.populated == 0">
+            <strong>Overwrite the values</strong>
+            <span>Replace what the {{ columnPaste.populated }} populated {{ columnPaste.populated == 1 ? 'cell has' : 'cells have' }}, leave the empty ones empty</span>
+          </button>
+          <button class="wf-button" @click="workflowStore.pasteIntoColumn('fill')">
+            <strong>Overwrite if present, otherwise add</strong>
+            <span>Every record ends up with the pasted value</span>
+          </button>
+          <button class="wf-button" @click="workflowStore.pasteIntoColumn('add')">
+            <strong>Add alongside the existing values</strong>
+            <span>The pasted value goes in next to what is there</span>
+          </button>
+        </div>
+        <div class="wf-dialog-buttons">
+          <button @click="workflowStore.columnPaste = null">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -108,7 +139,8 @@ export default {
         record: 230,
         type: 150,
         field: 240,
-        actions: 370,
+        // room for Post, LCAP, Editor, Validate, Done, MARC and the remove x, see WorkflowRecordActions
+        actions: 450,
       },
     }
   },
@@ -125,6 +157,10 @@ export default {
 
     columnCount(){
       return this.visibleGroups.reduce((total, g) => { return total + g.columns.length }, 0)
+    },
+
+    columnPaste(){
+      return this.workflowStore.columnPaste
     },
 
     recordWidth(){
@@ -412,6 +448,30 @@ export default {
     isInteractive(target){
       if (!target || !target.closest){ return false }
       return !!target.closest('input, textarea, select, button, a, label, [contenteditable], .wf-cell-editing, .wf-col-resize')
+    },
+
+    /**
+    * A click on a field's header selects the column (clicking it again lets go)
+    */
+    headerClick(group, column){
+      if (this.wasPanning){ return }
+      if (this.workflowStore.isColumnSelected(group.key, column.key)){
+        this.workflowStore.selectedColumn = null
+      } else {
+        this.workflowStore.selectColumn(group.key, column.key)
+      }
+    },
+
+    /**
+    * The group and column a selected column stands for, for the paste (see sheetKeyboard.paste)
+    * @param {object} selected - {groupKey, columnKey}
+    * @return {object|null} - {group, column}
+    */
+    columnForPaste(selected){
+      let group = this.visibleGroups.filter((g) => { return g.key === selected.groupKey })[0]
+      if (!group){ return null }
+      let column = group.columns.filter((c) => { return c.key === selected.columnKey })[0]
+      return column ? { group: group, column: column } : null
     },
 
     mouseDown(event){

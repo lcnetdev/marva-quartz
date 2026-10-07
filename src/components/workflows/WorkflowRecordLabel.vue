@@ -36,6 +36,23 @@
         <span class="wf-cip-badge wf-cip-none" :title="row.enrichment.message"><span class="material-icons">search_off</span> Not in WorldCat</span>
       </template>
     </div>
+    <!-- what the validation service said about the record (the Validate button), see workflowStore.validateRow -->
+    <div v-if="row.validation" :class="['wf-validation', 'wf-validation-' + validationTone]" @click.stop>
+      <div class="wf-validation-line">
+        <button class="wf-validation-summary" @click="row.validation.open = !row.validation.open" :title="row.validation.results.length > 0 ? (row.validation.open ? 'Hide the details' : 'Show the details') : ''">
+          <span :class="['material-icons', {'wf-spin': row.validation.status == 'running'}]">{{ validationIcon }}</span>
+          <span>{{ validationSummary }}</span>
+          <span v-if="validationStale" class="wf-validation-stale" title="The record was edited after this check">· changed since</span>
+          <span v-if="row.validation.results.length > 0" class="material-icons wf-validation-caret">{{ row.validation.open ? 'expand_less' : 'expand_more' }}</span>
+        </button>
+        <button class="wf-validation-dismiss" title="Clear" @click="row.validation = null"><span class="material-icons">close</span></button>
+      </div>
+      <ul v-if="row.validation.open && row.validation.results.length > 0" class="wf-validation-list">
+        <li v-for="(r, idx) in row.validation.results" :key="idx" :class="['wf-validation-' + r.level.toLowerCase(), {'wf-validation-jump': !!r.component}]" :title="r.component ? 'Go to ' + r.component : ''" @click="jumpTo(r)">
+          <span v-if="r.component" class="material-icons">arrow_forward</span>{{ r.message }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -65,6 +82,36 @@ export default {
   computed: {
     ...mapStores(useWorkflowStore),
 
+    // the record was edited after the check ran
+    validationStale(){
+      let v = this.row.validation
+      return !!v && v.status == 'done' && v.revision !== (this.row.revision || 0)
+    },
+
+    validationTone(){
+      let v = this.row.validation
+      if (!v || v.status == 'running'){ return 'running' }
+      if (v.status == 'error' || v.errors > 0){ return 'bad' }
+      if (v.warnings > 0){ return 'warn' }
+      return 'good'
+    },
+
+    validationIcon(){
+      return { running: 'sync', bad: 'error_outline', warn: 'warning_amber', good: 'check_circle' }[this.validationTone]
+    },
+
+    validationSummary(){
+      let v = this.row.validation
+      if (v.status == 'running'){ return 'Validating...' }
+      if (v.status == 'error'){ return v.message }
+      let parts = []
+      if (v.errors > 0){ parts.push(v.errors + (v.errors == 1 ? ' error' : ' errors')) }
+      if (v.warnings > 0){ parts.push(v.warnings + (v.warnings == 1 ? ' warning' : ' warnings')) }
+      let other = v.results.length - v.errors - v.warnings
+      if (other > 0 && parts.length > 0){ parts.push(other + (other == 1 ? ' note' : ' notes')) }
+      return parts.length > 0 ? parts.join(', ') : 'Valid'
+    },
+
     cipTitle(){
       let src = this.row.enrichment.source
       let parts = ['WorldCat record ' + src.oclcNumber]
@@ -75,6 +122,36 @@ export default {
     },
   },
   methods: {
+    /**
+    * A validation message names the component it is about: put the keyboard on that component's first cell
+    * @param {object} result - {level, message, component, rt}
+    * @return {void}
+    */
+    jumpTo(result){
+      if (!result.component){ return }
+      let ws = this.workflowStore
+      let wanted = result.component.trim().toLowerCase()
+      let rt = result.rt ? result.rt.trim().toLowerCase() : null
+      let groups = ws.columnGroups
+      let group = groups.filter((g) => {
+        return g.component.label.trim().toLowerCase() === wanted && (!rt || rt.includes(g.component.rt.toLowerCase()) || g.component.rt.toLowerCase().includes(rt))
+      })[0] || groups.filter((g) => { return g.component.label.trim().toLowerCase() === wanted })[0]
+      if (!group){
+        ws.notify('"' + result.component + '" is not one of the fields of this workflow', 'info')
+        return
+      }
+      if (group.hidden || group.columns.length == 0){
+        ws.notify('"' + result.component + '" is hidden, show it from the Fields menu', 'info')
+        return
+      }
+      let col = 0
+      for (let g of groups){
+        if (g.key === group.key){ break }
+        if (!g.hidden){ col += g.columns.length }
+      }
+      ws.selectCell(this.row.id, 0, col)
+    },
+
     /**
     * Put the text on the clipboard and say so for a moment
     * @param {string} what - 'title' | 'id'

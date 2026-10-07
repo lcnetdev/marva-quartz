@@ -11,6 +11,9 @@
       <button class="wf-action" @click="openFullEditor()" title="Open in the full editor in a new tab">
         <span class="material-icons">edit_note</span>Editor
       </button>
+      <button :class="['wf-action', {'wf-action-on': row.validation && row.validation.status == 'done' && row.validation.errors == 0 && row.validation.warnings == 0, 'wf-action-bad': row.validation && (row.validation.status == 'error' || row.validation.errors > 0)}]" :disabled="!!workflowStore.busy || (row.validation && row.validation.status == 'running')" @click="workflowStore.validateRow(row.id)" title="Check the record with the validation service, the results show under its title">
+        <span :class="['material-icons', {'wf-spin': row.validation && row.validation.status == 'running'}]">{{ (row.validation && row.validation.status == 'running') ? 'sync' : 'rule' }}</span>Validate
+      </button>
       <button :class="['wf-action', {'wf-action-on': row.done}]" @click="workflowStore.toggleDone(row.id)" :title="row.done ? 'Marked as done, click to undo' : 'Mark as done'">
         <span class="material-icons">{{ row.done ? 'check_circle' : 'radio_button_unchecked' }}</span>Done
       </button>

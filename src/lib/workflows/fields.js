@@ -332,6 +332,42 @@ export function resolveComponentCells(pt, rtLookup, lookupConfig){
 
 
 /**
+* The cell's propertyPath as the data really has it. The profile's path carries levels the
+* userValue does not (owl:sameAs and the madsrdf componentList / Topic / Geographic levels of
+* the lookups) and, for the locators, misses one (the note of a supplementary content).
+* @param {object} cell - a field cell from resolveComponentCells
+* @return {array} - a copy of the propertyPath, adjusted
+*/
+export function dataPropertyPath(cell){
+  let propertyPath = JSON.parse(JSON.stringify(cell.propertyPath))
+  if (cell.fieldType == 'LITERAL'){
+    let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
+    if (isLocator){
+      propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== SAME_AS) })
+      if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
+        propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
+        propertyPath.at(-1).level = 2
+      }
+    }
+    return propertyPath
+  }
+  propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== SAME_AS) })
+  if (cell.fieldType == 'COMPLEX'){
+    propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== 'http://www.loc.gov/mads/rdf/v1#componentList') })
+    propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== 'http://www.loc.gov/mads/rdf/v1#Topic') })
+    propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== 'http://www.loc.gov/mads/rdf/v1#Geographic') })
+  }
+  return propertyPath
+}
+
+/**
+* Some profiles put class names in a simple lookup's path, the data doesn't have those levels
+*/
+export function simpleLookupFallbackPath(propertyPath){
+  return propertyPath.filter((v) => { return !v.propertyURI.match(/http:\/\/id\.loc\.gov\/ontologies\/bibframe\/[A-Z][a-z]+/) })
+}
+
+/**
 * The values to display for a field cell. These mirror the returnLiteralValueFromProfile /
 * returnSimpleLookupValueFromProfile / returnComplexLookupValueFromProfile in the profile store
 * but work on the pt passed and not the activeProfile
@@ -348,17 +384,10 @@ export function readCellValues(pt, cell){
     return types.filter((t) => { return t && t['@id'] }).map((t) => { return { label: t['@id'].split(/[\/#]/).pop(), uri: t['@id'], lang: null, guid: t['@guid'] || null } })
   }
 
-  let propertyPath = JSON.parse(JSON.stringify(cell.propertyPath))
+  let propertyPath = dataPropertyPath(cell)
 
   if (cell.fieldType == 'LITERAL'){
-    let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
-    if (isLocator){
-      propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== SAME_AS) })
-      if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
-        propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
-        propertyPath.at(-1).level = 2
-      }
-    }
+    let isLocator = cell.propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
     if (propertyPath.length == 0){ return [] }
     let valueLocation = utilsProfile.returnValueFromPropertyPath(pt, propertyPath)
     if (!valueLocation){ return [] }
@@ -379,18 +408,12 @@ export function readCellValues(pt, cell){
   }
 
   // the lookups
-  propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== SAME_AS) })
-  if (cell.fieldType == 'COMPLEX'){
-    propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== 'http://www.loc.gov/mads/rdf/v1#componentList') })
-    propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== 'http://www.loc.gov/mads/rdf/v1#Topic') })
-    propertyPath = propertyPath.filter((v) => { return (v.propertyURI !== 'http://www.loc.gov/mads/rdf/v1#Geographic') })
-  }
   if (propertyPath.length == 0){ return [] }
 
   let valueLocation = utilsProfile.returnValueFromPropertyPath(pt, propertyPath)
   if (!valueLocation && cell.fieldType == 'SIMPLE'){
     // try again without any class names that ended up in the path
-    propertyPath = propertyPath.filter((v) => { return !v.propertyURI.match(/http:\/\/id\.loc\.gov\/ontologies\/bibframe\/[A-Z][a-z]+/) })
+    propertyPath = simpleLookupFallbackPath(propertyPath)
     if (propertyPath.length > 0){
       valueLocation = utilsProfile.returnValueFromPropertyPath(pt, propertyPath)
     }

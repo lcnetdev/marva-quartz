@@ -1,5 +1,5 @@
 <template>
-  <td :class="cellClass" :data-line="line" :data-col="colIndex" :title="cellTitle" @click="click" @contextmenu.prevent="contextMenu" @wf-clear="clearValue" ref="cell">
+  <td :class="cellClass" :style="cellStyle" :data-line="line" :data-col="colIndex" :title="cellTitle" @click="click" @contextmenu.prevent="contextMenu" @wf-clear="clearValue" @wf-copy="copy" @wf-paste="paste($event.detail)" ref="cell">
 
     <!-- a line WorldCat has and the record doesn't: shown faintly, the first cell offers to add the whole component -->
     <template v-if="ghost">
@@ -82,6 +82,7 @@
 import { mapStores, mapState } from 'pinia'
 import { useWorkflowStore } from '@/stores/workflow'
 import { useProfileStore } from '@/stores/profile'
+import { usePreferenceStore } from '@/stores/preference'
 
 import { readCellValues } from '@/lib/workflows/fields'
 
@@ -117,7 +118,7 @@ export default {
     ghost: Object,
   },
   computed: {
-    ...mapStores(useWorkflowStore, useProfileStore),
+    ...mapStores(useWorkflowStore, useProfileStore, usePreferenceStore),
     ...mapState(useProfileStore, ['rtLookup']),
 
     /**
@@ -166,7 +167,43 @@ export default {
         'wf-cell-verified': !this.ghost && this.suggestion && this.suggestion.status == 'match',
         'wf-cell-suggested': !this.ghost && this.suggestion && this.suggestion.status != 'match',
         'wf-cell-wholeline': this.wholeLine && !this.isEditing,
+        'wf-cell-colored': !!this.fieldColor,
+        'wf-cell-copying': this.isCopying,
+        'wf-cell-in-column': this.workflowStore.isColumnSelected(this.group.key, this.column.key),
       }
+    },
+
+    /**
+    * The colour the user gave this field in the editor's Field Colors (the --o-edit-general-field-colors
+    * preference, keyed by the component's preferenceId): the same decision as the editor's Main.returnBackgroundColor
+    * @return {string|null}
+    */
+    fieldColor(){
+      if (!this.pt || !this.cell || this.ghost){ return null }
+      let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
+      if (!colors || typeof colors !== 'object'){ return null }
+      if (this.pt.mandatory == 'true' && colors.req && colors.req.req){ return colors.req.req }
+      let mine = colors[this.pt.preferenceId]
+      if (!mine){ return null }
+      if (this.pt.userModified && mine.edited){ return mine.edited }
+      return mine.default || null
+    },
+
+    cellStyle(){
+      return this.fieldColor ? { '--wf-cell-color': this.fieldColor } : null
+    },
+
+    // this cell was copied (ctrl+c) and is shown with the moving outline until escape
+    isCopying(){
+      let c = this.workflowStore.copying
+      return !!c && !!this.cell && !!this.pt && c.rowId === this.row.id && c.guid === this.cell.guid && c.key === this.column.key
+    },
+
+    // the template (Type) the component on this line uses, if it has a choice
+    templateId(){
+      if (!this.lineCells){ return null }
+      let typeCell = Object.values(this.lineCells).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
+      return typeCell ? typeCell.active.id : null
     },
 
     // the comparison for this cell alone, not when the whole line is offered as one
@@ -226,6 +263,30 @@ export default {
     /**
     * Delete / backspace on the selected cell: take out whatever is in the field
     */
+    /**
+    * Ctrl+c: the cell's text onto the clipboard, what it holds kept for a paste (see workflowStore.copyCell)
+    */
+    copy(){
+      if (this.ghost || !this.pt || !this.cell || this.cell.kind != 'field' || this.isEditing){ return }
+      let values = this.values
+      if (values.length == 0){ return }
+      let text = values.map((v) => { return v.label }).join('; ')
+      this.workflowStore.copyCell(this.row.id, this.pt, this.cell, this.column, text, this.templateId)
+    },
+
+    /**
+    * Ctrl+v with a copied cell: into this cell, or onto a grey line below the component as a new one
+    * @param {object} payload - the kept copy
+    */
+    paste(payload){
+      if (this.ghost || this.isEditing || !payload){ return }
+      if (this.cell && this.cell.kind == 'type'){
+        this.workflowStore.notify('The Type is chosen from its list, not pasted', 'info')
+        return
+      }
+      this.workflowStore.pasteIntoCell(this.row.id, this.pt, this.cell, this.group, this.column, payload)
+    },
+
     async clearValue(){
       if (!this.pt || !this.cell || this.cell.kind != 'field' || this.isEditing){ return }
       let values = this.values

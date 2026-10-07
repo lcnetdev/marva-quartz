@@ -12,11 +12,31 @@ import utilsProfile from '@/lib/utils_profile'
 import workflowStorage from '@/lib/workflows/storage'
 import builtinWorkflows from '@/lib/workflows/builtin'
 import { runEnrichments } from '@/lib/workflows/enrichments'
-import { expandComponentColumns, listProfileComponents, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
+import { expandComponentColumns, listProfileComponents, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
+import { copyPayload, rememberCopy, recallCopy, forgetCopies, incompatible, writeCellNodes, pastedTypeUris } from '@/lib/workflows/clipboard'
 import { inspectRecord, recommendCandidate } from '@/lib/workflows/disambiguate'
 import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty } from '@/lib/workflows/cip'
 
 import short from 'short-uuid'
+
+/**
+* A line from the validation service. The message names the component it is about between ** and
+* its resource (Work / Instance) between @, the editor's ValidateModal uses those to jump to it
+* @param {object} result - {level, message}
+* @return {object} - {level, message, component, rt}
+*/
+function parseValidationMessage(result){
+  let message = String(result.message || '')
+  let component = null
+  let rt = null
+  let m = message.match(/\*\*(.*?)\*\*/)
+  if (m){ component = m[1]; message = message.replace(m[0], m[1]) }
+  let r = message.match(/@(.*?)@/)
+  if (r){ rt = r[1]; message = message.replace(r[0], r[1]) }
+  // the editor's own form checks tag a message with the field's guid, nothing to do with it here
+  message = message.replace(/<<.*?>>/, '').trim()
+  return { level: result.level || 'INFO', message: message, component: component, rt: rt }
+}
 
 /*
   Workflows keep many records open at once, the profile store only knows about one (activeProfile).
@@ -35,6 +55,18 @@ let loadChain = Promise.resolve()
 let opChain = Promise.resolve()
 let saveTimeout = null
 let listeningToProfileStore = false
+
+// undo / redo: the state of a record before each change, as JSON, newest last. Not persisted, one
+// sheet's worth. `baseline` is what each record looked like after its last recorded change (with the
+// profile object it was taken from, a reloaded record starts over), the next change pushes it.
+const HISTORY_LIMIT = 60
+let undoStack = []
+let redoStack = []
+let baseline = new Map()
+// set while a record is being put back, so that change is not recorded as a new one
+let restoring = false
+// set while several records are changed as one (a column paste), their entries undo together
+let historyGroup = null
 
 // record XML already fetched while telling scan matches apart, url -> xml, used once by buildRecordFromUrl
 const prefetched = {}
@@ -136,6 +168,21 @@ export const useWorkflowStore = defineStore('workflow', {
     // the cell that is selected (outlined, not open for editing) {rowId, line, col}
     // line is the line of the record, col the position in the sheet counting all of the visible columns
     selectedCell: null,
+
+    // a whole column is selected (its header was clicked) {groupKey, columnKey}, for pasting down the column. Sheet only
+    selectedColumn: null,
+
+    // the cell that was copied (ctrl+c) and is shown with the moving outline {rowId, guid, key, text}, see lib/workflows/clipboard.js
+    copying: null,
+
+    // a paste onto a selected column waits here for the user to say how {group, column, payload, populated, empty}
+    columnPaste: null,
+
+    // the profile store's dataChanged is not about the record for the moment (the Field Colors modal is open)
+    ignoreChanges: false,
+
+    // how much there is to undo / redo, the stacks themselves are module state (see undo)
+    historySize: { undo: 0, redo: 0 },
 
     // when a scan matches more than one record the questions wait here for the user, the first one is shown
     prompts: [],
@@ -477,6 +524,13 @@ export const useWorkflowStore = defineStore('workflow', {
       await this.persistSession()
       this.editingCell = null
       this.selectedCell = null
+      this.selectedColumn = null
+      this.copying = null
+      this.columnPaste = null
+      undoStack = []
+      redoStack = []
+      baseline = new Map()
+      this.historySize = { undo: 0, redo: 0 }
       this.activeRowId = null
       this.activeSession = null
       this.prompts = []
@@ -1122,6 +1176,11 @@ export const useWorkflowStore = defineStore('workflow', {
       if (!s){ return }
       if (this.editingCell && this.editingCell.rowId === rowId){ this.editingCell = null }
       if (this.selectedCell && this.selectedCell.rowId === rowId){ this.selectedCell = null }
+      if (this.copying && this.copying.rowId === rowId){ this.copying = null }
+      undoStack = undoStack.filter((e) => { return e.rowId !== rowId })
+      redoStack = redoStack.filter((e) => { return e.rowId !== rowId })
+      baseline.delete(rowId)
+      this.historySize = { undo: undoStack.length, redo: redoStack.length }
       if (this.activeRowId === rowId){
         this.activeRowId = null
         useProfileStore().prepareForNewRecord()
@@ -1150,6 +1209,8 @@ export const useWorkflowStore = defineStore('workflow', {
       if (!row || row.status != 'ready'){ return false }
       // wait out anything that is borrowing the activeProfile
       await opChain
+      // the state to go back to with undo, from before whatever is about to be done
+      this.rememberBaseline(row)
       if (this.activeRowId === rowId && useProfileStore().activeProfile === row.profile){ return true }
 
       let previous = this.activeRow
@@ -1163,6 +1224,96 @@ export const useWorkflowStore = defineStore('workflow', {
       useProfileStore().activeProfile = row.profile
       this.activeRowId = rowId
       return true
+    },
+
+    // ---------------------------------------------------------------- undo / redo
+
+    /**
+    * Take note of what the record looks like now, if it hasn't been yet (or it was reloaded since)
+    * @param {object} row
+    * @return {void}
+    */
+    rememberBaseline(row){
+      if (!row || !row.profile){ return }
+      let known = baseline.get(row.id)
+      if (!known || known.profile !== row.profile){
+        baseline.set(row.id, { profile: row.profile, state: JSON.stringify(row.profile) })
+      }
+    },
+
+    /**
+    * The record changed: its previous state goes on the undo stack. Typing in an open cell is
+    * one change however many keys it took, changes made as a group (a column paste) undo together
+    * @param {object} row
+    * @return {void}
+    */
+    recordHistory(row){
+      let known = baseline.get(row.id)
+      let state = JSON.stringify(row.profile)
+      if (!known || known.profile !== row.profile){
+        baseline.set(row.id, { profile: row.profile, state: state })
+        return
+      }
+      if (known.state === state){ return }
+      let editKey = this.editingCell ? (this.editingCell.rowId + '|' + this.editingCell.guid + '|' + this.editingCell.key) : null
+      let top = undoStack[undoStack.length - 1]
+      let sameEdit = editKey && top && top.rowId === row.id && top.editKey === editKey
+      if (!sameEdit){
+        undoStack.push({ rowId: row.id, state: known.state, editKey: editKey, group: historyGroup })
+        if (undoStack.length > HISTORY_LIMIT){ undoStack.shift() }
+        redoStack = []
+        this.historySize = { undo: undoStack.length, redo: redoStack.length }
+      }
+      known.state = state
+    },
+
+    /**
+    * Take back the last change (ctrl+z), or put it back again (shift+ctrl+z)
+    * @param {boolean} redo
+    * @return {void}
+    */
+    async undo(redo = false){
+      if (this.editingCell || this.busy){ return }
+      let from = redo ? redoStack : undoStack
+      let to = redo ? undoStack : redoStack
+      // the entries made as one group go together
+      let entries = []
+      let entry = from.pop()
+      while (entry){
+        entries.push(entry)
+        let next = from[from.length - 1]
+        if (entry.group && next && next.group === entry.group){ entry = from.pop() } else { break }
+      }
+      if (entries.length == 0){
+        this.notify(redo ? 'Nothing to redo' : 'Nothing to undo', 'info')
+        return
+      }
+      let group = entries.length > 1 ? short.generate() : null
+      let restored = 0
+      let lastRow = null
+      restoring = true
+      try {
+        for (let e of entries){
+          let row = this.returnRow(e.rowId)
+          if (!row || row.status != 'ready'){ continue }
+          if (!(await this.activateRow(e.rowId))){ continue }
+          to.push({ rowId: e.rowId, state: JSON.stringify(row.profile), editKey: null, group: group || e.group })
+          row.profile = JSON.parse(e.state)
+          useProfileStore().activeProfile = row.profile
+          baseline.set(row.id, { profile: row.profile, state: e.state })
+          this.rowChanged(row)
+          restored++
+          lastRow = row
+        }
+      } finally {
+        restoring = false
+      }
+      this.historySize = { undo: undoStack.length, redo: redoStack.length }
+      if (restored == 0){ return }
+      // show where it happened
+      if (lastRow && (!this.selectedCell || this.selectedCell.rowId !== lastRow.id)){ this.selectCell(lastRow.id, 0, 0) }
+      let what = (restored > 1) ? restored + ' records' : ((lastRow.label || lastRow.scanned))
+      this.notify((redo ? 'Redid the change to ' : 'Undid the change to ') + what, 'info')
     },
 
     /**
@@ -1189,7 +1340,228 @@ export const useWorkflowStore = defineStore('workflow', {
       if (this.editingCell && (this.editingCell.rowId !== rowId || !this.isSelected(rowId, line, col))){
         this.editingCell = null
       }
+      this.selectedColumn = null
       this.selectedCell = { rowId: rowId, line: line, col: col }
+    },
+
+    /**
+    * Select a whole column, by its header. The cells are not edited this way, a column is selected to paste down it
+    * @param {string} groupKey
+    * @param {string} columnKey
+    * @return {void}
+    */
+    selectColumn(groupKey, columnKey){
+      this.stopEditing()
+      this.selectedCell = null
+      this.selectedColumn = { groupKey: groupKey, columnKey: columnKey }
+    },
+
+    isColumnSelected(groupKey, columnKey){
+      let c = this.selectedColumn
+      return !!c && c.groupKey === groupKey && c.columnKey === columnKey
+    },
+
+    // ---------------------------------------------------------------- copy and paste, see lib/workflows/clipboard.js
+
+    /**
+    * Copy a cell: its text onto the clipboard, what it holds kept for a paste into another cell
+    * @param {string} rowId
+    * @param {object} pt - the component the cell is in
+    * @param {object} cell
+    * @param {object} column
+    * @param {string} text - what the cell shows
+    * @param {string|null} templateId - the template (Type) the component uses
+    * @return {boolean}
+    */
+    async copyCell(rowId, pt, cell, column, text, templateId){
+      let payload = copyPayload(pt, cell, column, text, templateId)
+      if (!payload){ return false }
+      try {
+        await navigator.clipboard.writeText(text)
+      } catch (e) {
+        this.notify('Could not copy to the clipboard', 'error')
+        return false
+      }
+      rememberCopy(payload)
+      this.copying = { rowId: rowId, guid: cell.guid, key: column.key, text: text }
+      return true
+    },
+
+    /**
+    * Done copying: the outline goes, and the kept copy with it (the text stays on the clipboard as text)
+    */
+    stopCopying(){
+      this.copying = null
+      forgetCopies()
+    },
+
+    /**
+    * The kept copy for what was pasted, if it came from a cell
+    * @param {string} text - the text pasted
+    * @return {object|null}
+    */
+    pastedPayload(text){
+      return recallCopy(text)
+    },
+
+    /**
+    * Paste a copied cell into a cell: over what the cell has, or onto a grey line below a
+    * component where it makes a new one. Says why when it can't.
+    * @param {string} rowId
+    * @param {object|null} pt - the component on the line, null on a grey line
+    * @param {object|null} cell - the cell of pt for the column, null when the field is not part of it
+    * @param {object} group - the column group
+    * @param {object} column
+    * @param {object} payload - from pastedPayload
+    * @param {string} mode - 'replace' | 'add'
+    * @return {boolean}
+    */
+    async pasteIntoCell(rowId, pt, cell, group, column, payload, mode = 'replace'){
+      if (!payload){ return false }
+      if (!(await this.activateRow(rowId))){ return false }
+      let profileStore = useProfileStore()
+      let rtLookup = profileStore.rtLookup
+      let lookupConfig = useConfigStore().lookupConfig
+
+      if (pt && !cell){
+        let cells = resolveComponentCells(pt, rtLookup, lookupConfig)
+        let typeCell = Object.values(cells).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
+        this.notify('"' + column.label + '" is not a field of ' + (typeCell ? '"' + typeCell.active.resourceLabel + '"' : 'this component') + ', nothing pasted', 'error')
+        return false
+      }
+
+      if (!pt){
+        // a grey line under the component's lines: a new one of the component takes the value
+        let pts = findComponentPts(profileStore.activeProfile, group.component)
+        if (pts.length == 0){ return false }
+        let last = pts[pts.length - 1]
+        let newGuid = await profileStore.duplicateComponent(last['@guid'], profileStore.returnStructureByGUID(last['@guid']))
+        if (!newGuid){
+          this.notify('Could not add another "' + group.component.label + '"', 'error')
+          return false
+        }
+        pt = utilsProfile.returnPt(profileStore.activeProfile, newGuid)
+        if (!pt){ return false }
+        let cells = resolveComponentCells(pt, rtLookup, lookupConfig)
+        cell = cells[column.key] || null
+        if (!cell){
+          // the field belongs to another template of the component (a Dewey field under a LCC line): use the copied value's
+          let typeCell = Object.values(cells).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
+          let wanted = payload.templateId ? rtLookup[payload.templateId] : null
+          if (typeCell && wanted && typeCell.options.some((o) => { return o.id === wanted.id })){
+            profileStore.changeRefTemplate(newGuid, typeCell.propertyPath, JSON.parse(JSON.stringify(wanted)), JSON.parse(JSON.stringify(typeCell.active)))
+            pt = utilsProfile.returnPt(profileStore.activeProfile, newGuid)
+            cells = resolveComponentCells(pt, rtLookup, lookupConfig)
+            cell = cells[column.key] || null
+          }
+        }
+        if (!cell){
+          this.notify('"' + column.label + '" is not a field of a new "' + group.component.label + '", nothing pasted', 'error')
+          profileStore.dataChanged()
+          return false
+        }
+      }
+
+      let why = incompatible(payload, cell)
+      if (why){
+        this.notify(why + ', nothing pasted', 'error')
+        return false
+      }
+      let live = utilsProfile.returnPt(profileStore.activeProfile, cell.guid)
+      if (!live){ return false }
+      let ok
+      if (cell.fieldType == 'RDFTYPE'){
+        profileStore.setValueRdfTypePicklist(cell.guid, pastedTypeUris(payload, live, mode == 'add'))
+        ok = true
+      } else {
+        ok = writeCellNodes(live, cell, payload, mode == 'add')
+        if (ok){ profileStore.dataChanged() }
+      }
+      if (!ok){ this.notify('Could not paste into that cell', 'error') }
+      return ok
+    },
+
+    /**
+    * A paste landed on a selected column: look at what is down it and ask how to paste
+    * @param {object} group
+    * @param {object} column
+    * @param {object} payload
+    * @return {void}
+    */
+    askColumnPaste(group, column, payload){
+      let targets = this.columnPasteTargets(group, column)
+      let compatible = targets.filter((t) => { return !incompatible(payload, t.cell) })
+      if (compatible.length == 0){
+        let why = targets.length > 0 ? incompatible(payload, targets[0].cell) : 'No record has a "' + column.label + '" field to paste into'
+        this.notify(why + ', nothing pasted', 'error')
+        return
+      }
+      this.columnPaste = {
+        group: group,
+        column: column,
+        payload: payload,
+        populated: compatible.filter((t) => { return t.populated }).length,
+        empty: compatible.filter((t) => { return !t.populated }).length,
+        skipped: targets.length - compatible.length,
+      }
+    },
+
+    /**
+    * Every cell down a column that could take a value: one per component line of each loaded record
+    * @return {array} - of {rowId, pt, cell, populated}
+    */
+    columnPasteTargets(group, column){
+      let rtLookup = useProfileStore().rtLookup
+      let lookupConfig = useConfigStore().lookupConfig
+      let targets = []
+      for (let row of this.activeSession.rows){
+        if (row.status != 'ready' || !row.profile){ continue }
+        for (let pt of findComponentPts(row.profile, group.component)){
+          let cell = resolveComponentCells(pt, rtLookup, lookupConfig)[column.key]
+          if (!cell || cell.kind != 'field'){ continue }
+          targets.push({ rowId: row.id, pt: pt, cell: cell, populated: readCellValues(pt, cell).length > 0 })
+        }
+      }
+      return targets
+    },
+
+    /**
+    * Paste down the selected column, the way the user chose
+    * @param {string} how - 'overwrite' (only where there is a value) | 'fill' (everywhere, over what is there) | 'add' (beside what is there)
+    * @return {void}
+    */
+    async pasteIntoColumn(how){
+      let ask = this.columnPaste
+      this.columnPaste = null
+      if (!ask){ return }
+      let previousRow = this.activeRowId
+      let previousBusy = this.busy
+      this.busy = 'Pasting down the column...'
+      let done = 0
+      historyGroup = short.generate()
+      try {
+        let profileStore = useProfileStore()
+        for (let target of this.columnPasteTargets(ask.group, ask.column)){
+          if (incompatible(ask.payload, target.cell)){ continue }
+          if (how == 'overwrite' && !target.populated){ continue }
+          if (!(await this.activateRow(target.rowId))){ continue }
+          let live = utilsProfile.returnPt(profileStore.activeProfile, target.cell.guid)
+          if (!live){ continue }
+          if (target.cell.fieldType == 'RDFTYPE'){
+            profileStore.setValueRdfTypePicklist(target.cell.guid, pastedTypeUris(ask.payload, live, how == 'add'))
+            done++
+          } else if (writeCellNodes(live, target.cell, ask.payload, how == 'add')){
+            profileStore.dataChanged()
+            done++
+          }
+        }
+        // leave the user on the record they were on
+        if (previousRow && previousRow !== this.activeRowId){ await this.activateRow(previousRow) }
+      } finally {
+        historyGroup = null
+        this.busy = previousBusy
+      }
+      this.notify('Pasted "' + ask.payload.text + '" into ' + done + ' ' + (done == 1 ? 'cell' : 'cells'), 'info')
     },
 
     isSelected(rowId, line, col){
@@ -1202,8 +1574,19 @@ export const useWorkflowStore = defineStore('workflow', {
     * @return {void}
     */
     activeRowChanged(){
+      if (this.ignoreChanges || restoring){ return }
       let row = this.activeRow
       if (!row || useProfileStore().activeProfile !== row.profile){ return }
+      this.recordHistory(row)
+      this.rowChanged(row)
+    },
+
+    /**
+    * The record of a row is different now: it needs saving, and what is derived from it is stale
+    * @param {object} row
+    * @return {void}
+    */
+    rowChanged(row){
       row.dirty = true
       row.done = false
       // lets things that are derived from the record (the MARC preview) know it changed
@@ -1273,6 +1656,49 @@ export const useWorkflowStore = defineStore('workflow', {
       let error = 'The MARC preview service did not return a record'
       if (bad && bad.results){ error = (typeof bad.results === 'string') ? bad.results : JSON.stringify(bad.results, null, 2) }
       return { text: '', version: (bad) ? bad.version : null, error: error }
+    },
+
+    /**
+    * Run the record through the validation service (the editor's Validate), the results go on the
+    * row (row.validation) and are shown under its label
+    * @param {string} rowId
+    * @return {void}
+    */
+    async validateRow(rowId){
+      let row = this.returnRow(rowId)
+      if (!row || row.status != 'ready'){ return }
+      let revision = row.revision || 0
+      row.validation = { status: 'running', revision: revision, results: [], errors: 0, warnings: 0, open: true }
+      let xml = await this.withRow(rowId, async (r) => { return await utilsExport.buildXML(r.profile) }, 'Validating...')
+      row = this.returnRow(rowId)
+      if (!row){ return }
+      if (!xml || !xml.xlmStringBasic){
+        row.validation = { status: 'error', revision: revision, message: 'Could not build the record XML', results: [], errors: 0, warnings: 0, open: true }
+        return
+      }
+      let response
+      try {
+        response = await utilsNetwork.validate(xml.xlmStringBasic)
+      } catch (e) {
+        row.validation = { status: 'error', revision: revision, message: 'The validation service could not be reached', results: [], errors: 0, warnings: 0, open: true }
+        return
+      }
+      if (!response || response.error || !Array.isArray(response.validation)){
+        let message = (response && response.error) ? (response.error.message || String(response.error)) : 'The validation service did not answer'
+        row.validation = { status: 'error', revision: revision, message: message, results: [], errors: 0, warnings: 0, open: true }
+        return
+      }
+      let results = response.validation.map(parseValidationMessage)
+      // the service's "all good" line only matters when it is all there is
+      if (results.length > 1){ results = results.filter((r) => { return r.level !== 'SUCCESS' }) }
+      row.validation = {
+        status: 'done',
+        revision: revision,
+        results: results,
+        errors: results.filter((r) => { return r.level === 'ERROR' }).length,
+        warnings: results.filter((r) => { return r.level === 'WARNING' }).length,
+        open: true,
+      }
     },
 
     /**

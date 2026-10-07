@@ -20,7 +20,8 @@
             <tr>
               <!-- the component, down the left, as narrow as it can be -->
               <th :rowspan="groupLines(group).length + 1" :class="['wf-head', 'wf-page-component', 'wf-head-' + group.component.rt.toLowerCase()]" :title="group.component.rt + ': ' + group.component.label">
-                <span class="wf-head-rt">{{ group.component.rt }}</span>
+                <!-- [W] / [I] / [H] for the resource, the colour says it too -->
+                <span class="wf-page-component-rt">[{{ group.component.rt.charAt(0).toUpperCase() }}]</span>
                 <span class="wf-page-component-label">{{ group.component.label }}</span>
               </th>
               <th v-for="column in group.columns" :key="group.key + column.key" class="wf-head wf-head-field" :title="column.label + (columnHint(group.allColumns, column) ? ' (' + columnHint(group.allColumns, column) + ')' : '')">

@@ -26,6 +26,7 @@
                 <template v-if="layout == 'sheet'"><dt>Drag</dt><dd>move around the sheet</dd></template>
                 <dt>Ctrl / &#8984; + wheel</dt><dd>zoom</dd>
                 <template v-if="layout == 'sheet'"><dt>Column edge</dt><dd>drag to resize, double click to reset</dd></template>
+                <template v-if="layout == 'sheet'"><dt>Column header</dt><dd>select the column, then paste a copied cell down it</dd></template>
               </dl>
               <div class="wf-fields-menu-heading">Keyboard, with a cell selected</div>
               <dl v-if="layout == 'pages'">
@@ -37,7 +38,10 @@
                 <dt>Enter, F2, typing</dt><dd>edit the cell</dd>
                 <dt>Enter / Esc</dt><dd>finish editing</dd>
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
-                <dt>Esc</dt><dd>deselect</dd>
+                <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
+                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a grey line below a component as a new one</dd>
+                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
+                <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
               <dl v-else>
                 <dt>Arrows, Tab</dt><dd>move one cell</dd>
@@ -49,7 +53,10 @@
                 <dt>Enter, F2, typing</dt><dd>edit the cell</dd>
                 <dt>Enter / Esc</dt><dd>finish editing</dd>
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
-                <dt>Esc</dt><dd>deselect</dd>
+                <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
+                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a grey line below a component as a new one</dd>
+                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
+                <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
               <div class="wf-fields-menu-heading">Scanning</div>
               <p>Scan a barcode at any time, wherever the cursor is, or type a LCCN, ISBN or barcode in the box and press Enter.</p>
@@ -127,6 +134,9 @@
                 <button class="wf-button" @click="workflowStore.setAutoFormat(session.workflowId, null)">Ask me which record each time</button>
               </template>
               <p v-else>You are asked which record to load. Tick "Always select this version from now on" in that dialog to stop being asked.</p>
+              <div class="wf-fields-menu-heading wf-options-heading">Colours</div>
+              <p>The colours given to fields in the editor's Field Colors apply to the cells here too.</p>
+              <button class="wf-button" @click="openFieldColors()" title="The editor's Field Colors, the same preference"><span class="material-icons">palette</span> Field colours...</button>
             </div>
           </template>
         </VDropdown>
@@ -337,6 +347,9 @@ export default {
   watch: {
     // the user changed their colors in the preferences while the sheet is open
     theme(){ applyWorkflowTheme(this.preferenceStore) },
+    // picking field colours goes through preferenceStore.setValue, which calls the profile store's dataChanged:
+    // that is not an edit of the record
+    'preferenceStore.showFieldColorsModal'(open){ this.workflowStore.ignoreChanges = open },
     prompt(){ this.alwaysPick = false },
     // the profiles are loaded by App.vue, the session can't be opened until they are there
     profilesLoaded: { immediate: true, handler(){ this.open() } },
@@ -386,9 +399,29 @@ export default {
     * Switch between the spreadsheet and one record per page, remembered for this workflow
     * @param {string} layout - 'sheet' | 'pages'
     */
+    /**
+    * The editor's Field Colors modal. It lists the components of the profile store's activeProfile,
+    * so a record of the sheet is made active first (or the workflow's profile when there is none yet)
+    */
+    async openFieldColors(){
+      if (!this.session){ return }
+      let ready = this.session.rows.filter((r) => { return r.status == 'ready' })[0]
+      if (ready){
+        if (!(await this.workflowStore.activateRow(ready.id))){ return }
+      } else if (this.profileStore.profiles[this.session.definition.profileId]){
+        this.profileStore.activeProfile = JSON.parse(JSON.stringify(this.profileStore.profiles[this.session.definition.profileId]))
+      } else {
+        this.workflowStore.notify('Scan a record first, the colours are picked from its fields', 'info')
+        return
+      }
+      this.preferenceStore.showFieldColorsModal = true
+    },
+
     setLayout(layout){
       if (!this.session || layout === this.layout){ return }
       this.workflowStore.stopEditing()
+      // a selected column is a sheet thing
+      this.workflowStore.selectedColumn = null
       this.workflowStore.setLayout(this.session.workflowId, layout)
       this.zoom = 1
     },
