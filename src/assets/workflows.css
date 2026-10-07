@@ -895,6 +895,9 @@
 .wf-message-error {
   background: var(--wf-bad-color);
 }
+.wf-message-warning {
+  background: #b35c00;
+}
 
 .wf-dialog-overlay {
   position: fixed;

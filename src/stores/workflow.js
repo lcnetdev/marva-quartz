@@ -39,6 +39,31 @@ let listeningToProfileStore = false
 // record XML already fetched while telling scan matches apart, url -> xml, used once by buildRecordFromUrl
 const prefetched = {}
 
+// the "loading from production" warning is shown once a minute at most, not once per record
+let warnedAboutProduction = false
+
+/**
+* Is this the XML of a record (what fetchBfdbXML gives back when it worked)
+*/
+function isRecordXml(xml){
+  return !!xml && typeof xml === 'string' && xml.indexOf('<rdf:RDF') !== -1
+}
+
+/**
+* The same record package in the production region, when the url is one of the current (non
+* production) region's record store. Null when there is nothing else to try.
+* @param {string} url
+* @return {string|null}
+*/
+function productionUrlFor(url){
+  let configStore = useConfigStore()
+  let current = configStore.returnUrls
+  let production = configStore.regionUrls.production
+  if (!url || !current.bfdb || !production || !production.bfdb || current.bfdb === production.bfdb){ return null }
+  if (!url.startsWith(current.bfdb)){ return null }
+  return production.bfdb + url.slice(current.bfdb.length)
+}
+
 // how many records are fetched from the network at the same time. Fetching is the slow part of
 // loading and is done in parallel, only the parsing has to go one at a time (loadChain)
 const MAX_PARALLEL_FETCHES = 5
@@ -275,7 +300,7 @@ export const useWorkflowStore = defineStore('workflow', {
       this.messages.push(message)
       window.setTimeout(() => {
         this.messages = this.messages.filter((m) => { return m.id !== message.id })
-      }, (type == 'error') ? 12000 : 5000)
+      }, (type == 'error') ? 12000 : (type == 'warning') ? 8000 : 5000)
     },
 
     dismissMessage(id){
@@ -698,13 +723,9 @@ export const useWorkflowStore = defineStore('workflow', {
     async inspectCandidates(candidates, scanned){
       await Promise.all(candidates.map(async (c) => {
         try {
-          let xml = await utilsNetwork.fetchBfdbXML(c.bfdbPackageURL)
-          if (xml && typeof xml === 'string' && xml.indexOf('<rdf:RDF') !== -1){
-            c.xml = xml
-            c.inspection = inspectRecord(xml, c.idURL || c.bfdbURL)
-          } else {
-            c.inspection = null
-          }
+          let xml = await this.fetchRecordXml(c.bfdbPackageURL)
+          c.xml = xml
+          c.inspection = inspectRecord(xml, c.idURL || c.bfdbURL)
         } catch (e) {
           console.warn('Workflows: could not look at', c.bfdbPackageURL, e)
           c.inspection = null
@@ -826,7 +847,9 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     /**
-    * Fetch a record's XML (or take the copy fetched earlier while telling scan matches apart)
+    * Fetch a record's XML (or take the copy fetched earlier while telling scan matches apart).
+    * Most records are not in the staging region, so when the staging copy can not be had the
+    * production region is tried, with a warning that says so.
     * @param {string} url - the url to the record XML
     * @return {string} - the xml
     */
@@ -836,7 +859,20 @@ export const useWorkflowStore = defineStore('workflow', {
       if (!xml){
         xml = await utilsNetwork.fetchBfdbXML(url)
       }
-      if (!xml || typeof xml !== 'string' || xml.indexOf('<rdf:RDF') === -1){
+      if (!isRecordXml(xml)){
+        let fallback = productionUrlFor(url)
+        if (fallback){
+          xml = await utilsNetwork.fetchBfdbXML(fallback)
+          if (isRecordXml(xml)){
+            if (!warnedAboutProduction){
+              warnedAboutProduction = true
+              window.setTimeout(() => { warnedAboutProduction = false }, 60000)
+              this.notify('Not in the staging region, loading the record data from the PRODUCTION region instead', 'warning')
+            }
+            console.info('Workflows: ' + url + ' was not available, using ' + fallback)
+            return xml
+          }
+        }
         throw new Error('Could not retrieve the record from ' + url)
       }
       return xml

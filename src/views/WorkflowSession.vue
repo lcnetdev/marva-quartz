@@ -133,7 +133,8 @@
     <!-- errors show up large in the middle of the page first so they are not missed, then settle into the corner with the rest -->
     <div class="wf-messages">
       <div v-for="m in workflowStore.messages" :key="m.id" :data-message-id="m.id" :class="['wf-message', 'wf-message-' + m.type]" title="Click to dismiss" @click="workflowStore.dismissMessage(m.id)">
-        <span v-if="m.type == 'error'" class="material-icons">error</span>{{ m.text }}
+        <span v-if="m.type == 'error'" class="material-icons">error</span>
+        <span v-else-if="m.type == 'warning'" class="material-icons">warning</span>{{ m.text }}
       </div>
     </div>
 
