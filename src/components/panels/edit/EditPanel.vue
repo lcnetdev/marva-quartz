@@ -15,7 +15,7 @@
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-hub': (profileName.split(':').slice(-1)[0] == 'Hub'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
-          <template v-if="panelInstanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
+        <template v-if="panelInstanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
           <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
                 <div class="instanceInfoWrapper" :title="instanceOfWork(profileName) ? 'Instance of: ' + instanceOfWork(profileName) : null">
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
@@ -107,6 +107,12 @@
                     </select>
                 </label>
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
+            </div>
+        </template>
+
+        <template v-if="profileName.includes(':Hub') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
+            <div class="instanceInfoWrapper">
+                <span class="instanceIdentifer">Hub</span>
             </div>
         </template>
 
