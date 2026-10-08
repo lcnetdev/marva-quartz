@@ -63,6 +63,27 @@
 
     methods: {
 
+        updateView: function(viewTarget, type, color=false){
+          let targetId = viewTarget.color + "_" + viewTarget.icon
+
+          for (let idx of Object.keys(this.panelSizePresets)){
+            let view = this.panelSizePresets[idx]
+            let viewId = view.color + "_" + view.icon
+
+            if (viewId == targetId && type=='default'){
+              view.default = true
+            } else if (type == 'default') {
+              view.default = false
+            } else if (viewId == targetId && type == 'color'){
+              view.color = color
+            } else if (viewId == targetId && type == 'icon'){
+              view.icon = this.customIcon
+            }
+          }
+
+          this.preferenceStore.setValue('--o-edit-main-splitpane-edit-panel-size-presets',this.panelSizePresets)
+        },
+
         dragResize: function(newRect){
           this.width = newRect.width
           this.height = newRect.height
@@ -214,14 +235,26 @@
             </div>
 
             <hr style="margin:1em 0 1em 0;">
-            <h2>Delete Quick View</h2>
-
+            <h2>Edit Quick View</h2>
 
             <div v-for="view in panelSizePresets" :key="view.icon" style="display: flex; align-items: center; justify-content: space-between; padding: 0.5em 0; background-color: whitesmoke; margin-top: 0.25em;">
               <div style="display: flex; align-items: center;">
                 <span :style="`color:${view.color}; margin-left:0.1em;`" class="material-icons icon icon-size">{{ view.icon }}</span>
                 <span style="padding-left: 10px;">{{ view.name }}</span>
               </div>
+
+              <div class="default-container">
+                <span>Default:</span><button class="material-icons-outlined" @click="updateView(view, 'default')">{{ !view.default ? "check_box_outline_blank" : "check_box" }}</button>
+              </div>
+              <div class="color-container">
+                <span>Color:</span>
+                <color-picker :pureColor="iconColor" :format="'hex8'" @update:pureColor="updateView(view, 'color', $event)" />
+              </div>
+              <div class="icone-container">
+                <span>Add an icon name above:</span>
+                <button @click="updateView(view, 'icon')">update</button>
+              </div>
+
               <button @click="panelSizePresets.splice(panelSizePresets.indexOf(view), 1); saveViews()" style="background-color: red; color: white; border: none; padding: 0.5em; margin-right: 1em;">Delete</button>
 
             </div>
@@ -282,6 +315,9 @@
     cursor: pointer;
   }
 
+.default-container span{
+  vertical-align: center;
+}
 
 
 
