@@ -521,12 +521,15 @@ div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numb
 }
 
 /* contents. Literal is on it's own line, other's share line */
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact{
+  flex-wrap: wrap;
+}
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact > div.LITERAL.level-1.child-component {
-  flex: 1 1 100%;
+  flex: 1 1 100% !important;
 }
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component.compact > div.SIMPLE.level-1.child-component,
 div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact > div.level-1.child-component {
-  flex: 1 1 48%;
+  flex: 1 1 45%;
 }
 
 /* input transcribed series */
