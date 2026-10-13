@@ -293,7 +293,6 @@ export default {
 
   methods: {
     checkCompactButtons: function(){
-      console.info("checking")
       let el = document.getElementsByClassName('edit-panel-work')[0]
       if (el){
         if (el.offsetWidth < 700) { this.showCompactButtons = false }
@@ -450,6 +449,10 @@ div.compact > .child-component:not(:first-child)
   outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1);
 }
 
+div.RDFTYPE.level-0.compact > div.rdf-type-selector {
+  flex: 1 1 auto;
+}
+
 
 .child-component.compact:not(:first-child) {
   /* border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')"); */
@@ -457,12 +460,17 @@ div.compact > .child-component:not(:first-child)
 
 /* <select> 100% when they are independent*/
 div.component.compact > :deep(select) {
-  width: fit-content;
+  max-width: fit-content !important;
+  min-width: fit-content !important;
+  flex: 1 1 20% !important;
 }
 
 /* <select> fit to content when they are nested with another component*/
 div.component.compact > * > :deep(select) {
-  width: fit-content;
+  /* width: fit-content; */
+  max-width: fit-content !important;
+  min-width: fit-content !important;
+  flex: 1 1 20% !important;
 }
 
 div.REF.compact {
