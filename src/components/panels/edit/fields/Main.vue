@@ -283,13 +283,19 @@ export default {
     }
   },
 
-  mounted(){
+  created(){
+    console.info("created")
     let el = document.getElementsByClassName('edit-panel-work')[0]
     if (el){
-      if (el.offsetWidth < 700) { this.showCompactButtons = false }
+      console.info("el: ", el)
+      el.addEventListener('change', () => {
+        console.info("element: ", el)
+        console.info("width: ", el.offsetWidth)
+      })
     }
-    this.showCompactButtons = true
   },
+
+  mounted(){},
 
   methods: {
     checkCompactButtons: function(){

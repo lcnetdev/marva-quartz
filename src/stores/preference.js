@@ -651,6 +651,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [true,false]
     },
+    '--b-edit-main-compact-threshold' : {
+          desc: 'How small the compact columns can be before they stop being compact.',
+          descShort: 'Compact Min Width',
+          value: 500,
+          step: 50,
+          type: 'number',
+          group: 'Edit Panel',
+          range: [100, 1000]
+      },
 
 
 
