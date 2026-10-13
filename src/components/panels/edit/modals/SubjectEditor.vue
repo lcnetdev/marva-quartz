@@ -106,7 +106,7 @@
                 :class="{ 'scroll-all': preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
                 <div v-if="activeSearch !== false">{{ activeSearch }}</div>
                 <div v-if="searchResults !== null" style="height: 100%">
-                  <ComplexSearchResultsDisplay :searchResults="searchResults" :pickLookup="pickLookup"
+                  <ComplexSearchResultsDisplay :searchResults="searchResults" :pickLookup="pickLookup" :currentSelection="pickPostion"
                     :searchMode="searchMode" @loadContext="loadContext" @selectContext="selectContext" @nafSearch="nafSearch"/>
 
                 </div>
@@ -2340,9 +2340,14 @@ export default {
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1)
         this.pickCurrent = parseInt(this.pickPostion)
+
+        console.info("pick up: ", this.pickCurrent, "--", this.pickPostion)
+
         event.preventDefault()
         return false
       } else if (event.key == 'ArrowDown') {
+
+        console.info("pick down: ", this.pickCurrent, "--", this.pickPostion)
 
         if (parseInt(this.pickPostion) >= this.searchResults.subjectsSimple.length - 1 + this.searchResults.subjectsComplex.length) {
           return false

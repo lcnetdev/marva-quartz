@@ -13,13 +13,13 @@
         </span>
         <div v-for="(value, ix) in searchResults[searchType]" @click="$emit('selectContext', calculateIndex(ix))"
             @mouseover="setPickPosition(calculateIndex(ix))" :data-id="calculateIndex(ix)" :key="value.uri"
-            :class="['fake-option', {'not-usable': !checkIsUsable(value), 'unselected': (pickPostion != calculateIndex(ix)), 'selected': (pickPostion == calculateIndex(ix)), 'picked': (pickLookup[calculateIndex(ix)] && pickLookup[calculateIndex(ix)].picked) }]">
+            :class="['fake-option', {'not-usable': !checkIsUsable(value), 'unselected': (pickPostion != calculateIndex(ix)), 'selected': (currSel == calculateIndex(ix)), 'picked': (pickLookup[calculateIndex(ix)] && pickLookup[calculateIndex(ix)].picked) }]">
             <span class='label' v-if="value.suggestLabel && value.suggestLabel.length > 100">{{ value.suggestLabel.substring(0, 100)
             }}...</span>
             <span class='label' v-else-if="value.literal">
                 {{ value.label }} [Literal]
             </span>
-            <span v-else class="label">{{ value.suggestLabel }}</span>
+            <span v-else class="label">{{index}}#{{ currSel }}!!{{ calculateIndex(ix) }}--{{ value.suggestLabel }}</span>
             <span v-if="searchType == 'names'"> [LCNAF]</span>
             <span v-if="value.collections">
                 {{ buildAddtionalInfo(value.collections) }}
@@ -62,8 +62,8 @@ export default {
         index: String,
         searchResults: Object,
         pickLookup: Object,
-        searchMode: String
-
+        searchMode: String,
+        currSel: Number,
     },
 
     watch: {},

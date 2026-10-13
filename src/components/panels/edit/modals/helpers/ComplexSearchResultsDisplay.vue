@@ -40,6 +40,7 @@
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
+                :currSel="currentSelection"
             />
             <SearchResultOption
                 searchType="subjectsChildren"
@@ -50,6 +51,7 @@
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
+                :currSel="currentSelection"
             />
             <SearchResultOption
                 searchType="names"
@@ -61,6 +63,7 @@
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
                 @nafSearch="nafSearch"
+                :currSel="currentSelection"
             />
             <SearchResultOption
                 searchType="subjectsComplex"
@@ -71,6 +74,7 @@
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
+                :currSel="currentSelection"
             />
             <SearchResultOption
                 searchType="subjectsChildrenComplex"
@@ -81,6 +85,7 @@
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
+                :currSel="currentSelection"
             />
 
             <SearchResultOption
@@ -92,6 +97,7 @@
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
+                :currSel="currentSelection"
             />
         </div>
     </div>
@@ -141,6 +147,7 @@ export default {
         searchResults: Object,
         pickLookup: Object,
         searchMode: String,
+        currentSelection: Number,
     },
 
     watch: {},
