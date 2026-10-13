@@ -10,7 +10,7 @@
 
         <form class="wf-scan" @submit.prevent="scan">
           <span class="material-icons">qr_code_scanner</span>
-          <input type="text" ref="scanInput" v-model="scanValue" @keydown.enter.prevent="scan" placeholder="Scan or type a LCCN, ISBN or barcode" autocomplete="off" spellcheck="false" />
+          <input type="text" ref="scanInput" v-model="scanValue" @keydown.enter.prevent="scan" @paste="scanPaste" placeholder="Scan, type or paste a list of LCCNs, ISBNs or barcodes" autocomplete="off" spellcheck="false" />
         </form>
 
         <span class="wf-bar-spacer"></span>
@@ -23,6 +23,7 @@
               <dl>
                 <dt>Click</dt><dd>select a cell, click it again to edit</dd>
                 <dt>Right click</dt><dd>the field's actions menu</dd>
+                <dt>Paste in the scan box</dt><dd>a list of identifiers (one per line, or separated by spaces or commas) adds them all</dd>
                 <template v-if="layout == 'sheet'"><dt>Drag</dt><dd>move around the sheet</dd></template>
                 <dt>Ctrl / &#8984; + wheel</dt><dd>zoom</dd>
                 <template v-if="layout == 'sheet'"><dt>Column edge</dt><dd>drag to resize, double click to reset</dd></template>
@@ -234,6 +235,16 @@
 </template>
 
 <script>
+/**
+* Break a pasted list of identifiers apart: one per line, or separated by commas, semicolons,
+* tabs or spaces. A URL to a record is kept whole.
+* @param {string} text
+* @return {string[]}
+*/
+function splitIdentifiers(text){
+  return (text || '').split(/[\s,;]+/).map((v) => { return v.trim() }).filter((v) => { return v != '' })
+}
+
 import { mapStores, mapState, mapWritableState } from 'pinia'
 import { useWorkflowStore } from '@/stores/workflow'
 import { useProfileStore } from '@/stores/profile'
@@ -523,7 +534,26 @@ export default {
       let value = (this.$refs.scanInput) ? this.$refs.scanInput.value : this.scanValue
       this.scanValue = ''
       if (this.$refs.scanInput){ this.$refs.scanInput.value = '' }
-      this.workflowStore.scan(value)
+      let values = splitIdentifiers(value)
+      if (values.length > 1){
+        this.workflowStore.scanMany(values)
+      } else {
+        this.workflowStore.scan(value)
+      }
+    },
+
+    /**
+    * A paste into the scan box: a list of identifiers (one per line, or separated by spaces or
+    * commas) is looked up and added straight away, a single value is left in the box as typed
+    */
+    scanPaste(event){
+      let text = (event.clipboardData) ? event.clipboardData.getData('text/plain') : ''
+      let values = splitIdentifiers(text)
+      if (values.length < 2){ return }
+      event.preventDefault()
+      this.scanValue = ''
+      if (this.$refs.scanInput){ this.$refs.scanInput.value = '' }
+      this.workflowStore.scanMany(values)
     },
 
     /**

@@ -707,11 +707,12 @@ export const useWorkflowStore = defineStore('workflow', {
     /**
     * Something was scanned (or typed), find the record and add it to the session
     * @param {string} value - a LCCN, ISBN, barcode or the URL to a record
-    * @return {void}
+    * @param {boolean} quiet - part of a pasted list: don't move the keyboard to the record when it arrives
+    * @return {Promise<boolean>} - did a record get added
     */
-    async scan(value){
+    async scan(value, quiet = false){
       value = (value || '').trim()
-      if (value == '' || !this.activeSession){ return }
+      if (value == '' || !this.activeSession){ return false }
       let session = this.activeSession
 
       let row = newRow(value)
@@ -732,7 +733,7 @@ export const useWorkflowStore = defineStore('workflow', {
         if (results.length == 0){
           this.removeRow(row.id)
           this.notify('No record found for "' + value + '"', 'error')
-          return
+          return false
         }
 
         let pick = results[0]
@@ -741,7 +742,7 @@ export const useWorkflowStore = defineStore('workflow', {
           // tell them apart, then ask the user which one with the likely one pointed out
           row.status = 'checking'
           let advice = await this.inspectCandidates(results, value)
-          if (this.activeSession !== session || !this.returnRow(row.id)){ return }
+          if (this.activeSession !== session || !this.returnRow(row.id)){ return false }
 
           // the user said to always take one format for this workflow, if exactly one record is that format take it
           let autoFormat = this.returnAutoFormat(session.workflowId)
@@ -757,7 +758,7 @@ export const useWorkflowStore = defineStore('workflow', {
             this.prompts = this.prompts.filter((p) => { return p.id !== row.id })
             if (!pick){
               this.removeRow(row.id)
-              return
+              return false
             }
           }
         }
@@ -772,7 +773,7 @@ export const useWorkflowStore = defineStore('workflow', {
       }
 
       // they closed the session while it was searching
-      if (this.activeSession !== session || !this.returnRow(row.id)){ return }
+      if (this.activeSession !== session || !this.returnRow(row.id)){ return false }
 
       let existing = session.rows.filter((r) => { return r.id !== row.id && r.sourceUrl === sourceUrl })[0]
       if (existing){
@@ -780,7 +781,7 @@ export const useWorkflowStore = defineStore('workflow', {
         this.notify('"' + value + '" is already in this workflow', 'info')
         existing.flash = true
         window.setTimeout(() => { existing.flash = false }, 2000)
-        return
+        return false
       }
 
       row.sourceUrl = sourceUrl
@@ -790,10 +791,48 @@ export const useWorkflowStore = defineStore('workflow', {
       this.persistSession()
       // the keyboard goes to the record that just came in
       row = this.returnRow(row.id)
-      if (row && row.status === 'ready' && this.activeSession === session && !this.editingCell){
+      if (!quiet && row && row.status === 'ready' && this.activeSession === session && !this.editingCell){
         this.selectCell(row.id, 0, 0)
         leaveTheScanBox()
       }
+      return !!(row && row.status === 'ready')
+    },
+
+    /**
+    * A list of identifiers was pasted into the scan box: look each one up and add it, in the
+    * order given. Repeats in the list are dropped first. A few run at once, the records keep
+    * the list's order because each one's row is made the moment its search starts.
+    * @param {string[]} values
+    * @return {Promise<void>}
+    */
+    async scanMany(values){
+      let seen = {}
+      values = (values || []).map((v) => { return (v || '').trim() }).filter((v) => {
+        if (v == '' || seen[v]){ return false }
+        seen[v] = true
+        return true
+      })
+      if (values.length == 0 || !this.activeSession){ return }
+      let session = this.activeSession
+      let dropped = (arguments[0] || []).length - values.length
+      this.notify('Looking up ' + values.length + ' identifiers' + (dropped > 0 ? ' (' + dropped + ' repeated in the list)' : ''), 'info')
+
+      let added = 0
+      let next = 0
+      const AT_ONCE = 4
+      let worker = async () => {
+        while (next < values.length && this.activeSession === session){
+          let value = values[next++]
+          try {
+            if (await this.scan(value, true)){ added++ }
+          } catch (e) {
+            console.warn('Workflows: could not add', value, e)
+          }
+        }
+      }
+      await Promise.all(Array.from({ length: Math.min(AT_ONCE, values.length) }, worker))
+      if (this.activeSession !== session){ return }
+      this.notify('Added ' + added + ' of ' + values.length + ' records', added == values.length ? 'success' : 'info')
     },
 
     /**
