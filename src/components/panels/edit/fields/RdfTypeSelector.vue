@@ -126,6 +126,8 @@ export default {
   gap: 0.25em 1.25em;
   padding-top: 0.9em;
   padding-left: 2px;
+
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
 }
 
 .rdf-type-selector-option{
