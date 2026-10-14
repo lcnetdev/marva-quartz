@@ -1,7 +1,7 @@
 <template>
 
 
-  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[componentType, 'level-'+level, {'component': (level == 0 || componentType=='REF'), 'child-component': (level != 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'compact': preferenceStore.returnValue('--b-edit-main-compact')}]" :id="`edit_${parentId}_${id}`">
+  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[componentType, 'level-'+level, {'component': (level == 0 || componentType=='REF'), 'child-component': (level != 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'compact': (preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheck)}]" :id="`edit_${parentId}_${id}`">
     <!-- {{ level }} {{componentType}} -->
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
     <!-- {{ structure.preferenceId }} {{ guid }} -->
@@ -48,7 +48,7 @@
       :guid="guid"
       :readOnly="readOnly"
     />
-    <div v-if="level == 0 && preferenceStore.returnValue('--b-edit-main-compact') && showCompactButtons" class="button-holder">
+    <div v-if="level == 0 && preferenceStore.returnValue('--b-edit-main-compact')" class="button-holder">
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="removeComponent(parentId, id)">delete</span>
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="addComponent(parentId, id)">add</span>
     </div>
@@ -146,7 +146,9 @@ export default {
 
 
       displayDebug: false,
-      showCompactButtons: false,
+      showCompactButtons: true,
+      rObserver: null,
+      compactSizeCheck: true,
 
 
       // useKey: short.generate(),
@@ -277,33 +279,31 @@ export default {
 
   },
 
-  watch :{
-    showCompactButtons(){
-      this.checkCompactButtons()
-    }
+  watch :{ },
+
+  created(){ },
+
+  mounted(){
+    this.rObserver = new ResizeObserver(this.onResize)
+    let targetElement = document.getElementsByClassName('edit-panel-work')[0]
+    this.rObserver.observe(targetElement)
   },
 
-  created(){
-    console.info("created")
-    let el = document.getElementsByClassName('edit-panel-work')[0]
-    if (el){
-      console.info("el: ", el)
-      el.addEventListener('change', () => {
-        console.info("element: ", el)
-        console.info("width: ", el.offsetWidth)
-      })
-    }
-  },
-
-  mounted(){},
+  // beforeMount(){
+  //   let targetElement = document.getElementsByClassName('edit-panel-work')[0]
+  //   this.rObserver.unobserve(targetElement)
+  // },
 
   methods: {
-    checkCompactButtons: function(){
-      let el = document.getElementsByClassName('edit-panel-work')[0]
-      if (el){
-        if (el.offsetWidth < 700) { this.showCompactButtons = false }
+    onResize: function(){ // slow to flip
+      let targetElement = document.getElementsByClassName('edit-panel-work')[0]
+
+      if (targetElement.offsetWidth < this.preferenceStore.returnValue('--b-edit-main-compact-threshold')){
+        console.info('too narrow, do something about it')
+        this.compactSizeCheck = false
+      } else {
+        this.compactSizeCheck = true
       }
-      this.showCompactButtons = true
     },
     addComponent: function(profileName, profileCompoent){
       let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
@@ -466,16 +466,21 @@ div.RDFTYPE.level-0.compact > div.rdf-type-selector {
 
 /* <select> 100% when they are independent*/
 div.component.compact > :deep(select) {
-  max-width: fit-content !important;
-  min-width: fit-content !important;
+  max-width: 100%;
+  min-width: fit-content;
   flex: 1 1 20% !important;
+}
+
+/* Hide the input field for complex lookups */
+:deep() div.lookup-fake-input-entities:has(> div.selected-value-container) + div.lookup-fake-input-text {
+  display: none
 }
 
 /* <select> fit to content when they are nested with another component*/
 div.component.compact > * > :deep(select) {
   /* width: fit-content; */
-  max-width: fit-content !important;
-  min-width: fit-content !important;
+  max-width: 100%;
+  min-width: fit-content;
   flex: 1 1 20% !important;
 }
 
@@ -515,7 +520,12 @@ div.component.compact:has(> :nth-child(5)){
   flex-wrap: wrap;
 }
 div.component.compact > div.level-1:nth-child(n+3) {
-  flex: 1 1 48%;
+  flex: 1 1 30%;
+  /* overflow-x: auto; */
+}
+
+:deep() .lookup-fake-input-entities {
+  align-content: center;
 }
 
 
@@ -594,13 +604,12 @@ div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
   width: 100%;
 }
 
-@container edit-panel-work (width < 500px) {
+/* @container edit-panel-work (width < 500px) {
   div.REF.compact,
   div.REF.compact > *:not(.button-holder),
   .component.level-0.compact,
   div.REF.level-0.component.compact,
   div.REF.component.level-0.compact {
-    /* background-color: red !important; */
     display: inline-block !important;
     flex: unset !important;
     width: 100% !important;
@@ -622,7 +631,6 @@ div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
     border: none;
   }
 
-  /* quick buttons after the last item, on same line */
   div.compact.level-0 > :deep(form),
   div.compact.level-0 > div:nth-last-child(2){
     width: 97% !important;
@@ -635,7 +643,6 @@ div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
     vertical-align: top;
     border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
   }
-  /* Single fields need to be flex to get them on the same line */
   div.compact.level-0:not(:nth-child(n+3)){
     display:flex !important;
   }
@@ -649,7 +656,7 @@ div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
     border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
   }
 
-}
+} */
 
 :deep() .lookup-fake-input{
   height: 100%;
