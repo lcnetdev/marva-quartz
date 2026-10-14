@@ -807,8 +807,6 @@ export default {
       console.info(" override: ", (this.overrideAllow && this.overrideBibid != ''))
       console.info("dummyField: ", dummyField)
 
-      return
-
       this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
@@ -854,7 +852,6 @@ export default {
 
       console.info("this.urlToLoad: ", this.urlToLoad)
 
-      return
 
       try {
         this.loadUrl(profile)
