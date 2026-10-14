@@ -251,7 +251,7 @@ describe('SubjectEditor buildPickLookup()', () => {
             expect(wrapper.vm.pickLookup[0].label).toEqual("Dogs")
             expect(wrapper.vm.pickLookup[4].label).toEqual("Dog breeds")
             expect(wrapper.vm.pickLookup[6].label).toEqual("Dog's Best Friend (Firm)")
-            expect(wrapper.vm.pickLookup[16].label).toEqual("Dogs‑‑Abnormalities")
+            expect(wrapper.vm.pickLookup[11].label).toEqual("Dogs‑‑Abnormalities")
 
         });
     })
