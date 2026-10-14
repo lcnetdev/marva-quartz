@@ -1460,7 +1460,7 @@ export default {
 
     savePrefsToDb: async function () {
       if (!useConfigStore().returnUrls.displayLCOnlyFeatures) { return }
-      let overwrite = confirm("This will overwrite your current preferences. Do you want to continue?")
+      let overwrite = confirm("This will update your preferences saved in the database. Do you want to continue?")
       if (!overwrite) { return }
 
       let user = this.userName
