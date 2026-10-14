@@ -613,6 +613,7 @@ test('Add a literal and set type Family, it has the correct XML', async ({ page 
 });
 
 test('Add a Dogs with literal topic sub it has the correct XML', async ({ page }) => {
+    // test.slow()
     await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
@@ -628,7 +629,8 @@ test('Add a Dogs with literal topic sub it has the correct XML', async ({ page }
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
     await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).dblclick();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--literal');
-    await page.getByText('literal [Literal]').click();
+    // await page.getByText('literal [Literal]').click();
+    await page.locator('span').filter({ hasText: 'literal [Literal]' })
     await page.getByText('Topic / Heading ($a $x)').click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
@@ -641,6 +643,7 @@ test('Add a Dogs with literal topic sub it has the correct XML', async ({ page }
 });
 
 test('Add a Dogs with literal temporal sub it has the correct XML', async ({ page }) => {
+    // test.slow()
     await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test
@@ -656,7 +659,8 @@ test('Add a Dogs with literal temporal sub it has the correct XML', async ({ pag
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
     await page.getByText('Dogs', { exact: true }).first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--literal');
-    await page.getByText('literal [Literal]').click();
+    // await page.getByText('literal [Literal]').click();
+    await page.locator('span').filter({ hasText: 'literal [Literal]' })
     await page.getByText('Chronological ($y)').click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
