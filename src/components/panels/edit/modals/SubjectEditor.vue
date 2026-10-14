@@ -2350,6 +2350,12 @@ export default {
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1)
 
+        let target = document.getElementsByClassName('selected')[0]
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
+
         event.preventDefault()
         return false
       } else if (event.key == 'ArrowDown') {
@@ -2357,15 +2363,21 @@ export default {
           if (parseInt(this.pickPostion) > (this.searchResults.entities.length) ) {
             return false
           }
-        } else if (this.searchMode != 'CHILD'){
-          if (parseInt(this.pickPostion) > (this.searchResults.entities.length + this.searchResults.subjectsComplex.length + this.searchResults.names.length)-2) {
-            return false
-          }
-        } else {
+        } else if (this.searchMode == 'CHILD'){
           if (parseInt(this.pickPostion) > (this.searchResults.subjectsChildren.length + this.searchResults.subjectsComplex.length + this.searchResults.names.length)-2) {
             return false
           }
+        } else {
+          if (parseInt(this.pickPostion) > (this.searchResults.subjectsSimple.length + this.searchResults.subjectsComplex.length + this.searchResults.names.length)-2) {
+            return false
+          }
         }
+
+        let target = document.getElementsByClassName('selected')[0]
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
 
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) + 1)
