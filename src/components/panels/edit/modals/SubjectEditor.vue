@@ -2349,7 +2349,6 @@ export default {
 
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1)
-        this.pickCurrent = parseInt(this.pickPostion)
 
         event.preventDefault()
         return false
@@ -2366,7 +2365,6 @@ export default {
 
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) + 1)
-        this.pickCurrent = parseInt(this.pickPostion)
         event.preventDefault()
         return false
       } else if (event.key == 'Enter') {
@@ -2378,6 +2376,7 @@ export default {
           this.add()
           return
         }
+        this.pickCurrent = parseInt(this.pickPostion)
         this.selectContext()
 
       } else if (event.ctrlKey && event.altKey && event.key == "1") {
