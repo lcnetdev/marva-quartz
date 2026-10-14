@@ -19,7 +19,7 @@
             <span class='label' v-else-if="value.literal">
                 {{ value.label }} [Literal]
             </span>
-            <span v-else class="label">{{index}}#{{ currSel }}!!{{ calculateIndex(ix) }}--{{ value.suggestLabel }}</span>
+            <span v-else class="label">{{ value.suggestLabel }}</span>
             <span v-if="searchType == 'names'"> [LCNAF]</span>
             <span v-if="value.collections">
                 {{ buildAddtionalInfo(value.collections) }}
@@ -127,8 +127,13 @@ export default {
         calculateIndex: function (i) {
             const searchResults = this.searchResults
             try {
-                let f = new Function('searchResults', "return " + this.index.replace('ix', i))
-                return f(searchResults)
+                if (this.searchMode == 'CHILD' && this.searchType == 'names'){
+                    let simpleResults = this.searchResults.subjectsChildren.length
+                    return simpleResults + i
+                } else {
+                    let f = new Function('searchResults', "return " + this.index.replace('ix', i))
+                    return f(searchResults)
+                }
             } catch (err) {
                 return i
             }

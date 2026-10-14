@@ -30,11 +30,10 @@
                     </div>
                 </div>
             </div>
-
             <SearchResultOption
                 searchType="subjectsSimple"
                 :label="searchMode == 'HUBS' ? 'Left Anchored' : 'Simple'"
-                index="searchResults.subjectsComplex.length + ix"
+                index="ix"
                 :searchResults="searchResults"
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
@@ -45,7 +44,7 @@
             <SearchResultOption
                 searchType="subjectsChildren"
                 label="CYAC Simple"
-                index="searchResults.subjectsChildrenComplex.length + ix"
+                index="ix"
                 :searchResults="searchResults"
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
@@ -56,7 +55,7 @@
             <SearchResultOption
                 searchType="names"
                 label="LCNAF"
-                index="(searchResults.names.length - ix) * - 1"
+                index="(searchResults.subjectsSimple.length + ix)"
                 :searchResults="searchResults"
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
@@ -68,7 +67,7 @@
             <SearchResultOption
                 searchType="subjectsComplex"
                 :label="searchMode == 'HUBS' ? 'Keyword' : 'Complex'"
-                index="ix"
+                index="(searchResults.subjectsSimple.length + searchResults.names.length + ix)"
                 :searchResults="searchResults"
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"

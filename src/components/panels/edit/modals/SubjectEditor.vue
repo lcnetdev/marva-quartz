@@ -1542,23 +1542,28 @@ export default {
      */
     buildPickLookup: function () {
       for (let x in this.searchResults.subjectsComplex) {
-        this.pickLookup[x] = this.searchResults.subjectsComplex[x]
+        // this.pickLookup[x] = this.searchResults.subjectsComplex[x]
+        this.pickLookup[this.searchResults.subjectsSimple.length + this.searchResults.names.length + parseInt(x)] = this.searchResults.subjectsComplex[x]
       }
 
       for (let x in this.searchResults.subjectsChildrenComplex) {
-        this.pickLookup[x] = this.searchResults.subjectsChildrenComplex[x]
+        this.pickLookup[this.searchResults.subjectsChildren.length + this.searchResults.names.length + parseInt(x)] = this.searchResults.subjectsChildrenComplex[x]
       }
 
       for (let x in this.searchResults.subjectsSimple) {
-        this.pickLookup[parseInt(x) + parseInt(this.searchResults.subjectsComplex.length)] = this.searchResults.subjectsSimple[x]
+        this.pickLookup[x] = this.searchResults.subjectsSimple[x]
       }
 
       for (let x in this.searchResults.subjectsChildren) {
-        this.pickLookup[parseInt(x) + parseInt(this.searchResults.subjectsChildrenComplex.length)] = this.searchResults.subjectsChildren[x]
+        this.pickLookup[x] = this.searchResults.subjectsChildren[x]
       }
 
       for (let x in this.searchResults.names) {
-        this.pickLookup[(this.searchResults.names.length - x) * -1] = this.searchResults.names[x]
+        if (this.searchMode != "CHILD"){
+          this.pickLookup[( this.searchResults.subjectsSimple.length + parseInt(x))] = this.searchResults.names[x]
+        } else {
+          this.pickLookup[( this.searchResults.subjectsChildren.length + parseInt(x))] = this.searchResults.names[x]
+        }
       }
 
       for (let x in this.searchResults.exact) {
@@ -1700,7 +1705,8 @@ export default {
 
       that.pickLookup = {}
 
-      that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length - 1
+      // that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length - 1
+      that.pickPostion = 0
 
       that.buildPickLookup()
 
@@ -1733,6 +1739,10 @@ export default {
         that.contextRequestInProgress = true
         // that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
         that.contextData = that.getContext()
+        if (that.contextData instanceof Promise){
+          that.contextData = that.pickLookup[that.pickPostion]
+        }
+        that.loadContext(0)
 
         // keep a local copy of it for looking up subject type
         if (that.contextData) {
@@ -1835,6 +1845,8 @@ export default {
     },
 
     getContext: async function () {
+      if (!this.pickLookup[this.pickPostion]){ return false }
+      // if (this.pickLookup[this.pickPostion] && this.pickLookup[this.pickPostion].literal) {
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
@@ -1882,12 +1894,16 @@ export default {
       this.contextData.variantLabels = [...new Set(this.contextData.variantLabels)]
 
       // filter related, so it doesn't duplicate value from earlier/later, broader
-      if (this.contextData['relateds']){
-        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
-        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
-        this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
-      } else {
-        this.contextData['relateds'] = []
+      try {
+        if (this.contextData['relateds']){
+          this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasEarlierEstablishedForms'].includes(n))
+          this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['hasLaterEstablishedForms'].includes(n))
+          this.contextData['relateds'] = this.contextData['relateds'].filter(n => !this.contextData['broaders'].includes(n))
+        } else {
+          this.contextData['relateds'] = []
+        }
+      } catch {
+        console.warn("Can't find relationship")
       }
 
       this.contextRequestInProgress = false
@@ -2048,10 +2064,6 @@ export default {
         this.pickPostion = pickPostion
       } else {
         return null
-      }
-
-      if (this.pickLookup[this.pickPostion].literal) {
-        return false
       }
 
       this.getContext()
@@ -2333,24 +2345,23 @@ export default {
 
     navInput: function (event) {
       if (event.key == 'ArrowUp') {
-        if (parseInt(this.pickPostion) <= this.searchResults.names.length * -1) {
-          return false
-        }
+        if (parseInt(this.pickPostion) <= 0) { return false }
 
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1)
         this.pickCurrent = parseInt(this.pickPostion)
 
-        console.info("pick up: ", this.pickCurrent, "--", this.pickPostion)
-
         event.preventDefault()
         return false
       } else if (event.key == 'ArrowDown') {
-
-        console.info("pick down: ", this.pickCurrent, "--", this.pickPostion)
-
-        if (parseInt(this.pickPostion) >= this.searchResults.subjectsSimple.length - 1 + this.searchResults.subjectsComplex.length) {
-          return false
+        if (this.searchMode != 'CHILD'){
+          if (parseInt(this.pickPostion) > (this.searchResults.subjectsSimple.length + this.searchResults.subjectsComplex.length + this.searchResults.names.length)-2) {
+            return false
+          }
+        } else {
+          if (parseInt(this.pickPostion) > (this.searchResults.subjectsChildren.length + this.searchResults.subjectsComplex.length + this.searchResults.names.length)-2) {
+            return false
+          }
         }
 
         this.pickCurrent = null //allows keyboard selection
@@ -2664,7 +2675,6 @@ export default {
                 }
               }
               this.searchApis(c.label, searchString, this)
-
               // BUT if it ends with a number and - then it is a name with open life dates
               // so do look that one up
             } else if (/[0-9]{4}\??-/.test(c.label)) {

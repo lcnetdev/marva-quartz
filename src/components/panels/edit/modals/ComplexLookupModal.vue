@@ -650,7 +650,6 @@
         this.finalMarc = this.finalMarc.replace(/(?:\r\n|\r|\n)/g, '');
         this.finalMarc = this.finalMarc.replace(/> *</g, '><');
 
-        console.info("submitting: ", this.finalMarc)
         this.postStatus='posting'
         let cataloger = null
         let results = await this.postNacoStub(this.finalMarc, this.MARClccn, true)
@@ -1638,11 +1637,9 @@
 
 
       selectNav: function(event){
-        console.info("selectNav: ", event)
         if (event.target.selectedIndex == 0){
           // pop back up into the search field
           if (event.key==='ArrowUp'){
-            console.info("arrow UP")
             if (this.$refs.inputLookup){
               this.$refs.inputLookup.focus()
               this.$nextTick(() => {
@@ -2129,7 +2126,7 @@
                       </option>
 
                       <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : isSuppressed(r) ? 'background-color:yellow' : ''" class="complex-lookup-result">  <!-- this.isSuppressed(r) ? 'color:yellow' :  -->
-                        !!{{ generateLabel(r) }}
+                        {{ generateLabel(r) }}
                         {{ checkFromAuth(r) ? ' (Auth)' : '' }}
                         {{ checkFromRda(r) ? ' [RDA]' : '' }}
                         {{ hasPubDate(r) ? ' [' + hasPubDate(r) + ']' : '' }}
