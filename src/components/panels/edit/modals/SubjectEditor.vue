@@ -2353,8 +2353,12 @@ export default {
         event.preventDefault()
         return false
       } else if (event.key == 'ArrowDown') {
-        if (this.searchMode != 'CHILD'){
-          if (parseInt(this.pickPostion) > (this.searchResults.subjectsSimple.length + this.searchResults.subjectsComplex.length + this.searchResults.names.length)-2) {
+        if (this.searchMode == 'ENTITIES') {
+          if (parseInt(this.pickPostion) > (this.searchResults.entities.length) ) {
+            return false
+          }
+        } else if (this.searchMode != 'CHILD'){
+          if (parseInt(this.pickPostion) > (this.searchResults.entities.length + this.searchResults.subjectsComplex.length + this.searchResults.names.length)-2) {
             return false
           }
         } else {
