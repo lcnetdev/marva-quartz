@@ -1,8 +1,8 @@
 <template>
 
 
-  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[componentType, 'level-'+level, {'component': (level == 0 || componentType=='REF'), 'child-component': (level != 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'compact': (preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheck)}]" :id="`edit_${parentId}_${id}`">
-    <!-- {{ level }} {{componentType}} -->
+  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[componentType, 'level-'+level, {'component': (level == 0 || componentType=='REF'), 'child-component': (level != 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'expand-left': !(preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckLeft), 'compact-left': (preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckLeft && structure.parentId.includes(':Work')), 'expand-right': !(preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckRight), 'compact-right': (preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckRight && structure.parentId.includes(':Instance'))}]" :id="`edit_${parentId}_${id}`">
+    <!-- {{ level }} {{structure}} -->
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
     <!-- {{ structure.preferenceId }} {{ guid }} -->
     <!-- {{ preferenceId }} -->
@@ -148,7 +148,9 @@ export default {
       displayDebug: false,
       showCompactButtons: true,
       rObserver: null,
-      compactSizeCheck: true,
+      lObserver: null,
+      compactSizeCheckLeft: true,
+      compactSizeCheckRight: true,
 
 
       // useKey: short.generate(),
@@ -285,8 +287,11 @@ export default {
 
   mounted(){
     this.rObserver = new ResizeObserver(this.onResize)
-    let targetElement = document.getElementsByClassName('edit-panel-work')[0]
-    this.rObserver.observe(targetElement)
+    this.lObserver = new ResizeObserver(this.onResize)
+    let targetElementLeft = document.getElementsByClassName('edit-main-splitpane-edit-work')[0]
+    let targetElementRight = document.getElementsByClassName('edit-main-splitpane-edit-instance')[0]
+    this.rObserver.observe(targetElementLeft)
+    this.rObserver.observe(targetElementRight)
   },
 
   // beforeMount(){
@@ -296,13 +301,20 @@ export default {
 
   methods: {
     onResize: function(){ // slow to flip
-      let targetElement = document.getElementsByClassName('edit-panel-work')[0]
+      // compactSizeCheckRight
+      let targetElementLeft = document.getElementsByClassName('edit-main-splitpane-edit-work')[0]
+      let targetElementRight = document.getElementsByClassName('edit-main-splitpane-edit-instance')[0]
 
-      if (targetElement.offsetWidth < this.preferenceStore.returnValue('--b-edit-main-compact-threshold')){
-        console.info('too narrow, do something about it')
-        this.compactSizeCheck = false
+      if (targetElementLeft.offsetWidth < this.preferenceStore.returnValue('--b-edit-main-compact-threshold')){
+        this.compactSizeCheckLeft = false
       } else {
-        this.compactSizeCheck = true
+        this.compactSizeCheckLeft = true
+      }
+
+      if (targetElementRight.offsetWidth < this.preferenceStore.returnValue('--b-edit-main-compact-threshold')){
+        this.compactSizeCheckRight = false
+      } else {
+        this.compactSizeCheckRight = true
       }
     },
     addComponent: function(profileName, profileCompoent){
@@ -430,42 +442,42 @@ export default {
 }
 
 
-.component.level-0.compact{
+[class*="compact-"].component.level-0{
   width: 100%;
   display: flex;
 }
 
-.child-component.compact {
+.child-component {
   margin-bottom: 0px;
 }
 
-div.REF.compact,
-div.REF.compact > :deep(*),
-div.REF.compact > * > :deep(*),
-div.REF.compact > * > * > :deep(*)
+div.REF[class*="compact-"],
+div.REF[class*="compact-"] > :deep(*),
+div.REF[class*="compact-"] > * > :deep(*),
+div.REF[class*="compact-"] > * > * > :deep(*)
 {
   border: none;
 }
 
-div.REF.level-0.compact {
+div.REF.level-0[class*="compact-"] {
   outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1);
 }
-div.compact > .child-component:not(:first-child)
+div[class*="compact-"] > .child-component:not(:first-child)
 {
   outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1);
 }
 
-div.RDFTYPE.level-0.compact > div.rdf-type-selector {
+div.RDFTYPE.level-0[class*="compact-"] > div.rdf-type-selector {
   flex: 1 1 auto;
 }
 
 
-.child-component.compact:not(:first-child) {
+.child-component[class*="compact-"]:not(:first-child) {
   /* border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')"); */
 }
 
 /* <select> 100% when they are independent*/
-div.component.compact > :deep(select) {
+div.component[class*="compact-"] > :deep(select) {
   max-width: 100%;
   min-width: fit-content;
   flex: 1 1 20% !important;
@@ -477,52 +489,53 @@ div.component.compact > :deep(select) {
 }
 
 /* <select> fit to content when they are nested with another component*/
-div.component.compact > * > :deep(select) {
+div.component[class*="compact-"] > * > :deep(select) {
   /* width: fit-content; */
   max-width: 100%;
   min-width: fit-content;
   flex: 1 1 20% !important;
 }
 
-div.REF.compact {
+div.REF[class*="compact-"] div.REF {
   display: flex;
   flex: 1 1 auto;
 }
 
-div.COMPLEX.compact {
+div.REF[class*="compact-"]  div.COMPLEX {
   flex: 1 1 48%;
 }
-div.SIMPLE.compact {
+div.REF[class*="compact-"]  div.SIMPLE {
   flex: 1 1 32%;
 }
 
-div.LITERAL.compact {
+div.REF[class*="compact-"]  div.LITERAL {
   flex: 1 1 70%;
 }
 
-div.compact.LITERAL.level-1:has(+ div.compact.REF.level-1){
+div[class*="compact-"].LITERAL.level-1:has(+ div.REF.level-1){
   flex: 1 1 30%;
 }
 
-div.LITERAL.compact.level-1 + div.REF.compact.level-1:has(> div.LITERAL.compact.level-2):nth-child(2) {
+div.LITERAL[class*="compact-"].level-1 + div.REF.level-1:has(> div.LITERAL.level-2):nth-child(2) {
   flex: 1 1 50%;
 }
 
 /* non-sort */
-div.compact > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:has( > div > div > div > form > select)),
-div.component.compact > :deep(div.LITERAL:nth-child(2):has( > div > div > div > form > select)),
-div.compact > div.LITERAL.level-1:first-child:has( > div > div > div > form > select){
+div[class*="compact-"] > div.REF.level-1 > div.REF.level-2 > :deep(div.LITERAL:has( > div > div > div > form > select)),
+div.component[class*="compact-"] > :deep(div.LITERAL:nth-child(2):has( > div > div > div > form > select)),
+div[class*="compact-"] > div.LITERAL.level-1:first-child:has( > div > div > div > form > select){
   flex: 0 1 20% !important;
 }
 
 /* complex titles */
-div.component.compact:has(> :nth-child(5)){
+div.component[class*="compact-"]:has(> :nth-child(5)){
   flex-wrap: wrap;
 }
-div.component.compact > div.level-1:nth-child(n+3) {
-  flex: 1 1 30%;
+div.component[class*="compact-"] > div.level-1:nth-child(n+3) {
+  flex: 1 1 45%;
   /* overflow-x: auto; */
 }
+
 
 :deep() .lookup-fake-input-entities {
   align-content: center;
@@ -530,78 +543,95 @@ div.component.compact > div.level-1:nth-child(n+3) {
 
 
 /* Classification & provision activity, drop down and literals on one line, simple on the next */
-div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component.compact > :deep(select),
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].component.compact > :deep(select){
+div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component[class*="compact-"] > :deep(select),
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].component[class*="compact-"] > :deep(select){
   width: 100% !important;
 }
-div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component.compact > :deep(div.LITERAL),
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0.compact > :deep(div.LITERAL) {
+div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component[class*="compact-"] > :deep(div.LITERAL),
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0[class*="compact-"] > :deep(div.LITERAL) {
   flex: 1 0 48%;
 }
-div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component.compact > :deep(div.level-1:nth-child(n+4)),
-div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0.compact > :deep(div.level-1:nth-child(n+4))
+div[id*="id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity"].component[class*="compact-"] > :deep(div.level-1:nth-child(n+4)),
+div[id*="Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"].REF.level-0[class*="compact-"] > :deep(div.level-1:nth-child(n+4))
 {
   flex: 1 1 30%;
 }
 
 /* contents. Literal is on it's own line, other's share line */
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact{
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"][class*="compact-"]{
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact > div.LITERAL.level-1.child-component {
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"][class*="compact-"] > div.LITERAL.level-1.child-component {
   flex: 1 1 100% !important;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component.compact > div.SIMPLE.level-1.child-component,
-div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].compact > div.level-1.child-component {
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"].component[class*="compact-"] > div.SIMPLE.level-1.child-component,
+div[id*="Work_id_loc_gov_ontologies_bibframe_tableOfContents__contents"][class*="compact-"] > div.level-1.child-component {
   flex: 1 1 45%;
 }
 
 /* input transcribed series */
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1:first-child{
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"][class*="compact-"] > div.REF.level-1:first-child{
   display: flex;
   flex-wrap: wrap;
   width: 100%;
 }
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].level-0.compact  > div.REF.level-1:nth-child(2),
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.LITERAL.level-1.child-component,
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1.child-component > div.LITERAL.level-2 {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].level-0[class*="compact-"]  > div.REF.level-1:nth-child(2),
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"][class*="compact-"] > div.LITERAL.level-1.child-component,
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"][class*="compact-"] > div.REF.level-1.child-component > div.LITERAL.level-2 {
   flex: 1 1 32%;
 }
 
 
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2:nth-child(1) {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"][class*="compact-"] > div.REF.level-1 > div.REF.level-2:nth-child(1) {
   width: 100%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"].compact > div.REF.level-1 > div.REF.level-2.component.child-component:nth-child(3) {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__input_transcribed_series"][class*="compact-"] > div.REF.level-1 > div.REF.level-2.component.child-component:nth-child(3) {
   width: 48%;
 }
 
 /* Related work not held by LC  */
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"].compact {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"][class*="compact-"] {
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"].compact > div.REF {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"][class*="compact-"] > div.REF {
   width: 100%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"].compact > div.REF:nth-child(n+1) {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"][class*="compact-"] > div.REF:nth-child(n+1) {
   width: 48%;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"].compact > div.REF > div.LITERAL {
+div[id*="Work_id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc"][class*="compact-"] > div.REF > div.LITERAL {
   flex: 1 1 48%;
 }
 /* Event/Capture & dissertation */
-div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"].compact,
-div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"].compact {
+div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"][class*="compact-"],
+div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"][class*="compact-"] {
   flex-wrap: wrap;
 }
-div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"].compact > div.child-component,
-div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"].compact > div.child-component {
+div[id*="Work_id_loc_gov_ontologies_bibframe_dissertation__dissertation"][class*="compact-"] > div.child-component,
+div[id*="Work_id_loc_gov_ontologies_bibframe_capture__eventcapture"][class*="compact-"] > div.child-component {
   flex: 1 1 48%;
 }
 
-div.LITERAL.level-0.compact > :deep(div.lookup-fake-input) {
+div.LITERAL.level-0[class*="compact-"] > :deep(div.lookup-fake-input) {
   width: 100%;
+}
+
+div.level-0[class*="expand"] > div:nth-last-child(2){
+  width: 97%;
+  display: inline-block;
+}
+
+div.level-0[class*="expand"]> div.button-holder{
+  width: 3%;
+  display: inline-block;
+  outline: unset !important;
+  vertical-align: top;
+  border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
+}
+
+div.HIDE {
+  display: none !important;
 }
 
 /* @container edit-panel-work (width < 500px) {
