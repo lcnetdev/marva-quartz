@@ -288,10 +288,18 @@ export default {
   mounted(){
     this.rObserver = new ResizeObserver(this.onResize)
     this.lObserver = new ResizeObserver(this.onResize)
-    let targetElementLeft = document.getElementsByClassName('edit-main-splitpane-edit-work')[0]
-    let targetElementRight = document.getElementsByClassName('edit-main-splitpane-edit-instance')[0]
+
+    let targetElementLeft = null
+    if (this.preferenceStore.panelDisplay.dualEdit){
+      targetElementLeft = document.getElementsByClassName('edit-main-splitpane-edit-work')[0]
+      let targetElementRight = document.getElementsByClassName('edit-main-splitpane-edit-instance')[0]
+      this.rObserver.observe(targetElementRight)
+    } else {
+      targetElementLeft = document.getElementsByClassName('edit-main-splitpane-edit-combined')[0]
+    }
+
     this.rObserver.observe(targetElementLeft)
-    this.rObserver.observe(targetElementRight)
+
   },
 
   // beforeMount(){
@@ -302,19 +310,24 @@ export default {
   methods: {
     onResize: function(){ // slow to flip
       // compactSizeCheckRight
-      let targetElementLeft = document.getElementsByClassName('edit-main-splitpane-edit-work')[0]
-      let targetElementRight = document.getElementsByClassName('edit-main-splitpane-edit-instance')[0]
+      let targetElementLeft = null
+      if (this.preferenceStore.panelDisplay.dualEdit){
+        targetElementLeft = document.getElementsByClassName('edit-main-splitpane-edit-work')[0]
+        let targetElementRight = document.getElementsByClassName('edit-main-splitpane-edit-instance')[0]
+        if (targetElementRight.offsetWidth < this.preferenceStore.returnValue('--b-edit-main-compact-threshold')){
+          this.compactSizeCheckRight = false
+        } else {
+          this.compactSizeCheckRight = true
+        }
+      } else {
+        targetElementLeft = document.getElementsByClassName('edit-main-splitpane-edit-combined')[0]
+      }
+
 
       if (targetElementLeft.offsetWidth < this.preferenceStore.returnValue('--b-edit-main-compact-threshold')){
         this.compactSizeCheckLeft = false
       } else {
         this.compactSizeCheckLeft = true
-      }
-
-      if (targetElementRight.offsetWidth < this.preferenceStore.returnValue('--b-edit-main-compact-threshold')){
-        this.compactSizeCheckRight = false
-      } else {
-        this.compactSizeCheckRight = true
       }
     },
     addComponent: function(profileName, profileCompoent){
