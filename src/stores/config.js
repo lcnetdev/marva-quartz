@@ -117,7 +117,7 @@ export const useConfigStore = defineStore('config', {
         dancerEnabled: true,
         dancerWorkspaceList: "http://localhost:9401/marva/dancer/api/serve/workspaces",
 
-        motd: '⚠️ Bibframe Servers are being patched Thursday Oct 15 at 12 PM (noon) EDT. Marva will be offline for about 30 minutes. ⚠️',
+        motd: '',
 
       },
 
@@ -194,7 +194,7 @@ export const useConfigStore = defineStore('config', {
         enableStateRecorder: false,
         simpleLookupLang: 'en',
 
-        motd: '⚠️ Bibframe Servers are being patched Thursday Oct 15 at 12 PM (noon) EDT. Marva will be offline for about 30 minutes. ⚠️',
+        motd: '',
       },
 
       bibframeDotOrg:{
