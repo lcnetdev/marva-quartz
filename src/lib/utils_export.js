@@ -6,6 +6,10 @@ import {usePreferenceStore} from "../stores/preference";
 // import short from 'short-uuid'
 import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
+
+// Repeated MARC subfields parsed from a text field (see NacoStubCreateModal) arrive as a single
+// string joined with this delimiter. Every subfield value written to MARC must be split on it.
+const REPEATED_VALUE_DELIMITER = '<REPEATED_MARVA_VALUE>'
 import utilsNetwork from './utils_network';
 import utilsProfile from './utils_profile';
 import utilsParse from './utils_parse';
@@ -2636,7 +2640,7 @@ const utilsExport = {
 		for (let key of Object.keys(oneXXParts)){
 			if (key.length == 1 && isAlpha(key)) {
 				// there might be repeated subfields, split the value and loop through tem
-				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
+				let useValues = oneXXParts[key].split(REPEATED_VALUE_DELIMITER);
 				for (let v of useValues){
 					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 					subfield.setAttribute( 'code', key)
@@ -2649,7 +2653,7 @@ const utilsExport = {
 		for (let key of Object.keys(oneXXParts)){
 			if (key.length == 1 && !isAlpha(key)) {
 				// there might be repeated subfields, split the value and loop through tem
-				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
+				let useValues = oneXXParts[key].split(REPEATED_VALUE_DELIMITER);
 				for (let v of useValues){
 					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 					subfield.setAttribute( 'code', key)
@@ -2677,7 +2681,7 @@ const utilsExport = {
 				// only add the subfields
 				if (key.length == 1 && isAlpha(key)){
 					// there might be repeated subfields, split the value and loop through tem
-					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+					let useValues = fourXXParts[key].split(REPEATED_VALUE_DELIMITER);
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
@@ -2692,7 +2696,7 @@ const utilsExport = {
 				// only add the subfields
 				if (key.length == 1 && !isAlpha(key)){
 					// there might be repeated subfields, split the value and loop through tem
-					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+					let useValues = fourXXParts[key].split(REPEATED_VALUE_DELIMITER);
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
@@ -2816,12 +2820,16 @@ const utilsExport = {
 					let useSubfieldsValues = []
 					for (let key of Object.keys(x)){
 						if (key.length == 1){
-							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
-							subfield.setAttribute( 'code', x[key][0])
-							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ').replace('\u200E', '')
-							field.appendChild(subfield)
-							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
-							hasValue = true
+							// there might be repeated subfields joined with the delimiter, never let it reach the MARC
+							let useValues = String(x[key][1]).split(REPEATED_VALUE_DELIMITER)
+							for (let v of useValues){
+								let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+								subfield.setAttribute( 'code', x[key][0])
+								subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '')
+								field.appendChild(subfield)
+								useSubfieldsValues.push(`$${x[key][0]} ${v.replace(/[\r\n]+/g, ' ')}`)
+								hasValue = true
+							}
 						}
 					}
 					if (hasValue){
