@@ -11,6 +11,15 @@
 
   import utilsNetwork from '@/lib/utils_network';
 
+  // When a MARC field is parsed into a {subfieldCode: value} object, repeated subfields
+  // (e.g. two $c) are stored as one string joined with this delimiter. It must never
+  // reach the UI, a search, a label, or any MARC output as literal text.
+  const REPEATED_VALUE_DELIMITER = '<REPEATED_MARVA_VALUE>'
+  const splitRepeatedValue = (value) => {
+    if (value === null || value === undefined) { return [] }
+    return String(value).split(REPEATED_VALUE_DELIMITER)
+  }
+
 
   export default {
     components: {
@@ -301,7 +310,10 @@
 
             for (let subfield of Object.keys(this.hyphenated4xx)){
               if (subfield.length==1){
-                newField[counter++] = [subfield, this.hyphenated4xx[subfield].trim()]
+                // repeated subfields are joined with the delimiter, emit each as its own subfield
+                for (let v of splitRepeatedValue(this.hyphenated4xx[subfield])){
+                  newField[counter++] = [subfield, v.trim()]
+                }
               }
             }
 
@@ -511,7 +523,8 @@
               let useName = ''
               for (let key in this.oneXXParts){
                 if (key.length==1){
-                  useName = useName + this.oneXXParts[key] + ' '
+                  // repeated subfields are joined with the delimiter, flatten them to plain text
+                  useName = useName + splitRepeatedValue(this.oneXXParts[key]).join(' ') + ' '
                 }
               }
               useName=useName.trim()
@@ -724,7 +737,7 @@
               let subfield = dp.slice(0,1)
               let value = dp.slice(1)
               if (dollarKey[subfield]){
-                dollarKey[subfield] = dollarKey[subfield] + '<REPEATED_MARVA_VALUE>' + value.trim()
+                dollarKey[subfield] = dollarKey[subfield] + REPEATED_VALUE_DELIMITER + value.trim()
               }else{
                 dollarKey[subfield] = value.trim()
               }
@@ -738,29 +751,14 @@
             this.oneXXParts = dollarKey
             // console.log("dollarKey",dollarKey)
             let authLabel = ""
-            if (dollarKey.a){
-              authLabel = authLabel + dollarKey.a
-            }
-            if (dollarKey.b){
-              authLabel = authLabel + ' ' + dollarKey.b
-            }
-            if (dollarKey.c){
-              authLabel = authLabel + ' ' + dollarKey.c
-            }
-            if (dollarKey.q){
-              authLabel = authLabel + ' ' + dollarKey.q
-            }
-            if (dollarKey.d){
-              authLabel = authLabel + ' ' + dollarKey.d
-            }
-            if (dollarKey.g){
-              authLabel = authLabel + ' ' + dollarKey.g
-            }
-            if (dollarKey.t){
-              authLabel = authLabel + ' ' + dollarKey.t
+            for (let labelKey of ['a','b','c','q','d','g','t']){
+              if (dollarKey[labelKey]){
+                // repeated subfields are stored joined with the delimiter, flatten them to plain text
+                authLabel = authLabel + ' ' + splitRepeatedValue(dollarKey[labelKey]).join(' ')
+              }
             }
 
-            authLabel = authLabel.replace(/  +/g, ' ')
+            authLabel = authLabel.replace(/  +/g, ' ').trim()
 
             if (dollarKey.a){
               window.clearTimeout(this.oneXXResultsTimeout)
@@ -856,7 +854,8 @@
 
               if (isHyphenated || isSpacedCompound){
                let separator = isHyphenated ? '-' : ' '
-               if (dollarKey.a.split(',')[0]){
+               // the swap needs a "Surname, Forename" shape, a hyphenated corporate name like "Austria-Hungary." has no forename to swap
+               if (dollarKey.a.split(',')[0] && dollarKey.a.split(',')[1] && dollarKey.a.split(',')[1].trim()){
                 let compoundParts = dollarKey.a.split(',')[0].split(separator)
                 if (compoundParts.length == 2){
                   let trailingSeparator = isHyphenated ? separator : ''
@@ -874,10 +873,13 @@
                   let subfields = ""
                   for (let key in compound4xx){
                     if (key.length==1){
-                      if (key == 'd'){
-                        subfields = subfields.trim() + ', $'+key+' '+compound4xx[key] + ' '
-                      } else {
-                        subfields = subfields + '$'+key+' '+compound4xx[key] + ' '
+                      // repeated subfields are joined with the delimiter, emit each as its own $x
+                      for (let v of splitRepeatedValue(compound4xx[key])){
+                        if (key == 'd'){
+                          subfields = subfields.trim() + ', $'+key+' '+v + ' '
+                        } else {
+                          subfields = subfields + '$'+key+' '+v + ' '
+                        }
                       }
                     }
                   }
@@ -993,7 +995,7 @@
               let subfield = dp.slice(0,1)
               let value = dp.slice(1)
               if (dollarKey[subfield]){
-                dollarKey[subfield] = dollarKey[subfield] + '<REPEATED_MARVA_VALUE>' + value.trim()
+                dollarKey[subfield] = dollarKey[subfield] + REPEATED_VALUE_DELIMITER + value.trim()
               }else{
                 dollarKey[subfield] = value.trim()
               }
@@ -1011,29 +1013,14 @@
               this.fiveXXParts = dollarKey
             }
             let authLabel = ""
-            if (dollarKey.a){
-              authLabel = authLabel + dollarKey.a
-            }
-            if (dollarKey.b){
-              authLabel = authLabel + ' ' + dollarKey.b
-            }
-            if (dollarKey.c){
-              authLabel = authLabel + ' ' + dollarKey.c
-            }
-            if (dollarKey.q){
-              authLabel = authLabel + ' ' + dollarKey.q
-            }
-            if (dollarKey.d){
-              authLabel = authLabel + ' ' + dollarKey.d
-            }
-            if (dollarKey.g){
-              authLabel = authLabel + ' ' + dollarKey.g
-            }
-            if (dollarKey.t){
-              authLabel = authLabel + ' ' + dollarKey.t
+            for (let labelKey of ['a','b','c','q','d','g','t']){
+              if (dollarKey[labelKey]){
+                // repeated subfields are stored joined with the delimiter, flatten them to plain text
+                authLabel = authLabel + ' ' + splitRepeatedValue(dollarKey[labelKey]).join(' ')
+              }
             }
 
-            authLabel = authLabel.replace(/  +/g, ' ')
+            authLabel = authLabel.replace(/  +/g, ' ').trim()
 
             if (dollarKey.a){
               window.clearTimeout(this.fourXXResultsTimeout)
@@ -1544,7 +1531,9 @@
 
             let subfields = Object.keys(fourXXATrans).filter((v)=>{ return (v.length==1)}).sort()
             for (let field of subfields){
-              oneXXString = oneXXString + '$'+field+fourXXATrans[field]
+              for (let v of splitRepeatedValue(fourXXATrans[field])){
+                oneXXString = oneXXString + '$'+field+v
+              }
             }
 
             this.oneXX = oneXXString
@@ -1573,7 +1562,9 @@
 
             let subfields = Object.keys(oneXXATrans).filter((v)=>{ return (v.length==1)}).sort()
             for (let field of subfields){
-              fourXXString = fourXXString + '$'+field+oneXXATrans[field]
+              for (let v of splitRepeatedValue(oneXXATrans[field])){
+                fourXXString = fourXXString + '$'+field+v
+              }
             }
 
             this.fourXX = fourXXString
