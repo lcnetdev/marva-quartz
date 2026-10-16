@@ -329,6 +329,9 @@ export default {
       } else {
         this.compactSizeCheckLeft = true
       }
+      if (!this.preferenceStore.panelDisplay.dualEdit){
+        this.compactSizeCheckRight = this.compactSizeCheckLeft
+      }
     },
     addComponent: function(profileName, profileCompoent){
       let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
@@ -455,6 +458,9 @@ export default {
 }
 
 
+div.SIMPLE.level-0,
+div.LITERAL.level-0,
+div.COMPLEX.level-0,
 [class*="compact-"].component.level-0{
   width: 100%;
   display: flex;
@@ -462,6 +468,10 @@ export default {
 
 .child-component {
   margin-bottom: 0px;
+}
+
+div.LITERAL.level-0 :deep(div.lookup-fake-input) {
+  flex: 1 1 auto;
 }
 
 div.REF[class*="compact-"],
@@ -472,7 +482,9 @@ div.REF[class*="compact-"] > * > * > :deep(*)
   border: none;
 }
 
-div.REF.level-0[class*="compact-"] {
+
+div.REF.level-0[class*="compact-"],
+div.REF.level-0[class*="compact-"] div {
   outline: solid 1px oklch(from var(--section-tint, rgb(210, 210, 210)) calc(l - 0.05) c h / 1);
 }
 div[class*="compact-"] > .child-component:not(:first-child)
@@ -484,29 +496,16 @@ div.RDFTYPE.level-0[class*="compact-"] > div.rdf-type-selector {
   flex: 1 1 auto;
 }
 
-
-.child-component[class*="compact-"]:not(:first-child) {
-  /* border-left: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')"); */
-}
-
-/* <select> 100% when they are independent*/
+div.component[class*="compact-"] > * > :deep(select) ,
 div.component[class*="compact-"] > :deep(select) {
   max-width: 100%;
   min-width: fit-content;
-  flex: 1 1 20% !important;
+  flex: 0 1 20% !important;
 }
 
 /* Hide the input field for complex lookups */
 :deep() div.lookup-fake-input-entities:has(> div.selected-value-container) + div.lookup-fake-input-text {
   display: none
-}
-
-/* <select> fit to content when they are nested with another component*/
-div.component[class*="compact-"] > * > :deep(select) {
-  /* width: fit-content; */
-  max-width: 100%;
-  min-width: fit-content;
-  flex: 1 1 20% !important;
 }
 
 div.REF[class*="compact-"] div.REF {
@@ -522,7 +521,7 @@ div.REF[class*="compact-"]  div.SIMPLE {
 }
 
 div.REF[class*="compact-"]  div.LITERAL {
-  flex: 1 1 70%;
+  flex: 1 1 auto;
 }
 
 div[class*="compact-"].LITERAL.level-1:has(+ div.REF.level-1){
