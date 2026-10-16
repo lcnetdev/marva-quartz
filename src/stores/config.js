@@ -139,7 +139,7 @@ export const useConfigStore = defineStore('config', {
 
         worldCat: 'https://preprod-3001.id.loc.gov/marva/util/worldcat/',
         copyCatUpload: 'https://preprod-3001.id.loc.gov/marva/util/copycat/upload/stag', // change ports for production
-        lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
+        lcap: 'https://staging.lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
         folioBase: 'https://lcsg.catalog.lcap.loc.gov',
 
         folioMLCEndpoint: 'https://preprod-3001.id.loc.gov/marva/util/folio/next-mlc/staging',
