@@ -8,6 +8,12 @@
     <!-- {{ preferenceId }} -->
     <!-- {{ userModified }} -->
     <!-- {{ id }} -->
+
+    <!-- {{ Object.keys(structure) }}<br>
+      {{ structure.parent }}<br>
+      {{ structure.parentId }}<br>
+      {{ guid }} -->
+
     <Ref
       v-if="componentType === 'REF'"
       :propertyPath="buildPropertyPath(propertyPath)"
@@ -48,7 +54,9 @@
       :guid="guid"
       :readOnly="readOnly"
     />
+    <!-- {{ Object.keys(structure) }} -->
     <div v-if="level == 0 && preferenceStore.returnValue('--b-edit-main-compact')" class="button-holder">
+      <input v-if="!createLayoutMode && preferenceStore.copyMode && !structure.parentId.includes('AdminMetadata')" type="checkbox" class="copy-selection" :id="guid" />
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="removeComponent(parentId, id)">delete</span>
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="addComponent(parentId, id)">add</span>
     </div>
