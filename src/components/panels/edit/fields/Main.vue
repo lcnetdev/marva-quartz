@@ -545,6 +545,7 @@ div.component[class*="compact-"]:has(> :nth-child(5)){
 }
 div.component[class*="compact-"] > div.level-1:nth-child(n+3) {
   flex: 1 1 45%;
+  min-width: 0;
   /* overflow-x: auto; */
 }
 
