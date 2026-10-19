@@ -30,47 +30,50 @@
                     </div>
                 </div>
             </div>
-
             <SearchResultOption
                 searchType="subjectsSimple"
                 :label="searchMode == 'HUBS' ? 'Left Anchored' : 'Simple'"
-                index="searchResults.subjectsComplex.length + ix"
-                :searchResults="searchResults"
-                :pickLookup="pickLookup"
-                @selectContext="selectContext"
-                @emitLoadContext="loadContext"
-                :searchMode="searchMode"
-            />
-            <SearchResultOption
-                searchType="subjectsChildren"
-                label="CYAC Simple"
-                index="searchResults.subjectsChildrenComplex.length + ix"
-                :searchResults="searchResults"
-                :pickLookup="pickLookup"
-                @selectContext="selectContext"
-                @emitLoadContext="loadContext"
-                :searchMode="searchMode"
-            />
-            <SearchResultOption
-                searchType="names"
-                label="LCNAF"
-                index="(searchResults.names.length - ix) * - 1"
-                :searchResults="searchResults"
-                :pickLookup="pickLookup"
-                @selectContext="selectContext"
-                @emitLoadContext="loadContext"
-                :searchMode="searchMode"
-                @nafSearch="nafSearch"
-            />
-            <SearchResultOption
-                searchType="subjectsComplex"
-                :label="searchMode == 'HUBS' ? 'Keyword' : 'Complex'"
                 index="ix"
                 :searchResults="searchResults"
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
+                :currSel="currentSelection"
+            />
+            <SearchResultOption
+                searchType="subjectsChildren"
+                label="CYAC Simple"
+                index="ix"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+                :searchMode="searchMode"
+                :currSel="currentSelection"
+            />
+            <SearchResultOption
+                searchType="names"
+                label="LCNAF"
+                index="(searchResults.subjectsSimple.length + ix)"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+                :searchMode="searchMode"
+                @nafSearch="nafSearch"
+                :currSel="currentSelection"
+            />
+            <SearchResultOption
+                searchType="subjectsComplex"
+                :label="searchMode == 'HUBS' ? 'Keyword' : 'Complex'"
+                index="(searchResults.subjectsSimple.length + searchResults.names.length + ix)"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+                :searchMode="searchMode"
+                :currSel="currentSelection"
             />
             <SearchResultOption
                 searchType="subjectsChildrenComplex"
@@ -81,6 +84,7 @@
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
+                :currSel="currentSelection"
             />
 
             <SearchResultOption
@@ -92,6 +96,7 @@
                 @selectContext="selectContext"
                 @emitLoadContext="loadContext"
                 :searchMode="searchMode"
+                :currSel="currentSelection"
             />
         </div>
     </div>
@@ -141,6 +146,7 @@ export default {
         searchResults: Object,
         pickLookup: Object,
         searchMode: String,
+        currentSelection: Number,
     },
 
     watch: {},

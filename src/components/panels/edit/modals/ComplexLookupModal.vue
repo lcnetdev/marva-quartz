@@ -650,7 +650,6 @@
         this.finalMarc = this.finalMarc.replace(/(?:\r\n|\r|\n)/g, '');
         this.finalMarc = this.finalMarc.replace(/> *</g, '><');
 
-        console.info("submitting: ", this.finalMarc)
         this.postStatus='posting'
         let cataloger = null
         let results = await this.postNacoStub(this.finalMarc, this.MARClccn, true)

@@ -764,6 +764,7 @@ export default {
 
       let bibId = ""
       let marva001 = false
+      // what happens with match on other ID?
       if (this.existingLCCN || this.existingISBN || (this.overrideAllow && this.overrideBibid != '')) {
         this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != "") {
@@ -797,10 +798,21 @@ export default {
       this.posting = true
       this.postResults = {}
 
+      console.info("bibId: ", bibId)
+
+      console.info("this.existingRecordUrl: ", this.existingRecordUrl)
+      // this.existingLCCN || this.existingISBN || (this.overrideAllow && this.overrideBibid != '')
+      console.info(" this.existingLCCN: ", this.existingLCCN)
+      console.info(" this.existingISBN: ", this.existingISBN)
+      console.info(" override: ", (this.overrideAllow && this.overrideBibid != ''))
+      console.info("dummyField: ", dummyField)
+
       this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
       this.responseURL = this.postResults.postLocation
+
+      console.info("this.responseURL: ", this.responseURL)
 
       if (!this.responseURL) {
         alert("There was an issue sending the record.")
@@ -815,13 +827,20 @@ export default {
         } else {
           recordId = bibId
         }
+
+        console.info("existing recordId: ", recordId)
       } else {
         if (useConfigStore().returnUrls.env != 'production'){
           recordId = marva001
         } else {
           recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
         }
+        console.info("new record: ", recordId)
       }
+
+      console.info("final recordId: ", recordId)
+
+
 
       if(useConfigStore().returnUrls.env == 'staging'){
         this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
@@ -830,6 +849,9 @@ export default {
       }
       this.existingLCCN = false
       this.existingISBN = false
+
+      console.info("this.urlToLoad: ", this.urlToLoad)
+
 
       try {
         this.loadUrl(profile)
