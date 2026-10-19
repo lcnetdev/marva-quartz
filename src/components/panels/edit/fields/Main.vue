@@ -57,6 +57,7 @@
     <!-- {{ Object.keys(structure) }} -->
     <div v-if="level == 0 && preferenceStore.returnValue('--b-edit-main-compact')" class="button-holder">
       <input v-if="!createLayoutMode && preferenceStore.copyMode && !structure.parentId.includes('AdminMetadata')" type="checkbox" class="copy-selection" :id="guid" />
+      <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="guid" />
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="removeComponent(parentId, id)">delete</span>
       <span v-if="!id.includes('_adminmetadata ') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')  && preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': parentId.includes('Work'), 'instance': parentId.includes('Instance'), 'item': parentId.includes('Item'),}]" @click="addComponent(parentId, id)">add</span>
     </div>
@@ -196,6 +197,7 @@ export default {
 
 
     ...mapState(useConfigStore, ['lookupConfig']),
+    ...mapState(usePreferenceStore, ['layoutActive', 'layoutActiveFilter', 'createLayoutMode']),
 
 
 
