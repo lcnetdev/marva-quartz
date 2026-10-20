@@ -106,7 +106,7 @@
                     :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=' + lccFeatureData.secondSubject"
                     target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a><br />
             </div>
-
+            <hr>
             <div class="external-links">
                 <ul>
                     <template v-for="(item, idx) in preferences">
@@ -250,6 +250,9 @@ export default {
 </script>
 
 <style scoped>
+a:hover {
+    color: blue !important;
+}
 .cutter-container {
     display: flex;
 }

@@ -523,6 +523,11 @@ div.component[class*="compact-"] > :deep(select) {
   display: none
 }
 
+/* MARC input results visible */
+div.REF.component[class*="compact-"]  > div.level-1 > .COMPLEX.level-2 > :deep(form) {
+  height: unset;
+}
+
 div.REF[class*="compact-"] div.REF {
   display: flex;
   flex: 1 1 auto;
