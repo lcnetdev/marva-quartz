@@ -1,8 +1,7 @@
 <template>
-    <div class="cutter-container"
-        v-if="Object.keys(structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]).includes('http://id.loc.gov/ontologies/bibframe/itemPortion')">
-
-
+    <!-- <div class="cutter-container"
+        v-if="Object.keys(structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]).includes('http://id.loc.gov/ontologies/bibframe/itemPortion')"> -->
+    <div class="cutter-container">
         <div class="cutter-calc">
             <fieldset
                 v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length > 0) || lccFeatureData.title || lccFeatureData.firstSubject">
@@ -14,7 +13,7 @@
                             <span style="font-weight: bold;">{{ lccFeatureData.contributors[0].label.substring(0,
                                 parseInt(cutterCalcLength)) }}</span>
                             <span>{{ lccFeatureData.contributors[0].label.substring(parseInt(cutterCalcLength))
-                                }}</span>
+                            }}</span>
                             <input type="text"
                                 :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].label, cutterCalcLength).substring(0, cutterCalcLength)">
                             <a style="font-size: 0.85em; padding-left: 0.5em;"
@@ -29,7 +28,7 @@
                             }}</span>
                             <span>{{
                                 lccFeatureData.contributors[0].secondLetterLabel.substring(parseInt(cutterCalcLength))
-                                }}</span>
+                            }}</span>
                             <input type="text"
                                 :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].secondLetterLabel, cutterCalcLength).substring(0, cutterCalcLength)">
                             <a style="font-size: 0.85em; padding-left: 0.5em;"
@@ -43,7 +42,7 @@
                             <span style="font-weight: bold;">{{ lccFeatureData.contributors[1].label.substring(0,
                                 cutterCalcLength) }}</span>
                             <span>{{ lccFeatureData.contributors[1].label.substring(parseInt(cutterCalcLength))
-                                }}</span>
+                            }}</span>
                             <input type="text"
                                 :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[1].label, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
                             <a style="font-size: 0.85em; padding-left: 0.5em;"
@@ -67,9 +66,9 @@
 
                     <div>
                         <span style="font-weight: bold;">{{ freeFormCutter.substring(0, parseInt(cutterCalcLength))
-                            }}</span>
+                        }}</span>
                         <span>{{ freeFormCutter.substring(parseInt(cutterCalcLength), parseInt(cutterCalcLength) + 12)
-                            }}</span>
+                        }}</span>
                         <input placeholder="Free Form Cutter Input" v-model="freeFormCutter">
                         <input type="text"
                             :value="usePeriodInCutter() + calculateCutter(freeFormCutter, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
@@ -84,7 +83,7 @@
                         max="6" step="1" />
                     <label for="cutterCalcLength" style="font-size: 0.8em; vertical-align: text-top;">Calc Length ({{
                         cutterCalcLength
-                        }})</label>
+                    }})</label>
                 </div>
 
 
@@ -107,6 +106,7 @@
                     target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a><br />
             </div>
             <hr>
+            </hr>
             <div class="external-links">
                 <ul>
                     <template v-for="(item, idx) in preferences">
@@ -182,6 +182,24 @@ export default {
             lccVal = `${this.usePeriodInCutter()}${lccVal}`
             await this.profileStore.setValueLiteral(this.guid, fieldGuid, this.propertyPath, lccVal, null)
         },
+
+        openShelfListSearch() {
+            this.activeShelfListData = {
+                class: this.lccFeatureData.classNumber,
+                cutter: this.lccFeatureData.cutterNumber,
+                classGuid: this.lccFeatureData.classGuid,
+                cutterGuid: this.lccFeatureData.cutterGuid,
+                componentPropertyPath: this.propertyPath,
+                componentGuid: this.guid,
+                contributor: this.lccFeatureData.contributors.length > 0 ? this.lccFeatureData.contributors[0].label : "",
+                title: this.lccFeatureData.title,
+                subj: this.lccFeatureData.firstSubject,
+                date: ""  //not in `lccFeatureData`
+            }
+            this.showShelfListingModal = true
+
+
+        },
     },
     computed: {
         // other computed properties
@@ -253,6 +271,7 @@ export default {
 a:hover {
     color: blue !important;
 }
+
 .cutter-container {
     display: flex;
 }
