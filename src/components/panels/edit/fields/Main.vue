@@ -1,7 +1,7 @@
 <template>
 
 
-  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[componentType, 'level-'+level, {'component': (level == 0 || componentType=='REF'), 'child-component': (level != 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'expand-left': !(preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckLeft), 'compact-left': (preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckLeft && structure.parentId.includes(':Work')), 'expand-right': !(preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckRight), 'compact-right': (preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckRight && structure.parentId.includes(':Instance'))}]" :id="`edit_${parentId}_${id}`">
+  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[componentType, 'level-'+level, {'component': (level == 0 || (componentType=='REF' && preferenceStore.returnValue('--b-edit-main-compact'))), 'child-component': (level != 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'expand-left': preferenceStore.returnValue('--b-edit-main-compact') &&  !(preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckLeft), 'compact-left': (preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckLeft && structure.parentId.includes(':Work')), 'expand-right': preferenceStore.returnValue('--b-edit-main-compact') &&  !(preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckRight), 'compact-right': (preferenceStore.returnValue('--b-edit-main-compact') && compactSizeCheckRight && structure.parentId.includes(':Instance'))}]" :id="`edit_${parentId}_${id}`">
     <!-- {{ level }} {{structure}} -->
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
     <!-- {{ structure.preferenceId }} {{ guid }} -->
@@ -318,7 +318,12 @@ export default {
   // },
 
   methods: {
-    onResize: function(){ // slow to flip
+    onResize: function(){
+      if (!this.preferenceStore.returnValue('--b-edit-main-compact')){
+        this.compactSizeCheckLeft = true
+        this.compactSizeCheckRight = true
+        return
+      }
       // compactSizeCheckRight
       let targetElementLeft = null
       if (this.preferenceStore.panelDisplay.dualEdit){
@@ -532,6 +537,10 @@ div.REF[class*="compact-"]  div.SIMPLE {
 
 div.REF[class*="compact-"]  div.LITERAL {
   flex: 1 1 auto;
+}
+
+div.REF[class*="compact-"]  select + div.LITERAL {
+  flex: 1 1 50%;
 }
 
 div[class*="compact-"].LITERAL.level-1:has(+ div.REF.level-1){

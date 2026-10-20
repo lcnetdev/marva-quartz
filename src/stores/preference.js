@@ -643,8 +643,8 @@ export const usePreferenceStore = defineStore('preference', {
           range: [true,false]
     },
     '--b-edit-main-compact' : {
-          desc: "Compact fields tries to put inputs onto 1 line.",
-          descShort: 'Compact',
+          desc: "Compact view tries to put inputs into fewer lines.",
+          descShort: 'Compact View',
           value: false,
           type: 'boolean',
           unit: null,
