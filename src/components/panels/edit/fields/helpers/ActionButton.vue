@@ -183,7 +183,7 @@
         <template v-if="this.showSwapButton(guid)">
           <button  class="" :id="`action-button-command-${fieldGuid}-s`" @click="swapGeos()" :style="buttonStyle">
             <span class="button-shortcut-label">s</span>
-            Dup & Swap Geo<span class="material-icons action-button-icon">swap_horiz</span>
+            Dupe & Swap Geo<span class="material-icons action-button-icon">swap_horiz</span>
           </button>
         </template>
 
