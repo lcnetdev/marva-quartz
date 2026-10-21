@@ -180,6 +180,13 @@
           Add To Library
         </button>
 
+        <template v-if="this.showSwapButton(guid)">
+          <button  class="" :id="`action-button-command-${fieldGuid}-s`" @click="swapGeos()" :style="buttonStyle">
+            <span class="button-shortcut-label">s</span>
+            Dup & Swap Geo<span class="material-icons action-button-icon">swap_horiz</span>
+          </button>
+        </template>
+
         <template v-if="this.returnRemark()">
           <button  class="" :id="`action-button-command-${fieldGuid}--`" @click="openRemark()" :style="buttonStyle">
             <span class="button-shortcut-label">-</span>
@@ -360,6 +367,43 @@
     },
 
     methods: {
+      showSwapButton: function(guid){
+        // show if subject component with "geo--something--geo" pattern
+        // look at the marcKey to figure out 151 with $z at the end = show
+        let structure = this.profileStore.returnStructureByComponentGuid(guid)
+
+        if (structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+          let userValue = structure.userValue
+          if (!userValue["http://id.loc.gov/ontologies/bibframe/subject"]) { return false }
+          let subject = structure.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
+          let components = subject["http://www.loc.gov/mads/rdf/v1#componentList"]
+
+          let marcKey = false
+          let marcParts = false
+          if (subject["http://id.loc.gov/ontologies/bflc/marcKey"]){
+            marcKey = subject["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
+            marcParts = marcKey.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+          }
+
+          if (components && components[0]["@type"] == 'http://www.loc.gov/mads/rdf/v1#Geographic' && components.at(-1)["@type"] == 'http://www.loc.gov/mads/rdf/v1#Geographic' ){
+            return true
+          } else if (
+            components
+            && components[0]["http://www.loc.gov/mads/rdf/v1#elementList"]
+            && components[0]["http://www.loc.gov/mads/rdf/v1#elementList"][0]["@type"] == "http://www.loc.gov/mads/rdf/v1#GeographicElement"
+            && components.at(-1)["http://www.loc.gov/mads/rdf/v1#elementList"][0]["@type"] == "http://www.loc.gov/mads/rdf/v1#GeographicElement"
+          ){
+            return true
+          } else if (
+            marcParts
+            && marcParts[0].startsWith("151")
+            && marcParts.at(-1).startsWith("$z")
+          ){
+            return true
+          }
+        }
+        return false
+      },
       hideInstanceSelectionModal: function(){
         this.instances = {}
         this.displayInstanceSelectionModal = false;
@@ -718,8 +762,7 @@
 
       processShortcutKeypress(event){
 
-        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-','u','d','c','p','r'].indexOf(event.key) > -1){
-
+        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-','u','d','c','p','r','s'].indexOf(event.key) > -1){
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
           if (buttonToClick){
             //set the dataset to indicate this was a shortcut key activation
@@ -861,6 +904,10 @@
         let show = this.profileStore.showUpDownButtons(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
 
         return show
+      },
+
+      swapGeos: function(){
+        this.profileStore.swapGeoHeadings(this.guid, this.propertyPath)
       },
 
       openRemark(){

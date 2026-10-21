@@ -322,21 +322,21 @@ export default {
                     text: "Title Case",
                     title: "Title Case",
                     icon: "titlecase",
-                    hotkey: "ctrl+alt+t",
+                    hotkey: "ctrl+shift+t",
                     click: () => { this.profileStore.getHighlightedText('title') }
                   },
                   {
                     text: "Lower Case",
                     title: "Lower Case",
                     icon: "lowercase",
-                    hotkey: "ctrl+alt+l",
+                    hotkey: "ctrl+shift+l",
                     click: () => { this.profileStore.getHighlightedText('lower') }
                   },
                   {
                     text: "Find & Replace",
                     title: "find Replace",
                     icon: "find_replace",
-                    hotkey: "ctrl+alt+h",
+                    hotkey: "ctrl+shift+h",
                     click: () => { this.showFindReplaceModal = true; }
                   }
                 // )
