@@ -122,6 +122,11 @@
             </div>
           </template>
 
+
+          <button class="action-button" v-if="showSwapButton(guid)" @click="swapGeoHeadings(guid)">
+            <span class="material-icons geo-swap">swap_horiz</span>
+          </button>
+
           <Transition name="action">
             <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
               <action-button :type="'lookupComplex'" :id="`action-button-${structure['@guid']}`" :structure="structure" :guid="guid" :propertyPath="propertyPath" @action-button-command="actionButtonCommand" />
@@ -387,6 +392,156 @@ export default {
 
   methods:{
 
+    showSwapButton: function(guid){
+      // show if subject component with "geo--something--geo" pattern
+      // look at the marcKey to figure out 151 with $z at the end = show
+      let structure = this.profileStore.returnStructureByComponentGuid(guid)
+
+      if (structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+        let userValue = structure.userValue
+        if (!userValue["http://id.loc.gov/ontologies/bibframe/subject"]) { return false }
+        let subject = structure.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
+        let components = subject["http://www.loc.gov/mads/rdf/v1#componentList"]
+
+        let marcKey = false
+        let marcParts = false
+        if (subject["http://id.loc.gov/ontologies/bflc/marcKey"]){
+          marcKey = subject["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
+          marcParts = marcKey.match(/.+?(?=\$[a-z0-9]|$|\n)/g)
+        }
+
+        if (components && components[0]["@type"] == 'http://www.loc.gov/mads/rdf/v1#Geographic' && components.at(-1)["@type"] == 'http://www.loc.gov/mads/rdf/v1#Geographic' ){
+          return true
+        } else if (
+          components
+          && components[0]["http://www.loc.gov/mads/rdf/v1#elementList"]
+          && components[0]["http://www.loc.gov/mads/rdf/v1#elementList"][0]["@type"] == "http://www.loc.gov/mads/rdf/v1#GeographicElement"
+          && components.at(-1)["http://www.loc.gov/mads/rdf/v1#elementList"][0]["@type"] == "http://www.loc.gov/mads/rdf/v1#GeographicElement"
+        ){
+          return true
+        } else if (
+          marcParts
+          && marcParts[0].startsWith("151")
+          && marcParts.at(-1).startsWith("$z")
+        ){
+          return true
+        }
+      }
+      return false
+    },
+    /*
+      For subject headings in the form `GeoA--something--GeoB`
+      catalogers need to create a reciprocal heading: `GeoB--something--GeoA`, try to do that for them
+    */
+    swapGeoHeadings: async function(guid){
+      let structure = this.profileStore.returnStructureByComponentGuid(guid)
+      let userValue = structure.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
+      let label = userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+      let components = userValue["http://www.loc.gov/mads/rdf/v1#componentList"]
+      let newPt = false
+
+      let componentsCopy = JSON.parse(JSON.stringify(components))
+      // swap the first and last
+      let first = componentsCopy.shift()
+      let last = componentsCopy.pop()
+      componentsCopy.unshift(last)
+      componentsCopy.push(first)
+
+      if (!userValue['@id'] && components.every((c) => c['@id'])){ // there's no singular URI for the string and everything has a URI, we can flip things around
+        let newSubject = []
+        let startPos = 0
+
+        for (let idx in componentsCopy){
+          let component = componentsCopy[idx]
+          let label = component["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0]["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"]
+          let type = component['@type']
+          let marcKey = null
+          if (type.includes("Geographic") && idx == 0){
+            marcKey = "151 $a" + label
+          } else {
+            if (type.includes("Geographic")){
+              marcKey = "181 $z" + label
+            } else {
+              marcKey = "180 $x" + label
+            }
+          }
+          let c = {
+              "label": label,
+              "uri": component['@id'],
+              "id": idx,
+              "type": component['@type'],
+              "complex": false,
+              "literal": false,
+              "posStart": startPos,
+              "posEnd": startPos + label.length + 1,
+              "marcKey": marcKey
+          }
+          startPos = startPos + label.length + 3
+          newSubject.push(c)
+        }
+        newPt = await this.profileStore.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+        this.profileStore.setValueSubject(newPt[1], newSubject, this.propertyPath)
+      } else {
+        // else, swap the subjects, search ID, and build the new subject, if possible
+        let parts = label.split('--')
+        let first = parts.shift()
+        let last = parts.pop()
+        parts.unshift(last)
+        parts.push(first)
+        let flipped = parts.join('--')
+
+        let exactPayloadName = {
+          processor: 'lcAuthorities',
+          url: ['https://preprod-8080.id.loc.gov/authorities/subject/label/' + flipped],
+          searchValue: flipped,
+          subjectSearch: true,
+          signal: utilsNetwork.controllers.exactName.signal,
+        }
+
+        let results = await utilsNetwork.searchExact(exactPayloadName)
+        if (results[0] && results[0].uri){
+          let newSubject = [
+            {
+              "complex": true,
+              "id": 0,
+              "label": flipped.replace("--", "‑‑"),
+              "literal": false,
+              "posEnd": flipped.length,
+              "posStart": 0,
+              "type": "madsrdf:Topic",
+              "uri": results[0].uri,
+              "marcKey": results[0].extra.marcKeys[0]
+            }
+          ]
+          newPt = await this.profileStore.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+          this.profileStore.setValueSubject(newPt[1], newSubject, this.propertyPath)
+        } else {
+          let value = ''
+          for (let idx in componentsCopy){
+            let part = componentsCopy[idx]
+            let property = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+            if (!part[property]){
+              property = "http://www.w3.org/2000/01/rdf-schema#label"
+            }
+            let label = part[property][0][property]
+            if (idx == 0){
+              value = "$a" + label
+            } else  if (part["@type"] == "http://www.loc.gov/mads/rdf/v1#Geographic"){
+              value = value + "$z" + label
+            } else {
+              value = value + "$x" + label
+            }
+          }
+
+          newPt = await this.profileStore.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+          let target = document.querySelector(`[data-field-guid='${newPt[1]}']`)
+          target.value = value
+          target.dispatchEvent(
+            new Event("input", { bubbles: false, cancelable: true })
+          )
+        }
+      }
+    },
 
 
     focusClick: function(){
@@ -932,6 +1087,21 @@ export default {
 .simptip-position-top:before,
 .simptip-position-top:after {
   left: 5% !important;
+}
+
+.action-button{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-background-color')") !important;
+  border-width: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-border-width')");
+  border-color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-border-color')");
+  border-radius: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-border-radius')");
+  margin: 1px;
+  display: inline-flex;
+  align-items: center;
+  height: fit-content;
+}
+.geo-swap {
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-size')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-color')");
 }
 
 </style>

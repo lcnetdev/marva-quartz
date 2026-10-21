@@ -5281,6 +5281,7 @@ export const useProfileStore = defineStore('profile', {
         * @return {void}
         */
         duplicateComponent: async function (componentGuid, structure) {
+            console.info("componentGuid: ", componentGuid)
             let createEmpty = true
 
             // locate the correct pt to work on in the activeProfile

@@ -3051,6 +3051,7 @@ export default {
         }
       }
 
+      console.info("add: ", JSON.stringify(this.components))
       this.$emit('subjectAdded', this.components)
     },
 
