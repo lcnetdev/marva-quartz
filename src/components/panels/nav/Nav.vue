@@ -583,6 +583,9 @@ export default {
           {
             text: "Preferences", menu: [
 
+              { text: 'Preferences', click: () => this.preferenceStore.togglePrefModal('General'), icon: 'settings' },
+              { is: 'separator' },
+
               { text: 'Scriptshifter', click: () => this.showScriptshifterConfigModal = true, icon: 'translate' },
               { text: 'Diacritic Macros', click: () => this.showDiacriticConfigModal = true, icon: 'keyboard' },
               { text: 'Text Macros', click: () => this.showTextMacroModal = true, icon: 'abc' },
@@ -604,26 +607,6 @@ export default {
 
 
 
-
-              { is: 'separator' },
-
-
-              { text: 'General', click: () => this.preferenceStore.togglePrefModal('General') },
-              { text: 'Edit Panel', click: () => this.preferenceStore.togglePrefModal('Edit Panel') },
-              { text: 'Literal Field', click: () => this.preferenceStore.togglePrefModal('Literal Field') },
-              { text: 'Lookup Field', click: () => this.preferenceStore.togglePrefModal('Lookup Field') },
-
-
-
-              { text: 'Modals', click: () => this.preferenceStore.togglePrefModal('Modals') },
-
-              { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup') },
-              { text: 'Action Button', click: () => this.preferenceStore.togglePrefModal('Action Button') },
-              { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar') },
-              { text: 'Sidebars - Previews', click: () => this.preferenceStore.togglePrefModal('Sidebars - Previews') },
-              { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property') },
-              { text: 'Shelflisting', click: () => this.preferenceStore.togglePrefModal('Shelflisting') },
-              // { text: 'CAMM Mode', click: () => this.preferenceStore.togglePrefModal('CAMM Mode')},
 
               { is: 'separator' },
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },

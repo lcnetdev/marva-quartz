@@ -32,6 +32,8 @@
         booleanValue: {},
         stringValue: {},
 
+        searchTerm: '',
+
       }
     },
     computed: {
@@ -45,7 +47,7 @@
       // array of the pssobile groups from the stlyes
       possilbleGroups() {
         // console.log([...new Set(Object.keys(this.styleDefault).map((v)=>{return this.styleDefault[v].group}))])
-        return [...new Set(Object.keys(this.styleDefault).map((v)=>{return this.styleDefault[v].group}))]
+        return [...new Set(Object.keys(this.styleDefault).filter((v)=>{return this.styleDefault[v].hide !== true}).map((v)=>{return this.styleDefault[v].group}))]
       },
 
 
@@ -59,9 +61,9 @@
       showPrefModal(newVal, oldVal) {
 
         console.log(newVal,oldVal)
-        // if (newVal === true){
-        //   this.loadPrefGroup()
-        // }
+        if (newVal === true){
+          this.focusSearch()
+        }
       }
     },
 
@@ -125,9 +127,22 @@
           this.allOptionsCounter++
           console.log(this.renderProperties)
 
+          let term = this.searchTerm.trim().toLowerCase()
+
           for (let k in this.styleDefault){
-            if (this.styleDefault[k].group == this.showPrefModalGroup){
-              let o = Object.assign({},this.styleDefault[k])
+            let pref = this.styleDefault[k]
+            // internal storage prefs are flagged hide, never show them
+            if (pref.hide === true){ continue }
+            let include = false
+            if (term !== ''){
+              // when searching, look across ALL preferences regardless of the selected group
+              let haystack = [pref.descShort, pref.desc, pref.group, k].filter((v)=>v).join(' ').toLowerCase()
+              include = haystack.indexOf(term) > -1
+            } else {
+              include = (pref.group == this.showPrefModalGroup)
+            }
+            if (include){
+              let o = Object.assign({},pref)
               o.id = k
 
               if (o.type == 'number'){
@@ -146,6 +161,26 @@
           console.log(this.rangeValue)
         },
 
+
+        focusSearch: function(){
+          this.$nextTick(()=>{
+            // the modal animates in, give it a moment so the input is visible and focusable
+            window.setTimeout(()=>{
+              if (this.$refs.searchInput){
+                this.$refs.searchInput.focus()
+              }
+            }, 50)
+          })
+        },
+
+        searchChange: function(){
+          this.loadPrefGroup()
+        },
+
+        clearSearch: function(){
+          this.searchTerm = ''
+          this.loadPrefGroup()
+        },
 
         changeColor: function(color,id){
 
@@ -196,6 +231,9 @@
         this.$nextTick(()=>{
           this.$refs.preferenceContent.style.height = this.initalHeight + 'px'
         })
+        if (this.showPrefModal){
+          this.focusSearch()
+        }
 
       })
 
@@ -228,14 +266,21 @@
         >
           <div id="preference-content" ref="preferenceContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
 
-            <h3>Preferences -   <select @change="loadPrefGroup($event)"><option v-for="group in possilbleGroups" :selected="showPrefModalGroup==group">{{group}}</option></select></h3>
+            <h3>Preferences -   <select @change="loadPrefGroup($event)" :disabled="searchTerm.trim() !== ''"><option v-for="group in possilbleGroups" :selected="showPrefModalGroup==group">{{group}}</option></select>
+              <span class="pref-search">
+                <input type="text" ref="searchInput" class="pref-search-input" v-model="searchTerm" @input="searchChange" placeholder="Search all preferences..." aria-label="Search all preferences" />
+                <button v-if="searchTerm !== ''" class="pref-search-clear" title="Clear search" @click="clearSearch">&times;</button>
+              </span>
+            </h3>
             <button class="close-button" @pointerup="preferenceStore.togglePrefModal()">X</button>
 
+
+            <div v-if="searchTerm.trim() !== '' && renderProperties.length === 0" class="pref-search-empty">No preferences match "{{searchTerm}}"</div>
 
             <div v-for="option in renderProperties" :key="showPrefModalGroup+ '_' +option.id">
               <div class="option">
                 <div class="option-title">
-                  <div class="option-title-header">{{option.descShort}}</div>
+                  <div class="option-title-header">{{option.descShort}} <span v-if="searchTerm.trim() !== ''" class="option-title-group">({{option.group}})</span></div>
                     <div class="option-title-desc">{{option.desc}} <a href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor(option.id)" v-if="option.type==='color'" class="material-icons manual-input">input</a></div>
 
                   <!-- <div style="font-style: italic; color:orange" v-if="option.id == '--b-edit-main-splitpane-edit-inline-mode'">This mode is disabled right now, we need to fix/improve it.</div> -->
@@ -302,6 +347,39 @@
   }
   h3{
     margin-bottom: 2em;
+  }
+
+  .pref-search{
+    display: inline-block;
+    margin-left: 0.5em;
+    position: relative;
+  }
+  .pref-search-input{
+    font-size: 0.7em;
+    font-weight: normal;
+    padding: 2px 1.6em 2px 4px;
+    width: 180px;
+  }
+  .pref-search-clear{
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.8em;
+    line-height: 1;
+    padding: 0 3px;
+  }
+  .pref-search-empty{
+    color: gray;
+    font-style: italic;
+  }
+  .option-title-group{
+    font-weight: normal;
+    font-size: 0.75em;
+    color: gray;
   }
 
   .checkbox-option{
