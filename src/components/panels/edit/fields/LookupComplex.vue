@@ -387,8 +387,6 @@ export default {
 
   methods:{
 
-
-
     focusClick: function(){
       this.$refs.lookupInput.focus()
     },
@@ -933,5 +931,6 @@ export default {
 .simptip-position-top:after {
   left: 5% !important;
 }
+
 
 </style>
