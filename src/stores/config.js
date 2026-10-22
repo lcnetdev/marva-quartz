@@ -223,7 +223,7 @@ export const useConfigStore = defineStore('config', {
         // Public demo carve out: if the user's name (catInitals) or cat code contains one of these
         // strings (case-insensitive) the restrictedFeatures are enabled for them, bypassing the
         // normal per-user feature flag / permission checks.
-        demoFeatureUsers: ['nypl'],
+        demoFeatureUsers: ['aidemo'],
 
         // Adobe Launch analytics script, injected at startup only for this region (see loadAnalyticsScript)
         analyticsScript: 'https://assets.adobedtm.com/f94f5647937d/05ab40b58039/launch-60d4ca033ceb.min.js',
