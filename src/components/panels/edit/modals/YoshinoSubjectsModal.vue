@@ -619,6 +619,7 @@
     import { mapStores, mapState, mapWritableState } from 'pinia'
     import { useProfileStore } from '@/stores/profile'
     import { usePreferenceStore } from '@/stores/preference'
+    import { useConfigStore } from '@/stores/config'
     import { yoshinoClassify, yoshinoExtractTitle, yoshinoExtractSummary, yoshinoExtractCreator, yoshinoExtractContents } from '@/lib/yoshino'
 
     export default {
@@ -844,12 +845,14 @@
         fetchSubjectUsage: async function(subj, results, runId) {
             try {
                 const uri = results.subjectUriMap && results.subjectUriMap[subj]
+                // use the region's ID host (preprod inside LC, public id.loc.gov on bibframe.org etc.)
+                const idBase = useConfigStore().returnUrls.id
                 let url
                 if (uri) {
                     const id = uri.substring(uri.lastIndexOf('/') + 1)
-                    url = `https://preprod-8080.id.loc.gov/authorities/subjects/suggest2?q=${encodeURIComponent(id)}&usage=2`
+                    url = `${idBase}authorities/subjects/suggest2?q=${encodeURIComponent(id)}&usage=2`
                 } else {
-                    url = `https://preprod-8080.id.loc.gov/entities/subjects/suggest2/?q=${encodeURIComponent(subj)}&searchtype=left&count=250&usage=true`
+                    url = `${idBase}entities/subjects/suggest2/?q=${encodeURIComponent(subj)}&searchtype=left&count=250&usage=true`
                 }
                 const resp = await fetch(url)
                 if (!resp.ok) return

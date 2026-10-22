@@ -139,11 +139,15 @@ export default {
     },
 
     yoshinoAllowed() {
-      return this.preferenceStore.featureFlags.includes('subject-suggest')
+      return this.preferenceStore.featureAvailable('subjectFinder', this.preferenceStore.featureFlags.includes('subject-suggest'))
     },
 
     marvaScanAllowed() {
-      return this.preferenceStore.featureFlags.includes('marva-scan')
+      return this.preferenceStore.featureAvailable('marvaScan', this.preferenceStore.featureFlags.includes('marva-scan'))
+    },
+
+    linkedDataAllowed() {
+      return this.preferenceStore.featureAvailable('linkedData')
     },
 
     yoshinoHasSummary() {
@@ -431,11 +435,11 @@ export default {
                 text: "Subject Finder", click: () => {
                   this.showYoshinoSubjectsModal = true
                 }, icon: "radar"
-              }] : [{
+              }] : (useConfigStore().returnUrls.isBibframeDotOrg ? [] : [{
                 text: "Req Subject Finder Access", click: () => {
                   window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
                 }, icon: "contact_support"
-              }]),
+              }])),
 
               ...(this.marvaScanAllowed ? [{
                 text: "Marva Scan", click: () => {
@@ -523,7 +527,7 @@ export default {
 
               { text: 'Preview XML', click: () => this.preferenceStore.togglePanel('xml'), icon: this.panelTitleXMLEdit, class: "nav-view-xml" },
               { text: 'Preview MARC', click: () => this.preferenceStore.togglePanel('marc'), icon: this.panelTitleMARCEdit },
-              { text: 'Linked Data', click: () => this.preferenceStore.togglePanel('linkedData'), icon: this.panelTitleLinkedData },
+              ...(this.linkedDataAllowed ? [{ text: 'Linked Data', click: () => this.preferenceStore.togglePanel('linkedData'), icon: this.panelTitleLinkedData }] : []),
 
 
 
