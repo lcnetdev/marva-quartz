@@ -258,6 +258,7 @@ export const usePreferenceStore = defineStore('preference', {
         descShort: '',
         value: {},
         type: 'object',
+        hide: true,
         group: 'preferenes',
       },
       '--b-edit-main-splitpane-properties-component-library-defaults' : {
@@ -1302,6 +1303,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: false,
         type: 'boolean',
         unit: null,
+        hide: true,
         group: 'Diacritics',
         range: [true,false]
       },
@@ -1311,6 +1313,7 @@ export const usePreferenceStore = defineStore('preference', {
         desc: '',
         descShort: 'List of diacritic macros to use',
         type: 'other',
+        hide: true,
         group: 'Diacritics',
         range: null
       },
@@ -1319,6 +1322,7 @@ export const usePreferenceStore = defineStore('preference', {
         desc: '',
         descShort: 'Text macros to use',
         type: 'other',
+        hide: true,
         group: 'Diacritics',
         range: null
       },
@@ -1327,6 +1331,7 @@ export const usePreferenceStore = defineStore('preference', {
         desc: '',
         descShort: 'The lang-script options to use in the bulk tool',
         type: 'other',
+        hide: true,
         group: 'Diacritics',
         range: null
       },
@@ -1513,24 +1518,25 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
-    '--b-edit-main-splitpane-edit-inline-mode' : {
-      desc: 'Compact Advanced Modular Mode.',
-      descShort: 'Use CAMM Mode',
-      value: false,
-      type: 'boolean',
-      unit: null,
-      group: 'CAMM Mode',
-      range: [true,false]
-    },
-    '--b-edit-main-splitpane-camm-hide-action-button' : {
-      desc: 'Hide action button in CAMM mode, only keyboard shortcut (Ctrl+\\).',
-      descShort: 'Hide Action Button',
-      value: true,
-      type: 'boolean',
-      unit: null,
-      group: 'CAMM Mode',
-      range: [true,false]
-    },
+    // CAMM Mode preferences removed from the UI
+    //     '--b-edit-main-splitpane-edit-inline-mode' : {
+    //       desc: 'Compact Advanced Modular Mode.',
+    //       descShort: 'Use CAMM Mode',
+    //       value: false,
+    //       type: 'boolean',
+    //       unit: null,
+    //       group: 'CAMM Mode',
+    //       range: [true,false]
+    //     },
+    //     '--b-edit-main-splitpane-camm-hide-action-button' : {
+    //       desc: 'Hide action button in CAMM mode, only keyboard shortcut (Ctrl+\\).',
+    //       descShort: 'Hide Action Button',
+    //       value: true,
+    //       type: 'boolean',
+    //       unit: null,
+    //       group: 'CAMM Mode',
+    //       range: [true,false]
+    //     },
 
 
 
@@ -1568,6 +1574,7 @@ export const usePreferenceStore = defineStore('preference', {
         descShort: '',
         value: {},
         type: 'object',
+        hide: true,
         group: 'layouts',
       },
 
@@ -2098,12 +2105,12 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k].group = "Shelflisting"
           }
 
-          if (k == '--b-edit-main-splitpane-edit-inline-mode'){
-            prefs.styleDefault[k].group = 'CAMM Mode'
-            prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
-            prefs.styleDefault[k].descShort = 'Use CAMM Mode'
-            // prefs.styleDefault[k].value = false
-          }
+          // if (k == '--b-edit-main-splitpane-edit-inline-mode'){
+          // prefs.styleDefault[k].group = 'CAMM Mode'
+          // prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
+          // prefs.styleDefault[k].descShort = 'Use CAMM Mode'
+          // // prefs.styleDefault[k].value = false
+          // }
         }
 
         // if there is a new style in the defaults that is not in their saved prefs.
