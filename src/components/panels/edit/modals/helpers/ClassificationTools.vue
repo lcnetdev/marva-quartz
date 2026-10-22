@@ -138,6 +138,8 @@ import { useConfigStore } from '@/stores/config'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
+import short from 'short-uuid'
+
 import utilsMisc from '@/lib/utils_misc'
 import utilsNetwork from '@/lib/utils_network'
 
