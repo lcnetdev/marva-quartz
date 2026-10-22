@@ -1,7 +1,7 @@
 <template>
     <!-- <div class="cutter-container"
         v-if="Object.keys(structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]).includes('http://id.loc.gov/ontologies/bibframe/itemPortion')"> -->
-    <div class="cutter-container">
+    <div class="cutter-container" v-if="structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'].includes('Lcc')">
         <div class="cutter-calc">
             <fieldset
                 v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length > 0) || lccFeatureData.title || lccFeatureData.firstSubject">
