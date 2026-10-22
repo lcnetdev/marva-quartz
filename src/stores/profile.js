@@ -9236,50 +9236,60 @@ export const useProfileStore = defineStore('profile', {
             let components = userValue["http://www.loc.gov/mads/rdf/v1#componentList"]
             let newPt = false
 
-            let componentsCopy = JSON.parse(JSON.stringify(components))
-            // swap the first and last
-            let first = componentsCopy.shift()
-            let last = componentsCopy.pop()
-            componentsCopy.unshift(last)
-            componentsCopy.push(first)
+            let componentsCopy = null
+            try {
+                componentsCopy = JSON.parse(JSON.stringify(components))
+                // swap the first and last
+                let first = componentsCopy.shift()
+                let last = componentsCopy.pop()
+                componentsCopy.unshift(last)
+                componentsCopy.push(first)
+            } catch {
+                componentsCopy = false
+            }
 
-            if (!userValue['@id'] && components.every((c) => c['@id'])){ // there's no singular URI for the string and everything has a URI, we can flip things around
+            if (!userValue['@id'] && componentsCopy && componentsCopy.every((c) => c['@id'])){ // there's no singular URI for the string and everything has a URI, we can flip things around
                 let newSubject = []
                 let startPos = 0
 
                 for (let idx in componentsCopy){
-                let component = componentsCopy[idx]
-                let label = component["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0]["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"]
-                let type = component['@type']
-                let marcKey = null
-                if (type.includes("Geographic") && idx == 0){
-                    marcKey = "151 $a" + label
-                } else {
-                    if (type.includes("Geographic")){
-                    marcKey = "181 $z" + label
+                    let component = componentsCopy[idx]
+                    let label = component["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0]["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"]
+                    let type = component['@type']
+                    let marcKey = null
+                    if (type.includes("Geographic") && idx == 0){
+                        marcKey = "151 $a" + label
                     } else {
-                    marcKey = "180 $x" + label
+                        if (type.includes("Geographic")){
+                        marcKey = "181 $z" + label
+                        } else {
+                        marcKey = "180 $x" + label
+                        }
                     }
-                }
-                let c = {
-                    "label": label,
-                    "uri": component['@id'],
-                    "id": idx,
-                    "type": component['@type'],
-                    "complex": false,
-                    "literal": false,
-                    "posStart": startPos,
-                    "posEnd": startPos + label.length + 1,
-                    "marcKey": marcKey
-                }
-                startPos = startPos + label.length + 3
-                newSubject.push(c)
+                    let c = {
+                        "label": label,
+                        "uri": component['@id'],
+                        "id": idx,
+                        "type": component['@type'],
+                        "complex": false,
+                        "literal": false,
+                        "posStart": startPos,
+                        "posEnd": startPos + label.length + 1,
+                        "marcKey": marcKey
+                    }
+                    startPos = startPos + label.length + 3
+                    newSubject.push(c)
                 }
                 newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
                 this.setValueSubject(newPt[1], newSubject, propertyPath)
             } else {
                 // else, swap the subjects, search ID, and build the new subject, if possible
-                let parts = label.split('--')
+                let parts = []
+                if (label.includes("‑‑")){
+                    parts = label.split('‑‑')
+                } else {
+                    parts = label.split('--')
+                }
                 let first = parts.shift()
                 let last = parts.pop()
                 parts.unshift(last)
@@ -9287,54 +9297,54 @@ export const useProfileStore = defineStore('profile', {
                 let flipped = parts.join('--')
 
                 let exactPayloadName = {
-                processor: 'lcAuthorities',
-                url: ['https://preprod-8080.id.loc.gov/authorities/subject/label/' + flipped],
-                searchValue: flipped,
-                subjectSearch: true,
-                signal: utilsNetwork.controllers.exactName.signal,
+                    processor: 'lcAuthorities',
+                    url: ['https://preprod-8080.id.loc.gov/authorities/subject/label/' + flipped],
+                    searchValue: flipped,
+                    subjectSearch: true,
+                    signal: utilsNetwork.controllers.exactName.signal,
                 }
 
                 let results = await utilsNetwork.searchExact(exactPayloadName)
                 if (results[0] && results[0].uri){
-                let newSubject = [
-                    {
-                    "complex": true,
-                    "id": 0,
-                    "label": flipped.replace("--", "‑‑"),
-                    "literal": false,
-                    "posEnd": flipped.length,
-                    "posStart": 0,
-                    "type": "madsrdf:Topic",
-                    "uri": results[0].uri,
-                    "marcKey": results[0].extra.marcKeys[0]
-                    }
-                ]
-                newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
-                this.setValueSubject(newPt[1], newSubject, propertyPath)
+                    let newSubject = [
+                        {
+                        "complex": true,
+                        "id": 0,
+                        "label": flipped.replaceAll("--", "‑‑"),
+                        "literal": false,
+                        "posEnd": flipped.length,
+                        "posStart": 0,
+                        "type": "madsrdf:Topic",
+                        "uri": results[0].uri,
+                        "marcKey": results[0].extra.marcKeys[0]
+                        }
+                    ]
+                    newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+                    this.setValueSubject(newPt[1], newSubject, propertyPath)
                 } else {
-                let value = ''
-                for (let idx in componentsCopy){
-                    let part = componentsCopy[idx]
-                    let property = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
-                    if (!part[property]){
-                    property = "http://www.w3.org/2000/01/rdf-schema#label"
+                    let value = ''
+                    for (let idx in componentsCopy){
+                        let part = componentsCopy[idx]
+                        let property = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+                        if (!part[property]){
+                        property = "http://www.w3.org/2000/01/rdf-schema#label"
+                        }
+                        let label = part[property][0][property]
+                        if (idx == 0){
+                        value = "$a" + label
+                        } else  if (part["@type"] == "http://www.loc.gov/mads/rdf/v1#Geographic"){
+                        value = value + "$z" + label
+                        } else {
+                        value = value + "$x" + label
+                        }
                     }
-                    let label = part[property][0][property]
-                    if (idx == 0){
-                    value = "$a" + label
-                    } else  if (part["@type"] == "http://www.loc.gov/mads/rdf/v1#Geographic"){
-                    value = value + "$z" + label
-                    } else {
-                    value = value + "$x" + label
-                    }
-                }
 
-                newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
-                let target = document.querySelector(`[data-field-guid='${newPt[1]}']`)
-                target.value = value
-                target.dispatchEvent(
-                    new Event("input", { bubbles: false, cancelable: true })
-                )
+                    newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+                    let target = document.querySelector(`[data-field-guid='${newPt[1]}']`)
+                    target.value = value
+                    target.dispatchEvent(
+                        new Event("input", { bubbles: false, cancelable: true })
+                    )
                 }
             }
         },
