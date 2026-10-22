@@ -67,11 +67,16 @@
       <div v-if="suggestion && suggestion.status != 'match'" :class="['wf-suggest', 'wf-suggest-' + suggestion.status, {'wf-suggest-check': suggestion.check}]" :title="suggestionTitle">
         <span class="material-icons wf-suggest-icon">{{ suggestionIcon }}</span>
         <span class="wf-suggest-values">
-          <template v-if="suggestion.status == 'warn' || suggestion.status == 'remove'">{{ suggestion.note }}</template>
+          <!-- the value was replaced from WorldCat already (a CIP field the book settles): what it was before -->
+          <template v-if="suggestion.status == 'replaced'">
+            <template v-if="(suggestion.old || []).length == 0">Was empty</template>
+            <template v-else>Old value: <template v-for="(v, idx) in suggestion.old" :key="idx"><template v-if="idx > 0"> ; </template><LabelDereference v-if="needsLabel(v)" :URI="v.uri" /><template v-else>{{ v.label }}</template></template></template>
+          </template>
+          <template v-else-if="suggestion.status == 'warn' || suggestion.status == 'remove'">{{ suggestion.note }}</template>
           <template v-else><template v-for="(v, idx) in suggestion.values" :key="idx"><template v-if="idx > 0"> ; </template><LabelDereference v-if="needsLabel(v)" :URI="v.uri" /><template v-else>{{ v.label }}</template></template></template>
         </span>
-        <button v-if="suggestion.status != 'warn'" class="wf-suggest-accept" :disabled="!!workflowStore.busy" :title="acceptTitle" @click.stop="acceptSuggestion()"><span class="material-icons">{{ suggestion.status == 'remove' ? 'delete' : 'check' }}</span></button>
-        <button class="wf-suggest-dismiss" :title="suggestion.status == 'warn' ? 'Noted' : 'Keep what the record has'" @click.stop="dismiss(suggestion.key)"><span class="material-icons">close</span></button>
+        <button v-if="suggestion.status != 'warn'" class="wf-suggest-accept" :disabled="!!workflowStore.busy" :title="acceptTitle" @click.stop="acceptSuggestion()"><span class="material-icons">{{ suggestion.status == 'remove' ? 'delete' : (suggestion.status == 'replaced' ? 'undo' : 'check') }}</span></button>
+        <button class="wf-suggest-dismiss" :title="(suggestion.status == 'warn' || suggestion.status == 'replaced') ? 'Noted' : 'Keep what the record has'" @click.stop="dismiss(suggestion.key)"><span class="material-icons">close</span></button>
       </div>
     </template>
 
@@ -85,6 +90,7 @@ import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 
 import { readCellValues } from '@/lib/workflows/fields'
+import { knownLabel } from '@/lib/workflows/cip'
 
 import Literal from "@/components/panels/edit/fields/Literal.vue";
 import LookupSimple from "@/components/panels/edit/fields/LookupSimple.vue";
@@ -116,6 +122,8 @@ export default {
     lineSuggestion: Object,
     // set when this is a ghost line: {pt, cells, values, key}
     ghost: Object,
+    // the record has nothing in this line of a field the CIP checklist requires
+    missing: Boolean,
   },
   computed: {
     ...mapStores(useWorkflowStore, useProfileStore, usePreferenceStore),
@@ -126,7 +134,9 @@ export default {
     * @return {string|null}
     */
     cellTitle(){
+      if (this.suggestion && this.suggestion.status == 'replaced'){ return 'Replaced with WorldCat\'s value. ' + this.replacedNote }
       if (this.suggestion && this.suggestion.status == 'match'){ return this.suggestion.note || 'Matches WorldCat' }
+      if (this.isMissing){ return 'The CIP checklist needs this and the record has nothing here' }
       // the column is a field of another template of this component (Other title information on a Work title)
       if (!this.ghost && this.pt && !this.cell && this.lineCells){
         let typeCell = Object.values(this.lineCells).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
@@ -165,7 +175,9 @@ export default {
         'wf-cell-editing': this.isEditing,
         'wf-cell-selected': this.isSelected && !this.isEditing,
         'wf-cell-verified': !this.ghost && this.suggestion && this.suggestion.status == 'match',
-        'wf-cell-suggested': !this.ghost && this.suggestion && this.suggestion.status != 'match',
+        'wf-cell-suggested': !this.ghost && this.suggestion && this.suggestion.status != 'match' && this.suggestion.status != 'replaced',
+        'wf-cell-replaced': !this.ghost && this.suggestion && this.suggestion.status == 'replaced',
+        'wf-cell-missing': this.isMissing && !this.isEditing,
         'wf-cell-wholeline': this.wholeLine && !this.isEditing,
         'wf-cell-colored': !!this.fieldColor,
         'wf-cell-copying': this.isCopying,
@@ -206,6 +218,20 @@ export default {
       return typeCell ? typeCell.active.id : null
     },
 
+    // a line of a required CIP field with nothing in it, on a cell of the record (not a grey or ghost one)
+    isMissing(){
+      return !!(this.missing && this.pt && this.cell && !this.ghost)
+    },
+
+    // what a cell replaced from WorldCat held before
+    replacedNote(){
+      let s = this.suggestion
+      if (!s || s.status != 'replaced'){ return '' }
+      // a value with only a URI shows the label the editor looked up for it, when it has
+      let old = (s.old || []).map((v) => { return this.needsLabel(v) ? (knownLabel(v.uri) || v.uri) : v.label }).filter((l) => { return l })
+      return (old.length > 0) ? ('Old value: ' + old.join('; ')) : 'Was empty'
+    },
+
     // the comparison for this cell alone, not when the whole line is offered as one
     suggestion(){
       if (!this.lineSuggestion || this.lineSuggestion.wholeLine){ return null }
@@ -223,6 +249,7 @@ export default {
 
     suggestionIcon(){
       let s = this.suggestion
+      if (s.status == 'replaced'){ return 'published_with_changes' }
       if (s.check == 'year'){ return 'event' }
       if (s.status == 'warn'){ return 'report_problem' }
       if (s.status == 'remove'){ return 'delete_outline' }
@@ -232,6 +259,7 @@ export default {
 
     acceptTitle(){
       let s = this.suggestion
+      if (s.status == 'replaced'){ return 'Put the old value back' }
       if (s.status == 'remove'){ return 'Delete it, as the checklist says' }
       if (s.check){ return 'Set it to what the checklist expects' }
       return (s.status == 'add') ? 'Add this from WorldCat' : 'Replace with WorldCat\'s value'
@@ -239,6 +267,7 @@ export default {
 
     suggestionTitle(){
       if (!this.suggestion){ return '' }
+      if (this.suggestion.status == 'replaced'){ return 'Replaced with WorldCat\'s value. ' + this.replacedNote }
       if (this.suggestion.note){ return this.suggestion.note }
       let what = this.suggestion.values.map((v) => { return v.label }).join('; ')
       return (this.suggestion.status == 'add' ? 'WorldCat has: ' : 'WorldCat has instead: ') + what
@@ -371,6 +400,11 @@ export default {
     async acceptSuggestion(){
       if (!this.suggestion || !this.pt || !this.cell){ return }
       this.keyboardHere()
+      if (this.suggestion.status == 'replaced'){
+        // the value was taken from WorldCat on its own: put the old one back
+        this.workflowStore.restoreReplaced(this.row.id, this.suggestion.lineKey)
+        return
+      }
       if (this.suggestion.status == 'remove'){
         await this.clearValue()
         return

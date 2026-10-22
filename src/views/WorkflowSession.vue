@@ -157,6 +157,22 @@
       </template>
     </div>
 
+    <!-- records the workflow's graph dropped (workflowStore.dropRow), with a way back onto the sheet -->
+    <div v-if="session && session.dropped && session.dropped.length > 0" class="wf-dropped">
+      <div class="wf-dropped-head" @click="droppedOpen = !droppedOpen">
+        <span class="material-icons">{{ droppedOpen ? 'expand_less' : 'expand_more' }}</span>
+        <span><b>{{ session.dropped.length }}</b> record{{ session.dropped.length == 1 ? '' : 's' }} dropped by the workflow</span>
+      </div>
+      <ul v-if="droppedOpen" class="wf-dropped-list">
+        <li v-for="d in session.dropped" :key="d.id">
+          <span>{{ d.label || d.scanned }}</span>
+          <span class="wf-dropped-reason">{{ d.reason }}</span>
+          <button class="wf-button" @click="workflowStore.restoreDropped(d.id)" title="Put the record on the sheet without running the workflow on it">Load anyway</button>
+          <button class="wf-icon-button" @click="workflowStore.forgetDropped(d.id)" title="Forget it"><span class="material-icons">close</span></button>
+        </li>
+      </ul>
+    </div>
+
     <div v-if="!workflowStore.enabled" class="wf-notice">Workflows are not turned on for your account.</div>
     <div v-else-if="notFound" class="wf-notice">That workflow session could not be found. <router-link :to="{ name: 'Workflows' }">Back to Workflows</router-link></div>
     <div v-else-if="!session" class="wf-notice">Loading...</div>
@@ -263,12 +279,15 @@ import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 import { SCANNER_MAX_KEY_GAP, SCANNER_MIN_LENGTH, SCANNER_END_WAIT, isScannerCharacter } from '@/lib/workflows/scanner'
 
 import '@/assets/workflows.css'
+import '@/assets/workflows-graph.css'
 
 export default {
   name: "WorkflowSession",
   components: { WorkflowGrid, WorkflowPages, WorkflowNameDialog, Debug, LiteralLang },
   data(){
     return {
+      // the list of records the workflow dropped is open
+      droppedOpen: false,
       scanValue: '',
       // the rename dialog is up
       renaming: false,

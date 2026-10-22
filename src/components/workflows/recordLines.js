@@ -10,7 +10,7 @@ import { useProfileStore } from '@/stores/profile'
 import { useConfigStore } from '@/stores/config'
 
 import { findComponentPts, resolveComponentCells } from '@/lib/workflows/fields'
-import { compareComponent, suggestedPtsFor, checkCallNumberYears, publicationYear, applyChecklistRules, checkIsbns, hasSeriesStatement, recordProtections, applyProtections, recordSeriesTitles, isSeriesAlreadyInRecord, CIP_ENRICHMENT_ID } from '@/lib/workflows/cip'
+import { compareComponent, suggestedPtsFor, checkCallNumberYears, publicationYear, applyChecklistRules, checkIsbns, hasSeriesStatement, recordProtections, applyProtections, recordSeriesTitles, isSeriesAlreadyInRecord, applyReplacements, applyRequired, isAutoReplaced, isRequired, suggestionsHidden, CIP_ENRICHMENT_ID } from '@/lib/workflows/cip'
 
 export default {
   props: {
@@ -58,20 +58,22 @@ export default {
     },
 
     /**
-    * What the WorldCat comparison came to for the whole record
-    * @return {object} - {open, verified}
+    * What the WorldCat comparison came to for the whole record, with the cells that were replaced
+    * from WorldCat on their own and the required fields that are empty
+    * @return {object} - {open, verified, replaced, missing}
     */
     suggestionCount(){
-      let open = 0, verified = 0
+      let open = 0, verified = 0, replaced = 0, missing = 0
       for (let line of this.lines){
         for (let key in line){
           let entry = line[key]
           if (!entry){ continue }
-          if (entry.ghost){ open++ }
-          else if (entry.suggestion){ open += entry.suggestion.open; verified += entry.suggestion.verified }
+          if (entry.ghost){ open++; continue }
+          if (entry.suggestion){ open += entry.suggestion.open; verified += entry.suggestion.verified; replaced += entry.suggestion.replaced || 0 }
+          if (entry.missing){ missing++ }
         }
       }
-      return { open: open, verified: verified }
+      return { open: open, verified: verified, replaced: replaced, missing: missing }
     },
 
     /**
@@ -92,7 +94,8 @@ export default {
         perGroup[group.key] = findComponentPts(this.row.profile, group.component).map((pt) => {
           return { pt: pt, cells: resolveComponentCells(pt, this.rtLookup, this.lookupConfig) }
         })
-        if (this.suggested){
+        // the linked related work / series is never taken from WorldCat (cip.suggestionsHidden)
+        if (this.suggested && !suggestionsHidden(group.component)){
           // a series can sit in the linked relation component or the transcribed one: one WorldCat
           // offers is not new when the record has it under the other component
           let seriesElsewhere = recordSeriesTitles(this.row.profile, group.component)
@@ -129,6 +132,14 @@ export default {
           }
           // juvenile fiction / law: some fields are not to be replaced, only added to
           applyProtections(group, lines, this.protections)
+          // the fields the book settles were replaced from WorldCat when the lookup came back: say so on the cells
+          if (isAutoReplaced(group.component)){
+            applyReplacements(group.key, lines, this.row.replaced, dismissed)
+          }
+          // the fields a CIP record has to have
+          if (isRequired(group.component)){
+            applyRequired(lines, enrichment.status == 'loading')
+          }
         }
       }
 

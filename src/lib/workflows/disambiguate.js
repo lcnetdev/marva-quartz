@@ -191,10 +191,13 @@ export function scannedIdentifierStatus(info, scanned){
 
 /**
 * Work out which of the records a scan matched is most likely the thing scanned, once each one
-* has been inspected. This only marks it, the user still picks.
+* has been inspected. `certain` is set when the identifiers settle it: exactly one record lists
+* the scan as its own (not canceled) identifier, so for an ISBN scanned off the book that record
+* is the book and the others are its other formats. The caller takes a certain pick without
+* asking; the rest of the ranking (format, dates, size) is a hint and the user still picks.
 * @param {array} candidates - search results, each with .inspection (from inspectRecord, or null) set
 * @param {string} scanned
-* @return {object} - { recommended: candidate|null, reason: string } reason says why, for the user
+* @return {object} - { recommended: candidate|null, reason: string, certain: boolean } reason says why, for the user
 */
 export function recommendCandidate(candidates, scanned){
   for (let c of candidates){
@@ -209,17 +212,17 @@ export function recommendCandidate(candidates, scanned){
   if (valid.length == 1 && canceled.length > 0){
     valid[0].recommended = true
     let other = canceled.map((c) => { return formatLabel(c.format) }).join(', ')
-    return { recommended: valid[0], reason: '"' + scanned + '" is canceled in the ' + other + ' record' }
+    return { recommended: valid[0], reason: '"' + scanned + '" is canceled in the ' + other + ' record', certain: true }
   }
   if (valid.length == 1){
     valid[0].recommended = true
-    return { recommended: valid[0], reason: 'the only record with "' + scanned + '" as its own identifier' }
+    return { recommended: valid[0], reason: 'the only record with "' + scanned + '" as its own identifier', certain: true }
   }
   // can't tell by the identifiers, the print one is what gets scanned off a shelf
   let print = candidates.filter((c) => { return c.format === 'print' })
   if (print.length == 1){
     print[0].recommended = true
-    return { recommended: print[0], reason: 'the only print record' }
+    return { recommended: print[0], reason: 'the only print record', certain: false }
   }
   // still several (two print records of the same book): the one worked on most recently, then the fuller one
   let pool = (print.length > 1) ? print : candidates
@@ -228,7 +231,7 @@ export function recommendCandidate(candidates, scanned){
     dated.sort((a, b) => { return (a.inspection.lastModified < b.inspection.lastModified) ? 1 : -1 })
     if (dated.length == 1 || dated[0].inspection.lastModified !== dated[1].inspection.lastModified){
       dated[0].recommended = true
-      return { recommended: dated[0], reason: 'the most recently modified record (' + dated[0].inspection.lastModified.slice(0, 10) + ')' }
+      return { recommended: dated[0], reason: 'the most recently modified record (' + dated[0].inspection.lastModified.slice(0, 10) + ')', certain: false }
     }
   }
   let sized = pool.filter((c) => { return c.inspection && c.inspection.size })
@@ -236,10 +239,10 @@ export function recommendCandidate(candidates, scanned){
     sized.sort((a, b) => { return b.inspection.size - a.inspection.size })
     if (sized[0].inspection.size !== sized[1].inspection.size){
       sized[0].recommended = true
-      return { recommended: sized[0], reason: 'the fuller record (' + sized[0].inspection.size + ' statements)' }
+      return { recommended: sized[0], reason: 'the fuller record (' + sized[0].inspection.size + ' statements)', certain: false }
     }
   }
-  return { recommended: null, reason: '' }
+  return { recommended: null, reason: '', certain: false }
 }
 
 export function formatLabel(format){

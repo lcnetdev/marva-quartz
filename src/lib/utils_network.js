@@ -3564,7 +3564,10 @@ const utilsNetwork = {
       } else {
         searchTerm = search.toUpperCase()
       }
-      let urlSearch = "lds/browse.xqy?bq=" + searchTerm +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
+      // the browse endpoint's path on the server: the preprod servers have it at lds/browse.xqy, the
+      // public id.loc.gov at controllers/xqapi-shelflist.xqy (config shelfListingPath), same parameters and answer
+      let browsePath = useConfigStore().returnUrls.shelfListingPath || "lds/browse.xqy"
+      let urlSearch = browsePath + "?bq=" + searchTerm +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
 
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )

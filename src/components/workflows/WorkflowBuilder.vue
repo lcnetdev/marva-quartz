@@ -71,9 +71,12 @@
         <small>{{ e.description }}<template v-if="!e.available"> (not available yet)</template></small>
       </label>
 
-      <div class="wf-dialog-buttons">
-        <button @click="$emit('close')">Cancel</button>
-        <button class="wf-button-primary" :disabled="!canSave" @click="save()">Save Workflow</button>
+      <div class="wf-dialog-buttons wf-dialog-buttons-split">
+        <button @click="openGraph()" title="Build the workflow as a graph: nodes over the record's fields that change values or drop records as each one is loaded"><span class="material-icons" style="font-size: 1.2em; vertical-align: -0.25em;">account_tree</span> Advanced: graph</button>
+        <span>
+          <button @click="$emit('close')">Cancel</button>
+          <button class="wf-button-primary" :disabled="!canSave" @click="save()">Save Workflow</button>
+        </span>
       </div>
     </div>
   </div>
@@ -93,7 +96,7 @@ export default {
     // the definition to edit or to start from, null for a blank one
     definition: Object,
   },
-  emits: ['close', 'saved'],
+  emits: ['close', 'saved', 'graph'],
   data(){
     return {
       draft: {
@@ -189,6 +192,22 @@ export default {
       }).filter((s) => { return s })
     },
 
+    /**
+    * Over to the graph builder with what has been filled in here
+    */
+    openGraph(){
+      this.$emit('graph', {
+        id: this.draft.id,
+        name: this.draft.name.trim(),
+        description: this.draft.description.trim(),
+        profileId: this.draft.profileId,
+        components: this.draft.components,
+        enrichments: this.draft.enrichments,
+        graph: (this.definition && !this.definition.builtin) ? (this.definition.graph || null) : null,
+        created: this.draft.created,
+      })
+    },
+
     async save(){
       let saved = await this.workflowStore.saveDefinition({
         id: this.draft.id,
@@ -197,6 +216,8 @@ export default {
         profileId: this.draft.profileId,
         components: this.draft.components,
         enrichments: this.draft.enrichments,
+        // the graph is the advanced builder's, kept as it was
+        graph: (this.definition && !this.definition.builtin) ? (this.definition.graph || null) : null,
         created: this.draft.created,
       })
       this.$emit('saved', saved)

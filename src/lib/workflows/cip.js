@@ -284,17 +284,83 @@ function normalizeUri(uri){
   return String(uri || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '')
 }
 
+// ---------------------------------------------------------------- labels of bare URIs
+
+// the id.loc.gov URIs whose label the editor looks up (LabelDereference.vue) and keeps in sessionStorage
+const DEREFERENCED_URI = /id\.loc\.gov\/(resources\/(instances|works|hubs)|ontologies\/bibframe|authorities\/genreForms|vocabulary)\//
+
+/**
+* The sessionStorage key LabelDereference.vue keeps a URI's label under, so the comparison and the
+* sheet share one cache
+*/
+function labelCacheKey(uri){
+  return String(uri).replace(/\/+$/, '').replace('http://', 'https://') + '.nt'
+}
+
+/**
+* The label of a URI, if the editor has looked it up before (synchronous, from the session cache)
+* @return {string|null}
+*/
+export function knownLabel(uri){
+  if (!uri || typeof sessionStorage === 'undefined'){ return null }
+  try {
+    return sessionStorage.getItem(labelCacheKey(uri)) || null
+  } catch (e) {
+    return null
+  }
+}
+
+/**
+* Look up, and cache, the labels of the values that have a URI but no label, the way the sheet's
+* label lookups do (a HEAD request for the x-preflabel), so that a bare URI and the same term as a
+* bare label compare as one thing
+* @param {array} values - [{uri, label}]
+* @param {string} env - the config's environment, production reads from the preprod host as the editor does
+*/
+export async function resolveLabels(values, env){
+  if (typeof sessionStorage === 'undefined' || typeof fetch === 'undefined'){ return }
+  let todo = new Set()
+  for (let v of values){
+    if (!v || !v.uri || (v.label && v.label !== v.uri)){ continue }
+    if (!DEREFERENCED_URI.test(v.uri) || knownLabel(v.uri)){ continue }
+    todo.add(v.uri)
+  }
+  await Promise.all(Array.from(todo).map(async (uri) => {
+    let url = labelCacheKey(uri)
+    if (env == 'production'){ url = url.replace('//id.', '//preprod-8080.id.') }
+    try {
+      let response = await fetch(url, { method: 'HEAD' })
+      let label = response.headers.get('x-preflabel')
+      if (response.headers.get('x-preflabel-encoded')){ label = decodeURIComponent(response.headers.get('x-preflabel-encoded')) }
+      if (label){ sessionStorage.setItem(labelCacheKey(uri), label) }
+    } catch (e) {
+      // no label to be had, the URI is compared as it is
+    }
+  }))
+}
+
+/**
+* Would taking `want` in place of `have` trade a linked value (a URI) for an unlinked label? The
+* converted WorldCat record carries many terms as bare labels; the record's controlled value is
+* the better one, so that is never done on the record's behalf
+*/
+export function linkedToUnlinked(have, want){
+  return have.some((v) => { return v.uri }) && !want.some((v) => { return v.uri })
+}
+
 /**
 * The things a value can be recognised by: its URI and its label (when the label is not just the
-* URI shown for want of a label). The converted WorldCat record often has a bare URI where the
-* record has a URI and a label, or a bare label where the record has both, so either counts.
+* URI shown for want of a label, then the label the editor looked up for the URI, if it has). The
+* converted WorldCat record often has a bare URI where the record has a URI and a label, or a bare
+* label where the record has both, so either counts.
 */
 function valueKeys(value){
   let keys = []
   if (value.uri){ keys.push('uri:' + normalizeUri(value.uri)) }
-  if (value.label && value.label !== value.uri){
-    let label = normalizeLabel(value.label)
-    if (label){ keys.push('label:' + label) }
+  let label = (value.label && value.label !== value.uri) ? value.label : knownLabel(value.uri)
+  if (label){
+    let normalized = normalizeLabel(label)
+    if (normalized){ keys.push('label:' + normalized) }
   }
   return keys
 }
@@ -663,8 +729,10 @@ export function applyChecklistRules(groupKey, group, recordLines, context, dismi
           let expected = rule.expect[0]
           let present = values.some((v) => { return valueIs(v, expected) })
           if (present){
-            // leave a stronger finding on the cell alone
-            if (!line.suggestion || !line.suggestion.cells[column.key] || line.suggestion.cells[column.key].status === 'match'){
+            // the checklist is the authority on what the cell holds: WorldCat's different value is not
+            // offered for it. A warn rule (a cataloger's call) leaves a stronger finding alone
+            let before = (line.suggestion && line.suggestion.cells[column.key]) || null
+            if (rule.mode !== 'warn' || !before || before.status === 'match'){
               result = { status: 'match', values: values, note: rule.id + ': ' + expected.label + ' as the checklist expects' }
             }
           } else if (rule.mode === 'warn'){
@@ -938,6 +1006,101 @@ export function applyProtections(group, recordLines, protections){
         note: 'Not replaced, ' + reason + '. WorldCat has: ' + cell.values.map((v) => { return v.label }).join('; '),
       }
     }
+  }
+}
+
+// ---------------------------------------------------------------- the CIP field policies
+
+const RESPONSIBILITY_STATEMENT = ONT + 'responsibilityStatement'
+const EXTENT = ONT + 'extent'
+const DIMENSIONS = ONT + 'dimensions'
+const ILLUSTRATIVE_CONTENT = ONT + 'illustrativeContent'
+
+/**
+* The fields the book in hand settles outright. WorldCat's value goes into the record as soon as
+* the lookup is back (workflowStore.autoReplaceFromSuggested) instead of being offered for a click,
+* and the cell shows what was there before with a way to put it back.
+*/
+export const AUTO_REPLACE_COMPONENTS = [ADMIN_METADATA_URI, RESPONSIBILITY_STATEMENT, COPYRIGHT_DATE, EXTENT, DIMENSIONS, ILLUSTRATIVE_CONTENT]
+
+/**
+* The fields a verified CIP record has to have: a line of one the record has nothing in is marked missing
+*/
+export const REQUIRED_COMPONENTS = [RESPONSIBILITY_STATEMENT, COPYRIGHT_DATE, EXTENT, DIMENSIONS]
+
+export function isAutoReplaced(component){
+  return !!component && AUTO_REPLACE_COMPONENTS.includes(component.propertyURI)
+}
+
+export function isRequired(component){
+  return !!component && REQUIRED_COMPONENTS.includes(component.propertyURI)
+}
+
+/**
+* Does a checklist rule say what a cell has to hold (the encoding level, the description
+* conventions...)? Then the checklist sets it (workflowStore.autoApplyChecklist) and WorldCat's
+* value is not taken for it, the checklist is the authority.
+*/
+export function checklistGoverns(component, columnKey){
+  if (!component){ return false }
+  return CHECKLIST_RULES.some((r) => { return r.component === component.propertyURI && (r.mode === 'replace' || r.mode === 'include') && r.column.test(columnKey) })
+}
+
+const EXPRESSION_OF = ONT + 'expressionOf'
+
+/**
+* WorldCat's version of the linked related work / series ("Search related work/series") and of
+* the hub the work is an expression of ("Expression of [search for a Hub]") is never what LC
+* wants, so nothing of those is compared or offered
+*/
+export function suggestionsHidden(component){
+  if (!component){ return false }
+  if (component.propertyURI === EXPRESSION_OF){ return true }
+  return component.propertyURI === RELATION && /search_related_work/i.test(component.id || '')
+}
+
+/**
+* Say on the cells of a component what autoReplaceFromSuggested changed: a `replaced` suggestion
+* carrying the old value (`old`) and the key of the line's entry (`lineKey`) to put it back with.
+* A checklist finding about the new value is left in place, it is what still needs a look.
+* @param {string} groupKey
+* @param {array} recordLines - [{pt, cells, suggestion}]
+* @param {object} replaced - row.replaced: lineKey -> {ptGuid, before, cells: {colKey: {old, new}}}
+* @param {array} dismissed
+*/
+export function applyReplacements(groupKey, recordLines, replaced, dismissed = []){
+  if (!replaced){ return }
+  for (let line of recordLines){
+    if (line.ghost || !line.pt){ continue }
+    let lineKey = groupKey + '|' + line.pt['@guid']
+    let entry = replaced[lineKey]
+    if (!entry){ continue }
+    for (let colKey in entry.cells){
+      let key = lineKey + '|' + colKey + '|replaced'
+      if (dismissed.includes(key)){ continue }
+      if (!line.suggestion){ line.suggestion = { pt: null, cells: {}, verified: 0, open: 0, wholeLine: false, key: null, values: {} } }
+      let before = line.suggestion.cells[colKey]
+      if (before && before.status !== 'match'){ continue }
+      if (before){ line.suggestion.verified-- }
+      line.suggestion.cells[colKey] = { status: 'replaced', values: entry.cells[colKey].new, old: entry.cells[colKey].old, key: key, lineKey: lineKey }
+      line.suggestion.replaced = (line.suggestion.replaced || 0) + 1
+      line.suggestion.wholeLine = false
+    }
+  }
+}
+
+/**
+* Mark the lines of a required component the record has nothing in (`missing`), unless the
+* WorldCat lookup is still running or the line has an open suggestion that would fill it
+* @param {array} recordLines
+* @param {boolean} pending - is the lookup still running
+*/
+export function applyRequired(recordLines, pending){
+  if (pending){ return }
+  for (let line of recordLines){
+    if (line.ghost || !line.pt){ continue }
+    if (line.suggestion && line.suggestion.open > 0){ continue }
+    if (componentIsEmpty(line.pt)){ line.missing = true }
   }
 }
 

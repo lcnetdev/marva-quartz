@@ -1,0 +1,511 @@
+/*
+ * Workflows: the graph (advanced) builder. Baklava's classic theme is loaded by GraphBuilder.vue,
+ * its variables are pointed at the sheet's (assets/workflows.css, --wf-*) here so the canvas
+ * follows the editor's colours and dark mode (:root.wf-dark).
+ */
+
+:root {
+  --wf-graph-bar-height: 3em;
+  --wf-graph-port-value: #2563eb;
+  --wf-graph-port-boolean: #d97706;
+}
+:root.wf-dark {
+  --wf-graph-port-value: #60a5fa;
+  --wf-graph-port-boolean: #fbbf24;
+}
+
+/* ---------------------------------------------------------------- the overlay */
+
+.wf-graph-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  background: var(--wf-page-background);
+  color: var(--wf-text-color);
+  font-size: 14px;
+}
+.wf-graph-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.4em 0.75em;
+  border-bottom: 1px solid var(--wf-line-color);
+  background: var(--wf-head-background);
+  color: var(--wf-text-color);
+}
+.wf-graph-bar-icon {
+  color: var(--wf-accent-color);
+}
+.wf-graph-bar input[type="text"],
+.wf-graph-bar select {
+  padding: 0.35em 0.5em;
+  border: 1px solid var(--wf-field-border-color);
+  border-radius: 4px;
+  background: var(--wf-modal-background);
+  color: var(--wf-text-color);
+}
+.wf-graph-name {
+  width: 16em;
+  font-weight: bold;
+}
+.wf-graph-desc {
+  width: 22em;
+}
+.wf-graph-bar-space {
+  flex: 1;
+}
+.wf-graph-bar .wf-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+.wf-graph-bar .wf-button .material-icons {
+  font-size: 1.2em;
+}
+.wf-graph-problems {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+  padding: 0.4em 0.75em;
+  background: var(--wf-warn-tint);
+  color: var(--wf-warn-text);
+  border-bottom: 1px solid var(--wf-warn-border);
+}
+.wf-graph-problems ul {
+  flex: 1;
+  margin: 0;
+  padding-left: 1.2em;
+}
+.wf-graph-canvas {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  /* clip, not hidden: focusing a box on a node (the Test node's) must not scroll the canvas to it,
+     a hidden overflow still scrolls for focus, a clipped one can not */
+  overflow: clip;
+}
+.wf-graph-canvas .baklava-editor {
+  overflow: clip;
+  width: 100%;
+  height: 100%;
+}
+.wf-graph-foot {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding: 0.3em 0.75em;
+  font-size: 0.85em;
+  border-top: 1px solid var(--wf-line-color);
+  background: var(--wf-head-background);
+  color: var(--wf-muted-color);
+}
+.wf-graph-foot-hint {
+  flex: 1;
+}
+
+/* ---------------------------------------------------------------- baklava, in the sheet's colours */
+
+.wf-graph-canvas .baklava-editor {
+  --baklava-editor-background-pattern-default: var(--wf-page-background);
+  --baklava-editor-background-pattern-line: var(--wf-line-color);
+  --baklava-editor-background-pattern-black: var(--wf-line-color);
+  --baklava-node-color-background: var(--wf-modal-background);
+  --baklava-node-color-foreground: var(--wf-modal-color);
+  --baklava-node-color-selected: var(--wf-accent-color);
+  --baklava-node-color-hover: var(--wf-accent-color);
+  --baklava-node-title-color-background: var(--wf-head-background);
+  --baklava-node-title-color-foreground: var(--wf-text-color);
+  --baklava-node-interface-port-color: var(--wf-graph-port-value);
+  --baklava-node-palette-background: var(--wf-head-background);
+  --baklava-node-palette-foreground: var(--wf-text-color);
+  --baklava-toolbar-background: var(--wf-head-background);
+  --baklava-toolbar-foreground: var(--wf-text-color);
+  --baklava-control-color-background: var(--wf-modal-background);
+  --baklava-control-color-foreground: var(--wf-text-color);
+  --baklava-control-color-primary: var(--wf-accent-color);
+  --baklava-control-color-hover: var(--wf-neutral-tint);
+  --baklava-control-color-active: var(--wf-accent-color);
+  --baklava-control-color-error: var(--wf-bad-text);
+  --baklava-color-connection-default: var(--wf-muted-color);
+  --baklava-color-connection-allowed: var(--wf-good-text);
+  --baklava-color-connection-forbidden: var(--wf-bad-text);
+  /* the editor's modal colour can be translucent, a menu over other rows must not be */
+  --baklava-context-menu-background: var(--wf-page-background);
+  --baklava-node-border-radius: 6px;
+  --baklava-control-border-radius: 4px;
+}
+.wf-graph-canvas .baklava-node {
+  border: 1px solid var(--wf-line-color);
+  box-shadow: 0 4px 16px var(--wf-shadow-color);
+}
+.wf-graph-canvas .baklava-node.--selected {
+  border-color: var(--wf-accent-color);
+}
+.wf-graph-canvas .baklava-node > .__title {
+  font-weight: bold;
+}
+.wf-graph-canvas .baklava-node-interface .__port {
+  background: var(--wf-graph-port-value);
+}
+/* the dot is 10px, which is too small to hit with a wire: a larger invisible target around it. A
+   pseudo element is part of the dot for the pointer, so Baklava's hover / press on the port still fire,
+   and the wire still ends on the dot itself (its own size and spot are unchanged) */
+.wf-graph-canvas .baklava-node-interface .__port::before {
+  content: '';
+  position: absolute;
+  top: -13px;
+  left: -14px;
+  right: -14px;
+  bottom: -13px;
+}
+.wf-graph-canvas .baklava-node-interface .__port:hover {
+  box-shadow: 0 0 0 4px var(--wf-graph-port-halo, rgba(0, 0, 0, 0.12));
+}
+/* an open select draws over the rows under it: every element is positioned (the app's base css), so the
+   rows after it would paint over the list otherwise */
+.wf-graph-canvas .baklava-node-interface:has(.baklava-select.--open) {
+  z-index: 20;
+}
+/* a boolean port (then / else / when) in its own colour, the type is set on the interface (lib/workflows/graph/baklava.js) */
+.wf-graph-canvas .baklava-node-interface[data-interface-type="boolean"] .__port {
+  background: var(--wf-graph-port-boolean);
+}
+.wf-graph-canvas .baklava-node-palette {
+  border-right: 1px solid var(--wf-line-color);
+  width: 200px;
+  font-size: 14px;
+}
+.wf-graph-canvas .baklava-node-palette h1 {
+  margin: 1.2em 0 0.3em 0;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--wf-muted-color);
+}
+.wf-graph-canvas .baklava-node.--palette {
+  margin: 0.4em 0;
+}
+.wf-graph-canvas .baklava-node.--palette > .__title {
+  padding: 0.35em 0.6em;
+}
+.wf-graph-canvas .baklava-node-palette .__entry {
+  border: 1px solid var(--wf-line-color);
+  background: var(--wf-modal-background);
+  color: var(--wf-modal-color);
+}
+
+/* ---------------------------------------------------------------- the settings on a node (GraphSelect, GraphText) */
+
+.wf-graph-control {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  width: 100%;
+  cursor: default;
+}
+.wf-graph-control-label {
+  flex: 0 0 auto;
+  max-width: 45%;
+  font-size: 0.85em;
+  color: var(--wf-muted-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wf-graph-control-label::after {
+  content: ':';
+}
+.wf-graph-control-select,
+.wf-graph-control-text {
+  flex: 1;
+  min-width: 0;
+  padding: 0.3em 0.4em;
+  border: 1px solid var(--wf-field-border-color);
+  border-radius: 4px;
+  background: var(--wf-page-background);
+  color: var(--wf-text-color);
+  font: inherit;
+}
+.wf-graph-control-select:focus,
+.wf-graph-control-text:focus {
+  outline: 2px solid var(--wf-accent-color);
+  outline-offset: -1px;
+}
+
+/* ---------------------------------------------------------------- the source node */
+
+/* the app's base css puts position: relative on every element; Baklava finds a port with offsetTop
+   up to the node, so nothing between the node and a port may be positioned */
+.wf-graph-canvas .baklava-node > .__content,
+.wf-graph-canvas .baklava-node > .__content > div,
+.wf-graph-source-groups,
+.wf-graph-source-group,
+.wf-graph-source-ports,
+.wf-graph-source-options {
+  position: static;
+}
+
+.wf-graph-source {
+  --width: 360px;
+}
+.wf-graph-source-content {
+  padding: 0 !important;
+}
+.wf-graph-source-options {
+  padding: 0.4em 0.6em;
+  border-bottom: 1px solid var(--wf-line-color);
+}
+.wf-graph-source-hint {
+  font-size: 0.8em;
+  color: var(--wf-muted-color);
+  margin-bottom: 0.2em;
+}
+.wf-graph-source-search {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.3em 0.6em;
+  border-bottom: 1px solid var(--wf-line-color);
+}
+.wf-graph-source-search .material-icons {
+  font-size: 1.1em;
+  color: var(--wf-muted-color);
+}
+.wf-graph-source-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.25em 0.4em;
+  border: 1px solid var(--wf-field-border-color);
+  border-radius: 4px;
+  background: var(--wf-modal-background);
+  color: var(--wf-text-color);
+}
+/* the list never scrolls on its own: Baklava places a wire by adding the port's offsets up to the
+   node and does not know about an inner scroll, so a scrolled list draws the wire in the wrong place */
+.wf-graph-source-groups {
+  padding: 0.2em 0 0.4em 0;
+}
+.wf-graph-source-origin {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.5em 0.6em 0.2em 0.6em;
+  font-size: 0.75em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--wf-muted-color);
+  cursor: pointer;
+  user-select: none;
+}
+.wf-graph-source-origin:hover {
+  color: var(--wf-text-color);
+}
+.wf-graph-source-origin .material-icons {
+  font-size: 1.4em;
+}
+.wf-graph-source-origin .wf-graph-source-wired {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.wf-graph-source-group-head {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.2em 0.6em;
+  cursor: pointer;
+  user-select: none;
+}
+.wf-graph-source-group-head:hover {
+  background: var(--wf-neutral-tint);
+}
+.wf-graph-source-group-head .material-icons {
+  font-size: 1.1em;
+  color: var(--wf-muted-color);
+}
+/* the Work / Instance / Item tag in the editor's colours for them (the preference the sheet's headers use) */
+.wf-graph-source-rt {
+  font-size: 0.7em;
+  padding: 0 0.3em;
+  border-radius: 3px;
+  background: var(--wf-neutral-tint);
+  color: var(--wf-text-color);
+}
+.wf-graph-source-rt-work { background: var(--wf-work-color); }
+.wf-graph-source-rt-instance { background: var(--wf-instance-color); }
+.wf-graph-source-rt-item { background: var(--wf-item-color); }
+.wf-graph-source-group-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9em;
+}
+.wf-graph-source-wired {
+  font-size: 0.7em;
+  padding: 0 0.4em;
+  border-radius: 999px;
+  background: var(--wf-accent-color);
+  color: var(--wf-on-accent-color);
+}
+.wf-graph-source-ports {
+  padding: 0.1em 0 0.3em 0;
+}
+.wf-graph-source-ports .baklava-node-interface {
+  font-size: 0.85em;
+  padding-left: 1.6em !important;
+}
+/* the dot of a port sits outside the node in Baklava, inside the scrolling list it would be clipped */
+.wf-graph-source-ports .baklava-node-interface.--output {
+  padding-right: 1.6em;
+}
+.wf-graph-source-ports .baklava-node-interface.--output .__port {
+  right: 0.4em;
+}
+/* the record's ports sit closer together: the target of one must not cover the next */
+.wf-graph-source-ports .baklava-node-interface.--output .__port::before {
+  top: -6px;
+  bottom: -6px;
+}
+
+/* ---------------------------------------------------------------- the test node */
+
+.wf-graph-test {
+  --width: 380px;
+}
+.wf-graph-test-content,
+.wf-graph-test-form,
+.wf-graph-test-result {
+  position: static;
+}
+.wf-graph-test-content {
+  padding: 0.4em 0.6em 0.6em 0.6em;
+  font-size: 13px;
+}
+.wf-graph-test-form {
+  display: flex;
+  gap: 0.4em;
+  margin: 0.5em 0;
+}
+.wf-graph-test-form .wf-graph-control-text {
+  flex: 1;
+  min-width: 0;
+}
+.wf-graph-test-form .wf-button {
+  white-space: nowrap;
+}
+.wf-graph-test-spin {
+  animation: wf-graph-test-spin 1s linear infinite;
+}
+@keyframes wf-graph-test-spin {
+  to { transform: rotate(360deg); }
+}
+.wf-graph-test-result {
+  border-top: 1px solid var(--wf-line-color);
+  padding-top: 0.5em;
+  user-select: text;
+  cursor: text;
+}
+.wf-graph-test-record {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-weight: bold;
+  margin-bottom: 0.4em;
+}
+.wf-graph-test-record .material-icons {
+  font-size: 18px;
+  opacity: 0.7;
+}
+.wf-graph-test-lccn {
+  font-weight: normal;
+  opacity: 0.7;
+}
+.wf-graph-test-head {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  margin: 0.6em 0 0.3em 0;
+}
+.wf-graph-test-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3em;
+  margin: 0.2em 0;
+  line-height: 1.35;
+}
+.wf-graph-test-line .material-icons {
+  font-size: 16px;
+  margin-top: 1px;
+}
+.wf-graph-test-change {
+  margin: 0.3em 0 0.5em 0;
+  line-height: 1.35;
+}
+.wf-graph-test-diff {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4em;
+  margin-top: 0.15em;
+  padding-left: 0.6em;
+}
+.wf-graph-test-diff .material-icons {
+  font-size: 15px;
+  margin-top: 2px;
+  opacity: 0.6;
+}
+.wf-graph-test-before {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.wf-graph-test-after {
+  font-weight: bold;
+}
+
+/* ---------------------------------------------------------------- the log under a record, and the dropped list */
+
+.wf-graph-log-node {
+  font-weight: bold;
+}
+.wf-graph-log-error {
+  color: var(--wf-bad-text);
+}
+.wf-graph-log-drop {
+  color: var(--wf-bad-text);
+}
+.wf-graph-log-flag {
+  color: var(--wf-warn-text);
+}
+.wf-dropped {
+  padding: 0.4em 0.75em;
+  font-size: 0.85em;
+  border-bottom: 1px solid var(--wf-line-color);
+  background: var(--wf-warn-tint);
+  color: var(--wf-warn-text);
+}
+.wf-dropped-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  cursor: pointer;
+}
+.wf-dropped-list {
+  list-style: none;
+  margin: 0.3em 0 0 0;
+  padding: 0;
+}
+.wf-dropped-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.15em 0;
+}
+.wf-dropped-list .wf-dropped-reason {
+  flex: 1;
+  opacity: 0.85;
+}

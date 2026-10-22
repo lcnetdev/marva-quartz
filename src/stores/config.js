@@ -113,6 +113,9 @@ export const useConfigStore = defineStore('config', {
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
         folioBase: 'https://lcsg.catalog.lcap.loc.gov',
         bfdb : 'https://preprod-8230.id.loc.gov/',
+        // the public id.loc.gov serves the shelflisting browse at a different path than the preprod servers
+        shelfListing: 'https://id.loc.gov/',
+        shelfListingPath: 'controllers/xqapi-shelflist.xqy',
         isBibframeDotOrg: false,
 
         folioMLCEndpoint: 'http://localhost:9401/marva/util/folio/next-mlc/staging',

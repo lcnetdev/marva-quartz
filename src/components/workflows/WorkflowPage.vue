@@ -43,6 +43,7 @@
                 :colIndex="groupOffsets[group.key] + colIdx"
                 :lineSuggestion="(lines[lineIdx][group.key] && lines[lineIdx][group.key].suggestion) ? lines[lineIdx][group.key].suggestion : null"
                 :ghost="(lines[lineIdx][group.key] && lines[lineIdx][group.key].ghost) ? lines[lineIdx][group.key] : null"
+                :missing="!!(lines[lineIdx][group.key] && lines[lineIdx][group.key].missing)"
               />
             </tr>
           </tbody>

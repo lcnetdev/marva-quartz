@@ -14,8 +14,11 @@ import builtinWorkflows from '@/lib/workflows/builtin'
 import { runEnrichments } from '@/lib/workflows/enrichments'
 import { expandComponentColumns, listProfileComponents, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
 import { copyPayload, rememberCopy, recallCopy, forgetCopies, incompatible, writeCellNodes, pastedTypeUris } from '@/lib/workflows/clipboard'
-import { inspectRecord, recommendCandidate } from '@/lib/workflows/disambiguate'
-import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty } from '@/lib/workflows/cip'
+import { inspectRecord, recommendCandidate, formatLabel } from '@/lib/workflows/disambiguate'
+import { listSourcePorts, parsePortKey, RECORD_ORIGIN } from '@/lib/workflows/graph/ports'
+import { readSourceValues, entryText } from '@/lib/workflows/graph/values'
+import { runGraph } from '@/lib/workflows/graph/run'
+import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord } from '@/lib/workflows/cip'
 
 import short from 'short-uuid'
 
@@ -159,6 +162,10 @@ export const useWorkflowStore = defineStore('workflow', {
     // the session that is open in the grid
     activeSession: null,
 
+    // a throwaway session the graph builder's Test node loads one record into, to show what the graph
+    // would do to it (testGraph). Never stored, never shown as a sheet, gone when the test is over
+    testSession: null,
+
     // the id of the row that is currently the profile store's activeProfile
     activeRowId: null,
 
@@ -233,28 +240,7 @@ export const useWorkflowStore = defineStore('workflow', {
     *   subfields the component has turned off (component.hiddenColumns), allColumns has every one
     */
     columnGroups: (state) => {
-      if (!state.activeSession){ return [] }
-      let profileStore = useProfileStore()
-      let lookupConfig = useConfigStore().lookupConfig
-      let baseProfile = findBaseProfile(state.activeSession.definition.profileId)
-      if (!baseProfile){ return [] }
-
-      let groups = []
-      for (let component of state.activeSession.definition.components){
-        let key = component.rt + '|' + component.id
-        let pt = findComponentTemplate(baseProfile, component)
-        if (!pt){ continue }
-        let allColumns = expandComponentColumns(pt, profileStore.rtLookup, lookupConfig)
-        let hiddenColumns = component.hiddenColumns || []
-        groups.push({
-          component: component,
-          key: key,
-          hidden: state.activeSession.hiddenComponents.includes(key),
-          allColumns: allColumns,
-          columns: allColumns.filter((c) => { return !hiddenColumns.includes(c.key) }),
-        })
-      }
-      return groups
+      return columnGroupsFor(state.activeSession)
     },
 
     /**
@@ -475,6 +461,7 @@ export const useWorkflowStore = defineStore('workflow', {
         updated: Date.now(),
         definition: resolved,
         hiddenComponents: [],
+        dropped: [],
         rows: [],
       }
       await workflowStorage.saveSession(session)
@@ -499,6 +486,7 @@ export const useWorkflowStore = defineStore('workflow', {
         created: stored.created,
         definition: stored.definition,
         hiddenComponents: stored.hiddenComponents || [],
+        dropped: stored.dropped || [],
         rows: (stored.rows || []).map((r) => {
           return Object.assign(newRow(r.scanned), r, { status: 'loading', profile: null })
         }),
@@ -581,8 +569,9 @@ export const useWorkflowStore = defineStore('workflow', {
         updated: Date.now(),
         definition: JSON.parse(JSON.stringify(s.definition)),
         hiddenComponents: JSON.parse(JSON.stringify(s.hiddenComponents)),
+        dropped: JSON.parse(JSON.stringify(s.dropped || [])),
         rows: s.rows.filter((r) => { return r.sourceUrl }).map((r) => {
-          return { id: r.id, eId: r.eId, sourceUrl: r.sourceUrl, scanned: r.scanned, label: r.label, lccn: r.lccn, done: r.done, posted: r.posted, saved: r.saved }
+          return { id: r.id, eId: r.eId, sourceUrl: r.sourceUrl, scanned: r.scanned, label: r.label, lccn: r.lccn, done: r.done, posted: r.posted, saved: r.saved, skipGraph: !!r.skipGraph }
         }),
       })
       this.sessions = await workflowStorage.listSessions()
@@ -698,8 +687,33 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     returnRow(rowId){
-      if (!this.activeSession){ return null }
-      return this.activeSession.rows.filter((r) => { return r.id === rowId })[0] || null
+      let session = this.sessionFor(rowId)
+      if (!session){ return null }
+      return session.rows.filter((r) => { return r.id === rowId })[0] || null
+    },
+
+    /**
+    * The session a row is in: the open sheet, or the builder's test session
+    * @param {string} rowId
+    * @return {object|null}
+    */
+    sessionFor(rowId){
+      for (let session of [this.activeSession, this.testSession]){
+        if (session && session.rows.some((r) => { return r.id === rowId })){ return session }
+      }
+      return null
+    },
+
+    /**
+    * Is the session still the one open (or the test still running): the loading steps check this after
+    * every wait, the user may have closed the sheet meanwhile
+    */
+    sessionAlive(session){
+      return !!session && (session === this.activeSession || session === this.testSession)
+    },
+
+    isTestRow(row){
+      return !!(row && this.testSession && this.testSession.rows.some((r) => { return r.id === row.id }))
     },
 
     // ---------------------------------------------------------------- getting records in
@@ -708,12 +722,14 @@ export const useWorkflowStore = defineStore('workflow', {
     * Something was scanned (or typed), find the record and add it to the session
     * @param {string} value - a LCCN, ISBN, barcode or the URL to a record
     * @param {boolean} quiet - part of a pasted list: don't move the keyboard to the record when it arrives
+    * @param {object} session - the session to add it to, the open sheet unless the builder is testing (testGraph)
     * @return {Promise<boolean>} - did a record get added
     */
-    async scan(value, quiet = false){
+    async scan(value, quiet = false, session = null){
       value = (value || '').trim()
-      if (value == '' || !this.activeSession){ return false }
-      let session = this.activeSession
+      session = session || this.activeSession
+      if (value == '' || !session){ return false }
+      let test = !!session.test
 
       let row = newRow(value)
       row.status = 'searching'
@@ -731,6 +747,12 @@ export const useWorkflowStore = defineStore('workflow', {
         results = (results || []).filter((r) => { return r && typeof r === 'object' && r.bfdbPackageURL })
 
         if (results.length == 0){
+          if (test){
+            // the test node reads the row's error
+            row.status = 'error'
+            row.error = 'No record found for "' + value + '"'
+            return false
+          }
           this.removeRow(row.id)
           this.notify('No record found for "' + value + '"', 'error')
           return false
@@ -742,14 +764,23 @@ export const useWorkflowStore = defineStore('workflow', {
           // tell them apart, then ask the user which one with the likely one pointed out
           row.status = 'checking'
           let advice = await this.inspectCandidates(results, value)
-          if (this.activeSession !== session || !this.returnRow(row.id)){ return false }
+          if (!this.sessionAlive(session) || !this.returnRow(row.id)){ return false }
 
           // the user said to always take one format for this workflow, if exactly one record is that format take it
           let autoFormat = this.returnAutoFormat(session.workflowId)
           let automatic = autoFormat ? results.filter((c) => { return c.format === autoFormat }) : []
-          if (automatic.length == 1){
+          if (looksLikeIsbn(value) && advice.certain){
+            // an ISBN scanned off the book: the one record that lists it as its own (not canceled)
+            // identifier is the book, the others are its other formats. Nothing to ask.
+            pick = advice.recommended
+            this.notify('Took the ' + formatLabel(pick.format) + ' record for "' + value + '": ' + advice.reason, 'info')
+          } else if (automatic.length == 1){
             pick = automatic[0]
             this.notify('Took the ' + autoFormat + ' record for "' + value + '", as always for this workflow', 'info')
+          } else if (test){
+            // nobody to ask in the builder: the likely one, and the test says so
+            pick = advice.recommended || results[0]
+            row.pickReason = 'The identifier matched ' + results.length + ' records, took the ' + formatLabel(pick.format) + ' record' + (advice.reason ? ': ' + advice.reason : '')
           } else {
             row.status = 'choosing'
             pick = await new Promise((resolve) => {
@@ -773,7 +804,7 @@ export const useWorkflowStore = defineStore('workflow', {
       }
 
       // they closed the session while it was searching
-      if (this.activeSession !== session || !this.returnRow(row.id)){ return false }
+      if (!this.sessionAlive(session) || !this.returnRow(row.id)){ return false }
 
       let existing = session.rows.filter((r) => { return r.id !== row.id && r.sourceUrl === sourceUrl })[0]
       if (existing){
@@ -788,7 +819,7 @@ export const useWorkflowStore = defineStore('workflow', {
       row.label = label
       row.status = 'loading'
       await this.loadRow(row.id)
-      this.persistSession()
+      if (!test){ this.persistSession() }
       // the keyboard goes to the record that just came in
       row = this.returnRow(row.id)
       if (!quiet && row && row.status === 'ready' && this.activeSession === session && !this.editingCell){
@@ -882,7 +913,7 @@ export const useWorkflowStore = defineStore('workflow', {
     * @return {void}
     */
     async loadRow(rowId){
-      let session = this.activeSession
+      let session = this.sessionFor(rowId)
       let row = this.returnRow(rowId)
       if (!row){ return }
       row.status = 'loading'
@@ -916,10 +947,10 @@ export const useWorkflowStore = defineStore('workflow', {
       }
 
       // 2. parse, one record at a time (the parser keeps global state)
-      return enqueue('load', async () => {
+      let parsed = await enqueue('load', async () => {
         row = this.returnRow(rowId)
         // it might be gone by the time its turn in line comes up
-        if (!row || this.activeSession !== session){ return }
+        if (!row || !this.sessionAlive(session)){ return }
         try {
           let profile = null
           if (savedXml){
@@ -934,7 +965,7 @@ export const useWorkflowStore = defineStore('workflow', {
             profile = await this.buildRecordFromXml(sourceXml, session.definition.profileId, row.eId, row.sourceUrl)
           }
           row = this.returnRow(rowId)
-          if (!row || this.activeSession !== session){ return }
+          if (!row || !this.sessionAlive(session)){ return }
 
           row.eId = profile.eId
           row.profile = profile
@@ -943,21 +974,22 @@ export const useWorkflowStore = defineStore('workflow', {
           if (summary.title){ row.label = summary.title }
           row.lccn = summary.lccn
           if (profile.status == 'published'){ row.posted = true }
-          row.status = 'ready'
-          // the first record to come in gets the keyboard, so the sheet can be worked without a click
-          if (!this.selectedCell && !this.editingCell && session.rows.indexOf(row) === session.rows.findIndex((r) => { return r.status === 'ready' })){
-            this.selectCell(row.id, 0, 0)
-            leaveTheScanBox()
-          }
+          // a workflow with a graph holds the record back until the graph has run on it (it may drop it)
+          let hasGraph = !row.skipGraph && !!(session.definition.graph && session.definition.graph.editor)
+          if (!hasGraph){ this.markReady(row, session) }
 
           if ((session.definition.enrichments || []).length > 0){
             let changed = await this.withRow(row.id, async () => {
               return await runEnrichments(session.definition.enrichments, row.profile, { row: row, definition: session.definition })
             })
             if (changed){ row.dirty = true }
-            // the suggestions come in on their own, the row is usable meanwhile
-            this.enrichRow(row.id)
+            // on a CIP sheet the checklist's fixed expectations are set right away
+            await this.autoApplyChecklist(row.id)
+            // the suggestions come in on their own, the row is usable meanwhile (with a graph they are waited for, below)
+            if (!hasGraph){ this.enrichRow(row.id) }
           }
+          // the graph's turn comes once this parse job is over: it waits for the WorldCat lookup, whose parse goes through this same queue
+          return hasGraph ? 'graph' : 'ready'
         } catch (e) {
           console.error('Workflows: could not load', row.sourceUrl, e)
           row = this.returnRow(rowId)
@@ -967,6 +999,35 @@ export const useWorkflowStore = defineStore('workflow', {
           }
         }
       })
+      if (parsed === 'graph'){ await this.runGraphAfterLoad(rowId, session) }
+    },
+
+    /**
+    * The rest of loading a record on a workflow with a graph: the WorldCat lookup (the graph may read its
+    * fields), then the graph, then the record goes on the sheet unless the graph dropped it. This runs
+    * outside the parse queue: the lookup's own parse goes through that queue and would wait forever otherwise.
+    * @param {string} rowId
+    * @param {object} session
+    */
+    async runGraphAfterLoad(rowId, session){
+      try {
+        if ((session.definition.enrichments || []).includes(CIP_ENRICHMENT_ID)){
+          await this.enrichRow(rowId)
+        }
+        let row = this.returnRow(rowId)
+        if (!row || !this.sessionAlive(session)){ return }
+        let outcome = await this.runGraphOnRow(rowId)
+        row = this.returnRow(rowId)
+        if (!row || (outcome && outcome.dropped)){ return }
+        this.markReady(row, session)
+      } catch (e) {
+        console.error('Workflows: the workflow could not be run on the record', e)
+        let row = this.returnRow(rowId)
+        if (row){
+          row.status = 'error'
+          row.error = (e && e.message) ? e.message : String(e)
+        }
+      }
     },
 
     /**
@@ -1074,7 +1135,7 @@ export const useWorkflowStore = defineStore('workflow', {
     * @return {void}
     */
     async enrichRow(rowId, force = false){
-      let session = this.activeSession
+      let session = this.sessionFor(rowId)
       let row = this.returnRow(rowId)
       if (!row || !row.profile || !session){ return }
       if (!(session.definition.enrichments || []).includes(CIP_ENRICHMENT_ID)){ return }
@@ -1090,7 +1151,7 @@ export const useWorkflowStore = defineStore('workflow', {
       try {
         let data = await fetchSlot(() => { return fetchCipLookup(query, useConfigStore().returnUrls.util) })
         row = this.returnRow(rowId)
-        if (!row || this.activeSession !== session){ return }
+        if (!row || !this.sessionAlive(session)){ return }
         let xml = (data.bibframe && data.bibframe.record) ? data.bibframe.record.rdfxml : null
         if (data.status !== 'ok' || !xml){
           row.enrichment = { status: 'none', query: query, message: (data.messages && data.messages.length) ? data.messages.join('; ') : ('WorldCat lookup: ' + data.status) }
@@ -1101,11 +1162,15 @@ export const useWorkflowStore = defineStore('workflow', {
           return this.buildRecordFromXml(xml, session.definition.profileId, 'cip-' + short.generate(), 'cip-lookup ' + JSON.stringify(query))
         })
         row = this.returnRow(rowId)
-        if (!row || this.activeSession !== session){ return }
+        if (!row || !this.sessionAlive(session)){ return }
         // LC does not use OCLC / WorldCat URIs or identifiers, take them out before anything is offered,
         // along with the converter's relations pointing back at this very record
         scrubForeignData(suggested, recordUris(row.profile))
         row.enrichment = { status: 'ready', query: query, suggested: markRaw(suggested), source: summarizeCip(data), dismissed: [] }
+        // the fields the book settles take WorldCat's value right away
+        await this.autoReplaceFromSuggested(row.id)
+        // and a field off the sheet that WorldCat has something for is put on it
+        this.revealComponentsWithSuggestions(row.id)
       } catch (e) {
         console.error('Workflows: CIP lookup failed', e)
         row = this.returnRow(rowId)
@@ -1210,8 +1275,505 @@ export const useWorkflowStore = defineStore('workflow', {
       if (!row.enrichment.dismissed.includes(key)){ row.enrichment.dismissed.push(key) }
     },
 
-    removeRow(rowId){
+    /**
+    * Remember what a line of a component held before it was changed on the record's behalf (the CIP
+    * auto replacements), so the sheet can show it and put it back: row.replaced, keyed by the line,
+    * session only. `before` is the state before the first change to the line, so restoring goes
+    * back to the start; a cell changed twice keeps its first old value.
+    */
+    noteReplaced(row, lineKey, pt, snapshot, colKey, old, now){
+      if (!row.replaced){ row.replaced = {} }
+      let entry = row.replaced[lineKey]
+      if (!entry){
+        entry = { ptGuid: pt['@guid'], before: snapshot.before, beforeType: snapshot.beforeType, cells: {} }
+        row.replaced[lineKey] = entry
+      }
+      let cell = entry.cells[colKey]
+      entry.cells[colKey] = { old: cell ? cell.old : old, new: now }
+    },
+
+    /**
+    * The CIP fields the book in hand settles (cip.AUTO_REPLACE_COMPONENTS) take WorldCat's value as
+    * soon as the lookup is back, without a click: a cell that differs is replaced, an empty one
+    * filled, a blank line filled in whole. A cell a checklist rule governs (the encoding level...)
+    * is left to the checklist (autoApplyChecklist, run again at the end for the 300 wording of what
+    * came in). What was there before goes on row.replaced (noteReplaced) and it is one undo step.
+    * @param {string} rowId
+    * @return {number} - how many cells changed
+    */
+    async autoReplaceFromSuggested(rowId){
+      let session = this.sessionFor(rowId)
+      let row = this.returnRow(rowId)
+      if (!row || !row.profile || !session || !row.enrichment || row.enrichment.status !== 'ready' || !row.enrichment.suggested){ return 0 }
+      let rtLookup = useProfileStore().rtLookup
+      let lookupConfig = useConfigStore().lookupConfig
+      let toLines = (pts) => { return pts.map((pt) => { return { pt: pt, cells: resolveComponentCells(pt, rtLookup, lookupConfig) } }) }
+      let plain = (values) => { return values.map((v) => { return { label: v.label, uri: v.uri || null } }) }
+      let env = useConfigStore().returnUrls.env
+      let count = 0
+      // the state before, for undo
+      this.rememberBaseline(row)
+      for (let group of columnGroupsFor(session)){
+        if (!isAutoReplaced(group.component)){ continue }
+        let recordLines = toLines(findComponentPts(row.profile, group.component))
+        let suggestedLines = toLines(suggestedPtsFor(row.enrichment.suggested, group.component))
+        if (recordLines.length == 0 || suggestedLines.length == 0){ continue }
+        // a term the record holds as a bare URI and WorldCat as a bare label is one thing: get the URIs' labels first
+        let bare = []
+        for (let line of recordLines.concat(suggestedLines)){
+          for (let column of group.columns){
+            if (column.kind === 'type' || !line.cells[column.key]){ continue }
+            bare = bare.concat(readCellValues(line.pt, line.cells[column.key]))
+          }
+        }
+        await resolveLabels(bare, env)
+        row = this.returnRow(rowId)
+        if (!row || !this.sessionAlive(session) || !row.enrichment || row.enrichment.status !== 'ready'){ return count }
+        let compared = compareComponent(group.key, group.columns, recordLines, suggestedLines, [])
+        recordLines.forEach((line, i) => {
+          let s = compared.suggestions[i]
+          if (!s || s.open == 0){ return }
+          let lineKey = group.key + '|' + line.pt['@guid']
+          let snapshot = { before: JSON.parse(JSON.stringify(line.pt.userValue)), beforeType: line.pt.activeType }
+          if (s.wholeLine && !group.columns.some((c) => { return c.kind !== 'type' && checklistGoverns(group.component, c.key) })){
+            // the record line is blank: WorldCat's line as a whole, as accepting it would
+            copyComponentValue(line.pt, s.pt)
+            for (let column of group.columns){
+              if (column.kind === 'type'){ continue }
+              let want = s.values[column.key] || []
+              if (want.length == 0){ continue }
+              this.noteReplaced(row, lineKey, line.pt, snapshot, column.key, [], plain(want))
+              count++
+            }
+            return
+          }
+          for (let colKey in s.cells){
+            let c = s.cells[colKey]
+            if (c.status !== 'add' && c.status !== 'differs'){ continue }
+            if (checklistGoverns(group.component, colKey)){ continue }
+            let cell = line.cells[colKey]
+            if (!cell){ continue }
+            let have = readCellValues(line.pt, cell)
+            // a controlled value is not traded for WorldCat's bare label, that stays a chip for a person
+            if (linkedToUnlinked(have, c.values)){ continue }
+            let old = plain(have)
+            if (!copyCellValue(line.pt.userValue, s.pt.userValue, cell.propertyPath)){ continue }
+            this.noteReplaced(row, lineKey, line.pt, snapshot, colKey, old, plain(c.values))
+            count++
+          }
+        })
+      }
+      if (count > 0){
+        this.recordHistory(row)
+        this.rowChanged(row)
+      }
+      // what came in from WorldCat is held to the checklist too (the 300 wording)
+      count += await this.autoApplyChecklist(rowId)
+      return count
+    },
+
+    /**
+    * The CIP checklist's fixed expectations on the fields the book settles (cip.AUTO_REPLACE_COMPONENTS)
+    * are set without a click: the encoding level, the description conventions and language, the
+    * authentication code, the 300 wording. Through the editor's own setters, with the row made the
+    * activeProfile for the moment (withRow), exactly as accepting each one would. What was there goes
+    * on row.replaced (noteReplaced). Only on a sheet with the CIP enrichment; run when a record is
+    * loaded and again after WorldCat's values come in.
+    * @param {string} rowId
+    * @return {number} - how many cells changed
+    */
+    async autoApplyChecklist(rowId){
+      let session = this.sessionFor(rowId)
+      let row = this.returnRow(rowId)
+      if (!row || !row.profile || (row.status != 'ready' && row.status != 'loading') || !session){ return 0 }
+      if (!(session.definition.enrichments || []).includes(CIP_ENRICHMENT_ID)){ return 0 }
+      let rtLookup = useProfileStore().rtLookup
+      let lookupConfig = useConfigStore().lookupConfig
+      let context = { hasSeries: hasSeriesStatement(row.profile) }
+      let plain = (values) => { return values.map((v) => { return { label: v.label, uri: v.uri || null } }) }
+      let todo = []
+      for (let group of columnGroupsFor(session)){
+        if (!isAutoReplaced(group.component)){ continue }
+        let lines = findComponentPts(row.profile, group.component).map((pt) => { return { pt: pt, cells: resolveComponentCells(pt, rtLookup, lookupConfig), suggestion: null } })
+        applyChecklistRules(group.key, group, lines, context, [])
+        for (let line of lines){
+          if (!line.suggestion){ continue }
+          for (let colKey in line.suggestion.cells){
+            let finding = line.suggestion.cells[colKey]
+            if (finding.status !== 'add' && finding.status !== 'differs'){ continue }
+            if (!finding.simple && typeof finding.literal !== 'string'){ continue }
+            let cell = line.cells[colKey]
+            if (!cell){ continue }
+            todo.push({ lineKey: group.key + '|' + line.pt['@guid'], pt: line.pt, cell: cell, colKey: colKey, finding: finding, old: plain(readCellValues(line.pt, cell)) })
+          }
+        }
+      }
+      if (todo.length == 0){ return 0 }
+      this.rememberBaseline(row)
+      let snapshots = {}
+      for (let t of todo){
+        if (!snapshots[t.lineKey]){ snapshots[t.lineKey] = { before: JSON.parse(JSON.stringify(t.pt.userValue)), beforeType: t.pt.activeType } }
+      }
+      let done = 0
+      await this.withRow(rowId, async () => {
+        let profileStore = useProfileStore()
+        for (let t of todo){
+          try {
+            if (t.finding.simple){
+              if (t.finding.replaceGuid){ await profileStore.removeValueSimple(t.pt['@guid'], t.finding.replaceGuid) }
+              await profileStore.setValueSimple(t.pt['@guid'], t.finding.siblingGuid || short.generate(), t.cell.propertyPath, t.finding.simple.uri, t.finding.simple.label)
+            } else {
+              await profileStore.setValueLiteral(t.pt['@guid'], t.finding.valueGuid || short.generate(), t.cell.propertyPath, t.finding.literal, null)
+            }
+            this.noteReplaced(row, t.lineKey, t.pt, snapshots[t.lineKey], t.colKey, t.old, plain(t.finding.values))
+            done++
+          } catch (e) {
+            console.error('Workflows: could not apply the checklist to', t.colKey, e)
+          }
+        }
+      }, 'Applying the CIP checklist...')
+      if (done == 0){ return 0 }
+      row = this.returnRow(rowId)
+      if (row){
+        this.recordHistory(row)
+        this.rowChanged(row)
+      }
+      return done
+    },
+
+    /**
+    * Once WorldCat's record is in for a row, a component of the profile that is not on the sheet, or
+    * is hidden, but holds values the record lacks or differs from is put on the sheet, so nothing
+    * WorldCat offers goes unseen. Only this session's component list changes, the workflow it was
+    * started from keeps its default; the components that never take WorldCat data stay off.
+    * @param {string} rowId
+    * @return {array} - the labels of the components added
+    */
+    revealComponentsWithSuggestions(rowId){
+      // only the open sheet has components to put on it, a test record is not shown
+      let session = this.activeSession
+      let row = session ? session.rows.filter((r) => { return r.id === rowId })[0] : null
+      if (!row || !row.profile || !session || !row.enrichment || row.enrichment.status !== 'ready' || !row.enrichment.suggested){ return [] }
+      let rtLookup = useProfileStore().rtLookup
+      let lookupConfig = useConfigStore().lookupConfig
+      let toLines = (pts) => { return pts.map((pt) => { return { pt: pt, cells: resolveComponentCells(pt, rtLookup, lookupConfig) } }) }
+      // what is not shown: the profile's components that are not in the sheet, and the sheet's hidden ones
+      let candidates = this.addableComponents.map((c) => { return { component: c, columns: this.returnComponentColumns(session.definition.profileId, c) } })
+      for (let group of this.columnGroups){
+        if (group.hidden){ candidates.push({ component: group.component, columns: group.columns }) }
+      }
+      let added = []
+      for (let { component, columns } of candidates){
+        if (columns.length == 0 || suggestionsHidden(component)){ continue }
+        // the same lining up the sheet does, a series the record has under the other component is not new
+        let seriesElsewhere = recordSeriesTitles(row.profile, component)
+        let suggestedLines = toLines(suggestedPtsFor(row.enrichment.suggested, component).filter((pt) => { return !isSeriesAlreadyInRecord(pt, seriesElsewhere) }))
+        if (suggestedLines.length == 0){ continue }
+        let key = component.rt + '|' + component.id
+        let compared = compareComponent(key, columns, toLines(findComponentPts(row.profile, component)), suggestedLines, [])
+        let open = compared.ghosts.length + compared.suggestions.reduce((n, s) => { return n + (s ? s.open : 0) }, 0)
+        if (open == 0){ continue }
+        this.addComponent(component)
+        added.push(component.label)
+      }
+      if (added.length > 0){
+        this.notify('Put on the sheet, WorldCat has values for: ' + added.join(', '), 'info')
+      }
+      return added
+    },
+
+    /**
+    * Put back what a line of a component held before the CIP auto replacements changed it
+    * @param {string} rowId
+    * @param {string} lineKey - groupKey|ptGuid, the key in row.replaced
+    * @return {boolean}
+    */
+    restoreReplaced(rowId, lineKey){
+      let row = this.returnRow(rowId)
+      let entry = (row && row.replaced) ? row.replaced[lineKey] : null
+      if (!entry || !row.profile){ return false }
+      let pt = utilsProfile.returnPt(row.profile, entry.ptGuid)
+      if (!pt){ return false }
+      this.rememberBaseline(row)
+      pt.userValue = JSON.parse(JSON.stringify(entry.before))
+      pt.activeType = entry.beforeType
+      delete row.replaced[lineKey]
+      this.recordHistory(row)
+      this.rowChanged(row)
+      return true
+    },
+
+    // ---------------------------------------------------------------- the workflow's graph
+
+    /**
+    * The record is on the sheet: the first one to come in gets the keyboard, so the sheet can be
+    * worked without a click
+    * @param {object} row
+    * @param {object} session
+    */
+    markReady(row, session){
+      row.status = 'ready'
+      if (session === this.activeSession && !this.selectedCell && !this.editingCell && session.rows.indexOf(row) === session.rows.findIndex((r) => { return r.status === 'ready' })){
+        this.selectCell(row.id, 0, 0)
+        leaveTheScanBox()
+      }
+    },
+
+    /**
+    * The source node's ports for the session's profile and the enrichments that are on
+    * @param {object} session
+    * @return {array} - from ports.listSourcePorts
+    */
+    graphPortGroups(session){
+      let profileId = session.definition.profileId
+      return listSourcePorts(this.returnProfileComponents(profileId), (c) => { return this.returnComponentColumns(profileId, c) }, session.definition.enrichments || [])
+    },
+
+    /**
+    * Run the workflow's graph over a record, once it is loaded and enriched (lib/workflows/graph).
+    * The graph changes the record through the editor's own setters (so undo works) and can drop
+    * it: the row is then taken off the sheet and listed under the sheet's dropped records. What
+    * was done is kept on row.graphLog, shown under the record's label.
+    * @param {string} rowId
+    * @return {object|null} - what run.runGraph came to ({dropped, reason, log, changes}), null when there is no graph
+    */
+    async runGraphOnRow(rowId){
+      let session = this.sessionFor(rowId)
+      let row = this.returnRow(rowId)
+      if (!row || !row.profile || !session){ return null }
+      let graph = session.definition.graph
+      if (!graph || !graph.editor){ return null }
+
+      let rtLookup = useProfileStore().rtLookup
+      let lookupConfig = useConfigStore().lookupConfig
+      let groups = this.graphPortGroups(session)
+      let suggested = (row.enrichment && row.enrichment.status == 'ready') ? row.enrichment.suggested : null
+      let enrichmentRecords = { worldcat: suggested }
+      let facts = { worldcat: { found: !!suggested, format: suggested ? ((inspectRecord(suggested) || {}).format || null) : null } }
+      let source = readSourceValues(row.profile, groups, enrichmentRecords, facts, rtLookup, lookupConfig)
+      row.graphLog = []
+      if (suggested && row.enrichment.source && row.enrichment.source.otherCandidates > 0){
+        row.graphLog.push({ nodeId: null, title: 'WorldCat', message: 'Took the recommended record (' + row.enrichment.source.oclcNumber + ') of ' + (row.enrichment.source.otherCandidates + 1) + ' candidates', level: 'info' })
+      }
+
+      let components = this.returnProfileComponents(session.definition.profileId)
+      this.rememberBaseline(row)
+      let result = await this.withRow(rowId, async () => {
+        let changes = 0
+        let context = {
+          log: (entry) => { row.graphLog.push(entry) },
+          write: async (targetKey, lineIndex, entry, mode, node) => {
+            let outcome = await this.graphWrite(row, components, targetKey, lineIndex, entry, mode, node, rtLookup, lookupConfig)
+            if (outcome.done){ changes++ }
+            return outcome.why
+          },
+        }
+        let outcome = await runGraph(graph.editor, source.values, context)
+        outcome.changes = changes
+        return outcome
+      }, 'Running the workflow...')
+      if (!result){ return null }
+
+      row = this.returnRow(rowId)
+      if (!row || !this.sessionAlive(session)){ return result }
+      if (result.changes > 0){
+        this.recordHistory(row)
+        this.rowChanged(row)
+        row.dirty = true
+      }
+      if (result.dropped){
+        this.dropRow(row, result.reason)
+      }
+      return result
+    },
+
+    /**
+    * One write of the graph into a field of the record (the context run.js hands a Set value /
+    * Copy value node). A value that comes from a record (the record's own, or WorldCat's) goes
+    * over as its value nodes the way a paste does, with the same checks on the kind of field and
+    * the vocabulary; a constant goes through the editor's setters.
+    * @param {object} row
+    * @param {array} components - the profile's components
+    * @param {string} targetKey - the port key of the field to write
+    * @param {number} lineIndex - which line of the component (the one the node ran for)
+    * @param {object} entry - the value (lib/workflows/graph/values)
+    * @param {string} mode - ifEmpty | replace | add
+    * @param {object} node - the node state, for the log
+    * @return {object} - { done, why }: done when the record changed, why when it could not be (null when there was nothing to do)
+    */
+    async graphWrite(row, components, targetKey, lineIndex, entry, mode, node, rtLookup, lookupConfig){
+      let parsed = parsePortKey(targetKey)
+      if (!parsed || !parsed.columnKey || parsed.origin !== RECORD_ORIGIN){ return { done: false, why: 'the field to write to is not a field of the record' } }
+      let component = components.filter((c) => { return c.rt === parsed.rt && c.id === parsed.componentId })[0]
+      if (!component){ return { done: false, why: 'the profile has no field ' + parsed.componentId } }
+      let profileStore = useProfileStore()
+      let pts = findComponentPts(profileStore.activeProfile, component)
+      if (pts.length == 0){ return { done: false, why: 'the record has no "' + component.label + '"' } }
+      let pt = pts[lineIndex] || pts[0]
+      let cells = resolveComponentCells(pt, rtLookup, lookupConfig)
+      let cell = cells[parsed.columnKey]
+      let column = this.returnComponentColumns(this.sessionFor(row.id).definition.profileId, component).filter((c) => { return c.key === parsed.columnKey })[0]
+      let where = component.label + ' / ' + (column ? column.label : parsed.columnKey)
+      if (!cell || cell.kind != 'field'){ return { done: false, why: 'this line of "' + component.label + '" has no field "' + (column ? column.label : parsed.columnKey) + '"' } }
+      if (cell.fieldType == 'RDFTYPE'){ return { done: false, why: 'the type field "' + where + '" can not be set by the workflow' } }
+      let existing = readCellValues(pt, cell)
+      if (mode === 'ifEmpty' && existing.length > 0){ return { done: false, why: null } }
+      let before = existing.map((v) => { return v.label || v.uri }).join('; ')
+      let now = entryText(entry)
+
+      if (entry.pt && entry.cell){
+        // a value out of a record (this one or WorldCat's): its value nodes go over as a paste would
+        let payload = copyPayload(entry.pt, entry.cell, { label: where }, now, null)
+        if (payload && entry.guid){ payload.nodes = payload.nodes.filter((n) => { return n['@guid'] === entry.guid }) }
+        if (!payload || payload.nodes.length == 0){ return { done: false, why: 'nothing to copy into ' + where } }
+        let why = incompatible(payload, cell)
+        if (why){ return { done: false, why: why + ' (' + where + ')' } }
+        if (!writeCellNodes(pt, cell, payload, mode === 'add')){ return { done: false, why: 'could not write to ' + where } }
+        profileStore.dataChanged()
+      } else if (cell.fieldType == 'LITERAL'){
+        if (entry.uri && !entry.literal){ return { done: false, why: '"' + where + '" takes text, not a linked value' } }
+        let valueGuid = (mode === 'replace' && existing[0] && existing[0].guid) ? existing[0].guid : short.generate()
+        await profileStore.setValueLiteral(pt['@guid'], valueGuid, cell.propertyPath, now, entry.lang || null)
+      } else {
+        if (!entry.uri){ return { done: false, why: '"' + where + '" takes a linked value, give the node a URI' } }
+        if (mode === 'replace'){
+          for (let v of existing){ if (v.guid){ await profileStore.removeValueSimple(pt['@guid'], v.guid) } }
+        }
+        await profileStore.setValueSimple(pt['@guid'], short.generate(), cell.propertyPath, entry.uri, entry.label || entry.uri)
+      }
+      row.graphLog.push({
+        nodeId: node ? node.id : null,
+        title: node ? node.title : 'Graph',
+        message: 'Set ' + where + (pts.length > 1 ? ' (line ' + (lineIndex + 1) + ')' : '') + ' to "' + now + '"' + (before ? ' (was "' + before + '")' : ' (was empty)'),
+        level: 'change',
+        // the parts, for the builder's test node (before / after)
+        where: where + (pts.length > 1 ? ' (line ' + (lineIndex + 1) + ')' : ''),
+        before: before,
+        after: (mode === 'add' && before) ? before + '; ' + now : now,
+      })
+      return { done: true, why: null }
+    },
+
+    /**
+    * The graph dropped a record: off the sheet and onto the session's dropped list
+    * @param {object} row
+    * @param {string} reason
+    */
+    dropRow(row, reason){
+      let s = this.sessionFor(row.id)
+      if (!s){ return }
+      if (!s.dropped){ s.dropped = [] }
+      let entry = { id: row.id, sourceUrl: row.sourceUrl, scanned: row.scanned, label: row.label, lccn: row.lccn, reason: reason, at: Date.now() }
+      // the test node shows what the graph did up to the drop, a sheet's dropped list is stored without it
+      if (s.test){ entry.log = row.graphLog }
+      s.dropped.push(entry)
+      this.removeRow(row.id)
+      if (s === this.activeSession){ this.notify('Dropped "' + (row.label || row.scanned) + '": ' + reason, 'warning') }
+    },
+
+    /**
+    * Put a dropped record back on the sheet, loaded without the graph
+    * @param {string} id - the dropped entry's id
+    */
+    async restoreDropped(id){
       let s = this.activeSession
+      if (!s || !s.dropped){ return }
+      let entry = s.dropped.filter((d) => { return d.id === id })[0]
+      if (!entry){ return }
+      s.dropped = s.dropped.filter((d) => { return d.id !== id })
+      let row = newRow(entry.scanned)
+      row.sourceUrl = entry.sourceUrl
+      row.label = entry.label
+      row.lccn = entry.lccn
+      row.skipGraph = true
+      s.rows.push(row)
+      await this.loadRow(row.id)
+      this.persistSession()
+    },
+
+    forgetDropped(id){
+      let s = this.activeSession
+      if (!s || !s.dropped){ return }
+      s.dropped = s.dropped.filter((d) => { return d.id !== id })
+      this.persistSession()
+    },
+
+    /**
+    * Run the graph on a record again, from the record's label
+    * @param {string} rowId
+    */
+    async rerunGraph(rowId){
+      let row = this.returnRow(rowId)
+      if (!row || row.status != 'ready'){ return }
+      let outcome = await this.runGraphOnRow(rowId)
+      if (outcome && !outcome.dropped){
+        this.notify('Ran the workflow on "' + (row.label || row.scanned) + '": ' + outcome.changes + (outcome.changes == 1 ? ' change' : ' changes'), 'info')
+      }
+    },
+
+    /**
+    * The builder's Test node: load one record the way a sheet would (search, fetch, the enrichments, the
+    * CIP steps) into a throwaway session, run the graph on it, and report what it did. The record is let
+    * go afterwards, nothing is stored and the open sheet is not touched.
+    * @param {object} definition - the builder's draft (profileId, components, enrichments, graph)
+    * @param {string} identifier - a LCCN, ISBN, barcode or record URL
+    * @return {object} - { identifier, error, label, lccn, pickReason, dropped, reason, log, changes }
+    */
+    async testGraph(definition, identifier){
+      identifier = (identifier || '').trim()
+      let result = { identifier: identifier, error: null, label: null, lccn: null, pickReason: null, dropped: false, reason: null, log: [], changes: 0 }
+      if (identifier == ''){ result.error = 'Type a LCCN, ISBN or barcode first'; return result }
+      if (this.testSession){ result.error = 'A test is already running'; return result }
+      let resolved = this.resolveDefinition(definition)
+      if (!resolved){ result.error = 'The profile ' + definition.profileId + ' is not loaded'; return result }
+      let session = {
+        id: 'test-' + short.generate(),
+        workflowId: definition.id || 'draft',
+        name: 'Test',
+        test: true,
+        created: Date.now(),
+        definition: resolved,
+        hiddenComponents: [],
+        dropped: [],
+        rows: [],
+      }
+      this.testSession = session
+      // the store hands back a reactive proxy of what was put in it, the liveness checks compare against that
+      session = this.testSession
+      try {
+        await this.scan(identifier, true, session)
+        let row = session.rows[0]
+        let dropped = session.dropped[0]
+        if (dropped){
+          result.dropped = true
+          result.reason = dropped.reason
+          result.label = dropped.label
+          result.lccn = dropped.lccn
+          result.log = dropped.log || []
+        } else if (row){
+          result.label = row.label
+          result.lccn = row.lccn
+          result.pickReason = row.pickReason || null
+          result.log = row.graphLog || []
+          if (row.status === 'error'){ result.error = row.error || 'The record could not be loaded' }
+          else if (row.status !== 'ready'){ result.error = 'The record did not finish loading (' + row.status + ')' }
+        } else {
+          result.error = 'The record could not be loaded'
+        }
+        result.changes = result.log.filter((e) => { return e.level === 'change' }).length
+      } catch (e) {
+        console.error('Workflows: the test could not be run', e)
+        result.error = (e && e.message) ? e.message : String(e)
+      } finally {
+        for (let r of session.rows){ baseline.delete(r.id) }
+        for (let d of session.dropped){ baseline.delete(d.id) }
+        if (this.testSession === session){ this.testSession = null }
+      }
+      return result
+    },
+
+    removeRow(rowId){
+      let s = this.sessionFor(rowId)
       if (!s){ return }
       if (this.editingCell && this.editingCell.rowId === rowId){ this.editingCell = null }
       if (this.selectedCell && this.selectedCell.rowId === rowId){ this.selectedCell = null }
@@ -1225,7 +1787,7 @@ export const useWorkflowStore = defineStore('workflow', {
         useProfileStore().prepareForNewRecord()
       }
       s.rows = s.rows.filter((r) => { return r.id !== rowId })
-      this.persistSession()
+      if (s === this.activeSession){ this.persistSession() }
     },
 
     toggleDone(rowId){
@@ -1287,6 +1849,7 @@ export const useWorkflowStore = defineStore('workflow', {
     * @return {void}
     */
     recordHistory(row){
+      if (this.isTestRow(row)){ return }
       let known = baseline.get(row.id)
       let state = JSON.stringify(row.profile)
       if (!known || known.profile !== row.profile){
@@ -1630,6 +2193,8 @@ export const useWorkflowStore = defineStore('workflow', {
       row.done = false
       // lets things that are derived from the record (the MARC preview) know it changed
       row.revision = (row.revision || 0) + 1
+      // a test record is never saved, and must not put off the open record's save
+      if (this.isTestRow(row)){ return }
       window.clearTimeout(saveTimeout)
       let rowId = row.id
       saveTimeout = window.setTimeout(() => {
@@ -1962,6 +2527,37 @@ function findComponentTemplate(baseProfile, component){
   return baseProfile.rt[rtId].pt[component.id]
 }
 
+/**
+* The components of a session with the columns each one spreads out into (the columnGroups getter,
+* for the open sheet or the builder's test session)
+* @param {object|null} session
+* @return {array} - of {component, key, hidden, columns, allColumns}
+*/
+function columnGroupsFor(session){
+  if (!session){ return [] }
+  let profileStore = useProfileStore()
+  let lookupConfig = useConfigStore().lookupConfig
+  let baseProfile = findBaseProfile(session.definition.profileId)
+  if (!baseProfile){ return [] }
+
+  let groups = []
+  for (let component of session.definition.components){
+    let key = component.rt + '|' + component.id
+    let pt = findComponentTemplate(baseProfile, component)
+    if (!pt){ continue }
+    let allColumns = expandComponentColumns(pt, profileStore.rtLookup, lookupConfig)
+    let hiddenColumns = component.hiddenColumns || []
+    groups.push({
+      component: component,
+      key: key,
+      hidden: (session.hiddenComponents || []).includes(key),
+      allColumns: allColumns,
+      columns: allColumns.filter((c) => { return !hiddenColumns.includes(c.key) }),
+    })
+  }
+  return groups
+}
+
 function findBaseProfile(profileId){
   let profiles = useProfileStore().profiles
   let found = null
@@ -2000,5 +2596,11 @@ function newRow(scanned){
     revision: 0,
     // the CIP lookup: null, or { status: loading|ready|none|error, suggested, source, dismissed, message }, not stored
     enrichment: null,
+    // what the CIP auto replacements changed: lineKey -> { ptGuid, before, beforeType, cells: {colKey: {old, new}} }, not stored
+    replaced: {},
+    // what the workflow's graph did to the record: [{nodeId, title, message, level}], not stored
+    graphLog: [],
+    // a record put back after the graph dropped it is not run through the graph again
+    skipGraph: false,
   }
 }

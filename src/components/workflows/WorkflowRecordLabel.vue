@@ -27,6 +27,7 @@
         </a>
         <span v-if="suggestionCount.open > 0" class="wf-cip-count" :title="suggestionCount.open + ' suggestions to look at, ' + suggestionCount.verified + ' fields match'">{{ suggestionCount.open }} to review</span>
         <span v-else class="wf-cip-count wf-cip-count-done" :title="suggestionCount.verified + ' fields match WorldCat'">{{ suggestionCount.verified }} match</span>
+        <span v-if="suggestionCount.replaced > 0" class="wf-cip-count wf-cip-count-replaced" :title="suggestionCount.replaced + ' field(s) took WorldCat\'s value, each shows what it was before'">{{ suggestionCount.replaced }} replaced</span>
       </template>
       <template v-else-if="row.enrichment.status == 'error'">
         <span class="wf-cip-badge wf-cip-error" :title="row.enrichment.message"><span class="material-icons">error_outline</span> WorldCat lookup failed</span>
@@ -36,6 +37,12 @@
         <span class="wf-cip-badge wf-cip-none" :title="row.enrichment.message"><span class="material-icons">search_off</span> Not in WorldCat</span>
       </template>
     </div>
+    <!-- fields the CIP checklist needs that the record has nothing in (cip.REQUIRED_COMPONENTS), with or without WorldCat -->
+    <div v-if="suggestionCount && suggestionCount.missing > 0" class="wf-cip">
+      <span class="wf-cip-badge wf-cip-missing" :title="suggestionCount.missing + ' required field(s) are empty, they are marked in red'"><span class="material-icons">error_outline</span>{{ suggestionCount.missing }} missing</span>
+    </div>
+    <!-- what the workflow's graph did to the record, see workflowStore.runGraphOnRow -->
+    <GraphLog :entries="row.graphLog" :rerun="hasGraph" @rerun="workflowStore.rerunGraph(row.id)" />
     <!-- what the validation service said about the record (the Validate button), see workflowStore.validateRow -->
     <div v-if="row.validation" :class="['wf-validation', 'wf-validation-' + validationTone]" @click.stop>
       <div class="wf-validation-line">
@@ -59,9 +66,11 @@
 <script>
 import { mapStores } from 'pinia'
 import { useWorkflowStore } from '@/stores/workflow'
+import GraphLog from '@/components/workflows/graph/GraphLog.vue'
 
 export default {
   name: "WorkflowRecordLabel",
+  components: { GraphLog },
   // in the sheet the label is in the frozen column, a click that ends a drag of the sheet is not a click on it
   inject: { wfGridWasPanning: { default: () => { return () => { return false } } } },
   props: {
@@ -81,6 +90,12 @@ export default {
   },
   computed: {
     ...mapStores(useWorkflowStore),
+
+    // does the sheet's workflow have a graph (the advanced builder), for the run again button
+    hasGraph(){
+      let s = this.workflowStore.activeSession
+      return !!(s && s.definition.graph && s.definition.graph.editor)
+    },
 
     // the record was edited after the check ran
     validationStale(){

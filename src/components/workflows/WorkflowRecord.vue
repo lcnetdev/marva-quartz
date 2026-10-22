@@ -23,6 +23,7 @@
             :colIndex="groupOffsets[group.key] + colIdx"
             :lineSuggestion="(line[group.key] && line[group.key].suggestion) ? line[group.key].suggestion : null"
             :ghost="(line[group.key] && line[group.key].ghost) ? line[group.key] : null"
+            :missing="!!(line[group.key] && line[group.key].missing)"
           />
         </template>
       </template>

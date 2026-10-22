@@ -62,6 +62,11 @@
   --wf-ghost-background: #f8fafc;
   --wf-ghost-hatch: #e0f2fe;
   --wf-ghost-text: #475569;
+  --wf-replace-text: #9a3412;
+  --wf-replace-tint: #ffedd5;
+  --wf-replace-tint-soft: #fff7ed;
+  --wf-replace-border: #fdba74;
+  --wf-replace-mark: #f97316;
   --wf-flash-color: #ffe082;
   --wf-toast-background: #1f2328;
   --wf-toast-color: #ffffff;
@@ -96,6 +101,11 @@
   --wf-ghost-background: rgba(59, 130, 246, 0.08);
   --wf-ghost-hatch: rgba(147, 197, 253, 0.25);
   --wf-ghost-text: #9fb3c8;
+  --wf-replace-text: #fdba74;
+  --wf-replace-tint: rgba(249, 115, 22, 0.25);
+  --wf-replace-tint-soft: rgba(249, 115, 22, 0.14);
+  --wf-replace-border: rgba(253, 186, 116, 0.5);
+  --wf-replace-mark: #fb923c;
   --wf-flash-color: #8a6d00;
   --wf-toast-background: #e8eaed;
   --wf-toast-color: #1f2328;
@@ -478,6 +488,8 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
 .wf-cip-error { background: var(--wf-bad-tint); color: var(--wf-bad-text); }
 .wf-cip-none { background: var(--wf-neutral-tint); color: var(--wf-neutral-text); }
 .wf-cip-protected { background: var(--wf-protect-tint); color: var(--wf-protect-text); }
+.wf-cip-missing { background: var(--wf-bad-tint); color: var(--wf-bad-text); }
+.wf-cip-count-replaced { color: var(--wf-replace-text); }
 .wf-cip-count {
   white-space: nowrap;
   font-weight: 600;
@@ -597,6 +609,16 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   background: var(--wf-good-tint-soft);
   box-shadow: inset 3px 0 0 var(--wf-good-mark);
 }
+/* a cell of a CIP field the book settles: it took WorldCat's value on its own, the old one is shown under it */
+.wf-table td.wf-cell-replaced {
+  background: var(--wf-replace-tint-soft);
+  box-shadow: inset 3px 0 0 var(--wf-replace-mark);
+}
+/* a line of a field the CIP checklist requires with nothing in it */
+.wf-table td.wf-cell-missing {
+  background: var(--wf-bad-tint);
+  box-shadow: inset 3px 0 0 var(--wf-bad-color);
+}
 
 /* what WorldCat has, under the record's value */
 .wf-suggest {
@@ -615,6 +637,18 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   border-color: var(--wf-warn-border);
   background: var(--wf-warn-tint);
   color: var(--wf-warn-text);
+}
+.wf-suggest-replaced {
+  border-style: solid;
+  border-color: var(--wf-replace-border);
+  background: var(--wf-replace-tint);
+  color: var(--wf-replace-text);
+}
+.wf-suggest-replaced .wf-suggest-accept {
+  color: var(--wf-replace-text);
+}
+.wf-suggest-replaced .wf-suggest-accept:hover:not(:disabled) {
+  background: var(--wf-replace-border);
 }
 .wf-suggest-warn {
   border-color: var(--wf-bad-border);
@@ -934,10 +968,11 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   vertical-align: text-bottom;
 }
 
-/* cells */
+/* cells. An empty cell is still a line tall (height is a minimum on a table cell) so it can be clicked into */
 .wf-table td.wf-cell {
   cursor: cell;
   word-break: break-word;
+  height: 1.6em;
 }
 /* the colour the user gave the field in Field Colors, everything that says something about the cell draws over it */
 .wf-table td.wf-cell-colored {
