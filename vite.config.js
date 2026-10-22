@@ -24,6 +24,12 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     globalSetup: './src/lib/vitest_globalSetup.js',    
+    // Node 22+ defines its own global localStorage, which shadows jsdom's and has no getItem
+    // ("window.localStorage.getItem is not a function"); turn it off in the test workers
+    poolOptions: {
+      forks: { execArgv: ['--no-experimental-webstorage'] },
+      threads: { execArgv: ['--no-experimental-webstorage'] },
+    },
     // setupFiles: './lib/vitest_globalSetup.js',   
     exclude:[
       ...configDefaults.exclude,

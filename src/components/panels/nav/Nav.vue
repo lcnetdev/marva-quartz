@@ -94,6 +94,8 @@ export default {
       windowWidth: window.innerWidth,
       menu: [],
       dancerWorkspaces: [],
+      navOverflowCount: 0,
+      fittingNav: false,
     }
   },
   props: {
@@ -109,7 +111,7 @@ export default {
 
     ...mapState(useProfileStore, ['profilesLoaded', 'activeProfile', 'rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
     ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode', 'panelSizePresets']),
-    ...mapState(useConfigStore, ['layouts']),
+    ...mapState(useConfigStore, ['layouts', 'motdHeight']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal', 'showLoginModalSSO', 'showScriptshifterConfigModal', 'showDiacriticConfigModal', 'showTextMacroModal', 'layoutActiveFilter', 'layoutActive', 'showFieldColorsModal', 'customLayouts', 'createLayoutMode', 'showPanelSizeModal', 'showFindReplaceModal']),
     ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData', 'showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showYoshinoSubjectsModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showUserDirectoryModal', 'showFolioSyncModal']),
     ...mapWritableState(useConfigStore, ['showNonLatinBulkModal', 'showNonLatinAgentModal']),
@@ -324,21 +326,21 @@ export default {
                     text: "Title Case",
                     title: "Title Case",
                     icon: "titlecase",
-                    hotkey: "ctrl+alt+t",
+                    hotkey: "ctrl+shift+t",
                     click: () => { this.profileStore.getHighlightedText('title') }
                   },
                   {
                     text: "Lower Case",
                     title: "Lower Case",
                     icon: "lowercase",
-                    hotkey: "ctrl+alt+l",
+                    hotkey: "ctrl+shift+l",
                     click: () => { this.profileStore.getHighlightedText('lower') }
                   },
                   {
                     text: "Find & Replace",
                     title: "find Replace",
                     icon: "find_replace",
-                    hotkey: "ctrl+alt+h",
+                    hotkey: "ctrl+shift+h",
                     click: () => { this.showFindReplaceModal = true; }
                   }
                 // )
@@ -1075,11 +1077,11 @@ export default {
 
         if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
           return [
-            menu,
+            this.fitNavMenu(menu),
             botMenu
           ]
         }
-        return [menu]
+        return [this.fitNavMenu(menu)]
 
 
       }
@@ -1171,11 +1173,11 @@ export default {
 
       if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
         return [
-          menu,
+          this.fitNavMenu(menu),
           botMenu
         ]
       }
-      return [menu]
+      return [this.fitNavMenu(menu)]
     }
   },
 
@@ -1189,6 +1191,70 @@ export default {
   // },
 
   methods: {
+
+    // move the right-most items into a "More" menu so the nav stays on one row
+    fitNavMenu: function (menu) {
+      if (!this.navOverflowCount) {
+        return menu
+      }
+      let isItem = (m) => m.is != 'spacer' && m.is != 'separator'
+      let visible = [...menu]
+      let overflow = []
+      let moved = 0
+      while (moved < this.navOverflowCount && visible.some(isItem)) {
+        let item = visible.pop()
+        if (isItem(item)) {
+          overflow.unshift((!item.text && item.title) ? { ...item, text: item.title } : item)
+          moved++
+        } else if (item.is == 'separator' && overflow.length && overflow[0].is != 'separator') {
+          overflow.unshift({ is: 'separator' })
+        }
+      }
+      while (visible.length && visible.at(-1).is == 'separator') {
+        visible.pop()
+      }
+      if (!visible.some((m) => m.is == 'spacer')) {
+        visible.push({ is: 'spacer' })
+      }
+      visible.push({ icon: 'menu', title: 'More', class: 'nav-overflow-menu', menu_class: 'align-right', menu_width: 220, menu: overflow })
+      return visible
+    },
+
+    navWraps: function () {
+      let bar = document.querySelector('#nav-holder .bar')
+      if (!bar) {
+        return false
+      }
+      let items = [...bar.children].filter((el) => el.offsetHeight > 0)
+      let firstButton = items.find((el) => el.classList.contains('bar-button'))
+      if (!firstButton) {
+        return false
+      }
+      // an item has wrapped if it starts below the bottom of the first row
+      let rowBottom = firstButton.offsetTop + firstButton.offsetHeight - 1
+      return items.some((el) => el.offsetTop >= rowBottom)
+    },
+
+    fitNav: async function (reset = false) {
+      if (this.fittingNav) {
+        return
+      }
+      this.fittingNav = true
+      if (reset && this.navOverflowCount) {
+        this.navOverflowCount = 0
+        await this.$nextTick()
+      }
+      while (this.navWraps() && this.navOverflowCount < 50) {
+        this.navOverflowCount++
+        await this.$nextTick()
+      }
+      this.fittingNav = false
+    },
+
+    onNavResize: function () {
+      window.cancelAnimationFrame(this.navResizeFrame)
+      this.navResizeFrame = window.requestAnimationFrame(() => this.fitNav(true))
+    },
 
     profileOrStaging(){ // TODO: get this back on the nav bar
       if (this.isStaging()) {
@@ -1398,7 +1464,7 @@ export default {
 
     savePrefsToDb: async function () {
       if (!useConfigStore().returnUrls.displayLCOnlyFeatures) { return }
-      let overwrite = confirm("This will overwrite your current preferences. Do you want to continue?")
+      let overwrite = confirm("This will update your preferences saved in the database. Do you want to continue?")
       if (!overwrite) { return }
 
       let user = this.userName
@@ -1643,6 +1709,18 @@ export default {
 
   mounted() {
     this.fetchDancerWorkspaces()
+    window.addEventListener('resize', this.onNavResize)
+    this.$nextTick(() => this.fitNav(true))
+  },
+
+  updated() {
+    // menu contents change (record loaded, labels update), re-check without resetting open menus
+    this.fitNav()
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('resize', this.onNavResize)
+    window.cancelAnimationFrame(this.navResizeFrame)
   }
 }
 
@@ -1733,6 +1811,26 @@ export default {
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-font-size')") !important;
 }
 
+.bar-menu .current-profile {
+  margin-left: 0;
+}
+
+/* keep the overflow button clear of the browser's scrollbar */
+.bar .nav-overflow-menu {
+  margin-right: 16px;
+}
+
+/* the overflow menu sits at the right edge, so open its sub-menus to the left */
+.bar .nav-overflow-menu .bar-menu-item > .menu {
+  left: auto !important;
+  right: 100%;
+}
+
+/* keep the menu's hover zone inside the window so opening it doesn't add scrollbars */
+.bar .nav-overflow-menu > .menu > .extended-hover-zone {
+  right: 0;
+}
+
 .current-profile {
   /* background: var(--bar-button-hover-bkg, #f1f3f4); */
 
@@ -1799,7 +1897,8 @@ export default {
 <style scoped>
 #nav-holder {
   position: absolute;
-  top: 0;
+  /* sits below the message of the day banner when one is showing */
+  top: v-bind("motdHeight + 'px'");
   left: 0;
   width: 100vw;
   height: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-height', true) - 1 + 'px'");

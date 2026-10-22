@@ -1,6 +1,17 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.7.2] - 2026-10-02
+### Added
+- AdminMetadata to hubs
+
+### Updated
+- Add adminMetadata to resources separately
+- UI changes and QoL
+
+### Fixed
+- XML preview sometimes showing an error when refreshing
+
 ## [1.7.1] - 2026-08-28
 ### Updated
 - Expand search in NAR creation to cover all 4XX & 5XX fields

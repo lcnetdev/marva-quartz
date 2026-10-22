@@ -41,10 +41,15 @@
 
       async refreshXml() {
 
-
         let exportResult = await this.profileStore.buildExportXML()
-
         this.xml = exportResult.xlmStringBasic
+
+        let that = this
+        if (!this.xml){
+          setTimeout(function(){
+            that.refreshXml()
+          }, 2000);
+        }
 
         if (this.firstLoad){
           this.$nextTick(()=>{

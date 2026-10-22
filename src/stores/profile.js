@@ -1844,6 +1844,12 @@ export const useProfileStore = defineStore('profile', {
                 }
 
                 // they changed something
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){ // if the load hash matches the edited hash, the user has undone something flip userModified back to false
+                    pt.userModified = false
+                    pt.dataLoaded=true
+                }
+
                 this.dataChanged()
 
             } else {
@@ -1882,6 +1888,11 @@ export const useProfileStore = defineStore('profile', {
                 pt.dataLoaded = false
 
                 // they changed something
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){
+                    pt.userModified = false
+                    pt.dataLoaded = true
+                }
                 this.dataChanged()
 
             } else {
@@ -2454,6 +2465,12 @@ export const useProfileStore = defineStore('profile', {
                 // console.log(JSON.stringify(pt.userValue))
 
                 // they changed something
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){ // if the load hash matches the edited hash, the user has undone something flip userModified back to false
+                    pt.userModified = false
+                    pt.dataLoaded = true
+                }
+
                 this.dataChanged()
             } else {
                 console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -3166,7 +3183,11 @@ export const useProfileStore = defineStore('profile', {
 
                 }
                 // they changed something
-
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){
+                    pt.userModified = false
+                    pt.dataLoaded = true
+                }
                 this.dataChanged()
 
             } else {
@@ -3507,6 +3528,11 @@ export const useProfileStore = defineStore('profile', {
                 }
 
                 // they changed something
+                let hash = hashCode(JSON.stringify(pt.userValue))
+                if (pt.userHash == hash){
+                    pt.userModified = false
+                    pt.dataLoaded = true
+                }
                 this.dataChanged()
 
                 // console.log("USERVALUE IS",userValue)
@@ -7622,6 +7648,7 @@ export const useProfileStore = defineStore('profile', {
             delete found['xmlHash']
             delete found['xmlSource']
             delete found['userModified']
+            delete found['userHash']
             delete found['activeType']
             delete found['missingProfile']
             delete found['valueConstraint']['editable']
@@ -7646,6 +7673,7 @@ export const useProfileStore = defineStore('profile', {
             delete libraryComponent['remark']
             delete libraryComponent['parent']
             delete libraryComponent['userModified']
+            delete libraryComponent['userHash']
             delete libraryComponent['xmlHash']
             delete libraryComponent['xmlSource']
             delete libraryComponent['missingProfile']
@@ -8951,15 +8979,9 @@ export const useProfileStore = defineStore('profile', {
          * @param variant = Create a varianet title
          */
         sendToOtherProfile: async function(guid, target=null, variant=false){
-            console.info("guid: ", guid)
-            console.info("target: ", target)
             const Rts = Object.keys(this.activeProfile.rt)
             let thisRt = this.returnRtByGUID(guid)
             this.currentRt = thisRt
-
-            console.info("this.activeProfile, ", this.activeProfile)
-            console.info("guid, ", guid)
-            console.info("thisRt, ", thisRt)
 
             //get the structure that will be copied over
             let structure = this.returnStructureByComponentGuid(guid)
@@ -9208,7 +9230,132 @@ export const useProfileStore = defineStore('profile', {
             this.dataChanged()
         },
 
+        /**
+         * For subject headings in the form `GeoA--something--GeoB`
+         * catalogers need to create a reciprocal heading: `GeoB--something--GeoA`,
+         * try to do that for them with a click
+         * @param guid = the guid for the source component
+         * @param propertyPath = propertyPath for component
+         */
+        swapGeoHeadings: async function(guid, propertyPath){
+            let structure = this.returnStructureByComponentGuid(guid)
+            let userValue = structure.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
+            let label = userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+            let components = userValue["http://www.loc.gov/mads/rdf/v1#componentList"]
+            let newPt = false
 
+            let componentsCopy = null
+            try {
+                componentsCopy = JSON.parse(JSON.stringify(components))
+                // swap the first and last
+                let first = componentsCopy.shift()
+                let last = componentsCopy.pop()
+                componentsCopy.unshift(last)
+                componentsCopy.push(first)
+            } catch {
+                componentsCopy = false
+            }
+
+            if (!userValue['@id'] && componentsCopy && componentsCopy.every((c) => c['@id'])){ // there's no singular URI for the string and everything has a URI, we can flip things around
+                let newSubject = []
+                let startPos = 0
+
+                for (let idx in componentsCopy){
+                    let component = componentsCopy[idx]
+                    let label = component["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0]["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"]
+                    let type = component['@type']
+                    let marcKey = null
+                    if (type.includes("Geographic") && idx == 0){
+                        marcKey = "151 $a" + label
+                    } else {
+                        if (type.includes("Geographic")){
+                        marcKey = "181 $z" + label
+                        } else {
+                        marcKey = "180 $x" + label
+                        }
+                    }
+                    let c = {
+                        "label": label,
+                        "uri": component['@id'],
+                        "id": idx,
+                        "type": component['@type'],
+                        "complex": false,
+                        "literal": false,
+                        "posStart": startPos,
+                        "posEnd": startPos + label.length + 1,
+                        "marcKey": marcKey
+                    }
+                    startPos = startPos + label.length + 3
+                    newSubject.push(c)
+                }
+                newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+                this.setValueSubject(newPt[1], newSubject, propertyPath)
+            } else {
+                // else, swap the subjects, search ID, and build the new subject, if possible
+                let parts = []
+                if (label.includes("‑‑")){
+                    parts = label.split('‑‑')
+                } else {
+                    parts = label.split('--')
+                }
+                let first = parts.shift()
+                let last = parts.pop()
+                parts.unshift(last)
+                parts.push(first)
+                let flipped = parts.join('--')
+
+                let exactPayloadName = {
+                    processor: 'lcAuthorities',
+                    url: ['https://preprod-8080.id.loc.gov/authorities/subject/label/' + flipped],
+                    searchValue: flipped,
+                    subjectSearch: true,
+                    signal: utilsNetwork.controllers.exactName.signal,
+                }
+
+                let results = await utilsNetwork.searchExact(exactPayloadName)
+                if (results[0] && results[0].uri){
+                    let newSubject = [
+                        {
+                        "complex": true,
+                        "id": 0,
+                        "label": flipped.replaceAll("--", "‑‑"),
+                        "literal": false,
+                        "posEnd": flipped.length,
+                        "posStart": 0,
+                        "type": "madsrdf:Topic",
+                        "uri": results[0].uri,
+                        "marcKey": results[0].extra.marcKeys[0]
+                        }
+                    ]
+                    newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+                    this.setValueSubject(newPt[1], newSubject, propertyPath)
+                } else {
+                    let value = ''
+                    for (let idx in componentsCopy){
+                        let part = componentsCopy[idx]
+                        let property = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+                        if (!part[property]){
+                        property = "http://www.w3.org/2000/01/rdf-schema#label"
+                        }
+                        let label = part[property][0][property]
+                        if (idx == 0){
+                        value = "$a" + label
+                        } else  if (part["@type"] == "http://www.loc.gov/mads/rdf/v1#Geographic"){
+                        value = value + "$z" + label
+                        } else {
+                        value = value + "$x" + label
+                        }
+                    }
+
+                    newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+                    let target = document.querySelector(`[data-field-guid='${newPt[1]}']`)
+                    target.value = value
+                    target.dispatchEvent(
+                        new Event("input", { bubbles: false, cancelable: true })
+                    )
+                }
+            }
+        },
 
     }, // end of methods
 })

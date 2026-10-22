@@ -287,12 +287,12 @@ const utilsNetwork = {
         let id = response.headers.get("x-uri").split("/").at(-1)
         let payload = {
             processor: 'lcAuthorities',
-            url: ["https://id.loc.gov/suggest2/?q="+id],
+            url: ["https://id.loc.gov/suggest2/?q="+id + "&memberOf=-http://id.loc.gov/entities/subjects/collection_SubjectEntities"],
             searchValue: id,
             subjectSearch: true,
             signal: this.controllers.exactSubject.signal,
         }
-        results = this.searchComplex(payload)
+        results = await this.searchComplex(payload)
       } catch(err){
         return []
       }
@@ -1919,7 +1919,7 @@ const utilsNetwork = {
           resultsChildren = resultsChildren.filter((r)=>{ return (!r.literal) })
           resultsChildrenSubDiv = resultsChildrenSubDiv.filter((r)=>{ return (!r.literal) })
 
-          resultsExactName = resultsExactName.filter((term) =>  Object.keys(term).includes("suggestLabel") )
+          // resultsExactName = resultsExactName.filter((term) =>  Object.keys(term).includes("suggestLabel") )
           resultsExactSubject = resultsExactSubject.filter((term) =>  Object.keys(term).includes("suggestLabel") )
 
           // console.log("Yeeth")
@@ -1979,14 +1979,16 @@ const utilsNetwork = {
 
           // there's an exact match on the Known-Label lookup
           let exact = resultsExactSubject.concat(resultsExactName)
-          if (exact.length == 1){ // if there's only 1 exact match, use it.
+          if (exact.length > 0){ // if there's only 1 exact match, use it.
             for (let r of exact){
-              result.resultType = 'KNOWN-LABEL'
-              if (!result.hit){ result.hit = [] }
-              r.heading = heading
-              result.hit.push(r)
-              foundHeading = true
-              break
+              if ( heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '') || (r.vlabel && heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.vlabel.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')) ){
+                result.resultType = 'KNOWN-LABEL'
+                if (!result.hit){ result.hit = [] }
+                r.heading = heading
+                result.hit.push(r)
+                foundHeading = true
+                break
+              }
             }
             if (foundHeading){ continue }
           }

@@ -7,8 +7,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 7,
-    versionPatch: 1,
+    versionMinor: 8,
+    versionPatch: 0,
 
 
 
@@ -80,6 +80,10 @@ export const useConfigStore = defineStore('config', {
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
         folioBase: 'https://lcsg.catalog.lcap.loc.gov',
+
+        // message of the day, shown as a dismissable banner at the top of every page.
+        // plain text or simple html, empty string / missing = no banner
+        motd: '',
       },
 
       externalDev:{
@@ -113,6 +117,8 @@ export const useConfigStore = defineStore('config', {
         dancerEnabled: true,
         dancerWorkspaceList: "http://localhost:9401/marva/dancer/api/serve/workspaces",
 
+        motd: '',
+
       },
 
       staging:{
@@ -133,7 +139,7 @@ export const useConfigStore = defineStore('config', {
 
         worldCat: 'https://preprod-3001.id.loc.gov/marva/util/worldcat/',
         copyCatUpload: 'https://preprod-3001.id.loc.gov/marva/util/copycat/upload/stag', // change ports for production
-        lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
+        lcap: 'https://staging.lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
         folioBase: 'https://lcsg.catalog.lcap.loc.gov',
 
         folioMLCEndpoint: 'https://preprod-3001.id.loc.gov/marva/util/folio/next-mlc/staging',
@@ -147,6 +153,8 @@ export const useConfigStore = defineStore('config', {
 
         dancerEnabled: true,
         dancerWorkspaceList: "https://editor.id.loc.gov/marva/dancer/api/serve/workspaces/",
+
+        motd: '',
 
 
       },
@@ -185,6 +193,8 @@ export const useConfigStore = defineStore('config', {
         displayLCOnlyFeatures: true,
         enableStateRecorder: false,
         simpleLookupLang: 'en',
+
+        motd: '',
       },
 
       bibframeDotOrg:{
@@ -221,6 +231,8 @@ export const useConfigStore = defineStore('config', {
         dancerEnabled: true,
         dancerWorkspaceList: "https://bibframe.org/dancer/api/serve/workspaces/",
 
+        motd: '',
+
 
       },
 
@@ -239,6 +251,8 @@ export const useConfigStore = defineStore('config', {
         displayLCOnlyFeatures: true,
         publicEndpoints:true,
         simpleLookupLang: 'en',
+
+        motd: '',
       },
 
     },
@@ -268,6 +282,8 @@ export const useConfigStore = defineStore('config', {
   procInfoNewWorkInstance: "create work",
 
   showUpdateAvailableModal:false,
+  // pixel height of the message of the day banner currently showing (0 when hidden), set by MotdBanner.vue
+  motdHeight: 0,
 
   showNonLatinBulkModal: false,
   showNonLatinAgentModal: false,

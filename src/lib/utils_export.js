@@ -6,6 +6,10 @@ import {usePreferenceStore} from "../stores/preference";
 // import short from 'short-uuid'
 import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
+
+// Repeated MARC subfields parsed from a text field (see NacoStubCreateModal) arrive as a single
+// string joined with this delimiter. Every subfield value written to MARC must be split on it.
+const REPEATED_VALUE_DELIMITER = '<REPEATED_MARVA_VALUE>'
 import utilsNetwork from './utils_network';
 import utilsProfile from './utils_profile';
 import utilsParse from './utils_parse';
@@ -1628,11 +1632,41 @@ const utilsExport = {
 		if (!profile.newResource){ // don't show the `new` small admin field. Status=new should be in the big block
 			let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
 
+			let workModified = false
+			let instModified = false
+			let hubModified = false
+			for (let rt in profile.rt){
+				for(let pt in profile.rt[rt].pt){
+					let data = profile.rt[rt].pt[pt]
+					if (data.userModified){
+						if (rt.includes(":Work")){
+							workModified = true
+							break
+						} else if (rt.includes(":Instance")){
+							instModified = true
+							break
+						} else if (rt.includes(":Hub")){
+							hubModified = true
+							break
+						}
+					}
+				}
+			}
+
 			for (let URI in tleLookup['Work']){
-				tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				if (workModified){
+					tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				}
 			}
 			for (let URI in tleLookup['Instance']){
-				tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				if (instModified){
+					tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				}
+			}
+			for (let URI in tleLookup['Hub']){
+				if (hubModified){
+					tleLookup['Hub'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+				}
 			}
 		}
 
@@ -2606,7 +2640,7 @@ const utilsExport = {
 		for (let key of Object.keys(oneXXParts)){
 			if (key.length == 1 && isAlpha(key)) {
 				// there might be repeated subfields, split the value and loop through tem
-				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
+				let useValues = oneXXParts[key].split(REPEATED_VALUE_DELIMITER);
 				for (let v of useValues){
 					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 					subfield.setAttribute( 'code', key)
@@ -2619,7 +2653,7 @@ const utilsExport = {
 		for (let key of Object.keys(oneXXParts)){
 			if (key.length == 1 && !isAlpha(key)) {
 				// there might be repeated subfields, split the value and loop through tem
-				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
+				let useValues = oneXXParts[key].split(REPEATED_VALUE_DELIMITER);
 				for (let v of useValues){
 					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 					subfield.setAttribute( 'code', key)
@@ -2647,7 +2681,7 @@ const utilsExport = {
 				// only add the subfields
 				if (key.length == 1 && isAlpha(key)){
 					// there might be repeated subfields, split the value and loop through tem
-					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+					let useValues = fourXXParts[key].split(REPEATED_VALUE_DELIMITER);
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
@@ -2662,7 +2696,7 @@ const utilsExport = {
 				// only add the subfields
 				if (key.length == 1 && !isAlpha(key)){
 					// there might be repeated subfields, split the value and loop through tem
-					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+					let useValues = fourXXParts[key].split(REPEATED_VALUE_DELIMITER);
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
@@ -2786,12 +2820,16 @@ const utilsExport = {
 					let useSubfieldsValues = []
 					for (let key of Object.keys(x)){
 						if (key.length == 1){
-							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
-							subfield.setAttribute( 'code', x[key][0])
-							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ').replace('\u200E', '')
-							field.appendChild(subfield)
-							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
-							hasValue = true
+							// there might be repeated subfields joined with the delimiter, never let it reach the MARC
+							let useValues = String(x[key][1]).split(REPEATED_VALUE_DELIMITER)
+							for (let v of useValues){
+								let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+								subfield.setAttribute( 'code', x[key][0])
+								subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').replace('\u200E', '')
+								field.appendChild(subfield)
+								useSubfieldsValues.push(`$${x[key][0]} ${v.replace(/[\r\n]+/g, ' ')}`)
+								hasValue = true
+							}
 						}
 					}
 					if (hasValue){
@@ -2924,21 +2962,34 @@ const utilsExport = {
 
 		// 670 notes
 		for (let item of updates['source670s']) {
-			let note670 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
-			note670.setAttribute('tag', '670')
-			note670.setAttribute('ind1', " ")
-			note670.setAttribute('ind2', " ")
-			if (Object.keys(item).length > 0){
-				for (let sub of Object.keys(item)) {
-					if (sub != 'note') {
+			if (item.field){ // update existing
+				let target = marc670List[item.field]
+				target.innerHTML = ''
+				for (let sub of Object.keys(item)){
+					if (!['note','field'].includes(sub)){
 						let subfield = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
 						subfield.setAttribute("code", sub)
 						subfield.innerHTML = item[sub].trim()
-						note670.appendChild(subfield)
+						target.appendChild(subfield)
 					}
 				}
-				marc670List = record.querySelectorAll('[tag="667"]')
-				record.appendChild(note670)
+			} else { // create new 670
+				let note670 = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:datafield')
+				note670.setAttribute('tag', '670')
+				note670.setAttribute('ind1', " ")
+				note670.setAttribute('ind2', " ")
+				if (Object.keys(item).length > 0){
+					for (let sub of Object.keys(item)) {
+						if (sub != 'note') {
+							let subfield = document.createElementNS('http://www.loc.gov/MARC21/slim', 'marcxml:subfield');
+							subfield.setAttribute("code", sub)
+							subfield.innerHTML = item[sub].trim()
+							note670.appendChild(subfield)
+						}
+					}
+					marc670List = record.querySelectorAll('[tag="667"]')
+					record.appendChild(note670)
+				}
 			}
 		}
 
