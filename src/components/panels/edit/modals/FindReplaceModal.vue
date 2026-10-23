@@ -253,10 +253,10 @@ export default {
                             </tbody>
                         </table>
 
-                        <button @click="loopLiteralsToReplace()">Replace</button>
-                        <button @click="loopLiteralsToReplace(true)">Replace All</button>
                     </div>
 
+                    <button @click="loopLiteralsToReplace()">Replace</button>
+                    <button @click="loopLiteralsToReplace(true)">Replace All</button>
                 </div>
 
 

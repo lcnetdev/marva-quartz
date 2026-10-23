@@ -2,7 +2,9 @@
     <!-- <div class="cutter-container"
         v-if="Object.keys(structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]).includes('http://id.loc.gov/ontologies/bibframe/itemPortion')"> -->
 
-        <div class="cutter-container" v-if="lccFeatureData && structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && (!structure.activeType || structure.activeType=='http://id.loc.gov/ontologies/bibframe/ClassificationLcc')">
+    <div class="cutter-container"
+        :style="'background-color: ' + returnBackgroundColor + ';'"
+        v-if="lccFeatureData && structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && (!structure.activeType || structure.activeType == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc')">
         <div class="cutter-calc">
             <fieldset
                 v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length > 0) || lccFeatureData.title || lccFeatureData.firstSubject">
@@ -14,7 +16,7 @@
                             <span style="font-weight: bold;">{{ lccFeatureData.contributors[0].label.substring(0,
                                 parseInt(cutterCalcLength)) }}</span>
                             <span>{{ lccFeatureData.contributors[0].label.substring(parseInt(cutterCalcLength))
-                            }}</span>
+                                }}</span>
                             <input type="text"
                                 :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].label, cutterCalcLength).substring(0, cutterCalcLength)">
                             <a style="font-size: 0.85em; padding-left: 0.5em;"
@@ -29,7 +31,7 @@
                             }}</span>
                             <span>{{
                                 lccFeatureData.contributors[0].secondLetterLabel.substring(parseInt(cutterCalcLength))
-                            }}</span>
+                                }}</span>
                             <input type="text"
                                 :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].secondLetterLabel, cutterCalcLength).substring(0, cutterCalcLength)">
                             <a style="font-size: 0.85em; padding-left: 0.5em;"
@@ -43,7 +45,7 @@
                             <span style="font-weight: bold;">{{ lccFeatureData.contributors[1].label.substring(0,
                                 cutterCalcLength) }}</span>
                             <span>{{ lccFeatureData.contributors[1].label.substring(parseInt(cutterCalcLength))
-                            }}</span>
+                                }}</span>
                             <input type="text"
                                 :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[1].label, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
                             <a style="font-size: 0.85em; padding-left: 0.5em;"
@@ -67,9 +69,9 @@
 
                     <div>
                         <span style="font-weight: bold;">{{ freeFormCutter.substring(0, parseInt(cutterCalcLength))
-                        }}</span>
+                            }}</span>
                         <span>{{ freeFormCutter.substring(parseInt(cutterCalcLength), parseInt(cutterCalcLength) + 12)
-                        }}</span>
+                            }}</span>
                         <input placeholder="Free Form Cutter Input" v-model="freeFormCutter">
                         <input type="text"
                             :value="usePeriodInCutter() + calculateCutter(freeFormCutter, parseInt(cutterCalcLength)).substring(0, parseInt(cutterCalcLength))">
@@ -84,7 +86,7 @@
                         max="6" step="1" />
                     <label for="cutterCalcLength" style="font-size: 0.8em; vertical-align: text-top;">Calc Length ({{
                         cutterCalcLength
-                    }})</label>
+                        }})</label>
                 </div>
 
 
@@ -233,6 +235,20 @@ export default {
             return false
         },
 
+        returnBackgroundColor() {
+            let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
+
+            let id = "http://id.loc.gov/ontologies/bibframe/classification|lc:RT:bf2:LCC"
+
+            if (colors[id]) {
+                if (colors[id]['default']) {
+                    return colors[id]['default']
+                }
+            }
+
+            return 'white'
+        }
+
     },
 
 
@@ -278,13 +294,13 @@ a:hover {
 }
 
 .external-links a,
-.classweb-links a{
-    color:  v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
+.classweb-links a {
+    color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
 }
 
 
 .cutter-container {
-    color:  v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
+    color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
     display: flex;
 }
 
