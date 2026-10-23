@@ -276,7 +276,7 @@ export default {
     height: 100%;
 }
 
-span.match-bold {
+:deep(.active) .match-bold {
     font-weight: bolder;
     font-size: 16px;
 }
