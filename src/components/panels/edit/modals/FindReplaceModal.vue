@@ -88,7 +88,7 @@ export default {
 
                 let value = field.value
                 if (!this.matchCase) {
-                    let reg = new RegExp(this.findTarget.replace(".", "\\."), "dig")
+                    let reg = new RegExp(RegExp.escape(this.findTarget), "dig")
                     let matches = value.matchAll(reg)
                     for (let match of matches) {
                         let structure = this.returnStructureByGUID(targetGuid)
