@@ -271,6 +271,11 @@ export default {
 
 </template>
 <style scoped>
+
+#panel-resize-content {
+    height: 100%;
+}
+
 span.match-bold {
     font-weight: bolder;
     font-size: 16px;
@@ -283,9 +288,10 @@ span.match-bold {
 
 .container-results {
     padding-top: 15px;
-    max-height: 50%;
+    min-height: 50%;
     width: 100%;
     overflow: scroll;
+    height: 80%;
 }
 
 .component-label {
