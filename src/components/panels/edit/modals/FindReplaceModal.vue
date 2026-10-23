@@ -22,7 +22,7 @@ export default {
             left: 0,
 
             initialWidth: 900,
-            initalHeight: 500,
+            initalHeight: 450,
             initalLeft: 400,
 
             iconColor: '#000000',
@@ -273,7 +273,7 @@ export default {
 <style scoped>
 
 #panel-resize-content {
-    height: 100%;
+    height: 70dvh;
 }
 
 :deep(.active) .match-bold {
@@ -291,7 +291,7 @@ export default {
     min-height: 50%;
     width: 100%;
     overflow: scroll;
-    height: 80%;
+    height: 70%;
 }
 
 .component-label {
