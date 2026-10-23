@@ -5584,6 +5584,7 @@ export const useProfileStore = defineStore('profile', {
                     for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue) {
                         if (!key.startsWith('@')) {
                             delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
+                            delete this.activeProfile.rt[pt.parentId].pt[pt.id].activeType
 
                             // Cleanup for components that are uneditable
                             if (Object.keys(this.activeProfile.rt[pt.parentId].pt[pt.id]).includes("xmlSource")) {
