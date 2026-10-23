@@ -270,11 +270,20 @@ export default {
 </script>
 
 <style scoped>
+.external-links a:hover,
+.classweb-links a:hover,
 a:hover {
     color: blue !important;
 }
 
+.external-links a,
+.classweb-links a{
+    color:  v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
+}
+
+
 .cutter-container {
+    color:  v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
     display: flex;
 }
 
