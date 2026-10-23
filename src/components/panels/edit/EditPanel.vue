@@ -52,6 +52,12 @@
                           :id="activeProfile.rt[profileName].pt[profileCompoent].id"
                           :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
                           :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+
+                        <ClassTools v-if="profileCompoent.includes('classification__classification_number') && preferenceStore.returnValue('--b-shelflist-show-cutter-helpers')"
+                          :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                          :propertyPath='[ { "level": 0, "propertyURI": "http://id.loc.gov/ontologies/bibframe/classification" }, { "level": 1, "propertyURI": "http://id.loc.gov/ontologies/bibframe/itemPortion" } ]'
+                          :structure="profileStore.returnStructureByComponentGuid(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])"
+                        />
                       </template>
                     </template>
                   </template>

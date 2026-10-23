@@ -2,9 +2,7 @@
     <!-- <div class="cutter-container"
         v-if="Object.keys(structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]).includes('http://id.loc.gov/ontologies/bibframe/itemPortion')"> -->
 
-        <!-- {{ profileStore.returnStructureByComponentGuid(structure['@guid']) }} -->
-        {{ lccFeatureData }}
-        <div class="cutter-container" v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && (!structure.activeType || structure.activeType=='http://id.loc.gov/ontologies/bibframe/ClassificationLcc')">
+        <div class="cutter-container" v-if="lccFeatureData && structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && (!structure.activeType || structure.activeType=='http://id.loc.gov/ontologies/bibframe/ClassificationLcc')">
         <div class="cutter-calc">
             <fieldset
                 v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length > 0) || lccFeatureData.title || lccFeatureData.firstSubject">
@@ -221,8 +219,6 @@ export default {
         lccFeatureData() {
             this.lccFeatureDataCounter
             if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length - 1].propertyURI) > -1) {
-                console.info("this.guid: ", this.guid)
-                console.info("this.structure: ", this.structure)
                 let data = this.profileStore.returnLccInfo(this.guid, this.structure)
                 // console.log("HERE for LCC data", data,  this.guid, this.structure)
                 // if it is a MLC number we dont need to show the extra interface
