@@ -4320,7 +4320,9 @@ export const useProfileStore = defineStore('profile', {
         * @return {boolean}
         */
         returnLccInfo: function (componentGuid) {
+            console.info("lccInfo: ", componentGuid)
             let pt = utilsProfile.returnPt(this.activeProfile, componentGuid)
+            console.info("pt: ", pt)
 
             // if it is empty and brand new dont do the next check it wont have any data
             if (Object.keys(pt.userValue).length > 1) { // this means it doesn't only have @root in the userValue and has data populated
@@ -4357,6 +4359,8 @@ export const useProfileStore = defineStore('profile', {
             for (let rtId in this.activeProfile.rt) {
                 let target = false
 
+                console.info("rtId: ", rtId)
+
                 if (rtId.indexOf(":Work") > -1) {
                     for (let ptId in this.activeProfile.rt[rtId].pt) {
                         if (this.activeProfile.rt[rtId].pt[ptId]['@guid'] == componentGuid) {
@@ -4369,31 +4373,10 @@ export const useProfileStore = defineStore('profile', {
             }
             // console.log("work",work)
             if (work) {
+                console.info("\t work: ", work)
                 for (let ptId of work.ptOrder) {
                     let pt = JSON.parse(JSON.stringify(work.pt[ptId]))
-                    /*
-                    //
-                    {
-                      "@root": "http://id.loc.gov/ontologies/bibframe/title",
-                      "http://id.loc.gov/ontologies/bibframe/title": [
-                          {
-                              "@guid": "dYC2wKS5RkmPcP6rB7DH8m",
-                              "@type": "http://id.loc.gov/ontologies/bibframe/Title",
-                              "http://id.loc.gov/ontologies/bibframe/mainTitle": [
-                                  {
-                                      "@guid": "th7wNkaXeBQxj4Gqc3PZKH",
-                                      "http://id.loc.gov/ontologies/bibframe/mainTitle": "Ch'ŏnggyech'ŏn Taehakch'ŏn ch'aekpang kŏri"
-                                  },
-                                  {
-                                      "@guid": "49g8LszgTg4d6GzN7fBFhK",
-                                      "http://id.loc.gov/ontologies/bibframe/mainTitle": "청계천 대학천 책방 거리",
-                                      "@language": "ko-hang"
-                                  }
-                              ]
-                          }
-                      ]
-                  }
-                  */
+                    console.info("\t pt: ", pt)
 
                     if (pt && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/title') {
                         let titleUserValue = pt.userValue
@@ -4410,6 +4393,7 @@ export const useProfileStore = defineStore('profile', {
 
                                 if (titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 0 && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0] && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']) {
                                     title = titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                                    console.info("title: ", title)
                                     // there could be a non-latin title
                                     if (titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 1) {
                                         for (let temp of titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle']) {
