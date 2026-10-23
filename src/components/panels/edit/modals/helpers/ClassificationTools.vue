@@ -1,7 +1,8 @@
 <template>
     <!-- <div class="cutter-container"
         v-if="Object.keys(structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]).includes('http://id.loc.gov/ontologies/bibframe/itemPortion')"> -->
-        <div class="cutter-container" v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && (!structure.activeType || structure.activeType=='http://id.loc.gov/ontologies/bibframe/ClassificationLcc')">
+
+        <div class="cutter-container" v-if="lccFeatureData && structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && (!structure.activeType || structure.activeType=='http://id.loc.gov/ontologies/bibframe/ClassificationLcc')">
         <div class="cutter-calc">
             <fieldset
                 v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length > 0) || lccFeatureData.title || lccFeatureData.firstSubject">
@@ -270,11 +271,20 @@ export default {
 </script>
 
 <style scoped>
+.external-links a:hover,
+.classweb-links a:hover,
 a:hover {
     color: blue !important;
 }
 
+.external-links a,
+.classweb-links a{
+    color:  v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
+}
+
+
 .cutter-container {
+    color:  v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
     display: flex;
 }
 

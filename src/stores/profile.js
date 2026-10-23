@@ -4359,10 +4359,10 @@ export const useProfileStore = defineStore('profile', {
 
                 if (rtId.indexOf(":Work") > -1) {
                     for (let ptId in this.activeProfile.rt[rtId].pt) {
-                        if (this.activeProfile.rt[rtId].pt[ptId]['@guid'] == componentGuid) {
+                        // if (this.activeProfile.rt[rtId].pt[ptId]['@guid'] == componentGuid) {
                             work = this.activeProfile.rt[rtId]
                             break
-                        }
+                        // }
                     }
                     if (work) { break }
                 }
@@ -4371,29 +4371,6 @@ export const useProfileStore = defineStore('profile', {
             if (work) {
                 for (let ptId of work.ptOrder) {
                     let pt = JSON.parse(JSON.stringify(work.pt[ptId]))
-                    /*
-                    //
-                    {
-                      "@root": "http://id.loc.gov/ontologies/bibframe/title",
-                      "http://id.loc.gov/ontologies/bibframe/title": [
-                          {
-                              "@guid": "dYC2wKS5RkmPcP6rB7DH8m",
-                              "@type": "http://id.loc.gov/ontologies/bibframe/Title",
-                              "http://id.loc.gov/ontologies/bibframe/mainTitle": [
-                                  {
-                                      "@guid": "th7wNkaXeBQxj4Gqc3PZKH",
-                                      "http://id.loc.gov/ontologies/bibframe/mainTitle": "Ch'ŏnggyech'ŏn Taehakch'ŏn ch'aekpang kŏri"
-                                  },
-                                  {
-                                      "@guid": "49g8LszgTg4d6GzN7fBFhK",
-                                      "http://id.loc.gov/ontologies/bibframe/mainTitle": "청계천 대학천 책방 거리",
-                                      "@language": "ko-hang"
-                                  }
-                              ]
-                          }
-                      ]
-                  }
-                  */
 
                     if (pt && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/title') {
                         let titleUserValue = pt.userValue

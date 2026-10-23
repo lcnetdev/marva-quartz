@@ -88,7 +88,7 @@ export default {
 
                 let value = field.value
                 if (!this.matchCase) {
-                    let reg = new RegExp(this.findTarget, "dig")
+                    let reg = new RegExp(RegExp.escape(this.findTarget), "dig")
                     let matches = value.matchAll(reg)
                     for (let match of matches) {
                         let structure = this.returnStructureByGUID(targetGuid)
@@ -276,9 +276,9 @@ span.match-bold {
     font-size: 16px;
 }
 
-.content-container {
+:deep() .content-container {
     padding: 10px;
-    background-color: unset;
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')") !important;
 }
 
 .container-results {
