@@ -22,7 +22,7 @@ export default {
             left: 0,
 
             initialWidth: 900,
-            initalHeight: 500,
+            initalHeight: 450,
             initalLeft: 400,
 
             iconColor: '#000000',
@@ -253,10 +253,10 @@ export default {
                             </tbody>
                         </table>
 
-                        <button @click="loopLiteralsToReplace()">Replace</button>
-                        <button @click="loopLiteralsToReplace(true)">Replace All</button>
                     </div>
 
+                    <button @click="loopLiteralsToReplace()">Replace</button>
+                    <button @click="loopLiteralsToReplace(true)">Replace All</button>
                 </div>
 
 
@@ -271,7 +271,12 @@ export default {
 
 </template>
 <style scoped>
-span.match-bold {
+
+#panel-resize-content {
+    height: 70dvh;
+}
+
+:deep(.active) .match-bold {
     font-weight: bolder;
     font-size: 16px;
 }
@@ -283,9 +288,10 @@ span.match-bold {
 
 .container-results {
     padding-top: 15px;
-    max-height: 50%;
+    min-height: 50%;
     width: 100%;
     overflow: scroll;
+    height: 70%;
 }
 
 .component-label {
