@@ -518,10 +518,6 @@ div.component[class*="compact-"] > :deep(select) {
   flex: 0 1 20% !important;
 }
 
-/* Hide the input field for complex lookups */
-:deep() div.lookup-fake-input-entities:has(> div.selected-value-container) + div.lookup-fake-input-text {
-  display: none
-}
 
 /* MARC input results visible */
 div.REF.component[class*="compact-"]  > div.level-1 > .COMPLEX.level-2 > :deep(form) {
