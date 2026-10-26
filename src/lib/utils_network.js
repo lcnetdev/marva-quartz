@@ -3564,8 +3564,7 @@ const utilsNetwork = {
       } else {
         searchTerm = search.toUpperCase()
       }
-      // the browse endpoint's path on the server: the preprod servers have it at lds/browse.xqy, the
-      // public id.loc.gov at controllers/xqapi-shelflist.xqy (config shelfListingPath), same parameters and answer
+      // the browse endpoint path can be overridden per region (bibframe.org uses a different endpoint)
       let browsePath = useConfigStore().returnUrls.shelfListingPath || "lds/browse.xqy"
       let urlSearch = browsePath + "?bq=" + searchTerm +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
 
