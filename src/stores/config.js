@@ -77,6 +77,8 @@ export const useConfigStore = defineStore('config', {
         devFakePosting: true,
         displayLCOnlyFeatures: true,
         enableStateRecorder: true,
+        // turns on the Workflows feature without needing the "workflows" feature flag from the backend
+        enableWorkflows: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
         folioBase: 'https://lcsg.catalog.lcap.loc.gov',
@@ -105,11 +107,15 @@ export const useConfigStore = defineStore('config', {
         devFakePosting: true,
         displayLCOnlyFeatures: true,
         enableStateRecorder: true,
+        enableWorkflows: true,
         simpleLookupLang: 'en',
         publicEndpoints:true,
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
         folioBase: 'https://lcsg.catalog.lcap.loc.gov',
         bfdb : 'https://preprod-8230.id.loc.gov/',
+        // the public id.loc.gov serves the shelflisting browse at a different path than the preprod servers
+        shelfListing: 'https://id.loc.gov/',
+        shelfListingPath: 'controllers/xqapi-shelflist.xqy',
         isBibframeDotOrg: false,
 
         folioMLCEndpoint: 'http://localhost:9401/marva/util/folio/next-mlc/staging',
@@ -250,6 +256,7 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         displayLCOnlyFeatures: true,
         publicEndpoints:true,
+        enableWorkflows: true,
         simpleLookupLang: 'en',
 
         motd: '',
