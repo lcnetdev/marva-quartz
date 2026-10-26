@@ -198,6 +198,8 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         displayLCOnlyFeatures: true,
         enableStateRecorder: false,
+        // the Workflows button for everyone on production, no per-user "workflows" feature flag needed
+        enableWorkflows: true,
         simpleLookupLang: 'en',
 
         motd: '',
