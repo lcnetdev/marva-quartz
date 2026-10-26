@@ -204,7 +204,7 @@
                             </template>
                         </div>
 
-                        <ClassTools v-if="profileCompoent.includes('classification__classification_number') && preferenceStore.returnValue('--b-shelflist-show-cutter-helpers')"
+                        <ClassTools v-if="(profileName.includes(':Work') || panelDualEdit == false) && profileCompoent.includes('classification__classification_number') && preferenceStore.returnValue('--b-shelflist-show-cutter-helpers')"
                           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                           :propertyPath='[ { "level": 0, "propertyURI": "http://id.loc.gov/ontologies/bibframe/classification" }, { "level": 1, "propertyURI": "http://id.loc.gov/ontologies/bibframe/itemPortion" } ]'
                           :structure="profileStore.returnStructureByComponentGuid(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])"

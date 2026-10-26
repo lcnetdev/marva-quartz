@@ -237,8 +237,7 @@ export default {
 
         returnBackgroundColor() {
             let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
-
-            let id = "http://id.loc.gov/ontologies/bibframe/classification|lc:RT:bf2:LCC"
+            let id = this.structure.preferenceId
 
             if (colors[id]) {
                 if (colors[id]['default']) {
