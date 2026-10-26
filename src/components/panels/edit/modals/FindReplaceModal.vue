@@ -226,6 +226,8 @@ export default {
                             </div>
                             <br>
                             <button @click="find">Find</button>
+                            <button @click="loopLiteralsToReplace()">Replace</button>
+                            <button @click="loopLiteralsToReplace(true)">Replace All</button>
                         </form>
 
                     </div>
@@ -254,9 +256,6 @@ export default {
                         </table>
 
                     </div>
-
-                    <button @click="loopLiteralsToReplace()">Replace</button>
-                    <button @click="loopLiteralsToReplace(true)">Replace All</button>
                 </div>
 
 
