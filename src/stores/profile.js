@@ -4359,10 +4359,10 @@ export const useProfileStore = defineStore('profile', {
 
                 if (rtId.indexOf(":Work") > -1) {
                     for (let ptId in this.activeProfile.rt[rtId].pt) {
-                        if (this.activeProfile.rt[rtId].pt[ptId]['@guid'] == componentGuid) {
+                        // if (this.activeProfile.rt[rtId].pt[ptId]['@guid'] == componentGuid) {
                             work = this.activeProfile.rt[rtId]
                             break
-                        }
+                        // }
                     }
                     if (work) { break }
                 }
@@ -4371,29 +4371,6 @@ export const useProfileStore = defineStore('profile', {
             if (work) {
                 for (let ptId of work.ptOrder) {
                     let pt = JSON.parse(JSON.stringify(work.pt[ptId]))
-                    /*
-                    //
-                    {
-                      "@root": "http://id.loc.gov/ontologies/bibframe/title",
-                      "http://id.loc.gov/ontologies/bibframe/title": [
-                          {
-                              "@guid": "dYC2wKS5RkmPcP6rB7DH8m",
-                              "@type": "http://id.loc.gov/ontologies/bibframe/Title",
-                              "http://id.loc.gov/ontologies/bibframe/mainTitle": [
-                                  {
-                                      "@guid": "th7wNkaXeBQxj4Gqc3PZKH",
-                                      "http://id.loc.gov/ontologies/bibframe/mainTitle": "Ch'ŏnggyech'ŏn Taehakch'ŏn ch'aekpang kŏri"
-                                  },
-                                  {
-                                      "@guid": "49g8LszgTg4d6GzN7fBFhK",
-                                      "http://id.loc.gov/ontologies/bibframe/mainTitle": "청계천 대학천 책방 거리",
-                                      "@language": "ko-hang"
-                                  }
-                              ]
-                          }
-                      ]
-                  }
-                  */
 
                     if (pt && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/title') {
                         let titleUserValue = pt.userValue
@@ -5584,6 +5561,7 @@ export const useProfileStore = defineStore('profile', {
                     for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue) {
                         if (!key.startsWith('@')) {
                             delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
+                            delete this.activeProfile.rt[pt.parentId].pt[pt.id].activeType
 
                             // Cleanup for components that are uneditable
                             if (Object.keys(this.activeProfile.rt[pt.parentId].pt[pt.id]).includes("xmlSource")) {
@@ -8225,6 +8203,9 @@ export const useProfileStore = defineStore('profile', {
             }
             // console.log(":linkedDatalinkedData",linkedData)
 
+            // isbns we have already sent to google books, so we don't query the same one twice
+            let googleQueriedIsbns = new Set()
+
             for (let isbn of linkedData.isbn) {
 
                 let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
@@ -8251,20 +8232,25 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-                if (baseData.results.isbns && baseData.results.isbns.length > 0) {
-                    let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
-                    googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
-                    // console.log("googleBookData",googleBookData)
+                // fire google books with the record's own isbn plus anything worldcat found, regardless of the worldcat result
+                let googleIsbns = [...new Set([isbn].concat(baseData.results.isbns || []))].filter((v) => v && !googleQueriedIsbns.has(v))
+                googleIsbns.forEach((v) => googleQueriedIsbns.add(v))
 
-                    googleBookData.filter((v) => (v.dataType == 'toc'))
+                if (googleIsbns.length > 0) {
+                    try {
+                        let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(googleIsbns)
+                        googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
+                        // console.log("googleBookData",googleBookData)
 
-                    linkedData.subtitle = linkedData.subtitle.concat(googleBookData.filter((v) => (v.dataType == 'subtitle')));
-                    linkedData.noteContent = linkedData.noteContent.concat(googleBookData.filter((v) => (v.dataType == 'description')));
-                    linkedData.noteTOC = linkedData.noteTOC.concat(googleBookData.filter((v) => (v.dataType == 'toc')));
-                    linkedData.thumbnail = linkedData.thumbnail.concat(googleBookData.filter((v) => (v.dataType == 'thumbnail')));
-                    linkedData.lcsh = linkedData.lcsh.concat(googleBookData.filter((v) => (v.dataType == 'subject')));
-
-
+                        linkedData.subtitle = linkedData.subtitle.concat(googleBookData.filter((v) => (v.dataType == 'subtitle')));
+                        linkedData.noteContent = linkedData.noteContent.concat(googleBookData.filter((v) => (v.dataType == 'description')));
+                        linkedData.noteTOC = linkedData.noteTOC.concat(googleBookData.filter((v) => (v.dataType == 'toc')));
+                        linkedData.thumbnail = linkedData.thumbnail.concat(googleBookData.filter((v) => (v.dataType == 'thumbnail')));
+                        linkedData.lcsh = linkedData.lcsh.concat(googleBookData.filter((v) => (v.dataType == 'subject')));
+                    } catch (e) {
+                        // google books is not critical either, keep going
+                        console.warn("buildLinkedData: google books lookup error", e)
+                    }
                 }
 
                 // if we got a hit on one of the isbns we can stop
@@ -9222,7 +9208,132 @@ export const useProfileStore = defineStore('profile', {
             this.dataChanged()
         },
 
+        /**
+         * For subject headings in the form `GeoA--something--GeoB`
+         * catalogers need to create a reciprocal heading: `GeoB--something--GeoA`,
+         * try to do that for them with a click
+         * @param guid = the guid for the source component
+         * @param propertyPath = propertyPath for component
+         */
+        swapGeoHeadings: async function(guid, propertyPath){
+            let structure = this.returnStructureByComponentGuid(guid)
+            let userValue = structure.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
+            let label = userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+            let components = userValue["http://www.loc.gov/mads/rdf/v1#componentList"]
+            let newPt = false
 
+            let componentsCopy = null
+            try {
+                componentsCopy = JSON.parse(JSON.stringify(components))
+                // swap the first and last
+                let first = componentsCopy.shift()
+                let last = componentsCopy.pop()
+                componentsCopy.unshift(last)
+                componentsCopy.push(first)
+            } catch {
+                componentsCopy = false
+            }
+
+            if (!userValue['@id'] && componentsCopy && componentsCopy.every((c) => c['@id'])){ // there's no singular URI for the string and everything has a URI, we can flip things around
+                let newSubject = []
+                let startPos = 0
+
+                for (let idx in componentsCopy){
+                    let component = componentsCopy[idx]
+                    let label = component["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0]["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"]
+                    let type = component['@type']
+                    let marcKey = null
+                    if (type.includes("Geographic") && idx == 0){
+                        marcKey = "151 $a" + label
+                    } else {
+                        if (type.includes("Geographic")){
+                        marcKey = "181 $z" + label
+                        } else {
+                        marcKey = "180 $x" + label
+                        }
+                    }
+                    let c = {
+                        "label": label,
+                        "uri": component['@id'],
+                        "id": idx,
+                        "type": component['@type'],
+                        "complex": false,
+                        "literal": false,
+                        "posStart": startPos,
+                        "posEnd": startPos + label.length + 1,
+                        "marcKey": marcKey
+                    }
+                    startPos = startPos + label.length + 3
+                    newSubject.push(c)
+                }
+                newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+                this.setValueSubject(newPt[1], newSubject, propertyPath)
+            } else {
+                // else, swap the subjects, search ID, and build the new subject, if possible
+                let parts = []
+                if (label.includes("‑‑")){
+                    parts = label.split('‑‑')
+                } else {
+                    parts = label.split('--')
+                }
+                let first = parts.shift()
+                let last = parts.pop()
+                parts.unshift(last)
+                parts.push(first)
+                let flipped = parts.join('--')
+
+                let exactPayloadName = {
+                    processor: 'lcAuthorities',
+                    url: ['https://preprod-8080.id.loc.gov/authorities/subject/label/' + flipped],
+                    searchValue: flipped,
+                    subjectSearch: true,
+                    signal: utilsNetwork.controllers.exactName.signal,
+                }
+
+                let results = await utilsNetwork.searchExact(exactPayloadName)
+                if (results[0] && results[0].uri){
+                    let newSubject = [
+                        {
+                        "complex": true,
+                        "id": 0,
+                        "label": flipped.replaceAll("--", "‑‑"),
+                        "literal": false,
+                        "posEnd": flipped.length,
+                        "posStart": 0,
+                        "type": "madsrdf:Topic",
+                        "uri": results[0].uri,
+                        "marcKey": results[0].extra.marcKeys[0]
+                        }
+                    ]
+                    newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+                    this.setValueSubject(newPt[1], newSubject, propertyPath)
+                } else {
+                    let value = ''
+                    for (let idx in componentsCopy){
+                        let part = componentsCopy[idx]
+                        let property = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+                        if (!part[property]){
+                        property = "http://www.w3.org/2000/01/rdf-schema#label"
+                        }
+                        let label = part[property][0][property]
+                        if (idx == 0){
+                        value = "$a" + label
+                        } else  if (part["@type"] == "http://www.loc.gov/mads/rdf/v1#Geographic"){
+                        value = value + "$z" + label
+                        } else {
+                        value = value + "$x" + label
+                        }
+                    }
+
+                    newPt = await this.duplicateComponentGetId(structure["@guid"], structure, structure.parentId, structure.id)
+                    let target = document.querySelector(`[data-field-guid='${newPt[1]}']`)
+                    target.value = value
+                    target.dispatchEvent(
+                        new Event("input", { bubbles: false, cancelable: true })
+                    )
+                }
+            }
+        },
 
     }, // end of methods
 })

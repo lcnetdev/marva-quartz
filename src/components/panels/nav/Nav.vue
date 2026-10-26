@@ -139,11 +139,15 @@ export default {
     },
 
     yoshinoAllowed() {
-      return this.preferenceStore.featureFlags.includes('subject-suggest')
+      return this.preferenceStore.featureAvailable('subjectFinder', this.preferenceStore.featureFlags.includes('subject-suggest'))
     },
 
     marvaScanAllowed() {
-      return this.preferenceStore.featureFlags.includes('marva-scan')
+      return this.preferenceStore.featureAvailable('marvaScan', this.preferenceStore.featureFlags.includes('marva-scan'))
+    },
+
+    linkedDataAllowed() {
+      return this.preferenceStore.featureAvailable('linkedData')
     },
 
     yoshinoHasSummary() {
@@ -322,21 +326,21 @@ export default {
                     text: "Title Case",
                     title: "Title Case",
                     icon: "titlecase",
-                    hotkey: "ctrl+alt+t",
+                    hotkey: "ctrl+shift+t",
                     click: () => { this.profileStore.getHighlightedText('title') }
                   },
                   {
                     text: "Lower Case",
                     title: "Lower Case",
                     icon: "lowercase",
-                    hotkey: "ctrl+alt+l",
+                    hotkey: "ctrl+shift+l",
                     click: () => { this.profileStore.getHighlightedText('lower') }
                   },
                   {
                     text: "Find & Replace",
                     title: "find Replace",
                     icon: "find_replace",
-                    hotkey: "ctrl+alt+h",
+                    hotkey: "ctrl+shift+h",
                     click: () => { this.showFindReplaceModal = true; }
                   }
                 // )
@@ -431,11 +435,11 @@ export default {
                 text: "Subject Finder", click: () => {
                   this.showYoshinoSubjectsModal = true
                 }, icon: "radar"
-              }] : [{
+              }] : (useConfigStore().returnUrls.isBibframeDotOrg ? [] : [{
                 text: "Req Subject Finder Access", click: () => {
                   window.open('https://forms.office.com/g/uQ36p66yN9', '_blank')
                 }, icon: "contact_support"
-              }]),
+              }])),
 
               ...(this.marvaScanAllowed ? [{
                 text: "Marva Scan", click: () => {
@@ -523,7 +527,7 @@ export default {
 
               { text: 'Preview XML', click: () => this.preferenceStore.togglePanel('xml'), icon: this.panelTitleXMLEdit, class: "nav-view-xml" },
               { text: 'Preview MARC', click: () => this.preferenceStore.togglePanel('marc'), icon: this.panelTitleMARCEdit },
-              { text: 'Linked Data', click: () => this.preferenceStore.togglePanel('linkedData'), icon: this.panelTitleLinkedData },
+              ...(this.linkedDataAllowed ? [{ text: 'Linked Data', click: () => this.preferenceStore.togglePanel('linkedData'), icon: this.panelTitleLinkedData }] : []),
 
 
 
@@ -579,6 +583,9 @@ export default {
           {
             text: "Preferences", menu: [
 
+              { text: 'Preferences', click: () => this.preferenceStore.togglePrefModal('General'), icon: 'settings' },
+              { is: 'separator' },
+
               { text: 'Scriptshifter', click: () => this.showScriptshifterConfigModal = true, icon: 'translate' },
               { text: 'Diacritic Macros', click: () => this.showDiacriticConfigModal = true, icon: 'keyboard' },
               { text: 'Text Macros', click: () => this.showTextMacroModal = true, icon: 'abc' },
@@ -600,26 +607,6 @@ export default {
 
 
 
-
-              { is: 'separator' },
-
-
-              { text: 'General', click: () => this.preferenceStore.togglePrefModal('General') },
-              { text: 'Edit Panel', click: () => this.preferenceStore.togglePrefModal('Edit Panel') },
-              { text: 'Literal Field', click: () => this.preferenceStore.togglePrefModal('Literal Field') },
-              { text: 'Lookup Field', click: () => this.preferenceStore.togglePrefModal('Lookup Field') },
-
-
-
-              { text: 'Modals', click: () => this.preferenceStore.togglePrefModal('Modals') },
-
-              { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup') },
-              { text: 'Action Button', click: () => this.preferenceStore.togglePrefModal('Action Button') },
-              { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar') },
-              { text: 'Sidebars - Previews', click: () => this.preferenceStore.togglePrefModal('Sidebars - Previews') },
-              { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property') },
-              { text: 'Shelflisting', click: () => this.preferenceStore.togglePrefModal('Shelflisting') },
-              // { text: 'CAMM Mode', click: () => this.preferenceStore.togglePrefModal('CAMM Mode')},
 
               { is: 'separator' },
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useProfileStore } from './profile'
+import { useConfigStore } from './config'
 import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
@@ -257,6 +258,7 @@ export const usePreferenceStore = defineStore('preference', {
         descShort: '',
         value: {},
         type: 'object',
+        hide: true,
         group: 'preferenes',
       },
       '--b-edit-main-splitpane-properties-component-library-defaults' : {
@@ -642,6 +644,24 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [true,false]
     },
+    '--b-edit-main-compact' : {
+          desc: "Compact view tries to put inputs into fewer lines.",
+          descShort: 'Compact View',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+    },
+    '--b-edit-main-compact-threshold' : {
+          desc: 'How small the compact columns can be before they stop being compact.',
+          descShort: 'Compact Min Width',
+          value: 500,
+          step: 50,
+          type: 'number',
+          group: 'Edit Panel',
+          range: [100, 1000]
+      },
 
 
 
@@ -1283,6 +1303,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: false,
         type: 'boolean',
         unit: null,
+        hide: true,
         group: 'Diacritics',
         range: [true,false]
       },
@@ -1292,6 +1313,7 @@ export const usePreferenceStore = defineStore('preference', {
         desc: '',
         descShort: 'List of diacritic macros to use',
         type: 'other',
+        hide: true,
         group: 'Diacritics',
         range: null
       },
@@ -1300,6 +1322,7 @@ export const usePreferenceStore = defineStore('preference', {
         desc: '',
         descShort: 'Text macros to use',
         type: 'other',
+        hide: true,
         group: 'Diacritics',
         range: null
       },
@@ -1308,6 +1331,7 @@ export const usePreferenceStore = defineStore('preference', {
         desc: '',
         descShort: 'The lang-script options to use in the bulk tool',
         type: 'other',
+        hide: true,
         group: 'Diacritics',
         range: null
       },
@@ -1494,24 +1518,25 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
-    '--b-edit-main-splitpane-edit-inline-mode' : {
-      desc: 'Compact Advanced Modular Mode.',
-      descShort: 'Use CAMM Mode',
-      value: false,
-      type: 'boolean',
-      unit: null,
-      group: 'CAMM Mode',
-      range: [true,false]
-    },
-    '--b-edit-main-splitpane-camm-hide-action-button' : {
-      desc: 'Hide action button in CAMM mode, only keyboard shortcut (Ctrl+\\).',
-      descShort: 'Hide Action Button',
-      value: true,
-      type: 'boolean',
-      unit: null,
-      group: 'CAMM Mode',
-      range: [true,false]
-    },
+    // CAMM Mode preferences removed from the UI
+    //     '--b-edit-main-splitpane-edit-inline-mode' : {
+    //       desc: 'Compact Advanced Modular Mode.',
+    //       descShort: 'Use CAMM Mode',
+    //       value: false,
+    //       type: 'boolean',
+    //       unit: null,
+    //       group: 'CAMM Mode',
+    //       range: [true,false]
+    //     },
+    //     '--b-edit-main-splitpane-camm-hide-action-button' : {
+    //       desc: 'Hide action button in CAMM mode, only keyboard shortcut (Ctrl+\\).',
+    //       descShort: 'Hide Action Button',
+    //       value: true,
+    //       type: 'boolean',
+    //       unit: null,
+    //       group: 'CAMM Mode',
+    //       range: [true,false]
+    //     },
 
 
 
@@ -1549,6 +1574,7 @@ export const usePreferenceStore = defineStore('preference', {
         descShort: '',
         value: {},
         type: 'object',
+        hide: true,
         group: 'layouts',
       },
 
@@ -1706,15 +1732,29 @@ export const usePreferenceStore = defineStore('preference', {
         }
         this.jwt = storedToken
         this.ssoUser = payload
-        // Populate catInitals from SSO claims
-        this.catInitals = payload.name || payload.email || 'SSO User'
-        window.localStorage.setItem('marva-catInitals', this.catInitals)
         if (payload.guest) {
           // Anonymous guest token (PUBLIC_GUEST_MODE, e.g. bibframe.org demo):
-          // auto-assign a cataloging code from the guest id — never prompt.
-          this.catCode = 'G' + String(payload.username || '').replace(/^guest-/, '')
-          window.localStorage.setItem('marva-catCode', this.catCode)
+          // auto-assign a name and cataloging code from the guest id — never prompt.
+          // Only fill in what is missing, so a name / code the user changed in the
+          // account modal survives page reloads instead of being overwritten by the token.
+          let storedInitals = window.localStorage.getItem('marva-catInitals')
+          if (storedInitals && storedInitals.trim() != ''){
+            this.catInitals = storedInitals
+          } else {
+            this.catInitals = payload.name || payload.email || 'SSO User'
+            window.localStorage.setItem('marva-catInitals', this.catInitals)
+          }
+          let storedGuestCatCode = window.localStorage.getItem('marva-catCode')
+          if (storedGuestCatCode && storedGuestCatCode.trim() != ''){
+            this.catCode = storedGuestCatCode
+          } else {
+            this.catCode = 'G' + String(payload.username || '').replace(/^guest-/, '')
+            window.localStorage.setItem('marva-catCode', this.catCode)
+          }
         } else {
+          // Populate catInitals from SSO claims
+          this.catInitals = payload.name || payload.email || 'SSO User'
+          window.localStorage.setItem('marva-catInitals', this.catInitals)
           // Restore catCode from localStorage only, never from JWT
           let storedCatCode = window.localStorage.getItem('marva-catCode')
           if (storedCatCode && storedCatCode.trim() != ''){
@@ -1747,7 +1787,15 @@ export const usePreferenceStore = defineStore('preference', {
       // save current route path so we can redirect back after SSO
       // strip the base path since router.push will add it back
       let basePath = import.meta.env.BASE_URL || '/'
-      let currentPath = window.location.pathname + window.location.hash
+
+      // keep the query string too, links like /?action=load&url=...&profile=... rely on it
+      // to auto load a record once the user comes back from the login round trip.
+      // drop any stale token param, the login callback supplies a fresh one.
+      let params = new URLSearchParams(window.location.search)
+      params.delete('token')
+      let search = params.toString() ? '?' + params.toString() : ''
+
+      let currentPath = window.location.pathname + search + window.location.hash
       if (currentPath.startsWith(basePath)){
         currentPath = '/' + currentPath.slice(basePath.length)
       }
@@ -2057,12 +2105,12 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k].group = "Shelflisting"
           }
 
-          if (k == '--b-edit-main-splitpane-edit-inline-mode'){
-            prefs.styleDefault[k].group = 'CAMM Mode'
-            prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
-            prefs.styleDefault[k].descShort = 'Use CAMM Mode'
-            // prefs.styleDefault[k].value = false
-          }
+          // if (k == '--b-edit-main-splitpane-edit-inline-mode'){
+          // prefs.styleDefault[k].group = 'CAMM Mode'
+          // prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
+          // prefs.styleDefault[k].descShort = 'Use CAMM Mode'
+          // // prefs.styleDefault[k].value = false
+          // }
         }
 
         // if there is a new style in the defaults that is not in their saved prefs.
@@ -2409,6 +2457,42 @@ export const usePreferenceStore = defineStore('preference', {
 
     },
 
+
+    /**
+    * Public demo carve out for bibframe.org. True when running on bibframe.org and the user's
+    * name (catInitals) or cat code contains one of the strings listed in the bibframeDotOrg
+    * config `demoFeatureUsers` (case-insensitive).
+    * @return {boolean}
+    */
+    isBibframeDotOrgDemoUser(){
+      const configUrls = useConfigStore().returnUrls
+      if (!configUrls || !configUrls.isBibframeDotOrg) return false
+      const demoUsers = (configUrls.demoFeatureUsers || []).map(u => String(u).toLowerCase()).filter(u => u)
+      const initials = this.catInitals ? this.catInitals.toLowerCase() : ''
+      const code = this.catCode ? this.catCode.toLowerCase() : ''
+      return demoUsers.some(u =>
+        (initials && initials.includes(u)) ||
+        (code && code.includes(u))
+      )
+    },
+
+    /**
+    * Whether a feature that is restricted in some regions is available to the current user.
+    * On bibframe.org the features listed in the bibframeDotOrg config `restrictedFeatures` are
+    * hidden unless the user is a demo user (see isBibframeDotOrgDemoUser), in which case the
+    * feature is enabled and the normal permission check is bypassed.
+    * In every other region the normal permission check result is returned unchanged.
+    * @param {string} feature - the feature key, e.g. 'marvaScan', 'subjectFinder', 'linkedData'
+    * @param {boolean} normallyAllowed - result of the feature's usual permission check (default true)
+    * @return {boolean}
+    */
+    featureAvailable(feature, normallyAllowed = true){
+      const configUrls = useConfigStore().returnUrls
+      if (!configUrls || !configUrls.isBibframeDotOrg) return normallyAllowed
+      const restricted = configUrls.restrictedFeatures || []
+      if (!restricted.includes(feature)) return normallyAllowed
+      return this.isBibframeDotOrgDemoUser()
+    },
 
     isNarTester(){
 

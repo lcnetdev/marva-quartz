@@ -210,6 +210,9 @@ export const useConfigStore = defineStore('config', {
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate/stage',
+        shelfListing: 'https://id.loc.gov/',
+        // path (relative to shelfListing) of the shelf list browse endpoint, other regions use the default 'lds/browse.xqy'
+        shelfListingPath: 'controllers/xqapi-shelflist.xqy',
         bfdb : 'https://id.loc.gov/',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-profiles.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/marva-profiles/refs/heads/main/marva-prod/marva-starting.json',
@@ -220,6 +223,16 @@ export const useConfigStore = defineStore('config', {
         enableStateRecorder: false,
         simpleLookupLang: 'en',
         isBibframeDotOrg: true,
+
+        // Features that are hidden / disabled on bibframe.org unless the user is a demo user (see demoFeatureUsers)
+        restrictedFeatures: ['marvaScan', 'subjectFinder', 'linkedData'],
+        // Public demo carve out: if the user's name (catInitals) or cat code contains one of these
+        // strings (case-insensitive) the restrictedFeatures are enabled for them, bypassing the
+        // normal per-user feature flag / permission checks.
+        demoFeatureUsers: ['aidemo'],
+
+        // Adobe Launch analytics script, injected at startup only for this region (see loadAnalyticsScript)
+        analyticsScript: 'https://assets.adobedtm.com/f94f5647937d/05ab40b58039/launch-60d4ca033ceb.min.js',
 
         dancerEnabled: true,
         dancerWorkspaceList: "https://bibframe.org/dancer/api/serve/workspaces/",
@@ -998,6 +1011,22 @@ export const useConfigStore = defineStore('config', {
         url = url.replace('http://id.loc.gov/',urls.bfdb)
       }
       return url
+    },
+
+    /**
+    * Injects the region's analytics script tag into the document head, if the
+    * current region config defines one (currently only bibframeDotOrg does).
+    *
+    * @return {void} -
+    */
+    loadAnalyticsScript() {
+      let src = this.returnUrls.analyticsScript
+      if (!src || typeof document === 'undefined') return
+      if (document.querySelector(`script[src="${src}"]`)) return
+      let script = document.createElement('script')
+      script.src = src
+      script.async = true
+      document.head.appendChild(script)
     },
 
     /**

@@ -29,19 +29,18 @@
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ) )">
-                <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
+                <div class="component-container" v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
                     :key="profileCompoent">
                   <template v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
                     <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
-
                       <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
-                        <div class="component-label 1" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf')}">
-                            <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
-                            <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                        <div v-if="checkShowComponentLabel(activeProfile, profileName, profileCompoent)" class="component-label 1" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf'), 'component-label-has-item': profileCompoent.includes('hasItem')}">
+                            <input v-if="!preferenceStore.returnValue('--b-edit-main-compact') && !createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            <input v-if="!preferenceStore.returnValue('--b-edit-main-compact') && createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
 
-                            <div class="icon-container">
+                            <div class="icon-container" v-if="!preferenceStore.returnValue('--b-edit-main-compact')">
                               <span v-if="!profileCompoent.includes('adminmetadata') && !profileCompoent.includes('instanceOf') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
                               <span v-if="!profileCompoent.includes('adminmetadata') && !profileCompoent.includes('instanceOf') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
                             </div>
@@ -53,6 +52,12 @@
                           :id="activeProfile.rt[profileName].pt[profileCompoent].id"
                           :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
                           :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+
+                        <ClassTools v-if="profileCompoent.includes('classification__classification_number') && preferenceStore.returnValue('--b-shelflist-show-cutter-helpers')"
+                          :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                          :propertyPath='[ { "level": 0, "propertyURI": "http://id.loc.gov/ontologies/bibframe/classification" }, { "level": 1, "propertyURI": "http://id.loc.gov/ontologies/bibframe/itemPortion" } ]'
+                          :structure="profileStore.returnStructureByComponentGuid(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])"
+                        />
                       </template>
                     </template>
                   </template>
@@ -130,19 +135,19 @@
 
                     <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
                       <!-- if createLayoutMode is active, and there is an active layout, show everything -->
-                      <div v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent]), 'hide-component': ((preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hideSubject) || (preferenceStore.returnValue('--b-edit-main-hide-non-lc-class-numbers') && activeProfile.rt[profileName].pt[profileCompoent].hideClassNum))}">
+                      <div class="component-container" v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent]), 'hide-component': ((preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hideSubject) || (preferenceStore.returnValue('--b-edit-main-hide-non-lc-class-numbers') && activeProfile.rt[profileName].pt[profileCompoent].hideClassNum))}">
                         <template v-if="panelDualEdit == false">
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
-                            <div class="component-label 2" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf')}">
-                              <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
-                              <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" :value="profileName" :checked="layoutActiveFilter && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])" />
-                              {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                            <div v-if="checkShowComponentLabel(activeProfile, profileName, profileCompoent)" class="component-label 2" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf'), 'component-label-has-item': profileCompoent.includes('hasItem')}">
+                              <input v-if="!preferenceStore.returnValue('--b-edit-main-compact') && !createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                              <input v-if="!preferenceStore.returnValue('--b-edit-main-compact') && createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" :value="profileName" :checked="layoutActiveFilter && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])" />
+                              {{ activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                               <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
 
-                              <div class="icon-container">
+                              <div class="icon-container" >
                                 <span v-if="preferenceStore.returnValue('--b-edit-main-hide-non-lc') && !displaySubject(activeProfile.rt[profileName].pt[profileCompoent])" class="material-icons inline-icon preview" @click="activeProfile.rt[profileName].pt[profileCompoent].hideSubject=!activeProfile.rt[profileName].pt[profileCompoent].hideSubject">visibility</span>
-                                <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
-                                <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
+                                <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete') && !preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
+                                <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete') && !preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
                               </div>
 
                             </div>
@@ -151,15 +156,15 @@
                         </template>
                         <template v-if="panelDualEdit == true">
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && (profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1 )">
-                            <div class="component-label 3" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf')}">
-                            <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
-                            <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            <div v-if="checkShowComponentLabel(activeProfile, profileName, profileCompoent)" class="component-label 3" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf'), 'component-label-has-item': profileCompoent.includes('hasItem')}">
+                            <input v-if="!preferenceStore.returnValue('--b-edit-main-compact') && !createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            <input v-if="!preferenceStore.returnValue('--b-edit-main-compact') && createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                               <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
 
                               <div class="icon-container">
-                                <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
-                                <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
+                                <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete') && !preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
+                                <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete') && !preferenceStore.returnValue('--b-edit-main-compact')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
                               </div>
 
                             </div>
@@ -199,6 +204,12 @@
                             </template>
                         </div>
 
+                        <ClassTools v-if="profileCompoent.includes('classification__classification_number') && preferenceStore.returnValue('--b-shelflist-show-cutter-helpers')"
+                          :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                          :propertyPath='[ { "level": 0, "propertyURI": "http://id.loc.gov/ontologies/bibframe/classification" }, { "level": 1, "propertyURI": "http://id.loc.gov/ontologies/bibframe/itemPortion" } ]'
+                          :structure="profileStore.returnStructureByComponentGuid(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])"
+                        />
+
                         <!-- There's a hidden subject -->
                         <template v-if="(preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hideSubject) || (preferenceStore.returnValue('--b-edit-main-hide-non-lc-class-numbers') && activeProfile.rt[profileName].pt[profileCompoent].hideClassNum)">
                           <div v-if="numberHiddenShown(activeProfile).hiddenSubject > 0 || numberHiddenShown(activeProfile).hiddenClassNumbers > 0"></div>
@@ -234,7 +245,7 @@
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
   import InlineModeAddField from "@/components/panels/edit/fields/helpers/InlineModeAddField.vue";
-
+import ClassTools  from "@/components/panels/edit/modals/helpers/ClassificationTools.vue"
 
 
   // import Main from "@/components/panels/edit/fields/Main.vue";
@@ -242,7 +253,7 @@
 
 
   export default {
-    components: {InlineModeAddField  },
+    components: {InlineModeAddField, ClassTools  },
     props: {
 
       instanceMode: Boolean,
@@ -324,6 +335,39 @@
     },
 
     methods: {
+        checkShowComponentLabel: function(activeProfile, profileName, componentId){
+          if (!this.preferenceStore.returnValue('--b-edit-main-compact')) { return true}
+
+          let ptOrder = activeProfile.rt[profileName].ptOrder
+          let pts = activeProfile.rt[profileName].pt
+          let base = false
+
+          // if the ID ends in "_\d\d\d\d\d" it is likely an addition
+          if (/_\d+$/.test(componentId)){
+            let parts = componentId.split("_")
+            base = parts.slice(0, -1).join("_")
+          } else {
+            base = componentId
+          }
+
+          let matches = ptOrder.filter(item => item.includes(base))
+          let matchesNotDeleted = matches.map((m) => {return !pts[m].deleted ? m : false} ).filter(m => m != false)
+          let matchBase = matchesNotDeleted.map((m) => m && m == base)
+          let count = matchesNotDeleted.filter(item => item).length
+
+          if (count > 1 && matchBase.every(val => val == false)){
+            if (matchesNotDeleted[0] == componentId){
+              return true
+            }
+          }
+
+          if (count == 1){
+            return true
+          } else if (componentId == base){
+            return true
+          }
+          return false
+        },
         addComponent: function(profileName, profileCompoent){
           let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
           let structure = this.activeProfile.rt[profileName].pt[profileCompoent]
@@ -830,6 +874,8 @@ div.instanceInfoWrapper {
     margin: 0 0 6px;
 }
 
+div.HIDE.level-0.component.compact,
+.component-label-has-item,
 .component-label-instance-of{
     display: none;
 }
@@ -887,5 +933,8 @@ div.instanceInfoWrapper {
     }
 }
 
+.component-container {
+  container: edit-panel-work / inline-size;
+}
 
 </style>

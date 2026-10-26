@@ -1656,6 +1656,7 @@
           let nonLatin = this.profileStore.returnAllNonLatinLiterals()
           for (let item of nonLatin){
             let lang = item.lang
+            if (lang && lang.includes("ja-")){ lang = "ja" }
             if (lang?.includes("zxx")){ continue }
 
             if (lang?.includes("-")){
