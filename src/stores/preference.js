@@ -1276,7 +1276,7 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'General',
         range: [true,false]
     },
-      '--s-general-default-profile' : {
+    '--s-general-default-profile' : {
         desc: 'Default profile to use when pressing [ENTER].',
         descShort: 'Default profile',
         value: 'lc:RT:bf2:Monograph:Instance',
@@ -1286,13 +1286,13 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'General'
     },
     '--b-general-default-load-tupe' : {
-        desc: 'Set the default load type to "Continue Editing BF". Note: Reconverting ensures the record has gone through the most recent version of the marc-bf conversion.',
-        descShort: 'Default Load Type "Continue"',
-        value: false,
-        type: 'boolean',
-        unit: null,
-        group: 'General',
-        range: [true,false]
+      desc: 'Set the default load type to "Continue Editing BF". Note: Reconverting ensures the record has gone through the most recent version of the MARC2BF conversion.',
+      descShort: 'Default Load Type "Continue"',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'General',
+      range: [true,false]
     },
 
       // diacritics
@@ -2120,19 +2120,12 @@ export const usePreferenceStore = defineStore('preference', {
           }
         }
 
-        // this.styleDefault = prefs.styleDefault
-        for (let k of order){
-          this.styleDefault[k] = prefs.styleDefault[k]
-        }
         this.panelDisplay = prefs.panelDisplay
-
 
         // overwrite some old choices
         if (this.styleDefault['--c-shelflist-line-colors'].value == '#a8c7fc;'){
           this.styleDefault['--c-shelflist-line-colors'].value = '#f1f7ff;'
         }
-
-
       }
     },
     /**

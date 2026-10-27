@@ -68,7 +68,6 @@
     },
 
     methods: {
-
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -325,8 +324,6 @@
 
               <input type="range" max="100" min="0.5" step="0.1" >
            -->
-
-
 
           </div>
 
