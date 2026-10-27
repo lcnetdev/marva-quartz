@@ -2120,12 +2120,25 @@ export const usePreferenceStore = defineStore('preference', {
           }
         }
 
+        // Use the loaded preferences, not the config style
+        for (let k of order){
+          for (let key of Object.keys(this.styleDefault[k])){
+            // Any changes to the config get applied to the loaded preferences
+            if (["desc", "descShort"].includes(key) && this.styleDefault[k][key] != prefs.styleDefault[k][key]){
+                  prefs.styleDefault[k][key] = this.styleDefault[k][key]
+            }
+          }
+          this.styleDefault[k] = prefs.styleDefault[k]
+        }
         this.panelDisplay = prefs.panelDisplay
+
 
         // overwrite some old choices
         if (this.styleDefault['--c-shelflist-line-colors'].value == '#a8c7fc;'){
           this.styleDefault['--c-shelflist-line-colors'].value = '#f1f7ff;'
         }
+
+
       }
     },
     /**
