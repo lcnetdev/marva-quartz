@@ -2132,13 +2132,10 @@ export const usePreferenceStore = defineStore('preference', {
         }
         this.panelDisplay = prefs.panelDisplay
 
-
         // overwrite some old choices
         if (this.styleDefault['--c-shelflist-line-colors'].value == '#a8c7fc;'){
           this.styleDefault['--c-shelflist-line-colors'].value = '#f1f7ff;'
         }
-
-
       }
     },
     /**
