@@ -70,7 +70,7 @@
             let view = this.panelSizePresets[idx]
             let viewId = view.color + "_" + view.icon
 
-            if (viewId == targetId && type=='default'){
+            if (viewId == targetId && type=='default' && !view.default){
               view.default = true
             } else if (type == 'default') {
               view.default = false
