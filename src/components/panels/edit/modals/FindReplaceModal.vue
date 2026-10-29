@@ -87,20 +87,15 @@ export default {
                 let targetGuid = field.getAttribute("data-parent")
 
                 let value = field.value
-                if (!this.matchCase) {
-                    let reg = new RegExp(RegExp.escape(this.findTarget), "dig")
-                    let matches = value.matchAll(reg)
-                    for (let match of matches) {
-                        let structure = this.returnStructureByGUID(targetGuid)
-                        this.matches.push({ 'match': match, 'text': value, 'field': field, 'component': structure })
-                    }
-                } else {
-                    let reg = new RegExp(this.findTarget, "dg")
-                    let matches = value.matchAll(reg)
-                    for (let match of matches) {
-                        let structure = this.returnStructureByGUID(targetGuid)
-                        this.matches.push({ 'match': match, 'text': value, 'field': field, 'component': structure })
-                    }
+                let conditions = "dig"
+                if (this.matchCase) {
+                    conditions = "dg"
+                }
+                let reg = new RegExp(RegExp.escape(this.findTarget), conditions)
+                let matches = value.matchAll(reg)
+                for (let match of matches) {
+                    let structure = this.returnStructureByGUID(targetGuid)
+                    this.matches.push({ 'match': match, 'text': value, 'field': field, 'component': structure })
                 }
             }
         },
