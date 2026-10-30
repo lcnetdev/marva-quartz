@@ -644,7 +644,7 @@ const utilsExport = {
 					continue
 				}
 
-				if (ptObj.deepHierarchy){
+				if (ptObj.deepHierarchy && ptObj.uneditable){
 					// just take our existing XML and plop it into the root element
 					let orgNode = xmlParser.parseFromString(ptObj.xmlSource, "text/xml").children[0]
 					rootEl.appendChild(orgNode)
