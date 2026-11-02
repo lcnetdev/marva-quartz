@@ -99,7 +99,7 @@
             </div>
 
             <div class="links">
-                <div class="classweb-links" v-if="!showClassWebLinksTop" v-html="buildLinkHtml()"></div>
+                <div class="classweb-links-inline" v-if="!showClassWebLinksTop" v-html="buildLinkHtml()"></div>
                 <!-- div class="classweb-links">
                     <a style="color:black" v-if="lccFeatureData.classNumber"
                         :href="'https://' + classWebURL() + '/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan=' + lccFeatureData.classNumber + '&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'"
@@ -180,21 +180,23 @@ export default {
 
             if (this.lccFeatureData.classNumber){
                 linkClassSearch = `
-                    <a style="color:black" href=${urlClassSearch} target="_blank">ClassWeb Search: ${this.lccFeatureData.classNumber}</a><br />
-                    <a style="color:black" href=${urlClassBrowse} target="_blank">ClassWeb Browse: ${this.lccFeatureData.classNumber}</a><br />
+                    <li><a style="color:black" href=${urlClassSearch} target="_blank">ClassWeb Search: ${this.lccFeatureData.classNumber}</a></li>
+                    <li><a style="color:black" href=${urlClassBrowse} target="_blank">ClassWeb Browse: ${this.lccFeatureData.classNumber}</a></li>
                 `
             }
             if (this.lccFeatureData.firstSubject){
-                linkSubj1 = `<a style="color:black" href=${urlSubj1} target="_blank">ClassWeb Search: ${this.lccFeatureData.firstSubject }</a><br />`
+                linkSubj1 = `<li><a style="color:black" href=${urlSubj1} target="_blank">ClassWeb Search: ${this.lccFeatureData.firstSubject }</a></li>`
             }
             if (this.lccFeatureData.secondSubject){
-                linkSubj2 = `<a style="color:black" href=${urlSubj2} target="_blank">ClassWeb Search: ${this.lccFeatureData.secondSubject }</a>`
+                linkSubj2 = `<li><a style="color:black" href=${urlSubj2} target="_blank">ClassWeb Search: ${this.lccFeatureData.secondSubject }</a></li>`
             }
 
             let links = `
+                <ul>
                 ${linkClassSearch}
                 ${linkSubj1}
                 ${linkSubj2}
+                </ul>
             `
 
             return links
@@ -334,14 +336,39 @@ export default {
 
 <style scoped>
 .external-links a:hover,
-.classweb-links a:hover,
+:deep() .classweb-links a:hover,
+:deep() .classweb-links-inline a:hover,
 a:hover {
     color: blue !important;
 }
 
+.classweb-links-inline{
+    margin: 5px;
+}
+
+.classweb-links-inline :deep(ul){
+    padding-left: 10px;
+}
+.external-links :deep(ul){
+    padding-left: 0px;
+}
+.classweb-links :deep(ul){
+    padding: 0px;
+}
+
+.classweb-links :deep(li){
+    list-style: none;
+}
+
 .external-links a,
-.classweb-links a {
+.classweb-links a
+.classweb-links-inline a
+{
     color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
+}
+
+.links{
+    width: 35%;
 }
 
 
@@ -358,22 +385,26 @@ a:hover {
     padding: 5px;
 }
 
-.cutter-calc {}
+.cutter-calc {
+    flex: 1 0 50%;
+}
 
 .links {
+    flex: 1 1 fit-content;
     padding: 5px;
 }
 
-.external-links>ul>li {
+.external-links {
+    padding: 5px;
+}
+.external-links li {
     list-style: none;
+    word-break: break-all;
 }
 
-.external-links>ul {
-    padding: 0px;
-}
 
 .shelflist-search {
-    flex: 1 1 0%;
+    flex: 0 1 15%;
     display: flex;
     justify-content: center;
     align-items: center;

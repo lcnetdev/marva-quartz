@@ -613,7 +613,6 @@ test('Add a literal and set type Family, it has the correct XML', async ({ page 
 });
 
 test('Add a Dogs with literal topic sub it has the correct XML', async ({ page }) => {
-    test.slow()
     await page.goto('http://localhost:5555/marva/');
 
     // Update the preferences for this test

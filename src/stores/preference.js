@@ -1368,7 +1368,7 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Shelflisting',
           range: null
       },
-       '--b-shelflist-show-classweb-links-inline' : {
+      '--b-shelflist-show-classweb-links-inline' : {
         desc: 'Display ClassWeb links to the side of Cutter Calc., otherwise, above it.',
         descShort: 'ClassWeb Links Inline',
         value: false,
