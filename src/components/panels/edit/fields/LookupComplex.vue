@@ -69,8 +69,8 @@
                         </div>
                         <div class="selected-value-container-title">
                           <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
-                          <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
-                          <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                          <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold"><a href="#" :class="['entity-link']" @click="openAuthority()" ref="el">{{avl.label}}</a><span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><ValidationIcon :value="avl" /></span></span>
+                          <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><ValidationIcon :value="avl" /></span></span>
                         </div>
                         <div class="selected-value-container-action">
                           <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
@@ -873,7 +873,7 @@ export default {
   padding-right: 0.3em;
   margin-left: 5px;
   border-left: 1px solid black;
-  padding: 0px 7px;
+  padding: 0px 0px;
   font-size: 1em;
 }
 

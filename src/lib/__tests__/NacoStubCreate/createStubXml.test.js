@@ -39,6 +39,6 @@ describe('Build a stub', () => {
         expect(xml).toContain('<marcxml:datafield tag="500" ind1="1" ind2=" "><marcxml:subfield code="w">r</marcxml:subfield><marcxml:subfield code="i">Container of (work):</marcxml:subfield><marcxml:subfield code="a">Bova, Ben,</marcxml:subfield><marcxml:subfield code="d">1932-2020.</marcxml:subfield><marcxml:subfield code="t">Long way back</marcxml:subfield></marcxml:datafield>')
         expect(xml).toContain('<marcxml:datafield tag="670" ind1=" " ind2=" "><marcxml:subfield code="a">Test title, 2026:</marcxml:subfield><marcxml:subfield code="b">title page (SOR)</marcxml:subfield><marcxml:subfield code="u">http://id.loc.gov/resources/instances/in01260000051</marcxml:subfield></marcxml:datafield>')
 
-        expect(xml).toContain('<marcxml:datafield tag="985" ind1=" " ind2=" "><marcxml:subfield code="e">MARVA-NAR</marcxml:subfield><marcxml:subfield code="d">2026-10-30</marcxml:subfield></marcxml:datafield>')
+        expect(xml).toMatch(/<marcxml:datafield tag="985" ind1=" " ind2=" "><marcxml:subfield code="e">MARVA-NAR<\/marcxml:subfield><marcxml:subfield code="d">\d\d\d\d-\d\d-\d\d<\/marcxml:subfield><\/marcxml:datafield>/)
     })
 })
