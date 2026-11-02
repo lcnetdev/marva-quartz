@@ -1484,7 +1484,7 @@ export default {
   color:gray;
 }
 .bfcode-display-mode-holder-value{
-  display: flex
+  display: flex;
   flex-grow: 1;
 }
 
