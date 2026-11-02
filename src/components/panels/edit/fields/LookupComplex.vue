@@ -773,7 +773,8 @@ export default {
   padding-right: 10px;
   color:gray;
 }
-.bfcode-display-mode-holder-value{
+:deep() .bfcode-display-mode-holder-value{
+  display: flex;
   flex-grow: 1;
 }
 
