@@ -845,7 +845,7 @@ export default {
 
   border: solid 1px;
   border-radius: 0.5em;
-  padding: 0.35em;
+  /* padding: 0.35em; */
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-lookup-font-size')");
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-background-color')");
   border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
