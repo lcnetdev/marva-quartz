@@ -2812,7 +2812,7 @@ const utilsExport = {
 		// field670u.setAttribute( 'code', 'u')
 		// field670u.innerHTML = instanceUri
 		// field670.appendChild(field670u)
-		let field670u = this.buildSubfield(field670, 'u', mainTitleNote)
+		let field670u = this.buildSubfield(field670, 'u', instanceUri)
 		field670SubfieldsValues.push(`$u ${instanceUri}`)
 
 		// if (mainTitleLccn){
