@@ -87,6 +87,10 @@ export default {
     currentIndex(newVal){
       if (newVal >= 0){ this.lastIndex = newVal }
     },
+    // the page is the record being worked, remembered so the sheet reopens on it
+    pageRowId(newVal){
+      if (newVal){ this.workflowStore.noteLastRow(newVal) }
+    },
     // the page's record was removed (or the sheet filled up from empty), turn to the nearest one
     'rows.length': function(){
       if (!this.currentRow){ this.pageRowId = this.rows.length > 0 ? this.rows[Math.min(this.lastIndex, this.rows.length - 1)].id : null }
@@ -283,10 +287,13 @@ export default {
     resetView(){ this.scale = 1 },
   },
   mounted(){
-    // open on the record the keyboard is on, otherwise the first one
+    // open on the record the keyboard is on, else the one the sheet was last on, else the first one
     let sel = this.workflowStore.selectedCell
+    let last = this.workflowStore.returnLastRow(this.workflowStore.activeSession)
     if (sel && this.rows.some((r) => { return r.id === sel.rowId })){
       this.pageRowId = sel.rowId
+    } else if (last){
+      this.pageRowId = last
     } else if (this.rows.length > 0){
       this.pageRowId = this.rows[0].id
     }

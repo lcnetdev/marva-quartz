@@ -9,7 +9,7 @@ import utilsParse from '@/lib/utils_parse'
 import utilsExport from '@/lib/utils_export'
 import utilsProfile from '@/lib/utils_profile'
 
-import workflowStorage from '@/lib/workflows/storage'
+import workflowStorage, { getLastRow, setLastRow } from '@/lib/workflows/storage'
 import builtinWorkflows from '@/lib/workflows/builtin'
 import { runEnrichments } from '@/lib/workflows/enrichments'
 import { expandComponentColumns, listProfileComponents, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
@@ -494,6 +494,10 @@ export const useWorkflowStore = defineStore('workflow', {
           return Object.assign(newRow(r.scanned), r, { status: 'loading', profile: null })
         }),
       }
+      // pick up where this sheet was left off in this browser: the keyboard goes to that record once
+      // it is in (markReady), until then the first record to come in does not take it
+      let lastRow = getLastRow(stored.id)
+      this.activeSession.resumeRowId = (lastRow && this.activeSession.rows.some((r) => { return r.id === lastRow })) ? lastRow : null
 
       for (let row of this.activeSession.rows){
         this.loadRow(row.id)
@@ -1577,10 +1581,47 @@ export const useWorkflowStore = defineStore('workflow', {
     */
     markReady(row, session){
       row.status = 'ready'
-      if (session === this.activeSession && !this.selectedCell && !this.editingCell && session.rows.indexOf(row) === session.rows.findIndex((r) => { return r.status === 'ready' })){
+      if (session !== this.activeSession || this.selectedCell || this.editingCell){ return }
+      if (session.resumeRowId){
+        // a reopened sheet: the keyboard goes to the record it was last on, when that one is in.
+        // If that record is gone or could not load, the usual rule
+        let target = session.rows.filter((r) => { return r.id === session.resumeRowId })[0]
+        if (target && target.status !== 'error'){
+          if (row.id !== session.resumeRowId){ return }
+          session.resumeRowId = null
+          this.selectCell(row.id, 0, 0)
+          leaveTheScanBox()
+          return
+        }
+        session.resumeRowId = null
+      }
+      if (session.rows.indexOf(row) === session.rows.findIndex((r) => { return r.status === 'ready' })){
         this.selectCell(row.id, 0, 0)
         leaveTheScanBox()
       }
+    },
+
+    /**
+    * The record the open sheet is on now, remembered in this browser so the sheet reopens on it
+    * (openSession). From selectCell, and from the single record layout when it turns to a record
+    * that is still loading (no cell to select on it).
+    * @param {string} rowId
+    */
+    noteLastRow(rowId){
+      let session = this.sessionFor(rowId)
+      if (!session || session.test || session !== this.activeSession){ return }
+      setLastRow(session.id, rowId)
+    },
+
+    /**
+    * The record a sheet was last on in this browser, if it is still in the sheet
+    * @param {object} session
+    * @return {string|null} - the row id
+    */
+    returnLastRow(session){
+      if (!session || session.test){ return null }
+      let rowId = getLastRow(session.id)
+      return (rowId && session.rows.some((r) => { return r.id === rowId })) ? rowId : null
     },
 
     /**
@@ -2008,6 +2049,7 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       this.selectedColumn = null
       this.selectedCell = { rowId: rowId, line: line, col: col }
+      this.noteLastRow(rowId)
     },
 
     /**

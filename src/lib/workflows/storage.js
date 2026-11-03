@@ -234,4 +234,36 @@ const workflowStorage = {
   usingBackend: usingBackend,
 }
 
+// ---------------------------------------------------------------- where a sheet was left off
+
+// The record each sheet was last on, session id -> { rowId, at }. This browser only (localStorage
+// whether the backend is in use or not): it is where this person was, not part of the sheet.
+const LAST_ROWS_KEY = 'marva-workflows-last-row'
+const LAST_ROWS_KEPT = 100
+
+/**
+* The row a sheet was last on, if this browser remembers it
+* @param {string} sessionId
+* @return {string|null} - the row id
+*/
+export function getLastRow(sessionId){
+  let entry = readObject(LAST_ROWS_KEY)[sessionId]
+  return (entry && entry.rowId) ? entry.rowId : null
+}
+
+/**
+* Remember the row a sheet is on. The oldest sheets are forgotten past LAST_ROWS_KEPT of them.
+* @param {string} sessionId
+* @param {string} rowId
+*/
+export function setLastRow(sessionId, rowId){
+  if (!sessionId || !rowId){ return }
+  let all = readObject(LAST_ROWS_KEY)
+  if (all[sessionId] && all[sessionId].rowId === rowId){ return }
+  all[sessionId] = { rowId: rowId, at: Date.now() }
+  let ids = Object.keys(all).sort((a, b) => { return (all[b].at || 0) - (all[a].at || 0) })
+  for (let id of ids.slice(LAST_ROWS_KEPT)){ delete all[id] }
+  write(LAST_ROWS_KEY, all)
+}
+
 export default workflowStorage
