@@ -1104,6 +1104,64 @@ export function applyRequired(recordLines, pending){
   }
 }
 
+// ---------------------------------------------------------------- what one field implies in another
+
+const COLOR_CONTENT = ONT + 'colorContent'
+const NOTE = ONT + 'note'
+// "color illustrations", "chiefly color", "some colour", "col. ill." (before the wording fix spells it out)
+const SAYS_COLOR = /\bcolou?r|\bcol\./i
+
+/**
+* The term the Work's color content is set to when the physical description says color (MARC 300 $b
+* "color illustrations" -> 340 $g color)
+*/
+export const COLOR_CONTENT_COLOR = { uri: VOC + 'mcolor/mul', label: 'color' }
+
+/**
+* Does the Instance's physical description say the book has color in it: the Extent's label or any
+* note under it (the physical details note the converter makes of 300 $b) mentions color
+*/
+export function physicalDescriptionSaysColor(profile){
+  let rtId = findRtId(profile, 'Instance')
+  if (!rtId){ return false }
+  let labelsOf = function(node){
+    return (node[LABEL] || []).map((l) => { return (l && typeof l === 'object') ? String(l[LABEL] || '') : String(l || '') })
+  }
+  for (let ptId of profile.rt[rtId].ptOrder){
+    let pt = profile.rt[rtId].pt[ptId]
+    if (!pt || pt.deleted || pt.propertyURI !== EXTENT || !pt.userValue){ continue }
+    for (let extent of (pt.userValue[EXTENT] || [])){
+      let texts = labelsOf(extent)
+      for (let note of (extent[NOTE] || [])){ texts = texts.concat(labelsOf(note)) }
+      if (texts.some((t) => { return SAYS_COLOR.test(t) })){ return true }
+    }
+  }
+  return false
+}
+
+/**
+* The color content the physical description implies and the record does not have yet: the Work's
+* empty color content component to set and the term to set it to. Null when the physical
+* description does not say color, the Work already has a color content (whatever it is, that is
+* the cataloger's), or the profile has no color content component to fill.
+* @param {object} profile - the record
+* @return {object|null} - { pt, value: {uri, label} }
+*/
+export function impliedColorContent(profile){
+  if (!physicalDescriptionSaysColor(profile)){ return null }
+  let rtId = findRtId(profile, 'Work')
+  if (!rtId){ return null }
+  let empty = null
+  for (let ptId of profile.rt[rtId].ptOrder){
+    let pt = profile.rt[rtId].pt[ptId]
+    if (!pt || pt.deleted || pt.propertyURI !== COLOR_CONTENT){ continue }
+    if (!componentIsEmpty(pt)){ return null }
+    if (!empty){ empty = pt }
+  }
+  if (!empty){ return null }
+  return { pt: empty, value: Object.assign({}, COLOR_CONTENT_COLOR) }
+}
+
 // ---------------------------------------------------------------- accepting
 
 /**

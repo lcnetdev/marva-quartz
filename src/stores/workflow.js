@@ -18,7 +18,7 @@ import { inspectRecord, recommendCandidate, formatLabel } from '@/lib/workflows/
 import { listSourcePorts, parsePortKey, RECORD_ORIGIN } from '@/lib/workflows/graph/ports'
 import { readSourceValues, entryText } from '@/lib/workflows/graph/values'
 import { runGraph } from '@/lib/workflows/graph/run'
-import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord } from '@/lib/workflows/cip'
+import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord, impliedColorContent } from '@/lib/workflows/cip'
 
 import short from 'short-uuid'
 
@@ -1369,7 +1369,61 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       // what came in from WorldCat is held to the checklist too (the 300 wording)
       count += await this.autoApplyChecklist(rowId)
+      // and what it says about the book is carried to the Work (color illustrations -> color content)
+      count += await this.autoAddColorContent(rowId)
       return count
+    },
+
+    /**
+    * What the physical description implies elsewhere: "color illustrations" in the 300 means the
+    * Work's color content is color (cip.impliedColorContent). Set without a click when the Work has
+    * no color content yet, through the editor's setter inside withRow, and noted on row.replaced
+    * like the other auto replacements so the cell shows it was set on the record's behalf and can
+    * be put back; the component is put on the sheet if it is not there. Only on a CIP sheet, after
+    * WorldCat's physical description has come in.
+    * @param {string} rowId
+    * @return {number} - 1 when the color content was set
+    */
+    async autoAddColorContent(rowId){
+      let session = this.sessionFor(rowId)
+      let row = this.returnRow(rowId)
+      if (!row || !row.profile || !session){ return 0 }
+      if (!(session.definition.enrichments || []).includes(CIP_ENRICHMENT_ID)){ return 0 }
+      let implied = impliedColorContent(row.profile)
+      if (!implied){ return 0 }
+      let component = this.returnProfileComponents(session.definition.profileId).filter((c) => { return c.rt === 'Work' && c.propertyURI === implied.pt.propertyURI && c.label === implied.pt.propertyLabel })[0]
+      if (!component){ return 0 }
+      let cells = resolveComponentCells(implied.pt, useProfileStore().rtLookup, useConfigStore().lookupConfig)
+      let colKey = Object.keys(cells).filter((k) => { return cells[k].kind === 'field' })[0]
+      if (!colKey){ return 0 }
+      let cell = cells[colKey]
+      this.rememberBaseline(row)
+      let snapshot = { before: JSON.parse(JSON.stringify(implied.pt.userValue)), beforeType: implied.pt.activeType }
+      let done = 0
+      await this.withRow(rowId, async () => {
+        try {
+          await useProfileStore().setValueSimple(implied.pt['@guid'], short.generate(), cell.propertyPath, implied.value.uri, implied.value.label)
+          done = 1
+        } catch (e) {
+          console.error('Workflows: could not set the color content', e)
+        }
+      }, 'Setting the color content...')
+      if (!done){ return 0 }
+      row = this.returnRow(rowId)
+      if (!row){ return 0 }
+      let key = component.rt + '|' + component.id
+      this.noteReplaced(row, key + '|' + implied.pt['@guid'], implied.pt, snapshot, colKey, [], [implied.value])
+      this.recordHistory(row)
+      this.rowChanged(row)
+      // on the sheet, where the replaced note can be seen and put back
+      if (session === this.activeSession){
+        let shown = session.definition.components.some((c) => { return c.rt + '|' + c.id === key }) && !(session.hiddenComponents || []).includes(key)
+        if (!shown){
+          this.addComponent(component)
+          this.notify('Put on the sheet: ' + component.label + ', set to color from the physical description', 'info')
+        }
+      }
+      return done
     },
 
     /**
