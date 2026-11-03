@@ -8613,6 +8613,10 @@ export const useProfileStore = defineStore('profile', {
                         let label = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
                         let sourceURI = source["@id"] ? source["@id"] : ""
 
+                        // a source given by URI alone (a converted WorldCat record names the scheme and nothing else): LC's own schemes
+                        if (/^https?:\/\/id\.loc\.gov\/(authorities\/(subjects|childrensSubjects|names)|vocabulary\/subjectSchemes\/(lcsh|cyac|naf))\/?$/.test(sourceURI)) {
+                            return true
+                        }
                         if (!label.includes("Library of Congress") && !label.includes("Children's and Young Adults")) {
                             return false
                         }

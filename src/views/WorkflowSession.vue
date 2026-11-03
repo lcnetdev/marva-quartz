@@ -141,6 +141,9 @@
                 <input type="checkbox" :checked="noFieldColors" @change="setNoFieldColors($event.target.checked)" /> Don't use my default field colors in Workflows
               </label>
               <button class="wf-button" @click="openFieldColors()" title="The editor's Field Colors, the same preference"><span class="material-icons">palette</span> Field colors...</button>
+              <div class="wf-fields-menu-heading wf-options-heading">Preferences</div>
+              <p>Every Marva preference, the same ones the editor uses. The hide non-LC subjects and class numbers preferences apply here too.</p>
+              <button class="wf-button" @click="preferenceStore.togglePrefModal('General')" title="The full preference browser"><span class="material-icons">tune</span> All preferences...</button>
             </div>
           </template>
         </VDropdown>
@@ -388,6 +391,8 @@ export default {
     // picking field colors goes through preferenceStore.setValue, which calls the profile store's dataChanged:
     // that is not an edit of the record
     'preferenceStore.showFieldColorsModal'(open){ this.workflowStore.ignoreChanges = open },
+    // the same for the full preference browser, every change in it goes through setValue
+    'preferenceStore.showPrefModal'(open){ this.workflowStore.ignoreChanges = open },
     prompt(){ this.alwaysPick = false },
     // the profiles are loaded by App.vue, the session can't be opened until they are there
     profilesLoaded: { immediate: true, handler(){ this.open() } },
@@ -465,7 +470,7 @@ export default {
       try {
         this.preferenceStore.setValue('--b-workflows-no-field-colors', !!on)
       } finally {
-        this.workflowStore.ignoreChanges = this.preferenceStore.showFieldColorsModal
+        this.workflowStore.ignoreChanges = this.preferenceStore.showFieldColorsModal || this.preferenceStore.showPrefModal
       }
     },
 

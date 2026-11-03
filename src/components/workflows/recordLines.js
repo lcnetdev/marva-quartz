@@ -10,7 +10,10 @@ import { useProfileStore } from '@/stores/profile'
 import { useConfigStore } from '@/stores/config'
 
 import { findComponentPts, resolveComponentCells } from '@/lib/workflows/fields'
-import { compareComponent, suggestedPtsFor, checkCallNumberYears, publicationYear, applyChecklistRules, checkIsbns, hasSeriesStatement, recordProtections, applyProtections, recordSeriesTitles, isSeriesAlreadyInRecord, applyReplacements, applyRequired, isAutoReplaced, isRequired, suggestionsHidden, CIP_ENRICHMENT_ID } from '@/lib/workflows/cip'
+import { compareComponent, suggestedPtsFor, checkCallNumberYears, publicationYear, applyChecklistRules, checkIsbns, hasSeriesStatement, recordProtections, applyProtections, recordSeriesTitles, isSeriesAlreadyInRecord, applyReplacements, applyRequired, isAutoReplaced, isRequired, suggestionsHidden, componentIsEmpty, CIP_ENRICHMENT_ID } from '@/lib/workflows/cip'
+
+const SUBJECT_URI = 'http://id.loc.gov/ontologies/bibframe/subject'
+const CLASSIFICATION_URI = 'http://id.loc.gov/ontologies/bibframe/classification'
 
 export default {
   props: {
@@ -21,6 +24,33 @@ export default {
     ...mapStores(useWorkflowStore),
     ...mapState(useProfileStore, ['rtLookup']),
     ...mapState(useConfigStore, ['lookupConfig']),
+
+    /**
+    * The components of this record with lines the editor's hide non-LC preferences keep off the
+    * sheet: a note under the component says so, with a way to show them for this record only
+    * @return {object} - group key -> { count, shown, label }
+    */
+    hiddenNotes(){
+      let notes = {}
+      if (this.row.status != 'ready' || !this.row.profile){ return notes }
+      for (let group of this.visibleGroups){
+        let shown = (this.row.showHidden || []).includes(group.key)
+        // while shown, the lines are on the sheet so the layout hid nothing: count what it would hide
+        let counts = shown ? this.wouldHide(group) : this.layout.hidden[group.key]
+        if (!counts){ continue }
+        let count = counts.record + counts.worldcat
+        if (count == 0){ continue }
+        let what = (group.component.propertyURI === SUBJECT_URI) ? 'non-LC heading' : 'non-LC class number'
+        let label = (shown ? 'Showing ' : 'Hiding ') + count + ' ' + what + ((count == 1) ? '' : 's')
+        if (counts.worldcat > 0){ label += (counts.record > 0) ? ' (' + counts.worldcat + ' from WorldCat)' : ' from WorldCat' }
+        notes[group.key] = { count: count, shown: shown, label: label }
+      }
+      return notes
+    },
+
+    hasHiddenNote(){
+      return Object.keys(this.hiddenNotes).length > 0
+    },
 
     /**
     * Where each group's first column is, counting across all of the visible columns
@@ -85,13 +115,31 @@ export default {
     * @return {array} - of lines, each one is groupKey -> {pt, cells, suggestion} | {ghost: true, pt, cells, values, key}
     */
     lines(){
-      if (this.row.status != 'ready' || !this.row.profile){ return [{}] }
+      return this.layout.lines
+    },
+
+    /**
+    * The lines (above) along with what the editor's hide non-LC preferences kept off them: per
+    * component, how many of the record's own lines and how many of WorldCat's unmatched (ghost)
+    * lines. WorldCat's copy of a heading the record has is always compared, so the heading is
+    * still verified; only the headings it would add are hidden.
+    * @return {object} - { lines, hidden: groupKey -> {record, worldcat} }
+    */
+    layout(){
+      if (this.row.status != 'ready' || !this.row.profile){ return { lines: [{}], hidden: {} } }
 
       let perGroup = {}
+      let hidden = {}
       let lineCount = 1
       let dismissed = (this.row.enrichment && this.row.enrichment.dismissed) ? this.row.enrichment.dismissed : []
+      let hide = (groupKey, what, pt) => {
+        if (this.shownInEditor(pt, groupKey)){ return false }
+        if (!hidden[groupKey]){ hidden[groupKey] = { record: 0, worldcat: 0 } }
+        hidden[groupKey][what]++
+        return true
+      }
       for (let group of this.visibleGroups){
-        perGroup[group.key] = findComponentPts(this.row.profile, group.component).map((pt) => {
+        perGroup[group.key] = findComponentPts(this.row.profile, group.component).filter((pt) => { return !hide(group.key, 'record', pt) }).map((pt) => {
           return { pt: pt, cells: resolveComponentCells(pt, this.rtLookup, this.lookupConfig) }
         })
         // the linked related work / series is never taken from WorldCat (cip.suggestionsHidden)
@@ -107,6 +155,8 @@ export default {
           let compared = compareComponent(group.key, group.columns, perGroup[group.key], suggestedLines, dismissed)
           perGroup[group.key].forEach((line, i) => { line.suggestion = compared.suggestions[i] })
           for (let ghost of compared.ghosts){
+            // a heading WorldCat would add that the preference hides (a FAST heading) is not offered
+            if (hide(group.key, 'worldcat', ghost.pt)){ continue }
             perGroup[group.key].push({ ghost: true, pt: ghost.pt, cells: ghost.cells, values: ghost.values, key: ghost.key })
           }
         }
@@ -152,7 +202,56 @@ export default {
         }
         lines.push(line)
       }
-      return lines
+      return { lines: lines, hidden: hidden }
+    },
+  },
+  methods: {
+    /**
+    * The editor's "Hide non-LC subjects" and "Hide non-LC class numbers" preferences hold on the
+    * sheet too: a subject not from an LC thesaurus, a class number not LC's, is left off the
+    * record's lines and off WorldCat's offers. The same decision as the editor's
+    * (profileStore.displaySubject / displayClassNumber, which read the preferences and say yes
+    * when they are off). An empty component is always shown, it is the line to type into.
+    * @param {object} pt
+    * @return {boolean}
+    */
+    shownInEditor(pt, groupKey){
+      if ((this.row.showHidden || []).includes(groupKey)){ return true }
+      return this.shownByPreference(pt)
+    },
+
+    // the preference's own say, without this record's "Show"
+    shownByPreference(pt){
+      if (!pt || componentIsEmpty(pt)){ return true }
+      if (pt.propertyURI === SUBJECT_URI){ return !!useProfileStore().displaySubject(pt) }
+      if (pt.propertyURI === CLASSIFICATION_URI){ return !!useProfileStore().displayClassNumber(pt) }
+      return true
+    },
+
+    /**
+    * What the preference would hide of a component whose lines are shown for this record: its own
+    * lines, and WorldCat's ghost lines on the sheet (an unmatched offer, drawn as a ghost)
+    * @param {object} group
+    * @return {object} - {record, worldcat}
+    */
+    wouldHide(group){
+      let counts = { record: 0, worldcat: 0 }
+      for (let line of this.layout.lines){
+        let entry = line[group.key]
+        if (!entry || !entry.pt || this.shownByPreference(entry.pt)){ continue }
+        counts[entry.ghost ? 'worldcat' : 'record']++
+      }
+      return counts
+    },
+
+    /**
+    * Show (or hide again) the lines of a component the preference hides, for this record only,
+    * for as long as the sheet is open
+    * @param {string} groupKey
+    */
+    toggleHidden(groupKey){
+      let list = this.row.showHidden || []
+      this.row.showHidden = list.includes(groupKey) ? list.filter((k) => { return k !== groupKey }) : list.concat([groupKey])
     },
   },
 }

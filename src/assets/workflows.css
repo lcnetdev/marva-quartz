@@ -1891,3 +1891,22 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   cursor: pointer;
 }
 .wf-options-check input { vertical-align: middle; margin-right: 0.3em; }
+
+/* the note under a component whose non-LC subjects / class numbers the editor's preference hides */
+.wf-table tr.wf-note-line td {
+  background: var(--wf-na-color);
+  padding: 0;
+}
+.wf-table tr.wf-note-line td.wf-hidden-note {
+  background: var(--wf-page-background);
+  padding: 0.1em 0.5em;
+  font-size: 0.85em;
+  color: var(--wf-muted-color);
+  white-space: nowrap;
+}
+.wf-hidden-note-toggle {
+  margin-left: 0.4em;
+  color: var(--wf-accent-color);
+  text-decoration: underline;
+  cursor: pointer;
+}
