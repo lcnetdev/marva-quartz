@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 // the profile store has to load before lib/workflows (utils_profile -> stores/profile -> utils_parse share a cycle with utils_rdf)
 import '@/stores/profile'
-import { isAutoReplaced, isRequired, suggestionsHidden, applyReplacements, applyRequired, applyChecklistRules, checklistGoverns, linkedToUnlinked, knownLabel, AUTO_REPLACE_COMPONENTS, REQUIRED_COMPONENTS, physicalDescriptionSaysColor, impliedColorContent, COLOR_CONTENT_COLOR } from '@/lib/workflows/cip'
+import { isAutoReplaced, isRequired, suggestionsHidden, applyReplacements, applyRequired, applyChecklistRules, checklistGoverns, linkedToUnlinked, knownLabel, AUTO_REPLACE_COMPONENTS, REQUIRED_COMPONENTS, physicalDescriptionSaysColor, impliedColorContent, COLOR_CONTENT_COLOR, compareComponent, isSourceColumn, sourceStillOffered } from '@/lib/workflows/cip'
 
 const ONT = 'http://id.loc.gov/ontologies/bibframe/'
 const comp = (prop, id) => { return { rt: 'Instance', id: id || ('id_loc_gov_ontologies_bibframe_' + prop), propertyURI: ONT + prop, label: prop } }
@@ -201,5 +201,87 @@ describe('the physical description implies the color content', () => {
     expect(impliedColorContent(record('1 volume (unpaged)', 'color illustrations', 'http://id.loc.gov/vocabulary/mcolor/mul'))).toBeNull()
     // nothing to imply it from
     expect(impliedColorContent(record('1 volume (unpaged)', 'illustrations', null))).toBeNull()
+  })
+})
+
+describe('the thesaurus of a heading the record already has is not offered', () => {
+  const SUBJECT = ONT + 'subject'
+  const SOURCE = ONT + 'source'
+  const LABEL = 'http://www.w3.org/2000/01/rdf-schema#label'
+  const columns = [
+    { key: SUBJECT, kind: 'field', label: 'Subjects' },
+    { key: SOURCE, kind: 'field', label: 'Thesaurus' },
+  ]
+  const cells = {
+    [SUBJECT]: { kind: 'field', fieldType: 'SIMPLE', propertyPath: [{ level: 0, propertyURI: SUBJECT }] },
+    [SOURCE]: { kind: 'field', fieldType: 'SIMPLE', propertyPath: [{ level: 0, propertyURI: SUBJECT }, { level: 1, propertyURI: SOURCE }] },
+  }
+  // a subject line: the heading, with or without a thesaurus on it
+  const line = (guid, heading, headingUri, source) => {
+    let node = { '@guid': guid + 'v', '@id': headingUri, [LABEL]: [{ '@guid': guid + 'l', [LABEL]: heading }] }
+    if (source){ node[SOURCE] = [{ '@guid': guid + 's', '@id': source.uri, [LABEL]: [{ '@guid': guid + 'sl', [LABEL]: source.label }] }] }
+    let pt = { '@guid': guid, propertyURI: SUBJECT, userValue: { '@root': SUBJECT, [SUBJECT]: [node] } }
+    return { pt: pt, cells: cells }
+  }
+  const empty = (guid) => { return { pt: { '@guid': guid, propertyURI: SUBJECT, userValue: { '@root': SUBJECT } }, cells: cells } }
+  const FAST = { uri: null, label: 'Faceted application of subject terminology' }
+  const LCSH = { uri: 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh', label: 'Library of Congress subject headings' }
+
+  test('bf:source is the thesaurus column, at the top of a line or under a blank node', () => {
+    expect(isSourceColumn(SOURCE)).toBe(true)
+    expect(isSourceColumn('http://www.w3.org/2002/07/owl#sameAs|' + SOURCE)).toBe(true)
+    expect(isSourceColumn(SUBJECT)).toBe(false)
+    expect(isSourceColumn(ONT + 'sourceNote')).toBe(false)
+  })
+
+  test('WorldCat\'s FAST is not offered on a heading the record has, the heading is just verified', () => {
+    let record = [line('r', 'Dinosaurs', 'http://id.loc.gov/authorities/subjects/sh85038226', null)]
+    let worldcat = [line('w', 'Dinosaurs', null, FAST)]
+    let compared = compareComponent('k', columns, record, worldcat)
+    let s = compared.suggestions[0]
+    expect(s).not.toBeNull()
+    expect(s.cells[SUBJECT].status).toBe('match')
+    expect(s.cells[SOURCE]).toBeUndefined()
+    expect(s.open).toBe(0)
+    expect(s.verified).toBe(1)
+    expect(compared.ghosts.length).toBe(0)
+  })
+
+  test('nor a different thesaurus for a heading that has one', () => {
+    let record = [line('r', 'Dinosaurs', null, LCSH)]
+    let worldcat = [line('w', 'Dinosaurs', null, FAST)]
+    let s = compareComponent('k', columns, record, worldcat).suggestions[0]
+    expect(s.cells[SUBJECT].status).toBe('match')
+    expect(s.cells[SOURCE]).toBeUndefined()
+    expect(s.open).toBe(0)
+  })
+
+  test('the children\'s subject headings are still offered on a heading the record has', () => {
+    const CYAC = { uri: 'http://id.loc.gov/authorities/childrensSubjects', label: null }
+    expect(sourceStillOffered([CYAC])).toBe(true)
+    // as the sheet shows it when the label was not looked up: the URI as the label
+    expect(sourceStillOffered([{ uri: null, label: 'https://id.loc.gov/authorities/childrensSubjects/' }])).toBe(true)
+    expect(sourceStillOffered([FAST])).toBe(false)
+    expect(sourceStillOffered([])).toBe(false)
+
+    let s = compareComponent('k', columns, [line('r', 'Stories in rhyme', null, null)], [line('w', 'Stories in rhyme', null, CYAC)]).suggestions[0]
+    expect(s.cells[SUBJECT].status).toBe('match')
+    expect(s.cells[SOURCE].status).toBe('add')
+    expect(s.open).toBe(1)
+    // and in place of a thesaurus the record has
+    s = compareComponent('k', columns, [line('r', 'Stories in rhyme', null, LCSH)], [line('w', 'Stories in rhyme', null, CYAC)]).suggestions[0]
+    expect(s.cells[SOURCE].status).toBe('differs')
+  })
+
+  test('a heading taken whole from WorldCat still brings its thesaurus, and a matching thesaurus still verifies', () => {
+    let compared = compareComponent('k', columns, [empty('r')], [line('w', 'Rocks', null, FAST)])
+    let s = compared.suggestions[0]
+    expect(s.wholeLine).toBe(true)
+    expect(s.cells[SUBJECT].status).toBe('add')
+    expect(s.cells[SOURCE].status).toBe('add')
+
+    s = compareComponent('k', columns, [line('r', 'Rocks', null, LCSH)], [line('w', 'Rocks', null, LCSH)]).suggestions[0]
+    expect(s.cells[SOURCE].status).toBe('match')
+    expect(s.verified).toBe(2)
   })
 })

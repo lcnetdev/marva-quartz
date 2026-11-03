@@ -386,6 +386,26 @@ function overlap(a, b){
 }
 
 /**
+* Is a column the thesaurus / source of its line's value (bf:source: "Thesaurus" on a subject or
+* genre/form, the scheme a heading is from)
+*/
+export function isSourceColumn(columnKey){
+  return /(^|\|)http:\/\/id\.loc\.gov\/ontologies\/bibframe\/source$/.test(String(columnKey || ''))
+}
+
+/**
+* The thesauri WorldCat may still offer on a heading the record already has: LC's own children's
+* subject headings, which a juvenile record wants on its headings. Anything else (FAST on an LCSH
+* heading) is not offered.
+*/
+export const SOURCES_STILL_OFFERED = ['http://id.loc.gov/authorities/childrensSubjects']
+
+export function sourceStillOffered(values){
+  let allowed = SOURCES_STILL_OFFERED.map(normalizeUri)
+  return (values || []).some((v) => { return allowed.includes(normalizeUri(v.uri || v.label)) })
+}
+
+/**
 * The values of every column of a line
 * @return {object} - column key -> [{label, uri, ...}]
 */
@@ -449,6 +469,8 @@ export function compareComponent(groupKey, columns, recordLines, suggestedLines,
   let recordValues = recordLines.map((l) => { return lineValues(columns, l) })
   let suggestedValues = suggestedLines.map((l) => { return lineValues(columns, l) })
   let dataColumns = columns.filter((c) => { return c.kind !== 'type' })
+  // does the record's line hold the heading itself (anything besides a thesaurus / source)
+  let hasOwnValue = (r) => { return dataColumns.some((c) => { return !isSourceColumn(c.key) && hasValue(recordValues[r][c.key] || []) }) }
 
   // pair them up, the best matches first
   let pairs = []
@@ -512,6 +534,12 @@ export function compareComponent(groupKey, columns, recordLines, suggestedLines,
       }
       if (status !== 'match' && (column.kind === 'type' || dismissed.includes(key))){
         // types are not offered on their own, they come with the line
+        continue
+      }
+      if (status !== 'match' && isSourceColumn(column.key) && hasOwnValue(r) && !sourceStillOffered(want)){
+        // the thesaurus of a heading the record already has is the record's (an LCSH heading is never
+        // given WorldCat's FAST), only a heading taken whole from WorldCat brings its thesaurus along;
+        // the children's subject headings are the one thesaurus still offered
         continue
       }
       if (status !== 'match'){ open++ }
