@@ -572,7 +572,7 @@ export const useConfigStore = defineStore('config', {
           'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
-          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF All':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
         }
       ]
@@ -588,7 +588,7 @@ export const useConfigStore = defineStore('config', {
           'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=30&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=30&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=30&offset=<OFFSET>&searchtype=<TYPE>"},
-          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic&count=30&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=30&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF All':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=30&offset=<OFFSET>"},
         }
       ]
@@ -679,8 +679,8 @@ export const useConfigStore = defineStore('config', {
 
       "modes":[
         {
-          'hier':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
-          'All': {"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions", "all":true}
+          'hier':{"url":"https://preprod-8080.id.loc.gov/authorities/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All': {"url":"https://preprod-8080.id.loc.gov/authorities/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions", "all":true}
         }
       ]
     },
@@ -692,7 +692,7 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'All':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All':{"url":"https://preprod-8080.id.loc.gov/authorities/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
         }
       ]
     },
