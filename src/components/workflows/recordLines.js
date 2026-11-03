@@ -10,7 +10,7 @@ import { useProfileStore } from '@/stores/profile'
 import { useConfigStore } from '@/stores/config'
 
 import { findComponentPts, resolveComponentCells } from '@/lib/workflows/fields'
-import { compareComponent, suggestedPtsFor, checkCallNumberYears, publicationYear, applyChecklistRules, checkIsbns, hasSeriesStatement, recordProtections, applyProtections, recordSeriesTitles, isSeriesAlreadyInRecord, applyReplacements, applyRequired, isAutoReplaced, isRequired, suggestionsHidden, componentIsEmpty, CIP_ENRICHMENT_ID } from '@/lib/workflows/cip'
+import { compareComponent, suggestedPtsFor, checkCallNumberYears, publicationYear, applyChecklistRules, checkIsbns, hasSeriesStatement, recordProtections, applyProtections, recordSeriesTitles, isSeriesAlreadyInRecord, applyReplacements, applyRequired, isAutoReplaced, isRequired, suggestionsHidden, componentIsEmpty, headingSchemeUnknown, CIP_ENRICHMENT_ID } from '@/lib/workflows/cip'
 
 const SUBJECT_URI = 'http://id.loc.gov/ontologies/bibframe/subject'
 const CLASSIFICATION_URI = 'http://id.loc.gov/ontologies/bibframe/classification'
@@ -121,8 +121,9 @@ export default {
     /**
     * The lines (above) along with what the editor's hide non-LC preferences kept off them: per
     * component, how many of the record's own lines and how many of WorldCat's unmatched (ghost)
-    * lines. WorldCat's copy of a heading the record has is always compared, so the heading is
-    * still verified; only the headings it would add are hidden.
+    * lines. The comparison runs on every line first and the hiding comes after: a hidden heading
+    * of the record still takes WorldCat's copy of it (otherwise the copy would come back as a
+    * line to add), and only the headings WorldCat would add that the preference hides are dropped.
     * @return {object} - { lines, hidden: groupKey -> {record, worldcat} }
     */
     layout(){
@@ -139,9 +140,10 @@ export default {
         return true
       }
       for (let group of this.visibleGroups){
-        perGroup[group.key] = findComponentPts(this.row.profile, group.component).filter((pt) => { return !hide(group.key, 'record', pt) }).map((pt) => {
+        let recordLines = findComponentPts(this.row.profile, group.component).map((pt) => {
           return { pt: pt, cells: resolveComponentCells(pt, this.rtLookup, this.lookupConfig) }
         })
+        let ghosts = []
         // the linked related work / series is never taken from WorldCat (cip.suggestionsHidden)
         if (this.suggested && !suggestionsHidden(group.component)){
           // a series can sit in the linked relation component or the transcribed one: one WorldCat
@@ -152,14 +154,16 @@ export default {
             .map((pt) => {
               return { pt: pt, cells: resolveComponentCells(pt, this.rtLookup, this.lookupConfig) }
             })
-          let compared = compareComponent(group.key, group.columns, perGroup[group.key], suggestedLines, dismissed)
-          perGroup[group.key].forEach((line, i) => { line.suggestion = compared.suggestions[i] })
+          let compared = compareComponent(group.key, group.columns, recordLines, suggestedLines, dismissed)
+          recordLines.forEach((line, i) => { line.suggestion = compared.suggestions[i] })
           for (let ghost of compared.ghosts){
             // a heading WorldCat would add that the preference hides (a FAST heading) is not offered
             if (hide(group.key, 'worldcat', ghost.pt)){ continue }
-            perGroup[group.key].push({ ghost: true, pt: ghost.pt, cells: ghost.cells, values: ghost.values, key: ghost.key })
+            ghosts.push({ ghost: true, pt: ghost.pt, cells: ghost.cells, values: ghost.values, key: ghost.key })
           }
         }
+        // the record's own lines the preference hides go now, compared (and their WorldCat copy taken)
+        perGroup[group.key] = recordLines.filter((line) => { return !hide(group.key, 'record', line.pt) }).concat(ghosts)
         lineCount = Math.max(lineCount, perGroup[group.key].length)
       }
 
@@ -220,10 +224,12 @@ export default {
       return this.shownByPreference(pt)
     },
 
-    // the preference's own say, without this record's "Show"
+    // the preference's own say, without this record's "Show". A heading with neither a URI nor a
+    // thesaurus is not known to be anything, the editor hides it but the sheet keeps it: it is the
+    // line being worked on (cip.headingSchemeUnknown)
     shownByPreference(pt){
       if (!pt || componentIsEmpty(pt)){ return true }
-      if (pt.propertyURI === SUBJECT_URI){ return !!useProfileStore().displaySubject(pt) }
+      if (pt.propertyURI === SUBJECT_URI){ return headingSchemeUnknown(pt) || !!useProfileStore().displaySubject(pt) }
       if (pt.propertyURI === CLASSIFICATION_URI){ return !!useProfileStore().displayClassNumber(pt) }
       return true
     },
