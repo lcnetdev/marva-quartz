@@ -349,7 +349,7 @@ export function linkedToUnlinked(have, want){
 }
 
 /**
-* The things a value can be recognised by: its URI and its label (when the label is not just the
+* The things a value can be recognized by: its URI and its label (when the label is not just the
 * URI shown for want of a label, then the label the editor looked up for the URI, if it has). The
 * converted WorldCat record often has a bare URI where the record has a URI and a label, or a bare
 * label where the record has both, so either counts.
@@ -383,6 +383,26 @@ function sameValues(a, b){
 
 function overlap(a, b){
   return a.filter((va) => { return b.some((vb) => { return valuesMatch(va, vb) }) }).length
+}
+
+/**
+* Is a column the thesaurus / source of its line's value (bf:source: "Thesaurus" on a subject or
+* genre/form, the scheme a heading is from)
+*/
+export function isSourceColumn(columnKey){
+  return /(^|\|)http:\/\/id\.loc\.gov\/ontologies\/bibframe\/source$/.test(String(columnKey || ''))
+}
+
+/**
+* The thesauri WorldCat may still offer on a heading the record already has: LC's own children's
+* subject headings, which a juvenile record wants on its headings. Anything else (FAST on an LCSH
+* heading) is not offered.
+*/
+export const SOURCES_STILL_OFFERED = ['http://id.loc.gov/authorities/childrensSubjects']
+
+export function sourceStillOffered(values){
+  let allowed = SOURCES_STILL_OFFERED.map(normalizeUri)
+  return (values || []).some((v) => { return allowed.includes(normalizeUri(v.uri || v.label)) })
 }
 
 /**
@@ -449,6 +469,8 @@ export function compareComponent(groupKey, columns, recordLines, suggestedLines,
   let recordValues = recordLines.map((l) => { return lineValues(columns, l) })
   let suggestedValues = suggestedLines.map((l) => { return lineValues(columns, l) })
   let dataColumns = columns.filter((c) => { return c.kind !== 'type' })
+  // does the record's line hold the heading itself (anything besides a thesaurus / source)
+  let hasOwnValue = (r) => { return dataColumns.some((c) => { return !isSourceColumn(c.key) && hasValue(recordValues[r][c.key] || []) }) }
 
   // pair them up, the best matches first
   let pairs = []
@@ -512,6 +534,12 @@ export function compareComponent(groupKey, columns, recordLines, suggestedLines,
       }
       if (status !== 'match' && (column.kind === 'type' || dismissed.includes(key))){
         // types are not offered on their own, they come with the line
+        continue
+      }
+      if (status !== 'match' && isSourceColumn(column.key) && hasOwnValue(r) && !sourceStillOffered(want)){
+        // the thesaurus of a heading the record already has is the record's (an LCSH heading is never
+        // given WorldCat's FAST), only a heading taken whole from WorldCat brings its thesaurus along;
+        // the children's subject headings are the one thesaurus still offered
         continue
       }
       if (status !== 'match'){ open++ }
@@ -861,10 +889,10 @@ function isSeriesComponent(pt){
 
 /**
 * The titles the record gives its series, from every component that can hold one (a linked
-* series relation, a transcribed series statement) so a series is recognised whichever way it is in
+* series relation, a transcribed series statement) so a series is recognized whichever way it is in
 * @param {object} profile - the record
 * @param {object|null} except - a workflow component {propertyURI, label} whose instances are left out
-* @return {array} - normalised titles
+* @return {array} - normalized titles
 */
 export function recordSeriesTitles(profile, except = null){
   let titles = []
@@ -1102,6 +1130,64 @@ export function applyRequired(recordLines, pending){
     if (line.suggestion && line.suggestion.open > 0){ continue }
     if (componentIsEmpty(line.pt)){ line.missing = true }
   }
+}
+
+// ---------------------------------------------------------------- what one field implies in another
+
+const COLOR_CONTENT = ONT + 'colorContent'
+const NOTE = ONT + 'note'
+// "color illustrations", "chiefly color", "some color", "col. ill." (before the wording fix spells it out)
+const SAYS_COLOR = /\bcolou?r|\bcol\./i
+
+/**
+* The term the Work's color content is set to when the physical description says color (MARC 300 $b
+* "color illustrations" -> 340 $g color)
+*/
+export const COLOR_CONTENT_COLOR = { uri: VOC + 'mcolor/mul', label: 'color' }
+
+/**
+* Does the Instance's physical description say the book has color in it: the Extent's label or any
+* note under it (the physical details note the converter makes of 300 $b) mentions color
+*/
+export function physicalDescriptionSaysColor(profile){
+  let rtId = findRtId(profile, 'Instance')
+  if (!rtId){ return false }
+  let labelsOf = function(node){
+    return (node[LABEL] || []).map((l) => { return (l && typeof l === 'object') ? String(l[LABEL] || '') : String(l || '') })
+  }
+  for (let ptId of profile.rt[rtId].ptOrder){
+    let pt = profile.rt[rtId].pt[ptId]
+    if (!pt || pt.deleted || pt.propertyURI !== EXTENT || !pt.userValue){ continue }
+    for (let extent of (pt.userValue[EXTENT] || [])){
+      let texts = labelsOf(extent)
+      for (let note of (extent[NOTE] || [])){ texts = texts.concat(labelsOf(note)) }
+      if (texts.some((t) => { return SAYS_COLOR.test(t) })){ return true }
+    }
+  }
+  return false
+}
+
+/**
+* The color content the physical description implies and the record does not have yet: the Work's
+* empty color content component to set and the term to set it to. Null when the physical
+* description does not say color, the Work already has a color content (whatever it is, that is
+* the cataloger's), or the profile has no color content component to fill.
+* @param {object} profile - the record
+* @return {object|null} - { pt, value: {uri, label} }
+*/
+export function impliedColorContent(profile){
+  if (!physicalDescriptionSaysColor(profile)){ return null }
+  let rtId = findRtId(profile, 'Work')
+  if (!rtId){ return null }
+  let empty = null
+  for (let ptId of profile.rt[rtId].ptOrder){
+    let pt = profile.rt[rtId].pt[ptId]
+    if (!pt || pt.deleted || pt.propertyURI !== COLOR_CONTENT){ continue }
+    if (!componentIsEmpty(pt)){ return null }
+    if (!empty){ empty = pt }
+  }
+  if (!empty){ return null }
+  return { pt: empty, value: Object.assign({}, COLOR_CONTENT_COLOR) }
 }
 
 // ---------------------------------------------------------------- accepting

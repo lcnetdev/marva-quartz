@@ -40,7 +40,7 @@
                 <dt>Enter / Esc</dt><dd>finish editing</dd>
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
                 <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
-                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a grey line below a component as a new one</dd>
+                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a gray line below a component as a new one</dd>
                 <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
@@ -55,7 +55,7 @@
                 <dt>Enter / Esc</dt><dd>finish editing</dd>
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
                 <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
-                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a grey line below a component as a new one</dd>
+                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a gray line below a component as a new one</dd>
                 <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
@@ -71,6 +71,19 @@
           </button>
           <template #popper>
             <div class="wf-fields-menu">
+              <!-- the saved field sets: one click puts its fields on the sheet (lib/workflows/fieldSets.js) -->
+              <div class="wf-fields-menu-heading">Field sets <span class="wf-fields-menu-hint">saved with your preferences</span></div>
+              <div class="wf-field-sets">
+                <span v-for="set in fieldSets" :key="set.id" :class="['wf-field-set', {'wf-field-set-active': set.id === activeFieldSetId}]">
+                  <button class="wf-field-set-name" :title="(set.id === activeFieldSetId ? 'The fields shown now. ' : 'Show these fields: ') + fieldSetSummary(set)" @click="workflowStore.applyFieldSet(set.id)">
+                    <span v-if="set.id === activeFieldSetId" class="material-icons">check</span>{{ set.name }}
+                  </button>
+                  <button class="wf-field-set-delete" :title="'Delete the field set \'' + set.name + '\''" @click.stop="deleteFieldSet(set)"><span class="material-icons">close</span></button>
+                </span>
+                <button class="wf-field-set wf-field-set-save" title="Save the fields shown now, in this order with their subfields, as a set to come back to" @click="savingFieldSet = true">
+                  <span class="material-icons">add</span>{{ fieldSets.length == 0 ? 'Save these fields as a set' : 'Save current' }}
+                </button>
+              </div>
               <div class="wf-fields-menu-heading">In this sheet <span class="wf-fields-menu-hint">drag to reorder</span></div>
               <!-- the order here is the order of the columns in the sheet, drag a row by its handle to move it -->
               <template v-for="group in workflowStore.columnGroups" :key="group.key">
@@ -134,10 +147,16 @@
                 <p>The <strong>{{ autoFormat }}</strong> record is taken without asking (when exactly one of the matches is {{ autoFormat }}).</p>
                 <button class="wf-button" @click="workflowStore.setAutoFormat(session.workflowId, null)">Ask me which record each time</button>
               </template>
-              <p v-else>You are asked which record to load. Tick "Always select this version from now on" in that dialog to stop being asked.</p>
-              <div class="wf-fields-menu-heading wf-options-heading">Colours</div>
-              <p>The colours given to fields in the editor's Field Colors apply to the cells here too.</p>
-              <button class="wf-button" @click="openFieldColors()" title="The editor's Field Colors, the same preference"><span class="material-icons">palette</span> Field colours...</button>
+              <p v-else>You are asked which record to load. Check "Always select this version from now on" in that dialog to stop being asked.</p>
+              <div class="wf-fields-menu-heading wf-options-heading">Colors</div>
+              <p>The colors given to fields in the editor's Field Colors apply to the cells here too.</p>
+              <label class="wf-options-check" title="Saved with your preferences, for every workflow">
+                <input type="checkbox" :checked="noFieldColors" @change="setNoFieldColors($event.target.checked)" /> Don't use my default field colors in Workflows
+              </label>
+              <button class="wf-button" @click="openFieldColors()" title="The editor's Field Colors, the same preference"><span class="material-icons">palette</span> Field colors...</button>
+              <div class="wf-fields-menu-heading wf-options-heading">Preferences</div>
+              <p>Every Marva preference, the same ones the editor uses. The hide non-LC subjects and class numbers preferences apply here too.</p>
+              <button class="wf-button" @click="preferenceStore.togglePrefModal('General')" title="The full preference browser"><span class="material-icons">tune</span> All preferences...</button>
             </div>
           </template>
         </VDropdown>
@@ -226,6 +245,9 @@
     <!-- renaming the sheet -->
     <WorkflowNameDialog v-if="renaming && session" title="Rename sheet" :initial="session.name" ok-label="Rename" @ok="rename" @cancel="renaming = false" />
 
+    <!-- saving the fields shown as a field set -->
+    <WorkflowNameDialog v-if="savingFieldSet && session" title="Save field set" message="The fields shown now, in this order, with the subfields each one shows. A set of this name is replaced." placeholder="Name of the field set" ok-label="Save" @ok="saveFieldSet" @cancel="savingFieldSet = false" />
+
     <!-- a post failed -->
     <div v-if="workflowStore.postError" class="wf-dialog-overlay">
       <div class="wf-dialog">
@@ -291,6 +313,8 @@ export default {
       scanValue: '',
       // the rename dialog is up
       renaming: false,
+      // the name-a-field-set dialog is up
+      savingFieldSet: false,
       notFound: false,
       opened: false,
       // the error messages that have already had their moment in the middle of the page
@@ -340,6 +364,11 @@ export default {
     },
 
     // 'sheet' (the spreadsheet) or 'pages' (one record at a time), chosen in Options
+    // the preference to keep the field colors off the sheet's cells
+    noFieldColors(){
+      return !!this.preferenceStore.returnValue('--b-workflows-no-field-colors')
+    },
+
     layout(){
       return this.session ? this.workflowStore.returnLayout(this.session.workflowId) : 'sheet'
     },
@@ -350,6 +379,15 @@ export default {
 
     hiddenCount(){
       return this.workflowStore.columnGroups.filter((g) => { return g.hidden }).length
+    },
+
+    // the saved field sets for this sheet's profile, and the one the sheet shows now if it is one of them
+    fieldSets(){
+      return this.session ? this.workflowStore.returnFieldSets() : []
+    },
+
+    activeFieldSetId(){
+      return this.session ? this.workflowStore.returnActiveFieldSetId() : null
     },
 
     zoomPercent(){
@@ -377,9 +415,11 @@ export default {
   watch: {
     // the user changed their colors in the preferences while the sheet is open
     theme(){ applyWorkflowTheme(this.preferenceStore) },
-    // picking field colours goes through preferenceStore.setValue, which calls the profile store's dataChanged:
+    // picking field colors goes through preferenceStore.setValue, which calls the profile store's dataChanged:
     // that is not an edit of the record
     'preferenceStore.showFieldColorsModal'(open){ this.workflowStore.ignoreChanges = open },
+    // the same for the full preference browser, every change in it goes through setValue
+    'preferenceStore.showPrefModal'(open){ this.workflowStore.ignoreChanges = open },
     prompt(){ this.alwaysPick = false },
     // the profiles are loaded by App.vue, the session can't be opened until they are there
     profilesLoaded: { immediate: true, handler(){ this.open() } },
@@ -426,6 +466,39 @@ export default {
     },
 
     /**
+    * The fields shown now become a named set (the dialog asked for the name)
+    * @param {string} name
+    */
+    saveFieldSet(name){
+      this.savingFieldSet = false
+      let set = this.workflowStore.saveFieldSet(name)
+      if (set){ this.workflowStore.notify('Field set "' + set.name + '" saved', 'info') }
+      this.focusScan()
+    },
+
+    deleteFieldSet(set){
+      if (!confirm('Delete the field set "' + set.name + '"? The sheets that used it keep their fields.')){ return }
+      this.workflowStore.deleteFieldSet(set.id)
+    },
+
+    /**
+    * What a set holds, for its tooltip: the fields in order, with how many subfields are off
+    * @param {object} set
+    * @return {string}
+    */
+    fieldSetSummary(set){
+      let labels = this.workflowStore.returnProfileComponents(set.profileId)
+      let names = []
+      for (let c of set.components){
+        let match = labels.filter((a) => { return a.rt === c.rt && a.id === c.id })[0]
+        if (!match){ continue }
+        let name = match.label + ((set.hidden || []).includes(c.rt + '|' + c.id) ? ' (unchecked)' : '')
+        names.push(name)
+      }
+      return names.join(', ')
+    },
+
+    /**
     * Switch between the spreadsheet and one record per page, remembered for this workflow
     * @param {string} layout - 'sheet' | 'pages'
     */
@@ -441,10 +514,24 @@ export default {
       } else if (this.profileStore.profiles[this.session.definition.profileId]){
         this.profileStore.activeProfile = JSON.parse(JSON.stringify(this.profileStore.profiles[this.session.definition.profileId]))
       } else {
-        this.workflowStore.notify('Scan a record first, the colours are picked from its fields', 'info')
+        this.workflowStore.notify('Scan a record first, the colors are picked from its fields', 'info')
         return
       }
       this.preferenceStore.showFieldColorsModal = true
+    },
+
+    /**
+    * Keep the field colors off the sheet, or not: a preference like any other (so it is saved with
+    * them), set with the sheet told not to take the preference store's dataChanged for an edit
+    * @param {boolean} on
+    */
+    setNoFieldColors(on){
+      this.workflowStore.ignoreChanges = true
+      try {
+        this.preferenceStore.setValue('--b-workflows-no-field-colors', !!on)
+      } finally {
+        this.workflowStore.ignoreChanges = this.preferenceStore.showFieldColorsModal || this.preferenceStore.showPrefModal
+      }
     },
 
     setLayout(layout){

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 // the profile store has to load before lib/workflows (utils_profile -> stores/profile -> utils_parse share a cycle with utils_rdf)
 import '@/stores/profile'
-import { isAutoReplaced, isRequired, suggestionsHidden, applyReplacements, applyRequired, applyChecklistRules, checklistGoverns, linkedToUnlinked, knownLabel, AUTO_REPLACE_COMPONENTS, REQUIRED_COMPONENTS } from '@/lib/workflows/cip'
+import { isAutoReplaced, isRequired, suggestionsHidden, applyReplacements, applyRequired, applyChecklistRules, checklistGoverns, linkedToUnlinked, knownLabel, AUTO_REPLACE_COMPONENTS, REQUIRED_COMPONENTS, physicalDescriptionSaysColor, impliedColorContent, COLOR_CONTENT_COLOR, compareComponent, isSourceColumn, sourceStillOffered } from '@/lib/workflows/cip'
 
 const ONT = 'http://id.loc.gov/ontologies/bibframe/'
 const comp = (prop, id) => { return { rt: 'Instance', id: id || ('id_loc_gov_ontologies_bibframe_' + prop), propertyURI: ONT + prop, label: prop } }
@@ -147,5 +147,141 @@ describe('applyChecklistRules is the authority on the cells it governs', () => {
     expect(line.suggestion.cells[ENCODING].status).toBe('differs')
     expect(line.suggestion.cells[ENCODING].simple.label).toBe('full')
     expect(line.suggestion.cells[ENCODING].replaceGuid).toBe('v')
+  })
+})
+
+describe('the physical description implies the color content', () => {
+  const EXTENT = ONT + 'extent'
+  const NOTE = ONT + 'note'
+  const COLOR_CONTENT = ONT + 'colorContent'
+  const LABEL = 'http://www.w3.org/2000/01/rdf-schema#label'
+  const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+  const label = (text) => { return [{ '@guid': 'l', [LABEL]: text }] }
+  // a record with a physical description (extent + a physical details note) and a Work color content
+  const record = (extentLabel, noteLabel, colorContent) => {
+    let extent = { '@guid': 'e', '@type': ONT + 'Extent', [LABEL]: label(extentLabel) }
+    if (noteLabel !== null){
+      extent[NOTE] = [{ '@guid': 'n', '@type': ONT + 'Note', [RDF_TYPE]: [{ '@guid': 't', '@id': 'http://id.loc.gov/vocabulary/mnotetype/physical' }], [LABEL]: label(noteLabel) }]
+    }
+    let color = { '@guid': 'c', propertyURI: COLOR_CONTENT, propertyLabel: 'Color content', userValue: { '@root': COLOR_CONTENT } }
+    if (colorContent){ color.userValue[COLOR_CONTENT] = [{ '@guid': 'cv', '@type': ONT + 'ColorContent', '@id': colorContent, [LABEL]: label('x') }] }
+    return {
+      rtOrder: ['lc:RT:bf2:Monograph:Work', 'lc:RT:bf2:Monograph:Instance'],
+      rt: {
+        'lc:RT:bf2:Monograph:Work': { ptOrder: ['color'], pt: { color: color } },
+        'lc:RT:bf2:Monograph:Instance': { ptOrder: ['extent'], pt: { extent: { '@guid': 'x', propertyURI: EXTENT, propertyLabel: 'Physical description', userValue: { '@root': EXTENT, [EXTENT]: [extent] } } } },
+      },
+    }
+  }
+
+  test('a physical details note saying color illustrations means color', () => {
+    expect(physicalDescriptionSaysColor(record('1 volume (unpaged)', 'color illustrations', null))).toBe(true)
+    expect(physicalDescriptionSaysColor(record('1 volume (unpaged)', 'chiefly colour illustrations', null))).toBe(true)
+    expect(physicalDescriptionSaysColor(record('1 volume (unpaged)', 'col. ill.', null))).toBe(true)
+    // all in the extent's label
+    expect(physicalDescriptionSaysColor(record('32 pages : color illustrations', null, null))).toBe(true)
+  })
+
+  test('illustrations that are not said to be in color, or no note at all, do not', () => {
+    expect(physicalDescriptionSaysColor(record('1 volume (unpaged)', 'illustrations', null))).toBe(false)
+    expect(physicalDescriptionSaysColor(record('1 volume (unpaged)', 'black and white illustrations', null))).toBe(false)
+    expect(physicalDescriptionSaysColor(record('1 volume (unpaged)', null, null))).toBe(false)
+    expect(physicalDescriptionSaysColor({ rtOrder: [], rt: {} })).toBe(false)
+  })
+
+  test('the empty Work color content is set to color, an existing one is left to the cataloger', () => {
+    let implied = impliedColorContent(record('1 volume (unpaged)', 'color illustrations', null))
+    expect(implied).not.toBeNull()
+    expect(implied.pt['@guid']).toBe('c')
+    expect(implied.value).toEqual(COLOR_CONTENT_COLOR)
+    expect(COLOR_CONTENT_COLOR.uri).toBe('http://id.loc.gov/vocabulary/mcolor/mul')
+    expect(COLOR_CONTENT_COLOR.label).toBe('color')
+    // already has one, even a different one
+    expect(impliedColorContent(record('1 volume (unpaged)', 'color illustrations', 'http://id.loc.gov/vocabulary/mcolor/blw'))).toBeNull()
+    expect(impliedColorContent(record('1 volume (unpaged)', 'color illustrations', 'http://id.loc.gov/vocabulary/mcolor/mul'))).toBeNull()
+    // nothing to imply it from
+    expect(impliedColorContent(record('1 volume (unpaged)', 'illustrations', null))).toBeNull()
+  })
+})
+
+describe('the thesaurus of a heading the record already has is not offered', () => {
+  const SUBJECT = ONT + 'subject'
+  const SOURCE = ONT + 'source'
+  const LABEL = 'http://www.w3.org/2000/01/rdf-schema#label'
+  const columns = [
+    { key: SUBJECT, kind: 'field', label: 'Subjects' },
+    { key: SOURCE, kind: 'field', label: 'Thesaurus' },
+  ]
+  const cells = {
+    [SUBJECT]: { kind: 'field', fieldType: 'SIMPLE', propertyPath: [{ level: 0, propertyURI: SUBJECT }] },
+    [SOURCE]: { kind: 'field', fieldType: 'SIMPLE', propertyPath: [{ level: 0, propertyURI: SUBJECT }, { level: 1, propertyURI: SOURCE }] },
+  }
+  // a subject line: the heading, with or without a thesaurus on it
+  const line = (guid, heading, headingUri, source) => {
+    let node = { '@guid': guid + 'v', '@id': headingUri, [LABEL]: [{ '@guid': guid + 'l', [LABEL]: heading }] }
+    if (source){ node[SOURCE] = [{ '@guid': guid + 's', '@id': source.uri, [LABEL]: [{ '@guid': guid + 'sl', [LABEL]: source.label }] }] }
+    let pt = { '@guid': guid, propertyURI: SUBJECT, userValue: { '@root': SUBJECT, [SUBJECT]: [node] } }
+    return { pt: pt, cells: cells }
+  }
+  const empty = (guid) => { return { pt: { '@guid': guid, propertyURI: SUBJECT, userValue: { '@root': SUBJECT } }, cells: cells } }
+  const FAST = { uri: null, label: 'Faceted application of subject terminology' }
+  const LCSH = { uri: 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh', label: 'Library of Congress subject headings' }
+
+  test('bf:source is the thesaurus column, at the top of a line or under a blank node', () => {
+    expect(isSourceColumn(SOURCE)).toBe(true)
+    expect(isSourceColumn('http://www.w3.org/2002/07/owl#sameAs|' + SOURCE)).toBe(true)
+    expect(isSourceColumn(SUBJECT)).toBe(false)
+    expect(isSourceColumn(ONT + 'sourceNote')).toBe(false)
+  })
+
+  test('WorldCat\'s FAST is not offered on a heading the record has, the heading is just verified', () => {
+    let record = [line('r', 'Dinosaurs', 'http://id.loc.gov/authorities/subjects/sh85038226', null)]
+    let worldcat = [line('w', 'Dinosaurs', null, FAST)]
+    let compared = compareComponent('k', columns, record, worldcat)
+    let s = compared.suggestions[0]
+    expect(s).not.toBeNull()
+    expect(s.cells[SUBJECT].status).toBe('match')
+    expect(s.cells[SOURCE]).toBeUndefined()
+    expect(s.open).toBe(0)
+    expect(s.verified).toBe(1)
+    expect(compared.ghosts.length).toBe(0)
+  })
+
+  test('nor a different thesaurus for a heading that has one', () => {
+    let record = [line('r', 'Dinosaurs', null, LCSH)]
+    let worldcat = [line('w', 'Dinosaurs', null, FAST)]
+    let s = compareComponent('k', columns, record, worldcat).suggestions[0]
+    expect(s.cells[SUBJECT].status).toBe('match')
+    expect(s.cells[SOURCE]).toBeUndefined()
+    expect(s.open).toBe(0)
+  })
+
+  test('the children\'s subject headings are still offered on a heading the record has', () => {
+    const CYAC = { uri: 'http://id.loc.gov/authorities/childrensSubjects', label: null }
+    expect(sourceStillOffered([CYAC])).toBe(true)
+    // as the sheet shows it when the label was not looked up: the URI as the label
+    expect(sourceStillOffered([{ uri: null, label: 'https://id.loc.gov/authorities/childrensSubjects/' }])).toBe(true)
+    expect(sourceStillOffered([FAST])).toBe(false)
+    expect(sourceStillOffered([])).toBe(false)
+
+    let s = compareComponent('k', columns, [line('r', 'Stories in rhyme', null, null)], [line('w', 'Stories in rhyme', null, CYAC)]).suggestions[0]
+    expect(s.cells[SUBJECT].status).toBe('match')
+    expect(s.cells[SOURCE].status).toBe('add')
+    expect(s.open).toBe(1)
+    // and in place of a thesaurus the record has
+    s = compareComponent('k', columns, [line('r', 'Stories in rhyme', null, LCSH)], [line('w', 'Stories in rhyme', null, CYAC)]).suggestions[0]
+    expect(s.cells[SOURCE].status).toBe('differs')
+  })
+
+  test('a heading taken whole from WorldCat still brings its thesaurus, and a matching thesaurus still verifies', () => {
+    let compared = compareComponent('k', columns, [empty('r')], [line('w', 'Rocks', null, FAST)])
+    let s = compared.suggestions[0]
+    expect(s.wholeLine).toBe(true)
+    expect(s.cells[SUBJECT].status).toBe('add')
+    expect(s.cells[SOURCE].status).toBe('add')
+
+    s = compareComponent('k', columns, [line('r', 'Rocks', null, LCSH)], [line('w', 'Rocks', null, LCSH)]).suggestions[0]
+    expect(s.cells[SOURCE].status).toBe('match')
+    expect(s.verified).toBe(2)
   })
 })

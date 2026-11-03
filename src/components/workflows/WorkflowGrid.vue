@@ -222,7 +222,8 @@ export default {
         // the lines as drawn: the record's own, plus any WorldCat ghost lines under them
         let count = countRecordLines(row.profile, components)
         let tbody = this.$refs.viewport ? this.$refs.viewport.querySelector('tbody[data-row-id="' + row.id + '"]') : null
-        if (tbody){ count = Math.max(count, tbody.querySelectorAll('tr').length) }
+        // (a preference can hide lines, so what is drawn is the count when the row is drawn; the note row is not a line)
+        if (tbody){ count = tbody.querySelectorAll('tr:not(.wf-note-line)').length }
         for (let line = 0; line < count; line++){
           lines.push({ rowId: row.id, line: line })
         }

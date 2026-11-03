@@ -3,7 +3,7 @@
     <tr v-for="(line, lineIdx) in lines" :key="lineIdx" :class="{'wf-line-first': lineIdx == 0}">
 
       <!-- the frozen column that says what record this is -->
-      <th v-if="lineIdx == 0" :rowspan="lines.length" class="wf-record-header wf-stick-left" scope="row">
+      <th v-if="lineIdx == 0" :rowspan="lines.length + (hasHiddenNote ? 1 : 0)" class="wf-record-header wf-stick-left" scope="row">
         <WorkflowRecordLabel :row="row" :index="index" :protections="protections" :suggestionCount="suggestionCount" />
       </th>
 
@@ -31,9 +31,21 @@
         <WorkflowRecordStatus :row="row" />
       </td>
 
-      <td v-if="lineIdx == 0" :rowspan="lines.length" class="wf-record-actions">
+      <td v-if="lineIdx == 0" :rowspan="lines.length + (hasHiddenNote ? 1 : 0)" class="wf-record-actions">
         <WorkflowRecordActions :row="row" />
       </td>
+    </tr>
+
+    <!-- under the lines: a note for a component whose non-LC subjects / class numbers the editor's preference hides -->
+    <tr v-if="row.status == 'ready' && hasHiddenNote" class="wf-note-line">
+      <template v-for="group in visibleGroups" :key="group.key">
+        <td :colspan="group.columns.length" :class="{'wf-hidden-note': hiddenNotes[group.key]}">
+          <template v-if="hiddenNotes[group.key]">
+            {{ hiddenNotes[group.key].label }}
+            <a class="wf-hidden-note-toggle" @click.stop="toggleHidden(group.key)" :title="hiddenNotes[group.key].shown ? 'Hide them again' : 'Show them for this record'">{{ hiddenNotes[group.key].shown ? 'Hide' : 'Show' }}</a>
+          </template>
+        </td>
+      </template>
     </tr>
   </tbody>
 </template>

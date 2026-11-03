@@ -19,8 +19,8 @@
           <tbody>
             <tr>
               <!-- the component, down the left, as narrow as it can be -->
-              <th :rowspan="groupLines(group).length + 1" :class="['wf-head', 'wf-page-component', 'wf-head-' + group.component.rt.toLowerCase()]" :title="group.component.rt + ': ' + group.component.label">
-                <!-- [W] / [I] / [H] for the resource, the colour says it too -->
+              <th :rowspan="groupLines(group).length + 1 + (hiddenNotes[group.key] ? 1 : 0)" :class="['wf-head', 'wf-page-component', 'wf-head-' + group.component.rt.toLowerCase()]" :title="group.component.rt + ': ' + group.component.label">
+                <!-- [W] / [I] / [H] for the resource, the color says it too -->
                 <span class="wf-page-component-rt">[{{ group.component.rt.charAt(0).toUpperCase() }}]</span>
                 <span class="wf-page-component-label">{{ group.component.label }}</span>
               </th>
@@ -45,6 +45,13 @@
                 :ghost="(lines[lineIdx][group.key] && lines[lineIdx][group.key].ghost) ? lines[lineIdx][group.key] : null"
                 :missing="!!(lines[lineIdx][group.key] && lines[lineIdx][group.key].missing)"
               />
+            </tr>
+            <!-- a note when the editor's preference hides non-LC subjects / class numbers of this record -->
+            <tr v-if="hiddenNotes[group.key]" class="wf-note-line">
+              <td :colspan="group.columns.length" class="wf-hidden-note">
+                {{ hiddenNotes[group.key].label }}
+                <a class="wf-hidden-note-toggle" @click.stop="toggleHidden(group.key)" :title="hiddenNotes[group.key].shown ? 'Hide them again' : 'Show them for this record'">{{ hiddenNotes[group.key].shown ? 'Hide' : 'Show' }}</a>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -84,7 +91,7 @@ export default {
 
     /**
     * The lines of the record this component is on. In the sheet every component is stretched to the
-    * longest one with greyed out cells, here each component only takes the lines it has (at least one)
+    * longest one with grayed out cells, here each component only takes the lines it has (at least one)
     * @return {array} - of line indexes into this.lines
     */
     groupLines(group){

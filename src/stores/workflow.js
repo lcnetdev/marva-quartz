@@ -9,7 +9,8 @@ import utilsParse from '@/lib/utils_parse'
 import utilsExport from '@/lib/utils_export'
 import utilsProfile from '@/lib/utils_profile'
 
-import workflowStorage from '@/lib/workflows/storage'
+import workflowStorage, { getLastRow, setLastRow } from '@/lib/workflows/storage'
+import { FIELD_SETS_PREFERENCE, selectionOf, sameSelection, resolveSelection, readFieldSets, newFieldSet, upsertFieldSet } from '@/lib/workflows/fieldSets'
 import builtinWorkflows from '@/lib/workflows/builtin'
 import { runEnrichments } from '@/lib/workflows/enrichments'
 import { expandComponentColumns, listProfileComponents, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
@@ -18,7 +19,7 @@ import { inspectRecord, recommendCandidate, formatLabel } from '@/lib/workflows/
 import { listSourcePorts, parsePortKey, RECORD_ORIGIN } from '@/lib/workflows/graph/ports'
 import { readSourceValues, entryText } from '@/lib/workflows/graph/values'
 import { runGraph } from '@/lib/workflows/graph/run'
-import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord } from '@/lib/workflows/cip'
+import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord, impliedColorContent } from '@/lib/workflows/cip'
 
 import short from 'short-uuid'
 
@@ -57,6 +58,9 @@ function parseValidationMessage(result){
 let loadChain = Promise.resolve()
 let opChain = Promise.resolve()
 let saveTimeout = null
+
+// the physical description: what comes into it from WorldCat implies the Work's color content
+const EXTENT_URI = 'http://id.loc.gov/ontologies/bibframe/extent'
 let listeningToProfileStore = false
 
 // undo / redo: the state of a record before each change, as JSON, newest last. Not persisted, one
@@ -464,6 +468,8 @@ export const useWorkflowStore = defineStore('workflow', {
         dropped: [],
         rows: [],
       }
+      // the fields the person last had on a sheet of this workflow, once they have changed them
+      this.applyRememberedFields(session)
       await workflowStorage.saveSession(session)
       this.sessions = await workflowStorage.listSessions()
       return session.id
@@ -491,6 +497,12 @@ export const useWorkflowStore = defineStore('workflow', {
           return Object.assign(newRow(r.scanned), r, { status: 'loading', profile: null })
         }),
       }
+      // every sheet of a workflow shows the fields the person last had on one of them
+      this.applyRememberedFields(this.activeSession)
+      // pick up where this sheet was left off in this browser: the keyboard goes to that record once
+      // it is in (markReady), until then the first record to come in does not take it
+      let lastRow = getLastRow(stored.id)
+      this.activeSession.resumeRowId = (lastRow && this.activeSession.rows.some((r) => { return r.id === lastRow })) ? lastRow : null
 
       for (let row of this.activeSession.rows){
         this.loadRow(row.id)
@@ -588,6 +600,7 @@ export const useWorkflowStore = defineStore('workflow', {
         s.hiddenComponents.push(key)
       }
       this.persistSession()
+      this.rememberFields()
     },
 
     /**
@@ -646,6 +659,7 @@ export const useWorkflowStore = defineStore('workflow', {
       this.selectedCell = null
       this.editingCell = null
       this.persistSession()
+      this.rememberFields()
     },
 
     /**
@@ -667,6 +681,7 @@ export const useWorkflowStore = defineStore('workflow', {
         component.hiddenColumns.push(columnKey)
       }
       this.persistSession()
+      this.rememberFields()
     },
 
     /**
@@ -684,6 +699,142 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       s.hiddenComponents = s.hiddenComponents.filter((k) => { return k !== key })
       this.persistSession()
+      this.rememberFields()
+    },
+
+    // ---------------------------------------------------------------- field sets (lib/workflows/fieldSets.js)
+
+    /**
+    * What the preference holds: the named sets and the current selection per workflow
+    * @return {object} - {sets, current}
+    */
+    returnFieldSetData(){
+      return readFieldSets(usePreferenceStore().returnValue(FIELD_SETS_PREFERENCE))
+    },
+
+    /**
+    * Write the preference. The preference store's setValue calls the profile store's dataChanged,
+    * which the sheet takes for an edit of the active record: not this time
+    * @param {object} data - {sets, current}
+    */
+    writeFieldSetData(data){
+      let was = this.ignoreChanges
+      this.ignoreChanges = true
+      try {
+        usePreferenceStore().setValue(FIELD_SETS_PREFERENCE, JSON.parse(JSON.stringify(data)))
+      } finally {
+        this.ignoreChanges = was
+      }
+    },
+
+    /**
+    * The named sets for the open sheet's profile
+    * @return {array} - of sets
+    */
+    returnFieldSets(){
+      let s = this.activeSession
+      if (!s){ return [] }
+      return this.returnFieldSetData().sets.filter((set) => { return set.profileId === s.definition.profileId })
+    },
+
+    /**
+    * The set the sheet shows now, if its fields are exactly one of the saved sets
+    * @return {string|null} - the set's id
+    */
+    returnActiveFieldSetId(){
+      let s = this.activeSession
+      if (!s){ return null }
+      let current = selectionOf(s)
+      let match = this.returnFieldSets().filter((set) => { return sameSelection(set, current) })[0]
+      return match ? match.id : null
+    },
+
+    /**
+    * Keep the fields the open sheet shows as the ones a sheet of this workflow opens with
+    * @return {void}
+    */
+    rememberFields(){
+      let s = this.activeSession
+      if (!s || s.test || !s.workflowId){ return }
+      let data = this.returnFieldSetData()
+      let selection = selectionOf(s)
+      if (sameSelection(data.current[s.workflowId], selection)){ return }
+      data.current = Object.assign({}, data.current, { [s.workflowId]: selection })
+      this.writeFieldSetData(data)
+    },
+
+    /**
+    * Put the remembered fields of a session's workflow on it, if there are any (rememberFields)
+    * @param {object} session
+    * @return {boolean} - did the session change
+    */
+    applyRememberedFields(session){
+      if (!session || session.test || !session.workflowId){ return false }
+      let remembered = this.returnFieldSetData().current[session.workflowId]
+      if (!remembered){ return false }
+      return this.applySelection(session, remembered)
+    },
+
+    /**
+    * Make a session show a selection of fields: its components (order, subfields) and which are
+    * unchecked. Components the profile does not have are left out
+    * @param {object} session
+    * @param {object} selection - {components, hidden}
+    * @return {boolean} - did the session change
+    */
+    applySelection(session, selection){
+      if (!session || sameSelection(selectionOf(session), selection)){ return false }
+      let resolved = resolveSelection(selection, this.returnProfileComponents(session.definition.profileId))
+      if (!resolved){ return false }
+      session.definition.components = resolved.components
+      session.hiddenComponents = resolved.hidden
+      return true
+    },
+
+    /**
+    * Switch the open sheet to a saved field set
+    * @param {string} setId
+    * @return {boolean}
+    */
+    applyFieldSet(setId){
+      let s = this.activeSession
+      let set = this.returnFieldSets().filter((x) => { return x.id === setId })[0]
+      if (!s || !set){ return false }
+      if (!this.applySelection(s, set)){ return false }
+      // the selection is by column position
+      this.selectedCell = null
+      this.editingCell = null
+      this.selectedColumn = null
+      this.persistSession()
+      this.rememberFields()
+      return true
+    },
+
+    /**
+    * Save the fields the open sheet shows as a named set, in place of a set of the same name
+    * @param {string} name
+    * @return {object|null} - the set
+    */
+    saveFieldSet(name){
+      let s = this.activeSession
+      name = (typeof name === 'string') ? name.trim() : ''
+      if (!s || name === ''){ return null }
+      let data = this.returnFieldSetData()
+      let set = newFieldSet(name, s.definition.profileId, selectionOf(s))
+      data.sets = upsertFieldSet(data.sets, set)
+      this.writeFieldSetData(data)
+      return data.sets.filter((x) => { return x.name.trim().toLowerCase() === name.toLowerCase() && x.profileId === set.profileId })[0] || set
+    },
+
+    /**
+    * Forget a saved field set, the sheets that used it keep their fields
+    * @param {string} setId
+    */
+    deleteFieldSet(setId){
+      let data = this.returnFieldSetData()
+      if (!data.sets.some((x) => { return x.id === setId })){ return }
+      data.sets = data.sets.filter((x) => { return x.id !== setId })
+      this.writeFieldSetData(data)
     },
 
     returnRow(rowId){
@@ -820,9 +971,12 @@ export const useWorkflowStore = defineStore('workflow', {
       row.status = 'loading'
       await this.loadRow(row.id)
       if (!test){ this.persistSession() }
-      // the keyboard goes to the record that just came in
+      // on the sheet the keyboard goes to the record that just came in. In the single record layout
+      // the page stays on the record being worked, the new one just goes on the end of the list
+      // (the first record of an empty sheet is still shown, markReady)
       row = this.returnRow(row.id)
-      if (!quiet && row && row.status === 'ready' && this.activeSession === session && !this.editingCell){
+      let pages = this.returnLayout(session.workflowId) === 'pages'
+      if (!quiet && !pages && row && row.status === 'ready' && this.activeSession === session && !this.editingCell){
         this.selectCell(row.id, 0, 0)
         leaveTheScanBox()
       }
@@ -1196,6 +1350,8 @@ export const useWorkflowStore = defineStore('workflow', {
         return false
       }
       profileStore.dataChanged()
+      // a physical description taken by a click implies the color content the same as one taken on its own
+      if (pt.propertyURI === EXTENT_URI){ await this.autoAddColorContent(rowId) }
       return true
     },
 
@@ -1260,6 +1416,7 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       copyComponentValue(target, suggestedPt)
       profileStore.dataChanged()
+      if (component.propertyURI === EXTENT_URI){ await this.autoAddColorContent(rowId) }
       return true
     },
 
@@ -1369,7 +1526,62 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       // what came in from WorldCat is held to the checklist too (the 300 wording)
       count += await this.autoApplyChecklist(rowId)
+      // and what it says about the book is carried to the Work (color illustrations -> color content)
+      count += await this.autoAddColorContent(rowId)
       return count
+    },
+
+    /**
+    * What the physical description implies elsewhere: "color illustrations" in the 300 means the
+    * Work's color content is color (cip.impliedColorContent). Set without a click when the Work has
+    * no color content yet, through the editor's setter inside withRow, and noted on row.replaced
+    * like the other auto replacements so the cell shows it was set on the record's behalf and can
+    * be put back; the component is put on the sheet if it is not there. Only on a CIP sheet, once
+    * WorldCat's physical description is in the record: taken on its own (autoReplaceFromSuggested)
+    * or by a click on the offer (acceptSuggestedCell / acceptSuggestedComponent, after a ↶).
+    * @param {string} rowId
+    * @return {number} - 1 when the color content was set
+    */
+    async autoAddColorContent(rowId){
+      let session = this.sessionFor(rowId)
+      let row = this.returnRow(rowId)
+      if (!row || !row.profile || !session){ return 0 }
+      if (!(session.definition.enrichments || []).includes(CIP_ENRICHMENT_ID)){ return 0 }
+      let implied = impliedColorContent(row.profile)
+      if (!implied){ return 0 }
+      let component = this.returnProfileComponents(session.definition.profileId).filter((c) => { return c.rt === 'Work' && c.propertyURI === implied.pt.propertyURI && c.label === implied.pt.propertyLabel })[0]
+      if (!component){ return 0 }
+      let cells = resolveComponentCells(implied.pt, useProfileStore().rtLookup, useConfigStore().lookupConfig)
+      let colKey = Object.keys(cells).filter((k) => { return cells[k].kind === 'field' })[0]
+      if (!colKey){ return 0 }
+      let cell = cells[colKey]
+      this.rememberBaseline(row)
+      let snapshot = { before: JSON.parse(JSON.stringify(implied.pt.userValue)), beforeType: implied.pt.activeType }
+      let done = 0
+      await this.withRow(rowId, async () => {
+        try {
+          await useProfileStore().setValueSimple(implied.pt['@guid'], short.generate(), cell.propertyPath, implied.value.uri, implied.value.label)
+          done = 1
+        } catch (e) {
+          console.error('Workflows: could not set the color content', e)
+        }
+      }, 'Setting the color content...')
+      if (!done){ return 0 }
+      row = this.returnRow(rowId)
+      if (!row){ return 0 }
+      let key = component.rt + '|' + component.id
+      this.noteReplaced(row, key + '|' + implied.pt['@guid'], implied.pt, snapshot, colKey, [], [implied.value])
+      this.recordHistory(row)
+      this.rowChanged(row)
+      // on the sheet, where the replaced note can be seen and put back
+      if (session === this.activeSession){
+        let shown = session.definition.components.some((c) => { return c.rt + '|' + c.id === key }) && !(session.hiddenComponents || []).includes(key)
+        if (!shown){
+          this.addComponent(component)
+          this.notify('Put on the sheet: ' + component.label + ', set to color from the physical description', 'info')
+        }
+      }
+      return done
     },
 
     /**
@@ -1513,10 +1725,47 @@ export const useWorkflowStore = defineStore('workflow', {
     */
     markReady(row, session){
       row.status = 'ready'
-      if (session === this.activeSession && !this.selectedCell && !this.editingCell && session.rows.indexOf(row) === session.rows.findIndex((r) => { return r.status === 'ready' })){
+      if (session !== this.activeSession || this.selectedCell || this.editingCell){ return }
+      if (session.resumeRowId){
+        // a reopened sheet: the keyboard goes to the record it was last on, when that one is in.
+        // If that record is gone or could not load, the usual rule
+        let target = session.rows.filter((r) => { return r.id === session.resumeRowId })[0]
+        if (target && target.status !== 'error'){
+          if (row.id !== session.resumeRowId){ return }
+          session.resumeRowId = null
+          this.selectCell(row.id, 0, 0)
+          leaveTheScanBox()
+          return
+        }
+        session.resumeRowId = null
+      }
+      if (session.rows.indexOf(row) === session.rows.findIndex((r) => { return r.status === 'ready' })){
         this.selectCell(row.id, 0, 0)
         leaveTheScanBox()
       }
+    },
+
+    /**
+    * The record the open sheet is on now, remembered in this browser so the sheet reopens on it
+    * (openSession). From selectCell, and from the single record layout when it turns to a record
+    * that is still loading (no cell to select on it).
+    * @param {string} rowId
+    */
+    noteLastRow(rowId){
+      let session = this.sessionFor(rowId)
+      if (!session || session.test || session !== this.activeSession){ return }
+      setLastRow(session.id, rowId)
+    },
+
+    /**
+    * The record a sheet was last on in this browser, if it is still in the sheet
+    * @param {object} session
+    * @return {string|null} - the row id
+    */
+    returnLastRow(session){
+      if (!session || session.test){ return null }
+      let rowId = getLastRow(session.id)
+      return (rowId && session.rows.some((r) => { return r.id === rowId })) ? rowId : null
     },
 
     /**
@@ -1944,6 +2193,7 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       this.selectedColumn = null
       this.selectedCell = { rowId: rowId, line: line, col: col }
+      this.noteLastRow(rowId)
     },
 
     /**
@@ -2007,10 +2257,10 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     /**
-    * Paste a copied cell into a cell: over what the cell has, or onto a grey line below a
+    * Paste a copied cell into a cell: over what the cell has, or onto a gray line below a
     * component where it makes a new one. Says why when it can't.
     * @param {string} rowId
-    * @param {object|null} pt - the component on the line, null on a grey line
+    * @param {object|null} pt - the component on the line, null on a gray line
     * @param {object|null} cell - the cell of pt for the column, null when the field is not part of it
     * @param {object} group - the column group
     * @param {object} column
@@ -2033,7 +2283,7 @@ export const useWorkflowStore = defineStore('workflow', {
       }
 
       if (!pt){
-        // a grey line under the component's lines: a new one of the component takes the value
+        // a gray line under the component's lines: a new one of the component takes the value
         let pts = findComponentPts(profileStore.activeProfile, group.component)
         if (pts.length == 0){ return false }
         let last = pts[pts.length - 1]

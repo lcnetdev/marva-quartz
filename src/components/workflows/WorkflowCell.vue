@@ -130,7 +130,7 @@ export default {
     ...mapState(useProfileStore, ['rtLookup']),
 
     /**
-    * The tooltip of the cell: why a grey cell can't be used, or that a value matches WorldCat
+    * The tooltip of the cell: why a gray cell can't be used, or that a value matches WorldCat
     * @return {string|null}
     */
     cellTitle(){
@@ -186,12 +186,14 @@ export default {
     },
 
     /**
-    * The colour the user gave this field in the editor's Field Colors (the --o-edit-general-field-colors
+    * The color the user gave this field in the editor's Field Colors (the --o-edit-general-field-colors
     * preference, keyed by the component's preferenceId): the same decision as the editor's Main.returnBackgroundColor
     * @return {string|null}
     */
     fieldColor(){
       if (!this.pt || !this.cell || this.ghost){ return null }
+      // the user chose to keep their field colors off the sheet (the Options menu)
+      if (this.preferenceStore.returnValue('--b-workflows-no-field-colors')){ return null }
       let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
       if (!colors || typeof colors !== 'object'){ return null }
       if (this.pt.mandatory == 'true' && colors.req && colors.req.req){ return colors.req.req }
@@ -218,7 +220,7 @@ export default {
       return typeCell ? typeCell.active.id : null
     },
 
-    // a line of a required CIP field with nothing in it, on a cell of the record (not a grey or ghost one)
+    // a line of a required CIP field with nothing in it, on a cell of the record (not a gray or ghost one)
     isMissing(){
       return !!(this.missing && this.pt && this.cell && !this.ghost)
     },
@@ -304,7 +306,7 @@ export default {
     },
 
     /**
-    * Ctrl+v with a copied cell: into this cell, or onto a grey line below the component as a new one
+    * Ctrl+v with a copied cell: into this cell, or onto a gray line below the component as a new one
     * @param {object} payload - the kept copy
     */
     paste(payload){
