@@ -136,8 +136,9 @@ export default {
           if (isAutoReplaced(group.component)){
             applyReplacements(group.key, lines, this.row.replaced, dismissed)
           }
-          // the fields a CIP record has to have
-          if (isRequired(group.component)){
+          // the fields a CIP record has to have. A record marked done is past that: the red marks go
+          // (and come back if it is edited again, rowChanged takes the done mark off)
+          if (isRequired(group.component) && !this.row.done){
             applyRequired(lines, enrichment.status == 'loading')
           }
         }
