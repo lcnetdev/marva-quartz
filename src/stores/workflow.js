@@ -19,7 +19,7 @@ import { inspectRecord, recommendCandidate, formatLabel } from '@/lib/workflows/
 import { listSourcePorts, parsePortKey, RECORD_ORIGIN } from '@/lib/workflows/graph/ports'
 import { readSourceValues, entryText } from '@/lib/workflows/graph/values'
 import { runGraph } from '@/lib/workflows/graph/run'
-import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord, impliedColorContent } from '@/lib/workflows/cip'
+import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord, impliedColorContent, fillSubjectSources } from '@/lib/workflows/cip'
 
 import short from 'short-uuid'
 
@@ -61,6 +61,8 @@ let saveTimeout = null
 
 // the physical description: what comes into it from WorldCat implies the Work's color content
 const EXTENT_URI = 'http://id.loc.gov/ontologies/bibframe/extent'
+// the thesaurus column of a subject line, bf:source on the heading
+const SOURCE_KEY = 'http://id.loc.gov/ontologies/bibframe/source'
 let listeningToProfileStore = false
 
 // undo / redo: the state of a record before each change, as JSON, newest last. Not persisted, one
@@ -1139,6 +1141,8 @@ export const useWorkflowStore = defineStore('workflow', {
             if (changed){ row.dirty = true }
             // on a CIP sheet the checklist's fixed expectations are set right away
             await this.autoApplyChecklist(row.id)
+            // and a heading that says its thesaurus by its URI alone gets it on the record
+            this.autoFillSubjectSources(row.id)
             // the suggestions come in on their own, the row is usable meanwhile (with a graph they are waited for, below)
             if (!hasGraph){ this.enrichRow(row.id) }
           }
@@ -1529,6 +1533,42 @@ export const useWorkflowStore = defineStore('workflow', {
       // and what it says about the book is carried to the Work (color illustrations -> color content)
       count += await this.autoAddColorContent(rowId)
       return count
+    },
+
+    /**
+    * A subject heading with no thesaurus whose URI says which one it is from (an sh heading is
+    * LCSH, an sj one a children's subject heading, cip.impliedSubjectSources) gets that thesaurus
+    * on the record when the record loads on a CIP sheet. Written straight onto the heading's node
+    * in the form the editor writes (cip.fillSubjectSources), noted on row.replaced like the other
+    * things set on the record's behalf, and the row is saved like any edit.
+    * @param {string} rowId
+    * @return {number} - how many headings were given a thesaurus
+    */
+    autoFillSubjectSources(rowId){
+      let session = this.sessionFor(rowId)
+      let row = this.returnRow(rowId)
+      if (!row || !row.profile || !session){ return 0 }
+      if (!(session.definition.enrichments || []).includes(CIP_ENRICHMENT_ID)){ return 0 }
+      this.rememberBaseline(row)
+      let snapshots = new Map()
+      let filled = fillSubjectSources(row.profile)
+      if (filled.length == 0){ return 0 }
+      let component = this.returnProfileComponents(session.definition.profileId).filter((c) => { return c.rt === 'Work' && c.propertyURI === filled[0].pt.propertyURI && c.label === filled[0].pt.propertyLabel })[0]
+      if (component){
+        let key = component.rt + '|' + component.id
+        for (let f of filled){
+          if (!snapshots.has(f.pt)){
+            // the state before, without the source just written
+            let before = JSON.parse(JSON.stringify(f.pt.userValue))
+            for (let node of (before[f.pt.propertyURI] || [])){ if (node && node['@id'] === f.node['@id']){ delete node[SOURCE_KEY] } }
+            snapshots.set(f.pt, { before: before, beforeType: f.pt.activeType })
+          }
+          this.noteReplaced(row, key + '|' + f.pt['@guid'], f.pt, snapshots.get(f.pt), SOURCE_KEY, [], [f.source])
+        }
+      }
+      this.recordHistory(row)
+      this.rowChanged(row)
+      return filled.length
     },
 
     /**

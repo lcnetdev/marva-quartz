@@ -1202,6 +1202,79 @@ export function impliedColorContent(profile){
   return { pt: empty, value: Object.assign({}, COLOR_CONTENT_COLOR) }
 }
 
+// ---------------------------------------------------------------- the thesaurus a heading's URI implies
+
+const SUBJECT = ONT + 'subject'
+
+// the scheme a heading's id.loc.gov URI puts it in, and the bf:source the editor itself writes for
+// that scheme (profileStore's subject setter: lcsh / cyac under vocabulary/subjectSchemes)
+export const SUBJECT_SOURCES = [
+  { uri: /^https?:\/\/id\.loc\.gov\/authorities\/subjects\//i, source: { uri: VOC + 'subjectSchemes/lcsh', label: 'Library of Congress subject headings' } },
+  { uri: /^https?:\/\/id\.loc\.gov\/authorities\/childrensSubjects\//i, source: { uri: VOC + 'subjectSchemes/cyac', label: "Library of Congress Children's and Young Adults' Subject Headings" } },
+]
+
+/**
+* The subject headings of a record that have no thesaurus but say which one they are from by their
+* URI: an sh heading is LCSH, an sj heading is a children's subject heading. The converter writes
+* the 650 _1 (and sometimes the _0) without a bf:source; a cataloger adding the heading in the
+* editor would have had the thesaurus set.
+* @param {object} profile - the record
+* @return {array} - of { pt, node, source: {uri, label} }, the heading nodes to give a source to
+*/
+export function impliedSubjectSources(profile){
+  let implied = []
+  for (let rtId of (profile.rtOrder || [])){
+    let rt = profile.rt[rtId]
+    if (!rt){ continue }
+    for (let ptId of rt.ptOrder){
+      let pt = rt.pt[ptId]
+      if (!pt || pt.deleted || pt.propertyURI !== SUBJECT || !pt.userValue){ continue }
+      for (let node of (pt.userValue[SUBJECT] || [])){
+        if (!node || typeof node !== 'object' || !node['@id']){ continue }
+        if (Array.isArray(node[SOURCE]) && node[SOURCE].length > 0){ continue }
+        let match = SUBJECT_SOURCES.filter((m) => { return m.uri.test(node['@id']) })[0]
+        if (match){ implied.push({ pt: pt, node: node, source: Object.assign({}, match.source) }) }
+      }
+    }
+  }
+  return implied
+}
+
+/**
+* A heading that says nothing about its scheme: no URI and no thesaurus. The editor's hide non-LC
+* preference hides such a heading (it is not known to be LC's); on the sheet it stays, it is the
+* line the cataloger is working on, a heading just taken from WorldCat or whose thesaurus was just
+* cleared would otherwise vanish from under them.
+* @param {object} pt - a subject component
+* @return {boolean}
+*/
+export function headingSchemeUnknown(pt){
+  if (!pt || pt.propertyURI !== SUBJECT || !pt.userValue){ return false }
+  let node = (pt.userValue[SUBJECT] || [])[0]
+  if (!node || typeof node !== 'object'){ return false }
+  return !node['@id'] && !(Array.isArray(node[SOURCE]) && node[SOURCE].length > 0)
+}
+
+/**
+* Give those headings their thesaurus, on the record itself, in the form the editor writes
+* @param {object} profile - the record, changed in place
+* @return {array} - what impliedSubjectSources found, now filled
+*/
+export function fillSubjectSources(profile){
+  let filled = impliedSubjectSources(profile)
+  for (let f of filled){
+    f.node[SOURCE] = [{
+      '@guid': short.generate(),
+      '@type': ONT + 'Source',
+      '@id': f.source.uri,
+      [LABEL]: [{ '@guid': short.generate(), [LABEL]: f.source.label }],
+    }]
+    f.pt.hasData = true
+    f.pt.userModified = true
+  }
+  return filled
+}
+
 // ---------------------------------------------------------------- accepting
 
 /**
