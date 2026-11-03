@@ -679,8 +679,8 @@ export const useConfigStore = defineStore('config', {
 
       "modes":[
         {
-          'hier':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
-          'All': {"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions", "all":true}
+          'hier':{"url":"https://preprod-8080.id.loc.gov/authorities/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All': {"url":"https://preprod-8080.id.loc.gov/authorities/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions", "all":true}
         }
       ]
     },
@@ -692,7 +692,7 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'All':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All':{"url":"https://preprod-8080.id.loc.gov/authorities/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
         }
       ]
     },
