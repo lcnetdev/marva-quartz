@@ -91,7 +91,8 @@ export default {
     'rows.length': function(){
       if (!this.currentRow){ this.pageRowId = this.rows.length > 0 ? this.rows[Math.min(this.lastIndex, this.rows.length - 1)].id : null }
     },
-    // the selection lands on another record (a scan came in, or it was moved from the keyboard), that is the page to show
+    // the selection lands on another record (moved from the keyboard, an undo, the first record of an
+    // empty sheet), that is the page to show. A scan does not move it in this layout (workflowStore.scan)
     'workflowStore.selectedCell'(newVal){
       if (!newVal){ return }
       if (newVal.rowId !== this.pageRowId && this.rows.some((r) => { return r.id === newVal.rowId })){

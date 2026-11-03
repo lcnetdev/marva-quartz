@@ -823,9 +823,12 @@ export const useWorkflowStore = defineStore('workflow', {
       row.status = 'loading'
       await this.loadRow(row.id)
       if (!test){ this.persistSession() }
-      // the keyboard goes to the record that just came in
+      // on the sheet the keyboard goes to the record that just came in. In the single record layout
+      // the page stays on the record being worked, the new one just goes on the end of the list
+      // (the first record of an empty sheet is still shown, markReady)
       row = this.returnRow(row.id)
-      if (!quiet && row && row.status === 'ready' && this.activeSession === session && !this.editingCell){
+      let pages = this.returnLayout(session.workflowId) === 'pages'
+      if (!quiet && !pages && row && row.status === 'ready' && this.activeSession === session && !this.editingCell){
         this.selectCell(row.id, 0, 0)
         leaveTheScanBox()
       }
