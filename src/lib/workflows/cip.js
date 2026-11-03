@@ -472,18 +472,30 @@ export function compareComponent(groupKey, columns, recordLines, suggestedLines,
   // does the record's line hold the heading itself (anything besides a thesaurus / source)
   let hasOwnValue = (r) => { return dataColumns.some((c) => { return !isSourceColumn(c.key) && hasValue(recordValues[r][c.key] || []) }) }
 
-  // pair them up, the best matches first
+  // pair them up, the best matches first. The thesaurus of a heading says nothing about which
+  // heading it is: two LCSH headings are not a pair for being LCSH (the record's "Courage" is not
+  // replaced by WorldCat's "Courage--Juvenile fiction", or by "Picture books for children" for
+  // coming first; those are offered as lines to add). Among lines that do match on the heading,
+  // the one with the same thesaurus is the pair (WorldCat's LCSH "Courage" over its FAST one,
+  // whichever comes first). It is compared again once the heading paired.
+  let pairingColumns = dataColumns.filter((c) => { return !isSourceColumn(c.key) })
+  let sourceColumns = dataColumns.filter((c) => { return isSourceColumn(c.key) })
   let pairs = []
   for (let r = 0; r < recordLines.length; r++){
     for (let s = 0; s < suggestedLines.length; s++){
       let score = 0
-      for (let c of dataColumns){
+      for (let c of pairingColumns){
         score += overlap(recordValues[r][c.key] || [], suggestedValues[s][c.key] || [])
       }
-      if (score > 0){ pairs.push({ r: r, s: s, score: score }) }
+      if (score == 0){ continue }
+      let sameSource = 0
+      for (let c of sourceColumns){
+        sameSource += overlap(recordValues[r][c.key] || [], suggestedValues[s][c.key] || [])
+      }
+      pairs.push({ r: r, s: s, score: score, sameSource: sameSource })
     }
   }
-  pairs.sort((a, b) => { return b.score - a.score || a.r - b.r || a.s - b.s })
+  pairs.sort((a, b) => { return b.score - a.score || b.sameSource - a.sameSource || a.r - b.r || a.s - b.s })
   let matchOf = new Array(recordLines.length).fill(null)
   let taken = new Array(suggestedLines.length).fill(false)
   for (let p of pairs){
