@@ -256,6 +256,50 @@ describe('the thesaurus of a heading the record already has is not offered', () 
     expect(s.open).toBe(0)
   })
 
+  test('a thesaurus in common does not pair two different headings (LCCN 2021055410)', () => {
+    // the record: plain LCSH headings; WorldCat: the same with --Juvenile fiction, and one more. Each
+    // of the record's used to take a WorldCat line for both being LCSH, by position, and the
+    // other heading was then "what WorldCat has instead"
+    const LCSH_URI = { uri: 'http://id.loc.gov/authorities/subjects', label: 'LC Subject Headings' }
+    let record = [
+      line('r1', 'Courage', 'http://id.loc.gov/authorities/subjects/sh85033527', LCSH_URI),
+      line('r2', 'Siblings', 'http://id.loc.gov/authorities/subjects/sh85017225', LCSH_URI),
+    ]
+    let worldcat = [
+      line('w1', 'Picture books for children', null, { uri: 'http://id.loc.gov/authorities/subjects', label: null }),
+      line('w2', 'Courage--Juvenile fiction', null, { uri: 'http://id.loc.gov/authorities/subjects', label: null }),
+      line('w3', 'Siblings--Juvenile fiction', null, { uri: 'http://id.loc.gov/authorities/subjects', label: null }),
+    ]
+    let compared = compareComponent('k', columns, record, worldcat)
+    expect(compared.suggestions).toEqual([null, null])
+    expect(compared.ghosts.map((g) => { return g.values[SUBJECT][0].label })).toEqual(['Picture books for children', 'Courage--Juvenile fiction', 'Siblings--Juvenile fiction'])
+
+    // the same heading still pairs, and its thesaurus is still looked at
+    worldcat.push(line('w4', 'Siblings', null, FAST))
+    compared = compareComponent('k', columns, record, worldcat)
+    expect(compared.suggestions[0]).toBeNull()
+    expect(compared.suggestions[1].cells[SUBJECT].status).toBe('match')
+    expect(compared.suggestions[1].verified).toBe(1)
+    expect(compared.ghosts.length).toBe(3)
+  })
+
+  test('the same heading twice from WorldCat: the copy with the record\'s thesaurus is the pair, whichever is first', () => {
+    const LCSH_URI = { uri: 'http://id.loc.gov/authorities/subjects', label: 'LC Subject Headings' }
+    let record = [line('r', 'Courage', 'http://id.loc.gov/authorities/subjects/sh85033527', LCSH_URI)]
+    // FAST first, then LCSH
+    let worldcat = [
+      line('w1', 'Courage', null, FAST),
+      line('w2', 'Courage', null, { uri: 'http://id.loc.gov/authorities/subjects', label: null }),
+    ]
+    let compared = compareComponent('k', columns, record, worldcat)
+    expect(compared.suggestions[0].pt['@guid']).toBe('w2')
+    // the heading and its thesaurus both verified
+    expect(compared.suggestions[0].verified).toBe(2)
+    expect(compared.suggestions[0].open).toBe(0)
+    // the FAST copy is left over, not offered as a line to add
+    expect(compared.ghosts.map((g) => { return g.pt['@guid'] })).toEqual(['w1'])
+  })
+
   test('the children\'s subject headings are still offered on a heading the record has', () => {
     const CYAC = { uri: 'http://id.loc.gov/authorities/childrensSubjects', label: null }
     expect(sourceStillOffered([CYAC])).toBe(true)
