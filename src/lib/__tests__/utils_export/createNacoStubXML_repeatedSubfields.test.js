@@ -23,7 +23,7 @@ describe('createNacoStubXML repeated subfields', () => {
     // the hyphenated / compound 4XX is passed as an additional field with indexed [code, value] pairs
     const additional = [{ fieldTag: '400', indicators: '1 ', 0: ['a', 'Márquez, Gabriel García'], 1: ['c', `Saint${DELIM}Bishop of Rome`] }]
 
-    const { xml, text } = utils_export.createNacoStubXML(oneXX, fourXX, 'Some title', '123', 'http://id.loc.gov/resources/instances/123', '2020', 'n123', null, {}, false, additional, false)
+    const { xml, text } = utils_export.createNacoStubXML(oneXX, fourXX, 'Some title', '123', 'http://id.loc.gov/resources/instances/123', '2020', 'n123', '', {}, false, additional, false)
 
     expect(xml).not.toContain(DELIM)
     expect(text).not.toContain(DELIM)
