@@ -71,6 +71,19 @@
           </button>
           <template #popper>
             <div class="wf-fields-menu">
+              <!-- the saved field sets: one click puts its fields on the sheet (lib/workflows/fieldSets.js) -->
+              <div class="wf-fields-menu-heading">Field sets <span class="wf-fields-menu-hint">saved with your preferences</span></div>
+              <div class="wf-field-sets">
+                <span v-for="set in fieldSets" :key="set.id" :class="['wf-field-set', {'wf-field-set-active': set.id === activeFieldSetId}]">
+                  <button class="wf-field-set-name" :title="(set.id === activeFieldSetId ? 'The fields shown now. ' : 'Show these fields: ') + fieldSetSummary(set)" @click="workflowStore.applyFieldSet(set.id)">
+                    <span v-if="set.id === activeFieldSetId" class="material-icons">check</span>{{ set.name }}
+                  </button>
+                  <button class="wf-field-set-delete" :title="'Delete the field set \'' + set.name + '\''" @click.stop="deleteFieldSet(set)"><span class="material-icons">close</span></button>
+                </span>
+                <button class="wf-field-set wf-field-set-save" title="Save the fields shown now, in this order with their subfields, as a set to come back to" @click="savingFieldSet = true">
+                  <span class="material-icons">add</span>{{ fieldSets.length == 0 ? 'Save these fields as a set' : 'Save current' }}
+                </button>
+              </div>
               <div class="wf-fields-menu-heading">In this sheet <span class="wf-fields-menu-hint">drag to reorder</span></div>
               <!-- the order here is the order of the columns in the sheet, drag a row by its handle to move it -->
               <template v-for="group in workflowStore.columnGroups" :key="group.key">
@@ -232,6 +245,9 @@
     <!-- renaming the sheet -->
     <WorkflowNameDialog v-if="renaming && session" title="Rename sheet" :initial="session.name" ok-label="Rename" @ok="rename" @cancel="renaming = false" />
 
+    <!-- saving the fields shown as a field set -->
+    <WorkflowNameDialog v-if="savingFieldSet && session" title="Save field set" message="The fields shown now, in this order, with the subfields each one shows. A set of this name is replaced." placeholder="Name of the field set" ok-label="Save" @ok="saveFieldSet" @cancel="savingFieldSet = false" />
+
     <!-- a post failed -->
     <div v-if="workflowStore.postError" class="wf-dialog-overlay">
       <div class="wf-dialog">
@@ -297,6 +313,8 @@ export default {
       scanValue: '',
       // the rename dialog is up
       renaming: false,
+      // the name-a-field-set dialog is up
+      savingFieldSet: false,
       notFound: false,
       opened: false,
       // the error messages that have already had their moment in the middle of the page
@@ -361,6 +379,15 @@ export default {
 
     hiddenCount(){
       return this.workflowStore.columnGroups.filter((g) => { return g.hidden }).length
+    },
+
+    // the saved field sets for this sheet's profile, and the one the sheet shows now if it is one of them
+    fieldSets(){
+      return this.session ? this.workflowStore.returnFieldSets() : []
+    },
+
+    activeFieldSetId(){
+      return this.session ? this.workflowStore.returnActiveFieldSetId() : null
     },
 
     zoomPercent(){
@@ -436,6 +463,39 @@ export default {
       await this.workflowStore.renameSession(session.id, name)
       document.title = 'Marva | ' + session.name
       this.focusScan()
+    },
+
+    /**
+    * The fields shown now become a named set (the dialog asked for the name)
+    * @param {string} name
+    */
+    saveFieldSet(name){
+      this.savingFieldSet = false
+      let set = this.workflowStore.saveFieldSet(name)
+      if (set){ this.workflowStore.notify('Field set "' + set.name + '" saved', 'info') }
+      this.focusScan()
+    },
+
+    deleteFieldSet(set){
+      if (!confirm('Delete the field set "' + set.name + '"? The sheets that used it keep their fields.')){ return }
+      this.workflowStore.deleteFieldSet(set.id)
+    },
+
+    /**
+    * What a set holds, for its tooltip: the fields in order, with how many subfields are off
+    * @param {object} set
+    * @return {string}
+    */
+    fieldSetSummary(set){
+      let labels = this.workflowStore.returnProfileComponents(set.profileId)
+      let names = []
+      for (let c of set.components){
+        let match = labels.filter((a) => { return a.rt === c.rt && a.id === c.id })[0]
+        if (!match){ continue }
+        let name = match.label + ((set.hidden || []).includes(c.rt + '|' + c.id) ? ' (unchecked)' : '')
+        names.push(name)
+      }
+      return names.join(', ')
     },
 
     /**

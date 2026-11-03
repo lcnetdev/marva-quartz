@@ -352,6 +352,74 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   padding-top: 0.6em;
   border-top: 1px solid var(--wf-line-color);
 }
+/* the saved field sets at the top of the Fields menu: a button each, the one the sheet shows marked */
+.wf-field-sets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  padding: 0.2em 0 0.6em;
+  margin-bottom: 0.3em;
+  border-bottom: 1px solid var(--wf-line-color);
+  max-width: 28em;
+}
+.wf-field-set {
+  display: inline-flex;
+  align-items: stretch;
+  border: solid 1px var(--wf-field-border-color);
+  border-radius: 4px;
+  background: var(--wf-button-background);
+  color: var(--wf-button-color);
+  font-size: 0.95em;
+  overflow: hidden;
+}
+.wf-field-set button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+}
+.wf-field-set-name {
+  padding: 0.25em 0.5em 0.25em 0.6em;
+}
+.wf-field-set .material-icons {
+  font-size: 1em;
+}
+.wf-field-set-delete {
+  padding: 0 0.35em;
+  opacity: 0;
+  color: var(--wf-muted-color);
+}
+.wf-field-set:hover .wf-field-set-delete {
+  opacity: 0.8;
+}
+.wf-field-set-delete:hover {
+  opacity: 1;
+  color: var(--wf-bad-color);
+}
+.wf-field-set:hover,
+.wf-field-set-save:hover {
+  border-color: var(--wf-accent-color);
+}
+.wf-field-set-active {
+  background: var(--wf-accent-color);
+  border-color: var(--wf-accent-color);
+  color: var(--wf-on-accent-color);
+}
+.wf-field-set-active .wf-field-set-delete {
+  color: inherit;
+}
+.wf-field-set-save {
+  padding: 0.25em 0.6em 0.25em 0.4em;
+  gap: 0.2em;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95em;
+  border-style: dashed;
+}
 .wf-fields-menu-filter {
   width: 100%;
   box-sizing: border-box;

@@ -32,6 +32,10 @@
  *        workflows: { "<workflow id>": { autoFormat: 'print'|'ebook',      // "always select this version" answers
  *                                        layout: 'pages' } } }              // one record per page instead of the spreadsheet
  *
+ * The fields a sheet shows (the person's current selection per workflow, and the named field
+ * sets) are NOT here: they are in the editor's own preferences ('--o-workflows-field-sets', see
+ * lib/workflows/fieldSets.js), saved and loaded with the rest of them.
+ *
  * NOT STORED YET
  * --------------
  * - Identifier search: scans are resolved with the instance keyword search on ID

@@ -10,6 +10,7 @@ import utilsExport from '@/lib/utils_export'
 import utilsProfile from '@/lib/utils_profile'
 
 import workflowStorage, { getLastRow, setLastRow } from '@/lib/workflows/storage'
+import { FIELD_SETS_PREFERENCE, selectionOf, sameSelection, resolveSelection, readFieldSets, newFieldSet, upsertFieldSet } from '@/lib/workflows/fieldSets'
 import builtinWorkflows from '@/lib/workflows/builtin'
 import { runEnrichments } from '@/lib/workflows/enrichments'
 import { expandComponentColumns, listProfileComponents, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
@@ -467,6 +468,8 @@ export const useWorkflowStore = defineStore('workflow', {
         dropped: [],
         rows: [],
       }
+      // the fields the person last had on a sheet of this workflow, once they have changed them
+      this.applyRememberedFields(session)
       await workflowStorage.saveSession(session)
       this.sessions = await workflowStorage.listSessions()
       return session.id
@@ -494,6 +497,8 @@ export const useWorkflowStore = defineStore('workflow', {
           return Object.assign(newRow(r.scanned), r, { status: 'loading', profile: null })
         }),
       }
+      // every sheet of a workflow shows the fields the person last had on one of them
+      this.applyRememberedFields(this.activeSession)
       // pick up where this sheet was left off in this browser: the keyboard goes to that record once
       // it is in (markReady), until then the first record to come in does not take it
       let lastRow = getLastRow(stored.id)
@@ -595,6 +600,7 @@ export const useWorkflowStore = defineStore('workflow', {
         s.hiddenComponents.push(key)
       }
       this.persistSession()
+      this.rememberFields()
     },
 
     /**
@@ -653,6 +659,7 @@ export const useWorkflowStore = defineStore('workflow', {
       this.selectedCell = null
       this.editingCell = null
       this.persistSession()
+      this.rememberFields()
     },
 
     /**
@@ -674,6 +681,7 @@ export const useWorkflowStore = defineStore('workflow', {
         component.hiddenColumns.push(columnKey)
       }
       this.persistSession()
+      this.rememberFields()
     },
 
     /**
@@ -691,6 +699,142 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       s.hiddenComponents = s.hiddenComponents.filter((k) => { return k !== key })
       this.persistSession()
+      this.rememberFields()
+    },
+
+    // ---------------------------------------------------------------- field sets (lib/workflows/fieldSets.js)
+
+    /**
+    * What the preference holds: the named sets and the current selection per workflow
+    * @return {object} - {sets, current}
+    */
+    returnFieldSetData(){
+      return readFieldSets(usePreferenceStore().returnValue(FIELD_SETS_PREFERENCE))
+    },
+
+    /**
+    * Write the preference. The preference store's setValue calls the profile store's dataChanged,
+    * which the sheet takes for an edit of the active record: not this time
+    * @param {object} data - {sets, current}
+    */
+    writeFieldSetData(data){
+      let was = this.ignoreChanges
+      this.ignoreChanges = true
+      try {
+        usePreferenceStore().setValue(FIELD_SETS_PREFERENCE, JSON.parse(JSON.stringify(data)))
+      } finally {
+        this.ignoreChanges = was
+      }
+    },
+
+    /**
+    * The named sets for the open sheet's profile
+    * @return {array} - of sets
+    */
+    returnFieldSets(){
+      let s = this.activeSession
+      if (!s){ return [] }
+      return this.returnFieldSetData().sets.filter((set) => { return set.profileId === s.definition.profileId })
+    },
+
+    /**
+    * The set the sheet shows now, if its fields are exactly one of the saved sets
+    * @return {string|null} - the set's id
+    */
+    returnActiveFieldSetId(){
+      let s = this.activeSession
+      if (!s){ return null }
+      let current = selectionOf(s)
+      let match = this.returnFieldSets().filter((set) => { return sameSelection(set, current) })[0]
+      return match ? match.id : null
+    },
+
+    /**
+    * Keep the fields the open sheet shows as the ones a sheet of this workflow opens with
+    * @return {void}
+    */
+    rememberFields(){
+      let s = this.activeSession
+      if (!s || s.test || !s.workflowId){ return }
+      let data = this.returnFieldSetData()
+      let selection = selectionOf(s)
+      if (sameSelection(data.current[s.workflowId], selection)){ return }
+      data.current = Object.assign({}, data.current, { [s.workflowId]: selection })
+      this.writeFieldSetData(data)
+    },
+
+    /**
+    * Put the remembered fields of a session's workflow on it, if there are any (rememberFields)
+    * @param {object} session
+    * @return {boolean} - did the session change
+    */
+    applyRememberedFields(session){
+      if (!session || session.test || !session.workflowId){ return false }
+      let remembered = this.returnFieldSetData().current[session.workflowId]
+      if (!remembered){ return false }
+      return this.applySelection(session, remembered)
+    },
+
+    /**
+    * Make a session show a selection of fields: its components (order, subfields) and which are
+    * unchecked. Components the profile does not have are left out
+    * @param {object} session
+    * @param {object} selection - {components, hidden}
+    * @return {boolean} - did the session change
+    */
+    applySelection(session, selection){
+      if (!session || sameSelection(selectionOf(session), selection)){ return false }
+      let resolved = resolveSelection(selection, this.returnProfileComponents(session.definition.profileId))
+      if (!resolved){ return false }
+      session.definition.components = resolved.components
+      session.hiddenComponents = resolved.hidden
+      return true
+    },
+
+    /**
+    * Switch the open sheet to a saved field set
+    * @param {string} setId
+    * @return {boolean}
+    */
+    applyFieldSet(setId){
+      let s = this.activeSession
+      let set = this.returnFieldSets().filter((x) => { return x.id === setId })[0]
+      if (!s || !set){ return false }
+      if (!this.applySelection(s, set)){ return false }
+      // the selection is by column position
+      this.selectedCell = null
+      this.editingCell = null
+      this.selectedColumn = null
+      this.persistSession()
+      this.rememberFields()
+      return true
+    },
+
+    /**
+    * Save the fields the open sheet shows as a named set, in place of a set of the same name
+    * @param {string} name
+    * @return {object|null} - the set
+    */
+    saveFieldSet(name){
+      let s = this.activeSession
+      name = (typeof name === 'string') ? name.trim() : ''
+      if (!s || name === ''){ return null }
+      let data = this.returnFieldSetData()
+      let set = newFieldSet(name, s.definition.profileId, selectionOf(s))
+      data.sets = upsertFieldSet(data.sets, set)
+      this.writeFieldSetData(data)
+      return data.sets.filter((x) => { return x.name.trim().toLowerCase() === name.toLowerCase() && x.profileId === set.profileId })[0] || set
+    },
+
+    /**
+    * Forget a saved field set, the sheets that used it keep their fields
+    * @param {string} setId
+    */
+    deleteFieldSet(setId){
+      let data = this.returnFieldSetData()
+      if (!data.sets.some((x) => { return x.id === setId })){ return }
+      data.sets = data.sets.filter((x) => { return x.id !== setId })
+      this.writeFieldSetData(data)
     },
 
     returnRow(rowId){

@@ -1295,6 +1295,20 @@ export const usePreferenceStore = defineStore('preference', {
       group: 'General',
       range: [true,false]
     },
+    // workflows: the fields a sheet shows (see lib/workflows/fieldSets.js): the person's current
+    // selection per workflow, and the named field sets. Not in the preference browser, the sheet's
+    // Fields menu is where these are made
+    '--o-workflows-field-sets' : {
+      desc: 'Workflows field sets',
+      descShort: 'Workflows field sets',
+      value: { sets: [], current: {} },
+      step: null,
+      type: 'object',
+      unit: null,
+      group: 'General',
+      hide: true,
+      range: null
+    },
 
     '--b-general-default-load-tupe' : {
       desc: 'Set the default load type to "Continue Editing BF". Note: Reconverting ensures the record has gone through the most recent version of the MARC2BF conversion.',
