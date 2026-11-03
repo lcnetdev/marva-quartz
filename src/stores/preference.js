@@ -1285,6 +1285,17 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'General'
     },
+    // workflows: leave the field colors off the sheet's cells
+    '--b-workflows-no-field-colors' : {
+      desc: "Don't use my default field colors in Workflows. The colors given to fields in Field Colors are not applied to the cells of a workflow sheet.",
+      descShort: 'No field colors in Workflows',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'General',
+      range: [true,false]
+    },
+
     '--b-general-default-load-tupe' : {
       desc: 'Set the default load type to "Continue Editing BF". Note: Reconverting ensures the record has gone through the most recent version of the MARC2BF conversion.',
       descShort: 'Default Load Type "Continue"',

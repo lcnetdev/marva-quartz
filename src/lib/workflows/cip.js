@@ -349,7 +349,7 @@ export function linkedToUnlinked(have, want){
 }
 
 /**
-* The things a value can be recognised by: its URI and its label (when the label is not just the
+* The things a value can be recognized by: its URI and its label (when the label is not just the
 * URI shown for want of a label, then the label the editor looked up for the URI, if it has). The
 * converted WorldCat record often has a bare URI where the record has a URI and a label, or a bare
 * label where the record has both, so either counts.
@@ -889,10 +889,10 @@ function isSeriesComponent(pt){
 
 /**
 * The titles the record gives its series, from every component that can hold one (a linked
-* series relation, a transcribed series statement) so a series is recognised whichever way it is in
+* series relation, a transcribed series statement) so a series is recognized whichever way it is in
 * @param {object} profile - the record
 * @param {object|null} except - a workflow component {propertyURI, label} whose instances are left out
-* @return {array} - normalised titles
+* @return {array} - normalized titles
 */
 export function recordSeriesTitles(profile, except = null){
   let titles = []
@@ -1136,7 +1136,7 @@ export function applyRequired(recordLines, pending){
 
 const COLOR_CONTENT = ONT + 'colorContent'
 const NOTE = ONT + 'note'
-// "color illustrations", "chiefly color", "some colour", "col. ill." (before the wording fix spells it out)
+// "color illustrations", "chiefly color", "some color", "col. ill." (before the wording fix spells it out)
 const SAYS_COLOR = /\bcolou?r|\bcol\./i
 
 /**

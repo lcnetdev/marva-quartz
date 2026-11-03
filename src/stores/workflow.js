@@ -2113,10 +2113,10 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     /**
-    * Paste a copied cell into a cell: over what the cell has, or onto a grey line below a
+    * Paste a copied cell into a cell: over what the cell has, or onto a gray line below a
     * component where it makes a new one. Says why when it can't.
     * @param {string} rowId
-    * @param {object|null} pt - the component on the line, null on a grey line
+    * @param {object|null} pt - the component on the line, null on a gray line
     * @param {object|null} cell - the cell of pt for the column, null when the field is not part of it
     * @param {object} group - the column group
     * @param {object} column
@@ -2139,7 +2139,7 @@ export const useWorkflowStore = defineStore('workflow', {
       }
 
       if (!pt){
-        // a grey line under the component's lines: a new one of the component takes the value
+        // a gray line under the component's lines: a new one of the component takes the value
         let pts = findComponentPts(profileStore.activeProfile, group.component)
         if (pts.length == 0){ return false }
         let last = pts[pts.length - 1]

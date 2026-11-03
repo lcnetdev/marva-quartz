@@ -1,7 +1,7 @@
 /*
  * Workflows: the graph (advanced) builder. Baklava's classic theme is loaded by GraphBuilder.vue,
  * its variables are pointed at the sheet's (assets/workflows.css, --wf-*) here so the canvas
- * follows the editor's colours and dark mode (:root.wf-dark).
+ * follows the editor's colors and dark mode (:root.wf-dark).
  */
 
 :root {
@@ -105,7 +105,7 @@
   flex: 1;
 }
 
-/* ---------------------------------------------------------------- baklava, in the sheet's colours */
+/* ---------------------------------------------------------------- baklava, in the sheet's colors */
 
 .wf-graph-canvas .baklava-editor {
   --baklava-editor-background-pattern-default: var(--wf-page-background);
@@ -131,7 +131,7 @@
   --baklava-color-connection-default: var(--wf-muted-color);
   --baklava-color-connection-allowed: var(--wf-good-text);
   --baklava-color-connection-forbidden: var(--wf-bad-text);
-  /* the editor's modal colour can be translucent, a menu over other rows must not be */
+  /* the editor's modal color can be translucent, a menu over other rows must not be */
   --baklava-context-menu-background: var(--wf-page-background);
   --baklava-node-border-radius: 6px;
   --baklava-control-border-radius: 4px;
@@ -168,7 +168,7 @@
 .wf-graph-canvas .baklava-node-interface:has(.baklava-select.--open) {
   z-index: 20;
 }
-/* a boolean port (then / else / when) in its own colour, the type is set on the interface (lib/workflows/graph/baklava.js) */
+/* a boolean port (then / else / when) in its own color, the type is set on the interface (lib/workflows/graph/baklava.js) */
 .wf-graph-canvas .baklava-node-interface[data-interface-type="boolean"] .__port {
   background: var(--wf-graph-port-boolean);
 }
@@ -326,7 +326,7 @@
   font-size: 1.1em;
   color: var(--wf-muted-color);
 }
-/* the Work / Instance / Item tag in the editor's colours for them (the preference the sheet's headers use) */
+/* the Work / Instance / Item tag in the editor's colors for them (the preference the sheet's headers use) */
 .wf-graph-source-rt {
   font-size: 0.7em;
   padding: 0 0.3em;

@@ -34,7 +34,7 @@ function typed(intf, kind){
 }
 
 /**
-* A control for an option: a labelled select or text box of our own (GraphSelect / GraphText, so
+* A control for an option: a labeled select or text box of our own (GraphSelect / GraphText, so
 * the row says what it is), Baklava's check box
 */
 function optionInterface(key, option, portItems){

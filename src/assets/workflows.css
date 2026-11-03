@@ -974,7 +974,7 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   word-break: break-word;
   height: 1.6em;
 }
-/* the colour the user gave the field in Field Colors, everything that says something about the cell draws over it */
+/* the color the user gave the field in Field Colors, everything that says something about the cell draws over it */
 .wf-table td.wf-cell-colored {
   background: var(--wf-cell-color);
 }
@@ -1030,7 +1030,7 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   opacity: 0 !important;
   pointer-events: none !important;
 }
-/* the link status icons at the end of a value, same icons and colours as the editor's ValidationIcon */
+/* the link status icons at the end of a value, same icons and colors as the editor's ValidationIcon */
 .wf-value-status {
   font-size: 1.15em;
   vertical-align: text-bottom;
@@ -1883,3 +1883,11 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   font-size: 0.9em;
   color: var(--wf-muted-color);
 }
+
+/* a checkbox line in the Options menu */
+.wf-options-check {
+  display: block;
+  margin: 0.3em 0 0.6em;
+  cursor: pointer;
+}
+.wf-options-check input { vertical-align: middle; margin-right: 0.3em; }

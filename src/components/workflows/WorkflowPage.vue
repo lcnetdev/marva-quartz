@@ -20,7 +20,7 @@
             <tr>
               <!-- the component, down the left, as narrow as it can be -->
               <th :rowspan="groupLines(group).length + 1" :class="['wf-head', 'wf-page-component', 'wf-head-' + group.component.rt.toLowerCase()]" :title="group.component.rt + ': ' + group.component.label">
-                <!-- [W] / [I] / [H] for the resource, the colour says it too -->
+                <!-- [W] / [I] / [H] for the resource, the color says it too -->
                 <span class="wf-page-component-rt">[{{ group.component.rt.charAt(0).toUpperCase() }}]</span>
                 <span class="wf-page-component-label">{{ group.component.label }}</span>
               </th>
@@ -84,7 +84,7 @@ export default {
 
     /**
     * The lines of the record this component is on. In the sheet every component is stretched to the
-    * longest one with greyed out cells, here each component only takes the lines it has (at least one)
+    * longest one with grayed out cells, here each component only takes the lines it has (at least one)
     * @return {array} - of line indexes into this.lines
     */
     groupLines(group){

@@ -40,7 +40,7 @@
                 <dt>Enter / Esc</dt><dd>finish editing</dd>
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
                 <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
-                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a grey line below a component as a new one</dd>
+                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a gray line below a component as a new one</dd>
                 <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
@@ -55,7 +55,7 @@
                 <dt>Enter / Esc</dt><dd>finish editing</dd>
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
                 <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
-                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a grey line below a component as a new one</dd>
+                <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a gray line below a component as a new one</dd>
                 <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
@@ -134,10 +134,13 @@
                 <p>The <strong>{{ autoFormat }}</strong> record is taken without asking (when exactly one of the matches is {{ autoFormat }}).</p>
                 <button class="wf-button" @click="workflowStore.setAutoFormat(session.workflowId, null)">Ask me which record each time</button>
               </template>
-              <p v-else>You are asked which record to load. Tick "Always select this version from now on" in that dialog to stop being asked.</p>
-              <div class="wf-fields-menu-heading wf-options-heading">Colours</div>
-              <p>The colours given to fields in the editor's Field Colors apply to the cells here too.</p>
-              <button class="wf-button" @click="openFieldColors()" title="The editor's Field Colors, the same preference"><span class="material-icons">palette</span> Field colours...</button>
+              <p v-else>You are asked which record to load. Check "Always select this version from now on" in that dialog to stop being asked.</p>
+              <div class="wf-fields-menu-heading wf-options-heading">Colors</div>
+              <p>The colors given to fields in the editor's Field Colors apply to the cells here too.</p>
+              <label class="wf-options-check" title="Saved with your preferences, for every workflow">
+                <input type="checkbox" :checked="noFieldColors" @change="setNoFieldColors($event.target.checked)" /> Don't use my default field colors in Workflows
+              </label>
+              <button class="wf-button" @click="openFieldColors()" title="The editor's Field Colors, the same preference"><span class="material-icons">palette</span> Field colors...</button>
             </div>
           </template>
         </VDropdown>
@@ -340,6 +343,11 @@ export default {
     },
 
     // 'sheet' (the spreadsheet) or 'pages' (one record at a time), chosen in Options
+    // the preference to keep the field colors off the sheet's cells
+    noFieldColors(){
+      return !!this.preferenceStore.returnValue('--b-workflows-no-field-colors')
+    },
+
     layout(){
       return this.session ? this.workflowStore.returnLayout(this.session.workflowId) : 'sheet'
     },
@@ -377,7 +385,7 @@ export default {
   watch: {
     // the user changed their colors in the preferences while the sheet is open
     theme(){ applyWorkflowTheme(this.preferenceStore) },
-    // picking field colours goes through preferenceStore.setValue, which calls the profile store's dataChanged:
+    // picking field colors goes through preferenceStore.setValue, which calls the profile store's dataChanged:
     // that is not an edit of the record
     'preferenceStore.showFieldColorsModal'(open){ this.workflowStore.ignoreChanges = open },
     prompt(){ this.alwaysPick = false },
@@ -441,10 +449,24 @@ export default {
       } else if (this.profileStore.profiles[this.session.definition.profileId]){
         this.profileStore.activeProfile = JSON.parse(JSON.stringify(this.profileStore.profiles[this.session.definition.profileId]))
       } else {
-        this.workflowStore.notify('Scan a record first, the colours are picked from its fields', 'info')
+        this.workflowStore.notify('Scan a record first, the colors are picked from its fields', 'info')
         return
       }
       this.preferenceStore.showFieldColorsModal = true
+    },
+
+    /**
+    * Keep the field colors off the sheet, or not: a preference like any other (so it is saved with
+    * them), set with the sheet told not to take the preference store's dataChanged for an edit
+    * @param {boolean} on
+    */
+    setNoFieldColors(on){
+      this.workflowStore.ignoreChanges = true
+      try {
+        this.preferenceStore.setValue('--b-workflows-no-field-colors', !!on)
+      } finally {
+        this.workflowStore.ignoreChanges = this.preferenceStore.showFieldColorsModal
+      }
     },
 
     setLayout(layout){

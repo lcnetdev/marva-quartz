@@ -79,7 +79,7 @@ export default {
     /**
     * One record is one or more lines in the sheet. A component that is repeated in the record
     * (two contributors) puts each one on its own line, the lines a component
-    * doesn't reach are left as greyed out cells. When WorldCat's record is there its components
+    * doesn't reach are left as grayed out cells. When WorldCat's record is there its components
     * are lined up with the record's: a matched line carries `suggestion` (per cell: match / add /
     * differs), an unmatched one becomes a `ghost` line offered under the record's.
     * @return {array} - of lines, each one is groupKey -> {pt, cells, suggestion} | {ghost: true, pt, cells, values, key}
