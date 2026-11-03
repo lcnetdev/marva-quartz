@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import utils_parse from '@/lib/utils_parse'
 import { useProfileStore } from '@/stores/profile'
-import { impliedColorContent, physicalDescriptionSaysColor } from '@/lib/workflows/cip'
+import { impliedColorContent, physicalDescriptionSaysColor, compareComponent, copyComponentValue } from '@/lib/workflows/cip'
+import { expandComponentColumns, resolveComponentCells, findComponentPts } from '@/lib/workflows/fields'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
@@ -70,5 +71,36 @@ describe('the CIP stub test record 2019028142', () => {
     expect(implied.pt.propertyURI).toBe(ONT + 'colorContent')
     expect(implied.pt).toBe(profile.rt['lc:RT:bf2:Monograph:Work'].pt.id_loc_gov_ontologies_bibframe_colorContent__color_content)
     expect(implied.value).toEqual({ uri: 'http://id.loc.gov/vocabulary/mcolor/mul', label: 'color' })
+  })
+})
+
+// public/test_files/2019028142_click.xml is the same stub with two physical descriptions, so WorldCat's
+// cannot be paired with either and is a ghost line to add by a click instead of being taken on its own
+describe('the CIP stub test record 2019028142_click', () => {
+  const clickXml = fs.readFileSync('public/test_files/2019028142_click.xml', 'utf8')
+  const component = { rt: 'Instance', id: 'id_loc_gov_ontologies_bibframe_extent__physical_description', propertyURI: ONT + 'extent', label: 'Physical description' }
+
+  test('WorldCat\'s physical description is a ghost line, and taking it implies the color content', async () => {
+    let record = await parse(clickXml)
+    let recordPts = findComponentPts(record, component)
+    expect(recordPts.length).toBe(2)
+    expect(impliedColorContent(record)).toBeNull()
+
+    let worldcat = await parse(stubXml.replace(STUB_EXTENT, WORLDCAT_EXTENT))
+    let suggestedPts = findComponentPts(worldcat, component)
+    expect(suggestedPts.length).toBe(1)
+
+    let rtLookup = useProfileStore().rtLookup
+    let template = useProfileStore().profiles['lc:profile:bf2:Monograph'].rt['lc:RT:bf2:Monograph:Instance'].pt[component.id]
+    let columns = expandComponentColumns(template, rtLookup, {})
+    let toLines = (pts) => { return pts.map((pt) => { return { pt: pt, cells: resolveComponentCells(pt, rtLookup, {}) } }) }
+    let compared = compareComponent('k', columns, toLines(recordPts), toLines(suggestedPts))
+    expect(compared.suggestions.every((s) => { return s === null })).toBe(true)
+    expect(compared.ghosts.length).toBe(1)
+
+    // the click: acceptSuggestedComponent copies the ghost into a repeat of the component
+    copyComponentValue(recordPts[1], compared.ghosts[0].pt)
+    expect(physicalDescriptionSaysColor(record)).toBe(true)
+    expect(impliedColorContent(record).pt.propertyURI).toBe(ONT + 'colorContent')
   })
 })

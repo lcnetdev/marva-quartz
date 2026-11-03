@@ -1,0 +1,699 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:cc="http://creativecommons.org/ns#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:pmo="http://performedmusicontology.org/ontology/" xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/" xmlns:ri="http://id.loc.gov/ontologies/RecordInfo#">
+  <bf:Instance rdf:about="http://id.loc.gov/resources/instances/21067591">
+    <bf:issuance>
+      <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono">
+	<rdfs:label>single unit</rdfs:label>
+	<bf:code>mono</bf:code>
+      </bf:Issuance>
+    </bf:issuance>
+    <bf:provisionActivity>
+      <bf:ProvisionActivity>
+	<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Publication"/>
+	<bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2020</bf:date>
+	<bf:place>
+	  <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/nyu">
+	    <rdfs:label xml:lang="en">New York (State)</rdfs:label>
+	    <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nyu</bf:code>
+	  </bf:Place>
+	</bf:place>
+	<bflc:simplePlace>New York</bflc:simplePlace>
+	<bflc:simpleAgent>Simon &amp; Schuster Books for Young Readers</bflc:simpleAgent>
+	<bflc:simpleDate>[2020]</bflc:simpleDate>
+      </bf:ProvisionActivity>
+    </bf:provisionActivity>
+    <bf:publicationStatement>New York: Simon &amp; Schuster Books for Young Readers, [2020]</bf:publicationStatement>
+    <bf:copyrightDate rdf:datatype="http://id.loc.gov/datatypes/edtf">2020</bf:copyrightDate>
+    <bf:identifiedBy>
+      <bf:Lccn>
+	<rdf:value>  2019028142</rdf:value>
+      </bf:Lccn>
+    </bf:identifiedBy>
+    <bf:identifiedBy>
+      <bf:Isbn>
+	<rdf:value>9781534430020</rdf:value>
+	<bf:qualifier>hardback</bf:qualifier>
+      </bf:Isbn>
+    </bf:identifiedBy>
+    <bf:identifiedBy>
+      <bf:Isbn>
+	<rdf:value>9781534430037</rdf:value>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/cancinv">
+	    <rdfs:label>canceled or invalid</rdfs:label>
+	    <bf:code>cancinv</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:qualifier>ebook</bf:qualifier>
+      </bf:Isbn>
+    </bf:identifiedBy>
+    <bf:responsibilityStatement>Tim McCanna ; illustrated by Richard Smythe</bf:responsibilityStatement>
+    <bf:title>
+      <bf:Title>
+	<bf:mainTitle>Dinosong</bf:mainTitle>
+      </bf:Title>
+    </bf:title>
+    <bf:editionStatement>First edition</bf:editionStatement>
+    <bf:extent>
+      <bf:Extent>
+	<rdfs:label>pages</rdfs:label>
+      </bf:Extent>
+    </bf:extent>
+    <bf:extent>
+      <bf:Extent>
+	<rdfs:label>leaves of plates</rdfs:label>
+      </bf:Extent>
+    </bf:extent>
+    <bf:dimensions>cm</bf:dimensions>
+    <bf:media>
+      <bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/n">
+	<rdfs:label>unmediated</rdfs:label>
+	<bf:code>n</bf:code>
+      </bf:Media>
+    </bf:media>
+    <bf:carrier>
+      <bf:Carrier rdf:about="http://id.loc.gov/vocabulary/carriers/nc">
+	<rdfs:label>volume</rdfs:label>
+	<bf:code>nc</bf:code>
+      </bf:Carrier>
+    </bf:carrier>
+    <bf:note>
+      <bf:Note>
+	<rdfs:label>"A Paula Wiseman Book."</rdfs:label>
+      </bf:Note>
+    </bf:note>
+    <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/instances"/>
+    <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/21067591"/>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+	    <rdfs:label>new</rdfs:label>
+	    <bf:code>n</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-07-11T00:00:00</bf:date>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+	    <rdfs:label>United States, Library of Congress</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	  </bf:Agent>
+	</bf:agent>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+	    <rdfs:label>changed</rdfs:label>
+	    <bf:code>c</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-27T16:06:55</bf:date>
+	<bf:descriptionModifier>
+	  <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+	    <rdfs:label>United States, Library of Congress</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	  </bf:Organization>
+	</bf:descriptionModifier>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+	    <rdfs:label>changed</rdfs:label>
+	    <bf:code>c</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-27T00:00:00</bf:date>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+	    <rdfs:label>United States, Library of Congress</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	  </bf:Agent>
+	</bf:agent>
+	<bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/tree/v3.2-dev"/>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+	    <rdfs:label>changed</rdfs:label>
+	    <bf:code>c</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+	    <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+	  </bf:Agent>
+	</bf:agent>
+	<bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/tree/v3.2-dev"/>
+	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-28T01:47:04.03121-04:00</bf:date>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-3-0-1/"/>
+	<bflc:encodingLevel>
+	  <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/8">
+	    <rdfs:label>prepublication</rdfs:label>
+	    <bf:code>8</bf:code>
+	  </bflc:EncodingLevel>
+	</bflc:encodingLevel>
+	<bf:descriptionConventions>
+	  <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+	    <rdfs:label>ISBD: International standard bibliographic description</rdfs:label>
+	    <bf:code>isbd</bf:code>
+	  </bf:DescriptionConventions>
+	</bf:descriptionConventions>
+	<bf:identifiedBy>
+	  <bf:Local>
+	    <rdf:value>21067591</rdf:value>
+	    <bf:assigner>
+	      <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+		<rdfs:label>United States, Library of Congress</rdfs:label>
+		<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+		<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+		<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	      </bf:Organization>
+	    </bf:assigner>
+	  </bf:Local>
+	</bf:identifiedBy>
+	<bf:descriptionLanguage>
+	  <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+	    <rdfs:label xml:lang="en">English</rdfs:label>
+	    <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+	  </bf:Language>
+	</bf:descriptionLanguage>
+	<bf:descriptionConventions>
+	  <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+	    <rdfs:label>Resource description and access</rdfs:label>
+	    <bf:code>rda</bf:code>
+	  </bf:DescriptionConventions>
+	</bf:descriptionConventions>
+	<bf:note>
+	  <bf:Note>
+	    <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+	    <rdfs:label>040  $aDLC$beng$erda$cDLC$dDLC$dDLC-MRC$dDLC</rdfs:label>
+	  </bf:Note>
+	</bf:note>
+	<bf:descriptionAuthentication>
+	  <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc">
+	    <rdfs:label>Program for Cooperative Cataloging</rdfs:label>
+	    <bf:code>pcc</bf:code>
+	  </bf:DescriptionAuthentication>
+	</bf:descriptionAuthentication>
+	<bf:descriptionAuthentication>
+	  <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/lcac">
+	    <rdfs:label>Library of Congress Children's and Young Adults' Cataloging Program</rdfs:label>
+	    <bf:code>lcac</bf:code>
+	  </bf:DescriptionAuthentication>
+	</bf:descriptionAuthentication>
+	<bflc:marcKey>906  $a7$bcbc$corignew$d1$eecip$f20$gy-gencatlg</bflc:marcKey>
+	<bflc:marcKey>9250 $aacquire$b1 shelf copy$xpolicy default</bflc:marcKey>
+	<bflc:marcKey>955  $bxk05 2019-07-11$ixk05 2019-07-11 (telework) to CIP$axk05 2019-11-21 (telework) rev.$axn11 2026-09-16 1 copy rec'd., to CIP ver.$fxm01 2026-10-27 to CMD</bflc:marcKey>
+	<bflc:marcKey>955  $aLCAP batch update 2025-06-02-04:00: LCAPM-893</bflc:marcKey>
+	<bflc:marcKey>985  $eBIBFRAME$d2026-10-27T16:06:24</bflc:marcKey>
+	<bflc:marcKey>999ff$i55195844-8221-5f1a-bca3-fa78adb0bb1f$s08006c09-56ed-4ae6-be2a-ee2e674fce2e</bflc:marcKey>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+  </bf:Instance>
+  <bf:Work rdf:about="http://id.loc.gov/resources/works/21067591">
+    <bflc:aap>McCanna, Tim. Dinosong</bflc:aap>
+    <bflc:aap-normalized>mccannatimdinosong</bflc:aap-normalized>
+    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Text"/>
+    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/>
+    <bf:language>
+      <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+	<rdfs:label xml:lang="en">English</rdfs:label>
+	<bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+      </bf:Language>
+    </bf:language>
+    <bf:intendedAudience>
+      <bf:IntendedAudience rdf:about="http://id.loc.gov/vocabulary/maudience/pri">
+	<rdfs:label>primary</rdfs:label>
+	<bf:code>pri</bf:code>
+	<bf:source>
+	  <bf:Source rdf:about="http://id.loc.gov/vocabulary/maudience">
+	    <rdfs:label>MARC Audience</rdfs:label>
+	  </bf:Source>
+	</bf:source>
+      </bf:IntendedAudience>
+    </bf:intendedAudience>
+    <bf:classification>
+      <bf:ClassificationLcc>
+	<bf:classificationPortion>PZ8.3.M13193</bf:classificationPortion>
+	<bf:itemPortion>Din 2020</bf:itemPortion>
+	<bf:assigner>
+	  <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+	    <rdfs:label>United States, Library of Congress</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	  </bf:Organization>
+	</bf:assigner>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/uba">
+	    <rdfs:label>used by assigner</rdfs:label>
+	    <bf:code>uba</bf:code>
+	  </bf:Status>
+	</bf:status>
+      </bf:ClassificationLcc>
+    </bf:classification>
+    <bf:classification>
+      <bf:ClassificationDdc>
+	<bf:classificationPortion>[E]</bf:classificationPortion>
+	<bf:source>
+	  <bf:Source>
+	    <bf:code>23</bf:code>
+	  </bf:Source>
+	</bf:source>
+	<bf:edition>full</bf:edition>
+	<bf:assigner>
+	  <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+	    <rdfs:label>United States, Library of Congress</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	  </bf:Organization>
+	</bf:assigner>
+      </bf:ClassificationDdc>
+    </bf:classification>
+    <bf:contribution>
+      <bf:Contribution>
+	<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2015011325">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+	    <rdfs:label>McCanna, Tim</rdfs:label>
+	    <bflc:marcKey>1001 $aMcCanna, Tim</bflc:marcKey>
+	  </bf:Agent>
+	</bf:agent>
+	<bf:role>
+	  <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+	    <rdfs:label>author</rdfs:label>
+	    <bf:code>aut</bf:code>
+	  </bf:Role>
+	</bf:role>
+      </bf:Contribution>
+    </bf:contribution>
+    <bf:title>
+      <bf:Title>
+	<bf:mainTitle>Dinosong</bf:mainTitle>
+      </bf:Title>
+    </bf:title>
+    <bf:content>
+      <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/txt">
+	<rdfs:label>text</rdfs:label>
+	<bf:code>txt</bf:code>
+      </bf:Content>
+    </bf:content>
+    <bf:content>
+      <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/sti">
+	<rdfs:label>still image</rdfs:label>
+	<bf:code>sti</bf:code>
+      </bf:Content>
+    </bf:content>
+    <bf:illustrativeContent>
+      <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/ill">
+	<rdfs:label>illustrations</rdfs:label>
+	<bf:code>ill</bf:code>
+      </bf:Illustration>
+    </bf:illustrativeContent>
+    <bf:intendedAudience>
+      <bf:IntendedAudience rdf:about="http://id.loc.gov/authorities/demographicTerms/dg2015060010">
+	<rdfs:label xml:lang="en">Children</rdfs:label>
+	<bflc:marcKey>150  $aChildren</bflc:marcKey>
+	<bflc:demographicGroup>
+	  <bflc:DemographicGroup rdf:about="http://id.loc.gov/authorities/demographicTerms/age">
+	    <rdfs:label>Age group</rdfs:label>
+	  </bflc:DemographicGroup>
+	</bflc:demographicGroup>
+	<bf:source>
+	  <bf:Source rdf:about="http://id.loc.gov/authorities/demographicTerms">
+	    <rdfs:label>LC Demographic Terms</rdfs:label>
+	  </bf:Source>
+	</bf:source>
+      </bf:IntendedAudience>
+    </bf:intendedAudience>
+    <bf:summary>
+      <bf:Summary>
+	<rdfs:label>Illustrations and easy-to-read, rhyming text follow three dinosaurs--a triceratops, sauropod, and ankylosaur--as they make their way through a dangerous, rock-strewn environment. Includes facts about rocks and minerals.</rdfs:label>
+      </bf:Summary>
+    </bf:summary>
+    <bf:intendedAudience>
+      <bf:IntendedAudience>
+	<rdfs:label>Ages 4-8.</rdfs:label>
+	<bf:source>
+	  <bf:Source>
+	    <rdfs:label>Simon &amp; Schuster Books for Young Readers.</rdfs:label>
+	  </bf:Source>
+	</bf:source>
+      </bf:IntendedAudience>
+    </bf:intendedAudience>
+    <bf:intendedAudience>
+      <bf:IntendedAudience>
+	<rdfs:label>Grades 2-3.</rdfs:label>
+	<bf:source>
+	  <bf:Source>
+	    <rdfs:label>Simon &amp; Schuster Books for Young Readers.</rdfs:label>
+	  </bf:Source>
+	</bf:source>
+      </bf:IntendedAudience>
+    </bf:intendedAudience>
+    <bf:contribution>
+      <bf:Contribution>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/no2016130445">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+	    <rdfs:label>Smythe, Richard, 1986-</rdfs:label>
+	    <bflc:marcKey>1001 $aSmythe, Richard,$d1986-</bflc:marcKey>
+	  </bf:Agent>
+	</bf:agent>
+	<bf:role>
+	  <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ill">
+	    <rdfs:label>illustrator</rdfs:label>
+	    <bf:code>ill</bf:code>
+	  </bf:Role>
+	</bf:role>
+      </bf:Contribution>
+    </bf:contribution>
+    <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/>
+    <bf:genreForm>
+      <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014026339">
+	<rdfs:label xml:lang="en">Fiction</rdfs:label>
+	<bflc:marcKey>155  $aFiction</bflc:marcKey>
+	<bf:source>
+	  <bf:Source rdf:about="http://id.loc.gov/authorities/genreForms">
+	    <rdfs:label>LC Genre/Forms</rdfs:label>
+	  </bf:Source>
+	</bf:source>
+      </bf:GenreForm>
+    </bf:genreForm>
+    <bf:subject>
+      <bf:Topic rdf:about="http://id.loc.gov/authorities/childrensSubjects/sj2021050017">
+	<rdfs:label xml:lang="en">Stories in rhyme</rdfs:label>
+	<bflc:marcKey>150  $aStories in rhyme</bflc:marcKey>
+      </bf:Topic>
+    </bf:subject>
+    <bf:subject>
+      <bf:Topic rdf:about="http://id.loc.gov/authorities/childrensSubjects/sj96005299">
+	<rdfs:label xml:lang="en">Dinosaurs</rdfs:label>
+	<bflc:marcKey>150 0$aDinosaurs</bflc:marcKey>
+      </bf:Topic>
+    </bf:subject>
+    <bf:subject>
+      <bf:Topic rdf:about="http://id.loc.gov/authorities/childrensSubjects/sj2021051091">
+	<rdfs:label xml:lang="en">Rocks</rdfs:label>
+	<bflc:marcKey>150  $aRocks</bflc:marcKey>
+      </bf:Topic>
+    </bf:subject>
+    <bf:relation>
+      <bf:Relation>
+	<bf:relationship>
+	  <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/otherphysicalformat">
+	    <rdfs:label>other physical format</rdfs:label>
+	    <bf:code>otherphysicalformat</bf:code>
+	  </bf:Relationship>
+	</bf:relationship>
+	<bf:relationship>
+	  <bf:Relationship rdf:about="http://id.loc.gov/entities/relationships/onlineversion">
+	    <rdfs:label>Online version</rdfs:label>
+	  </bf:Relationship>
+	</bf:relationship>
+	<bf:associatedResource>
+	  <bf:Work rdf:about="http://id.loc.gov/resources/works/21067700">
+	    <rdfs:label>McCanna, Tim. Dinosong</rdfs:label>
+	    <bf:contribution>
+	      <bf:Contribution>
+		<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+		<bf:agent>
+		  <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2015011325">
+		    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+		    <rdfs:label>McCanna, Tim</rdfs:label>
+		    <bflc:marcKey>1001 $aMcCanna, Tim</bflc:marcKey>
+		  </bf:Agent>
+		</bf:agent>
+		<bf:role>
+		  <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+		    <rdfs:label>author</rdfs:label>
+		    <bf:code>aut</bf:code>
+		  </bf:Role>
+		</bf:role>
+	      </bf:Contribution>
+	    </bf:contribution>
+	    <bf:contribution>
+	      <bf:Contribution>
+		<bf:agent>
+		  <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/no2016130445">
+		    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+		    <rdfs:label>Smythe, Richard, 1986-</rdfs:label>
+		    <bflc:marcKey>1001 $aSmythe, Richard,$d1986-</bflc:marcKey>
+		  </bf:Agent>
+		</bf:agent>
+		<bf:role>
+		  <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ill">
+		    <rdfs:label>illustrator</rdfs:label>
+		    <bf:code>ill</bf:code>
+		  </bf:Role>
+		</bf:role>
+	      </bf:Contribution>
+	    </bf:contribution>
+	    <bf:classification>
+	      <bf:ClassificationLcc>
+		<bf:classificationPortion>PZ8.3.M13193</bf:classificationPortion>
+		<bf:assigner>
+		  <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+		    <rdfs:label>United States, Library of Congress</rdfs:label>
+		    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+		    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+		    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+		  </bf:Organization>
+		</bf:assigner>
+		<bf:status>
+		  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/uba">
+		    <rdfs:label>used by assigner</rdfs:label>
+		    <bf:code>uba</bf:code>
+		  </bf:Status>
+		</bf:status>
+	      </bf:ClassificationLcc>
+	    </bf:classification>
+	    <bf:classification>
+	      <bf:ClassificationDdc>
+		<bf:classificationPortion>[E]</bf:classificationPortion>
+		<bf:source>
+		  <bf:Source>
+		    <bf:code>23</bf:code>
+		  </bf:Source>
+		</bf:source>
+		<bf:edition>full</bf:edition>
+		<bf:assigner>
+		  <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+		    <rdfs:label>United States, Library of Congress</rdfs:label>
+		    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+		    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+		    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+		  </bf:Organization>
+		</bf:assigner>
+	      </bf:ClassificationDdc>
+	    </bf:classification>
+	    <bf:title>
+	      <bf:Title>
+		<bf:mainTitle>Dinosong</bf:mainTitle>
+	      </bf:Title>
+	    </bf:title>
+	    <bf:language rdf:resource="http://id.loc.gov/vocabulary/languages/eng"/>
+	    <bf:hasInstance>
+	      <bf:Instance rdf:about="http://id.loc.gov/resources/instances/21067700">
+		<bf:title>
+		  <bf:Title>
+		    <bf:mainTitle>Dinosong</bf:mainTitle>
+		  </bf:Title>
+		</bf:title>
+		<bf:identifiedBy>
+		  <bf:Lccn>
+		    <rdf:value>  2019028143</rdf:value>
+		  </bf:Lccn>
+		</bf:identifiedBy>
+		<bf:identifiedBy>
+		  <bf:Isbn>
+		    <rdf:value>9781534430037</rdf:value>
+		    <bf:qualifier>ebook</bf:qualifier>
+		  </bf:Isbn>
+		</bf:identifiedBy>
+		<bf:publicationStatement>New York: Simon &amp; Schuster Books for Young Readers, [2020]</bf:publicationStatement>
+		<bf:editionStatement>First edition</bf:editionStatement>
+		<bf:extent>
+		  <bf:Extent>
+		    <rdfs:label>1 online resource</rdfs:label>
+		  </bf:Extent>
+		</bf:extent>
+	      </bf:Instance>
+	    </bf:hasInstance>
+	  </bf:Work>
+	</bf:associatedResource>
+      </bf:Relation>
+    </bf:relation>
+    <bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/21067591"/>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+	    <rdfs:label>new</rdfs:label>
+	    <bf:code>n</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2019-07-11T00:00:00</bf:date>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+	    <rdfs:label>United States, Library of Congress</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	  </bf:Agent>
+	</bf:agent>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+	    <rdfs:label>changed</rdfs:label>
+	    <bf:code>c</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-27T16:06:55</bf:date>
+	<bf:descriptionModifier>
+	  <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+	    <rdfs:label>United States, Library of Congress</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	  </bf:Organization>
+	</bf:descriptionModifier>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+	    <rdfs:label>changed</rdfs:label>
+	    <bf:code>c</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-27T00:00:00</bf:date>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+	    <rdfs:label>United States, Library of Congress</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	  </bf:Agent>
+	</bf:agent>
+	<bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/tree/v3.2-dev"/>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:status>
+	  <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+	    <rdfs:label>changed</rdfs:label>
+	    <bf:code>c</bf:code>
+	  </bf:Status>
+	</bf:status>
+	<bf:agent>
+	  <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+	    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+	    <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+	    <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+	  </bf:Agent>
+	</bf:agent>
+	<bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/tree/v3.2-dev"/>
+	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2026-10-28T01:47:04.03121-04:00</bf:date>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+    <bf:adminMetadata>
+      <bf:AdminMetadata>
+	<bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-3-0-1/"/>
+	<bflc:encodingLevel>
+	  <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/8">
+	    <rdfs:label>prepublication</rdfs:label>
+	    <bf:code>8</bf:code>
+	  </bflc:EncodingLevel>
+	</bflc:encodingLevel>
+	<bf:descriptionConventions>
+	  <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+	    <rdfs:label>ISBD: International standard bibliographic description</rdfs:label>
+	    <bf:code>isbd</bf:code>
+	  </bf:DescriptionConventions>
+	</bf:descriptionConventions>
+	<bf:identifiedBy>
+	  <bf:Local>
+	    <rdf:value>21067591</rdf:value>
+	    <bf:assigner>
+	      <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+		<rdfs:label>United States, Library of Congress</rdfs:label>
+		<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+		<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+		<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+	      </bf:Organization>
+	    </bf:assigner>
+	  </bf:Local>
+	</bf:identifiedBy>
+	<bf:descriptionLanguage>
+	  <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+	    <rdfs:label xml:lang="en">English</rdfs:label>
+	    <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+	  </bf:Language>
+	</bf:descriptionLanguage>
+	<bf:descriptionConventions>
+	  <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+	    <rdfs:label>Resource description and access</rdfs:label>
+	    <bf:code>rda</bf:code>
+	  </bf:DescriptionConventions>
+	</bf:descriptionConventions>
+	<bf:note>
+	  <bf:Note>
+	    <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+	    <rdfs:label>040  $aDLC$beng$erda$cDLC$dDLC$dDLC-MRC$dDLC</rdfs:label>
+	  </bf:Note>
+	</bf:note>
+	<bf:descriptionAuthentication>
+	  <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc">
+	    <rdfs:label>Program for Cooperative Cataloging</rdfs:label>
+	    <bf:code>pcc</bf:code>
+	  </bf:DescriptionAuthentication>
+	</bf:descriptionAuthentication>
+	<bf:descriptionAuthentication>
+	  <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/lcac">
+	    <rdfs:label>Library of Congress Children's and Young Adults' Cataloging Program</rdfs:label>
+	    <bf:code>lcac</bf:code>
+	  </bf:DescriptionAuthentication>
+	</bf:descriptionAuthentication>
+	<bflc:marcKey>906  $a7$bcbc$corignew$d1$eecip$f20$gy-gencatlg</bflc:marcKey>
+	<bflc:marcKey>9250 $aacquire$b1 shelf copy$xpolicy default</bflc:marcKey>
+	<bflc:marcKey>955  $bxk05 2019-07-11$ixk05 2019-07-11 (telework) to CIP$axk05 2019-11-21 (telework) rev.$axn11 2026-09-16 1 copy rec'd., to CIP ver.$fxm01 2026-10-27 to CMD</bflc:marcKey>
+	<bflc:marcKey>955  $aLCAP batch update 2025-06-02-04:00: LCAPM-893</bflc:marcKey>
+	<bflc:marcKey>985  $eBIBFRAME$d2026-10-27T16:06:24</bflc:marcKey>
+	<bflc:marcKey>999ff$i55195844-8221-5f1a-bca3-fa78adb0bb1f$s08006c09-56ed-4ae6-be2a-ee2e674fce2e</bflc:marcKey>
+      </bf:AdminMetadata>
+    </bf:adminMetadata>
+  </bf:Work>
+</rdf:RDF>

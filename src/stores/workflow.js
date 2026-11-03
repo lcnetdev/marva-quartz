@@ -57,6 +57,9 @@ function parseValidationMessage(result){
 let loadChain = Promise.resolve()
 let opChain = Promise.resolve()
 let saveTimeout = null
+
+// the physical description: what comes into it from WorldCat implies the Work's color content
+const EXTENT_URI = 'http://id.loc.gov/ontologies/bibframe/extent'
 let listeningToProfileStore = false
 
 // undo / redo: the state of a record before each change, as JSON, newest last. Not persisted, one
@@ -1196,6 +1199,8 @@ export const useWorkflowStore = defineStore('workflow', {
         return false
       }
       profileStore.dataChanged()
+      // a physical description taken by a click implies the color content the same as one taken on its own
+      if (pt.propertyURI === EXTENT_URI){ await this.autoAddColorContent(rowId) }
       return true
     },
 
@@ -1260,6 +1265,7 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       copyComponentValue(target, suggestedPt)
       profileStore.dataChanged()
+      if (component.propertyURI === EXTENT_URI){ await this.autoAddColorContent(rowId) }
       return true
     },
 
@@ -1379,8 +1385,9 @@ export const useWorkflowStore = defineStore('workflow', {
     * Work's color content is color (cip.impliedColorContent). Set without a click when the Work has
     * no color content yet, through the editor's setter inside withRow, and noted on row.replaced
     * like the other auto replacements so the cell shows it was set on the record's behalf and can
-    * be put back; the component is put on the sheet if it is not there. Only on a CIP sheet, after
-    * WorldCat's physical description has come in.
+    * be put back; the component is put on the sheet if it is not there. Only on a CIP sheet, once
+    * WorldCat's physical description is in the record: taken on its own (autoReplaceFromSuggested)
+    * or by a click on the offer (acceptSuggestedCell / acceptSuggestedComponent, after a ↶).
     * @param {string} rowId
     * @return {number} - 1 when the color content was set
     */
