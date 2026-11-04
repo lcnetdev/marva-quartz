@@ -3,6 +3,22 @@ import utilsNetwork from '@/lib/utils_network';
 import scriptShifterLangCodes from '@/lib/scriptShifterLangCodes.json';
 
 
+/**
+* If a region sets displayAsProduction, turn off the UI-only feature flags that are
+* not on in production so the app looks like production while still using that
+* region's endpoints. Flags that control endpoints or posting are left alone.
+* @param {object} region - a regionUrls entry
+* @return {object}
+*/
+const applyDisplayAsProduction = (region) => {
+  if (!region || !region.displayAsProduction){ return region }
+  return {
+    ...region,
+    enableStateRecorder: false,
+    enableWorkflows: false,
+  }
+}
+
 export const useConfigStore = defineStore('config', {
   state: () => ({
 
@@ -104,6 +120,9 @@ export const useConfigStore = defineStore('config', {
         env : 'staging',
         dev: true,
         externalDev: true,
+        // make the UI look like production (no yellow nav bar, no STAGING prefix, no DCTap menu)
+        // while still using the staging/local endpoints above
+        displayAsProduction: false,
         devFakePosting: true,
         displayLCOnlyFeatures: true,
         enableStateRecorder: true,
@@ -980,7 +999,7 @@ export const useConfigStore = defineStore('config', {
         }else if (window && window.location.href.includes('bibframe.org')){
           return state.regionUrls.bibframeDotOrg
         }else if (window && window.location.href.includes('localhost:4444')){
-          return state.regionUrls.externalDev
+          return applyDisplayAsProduction(state.regionUrls.externalDev)
         }else if (window && window.location.href.includes('localhost:5555')){
           console.log(">>>>>>>playwrightTestConfig<<<<<<<<<")
           return state.regionUrls.playwrightTestConfig

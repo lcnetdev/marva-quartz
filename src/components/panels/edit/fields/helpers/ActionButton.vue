@@ -1263,6 +1263,9 @@
       isStaging(){
         // console.log(useConfigStore().returnUrls.dev)
         // console.log(useConfigStore().returnUrls)
+        if (useConfigStore().returnUrls.displayAsProduction){
+          return false
+        }
         if (useConfigStore().returnUrls.dev){
           return true
         }
