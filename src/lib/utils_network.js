@@ -307,9 +307,10 @@ const utilsNetwork = {
     * @param {string} url - the URL to ask for, if left blank it just pulls in the profiles
     * @param {boolean} json - if defined and true will treat the call as a json request, addding some headers to ask for json
     * @param {signal} signal - signal that will be used to abort the call if needed
+    * @param {object} status - optional object that will be populated with the HTTP status of the response (status.code, status.ok, status.url, status.error)
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
-    fetchSimpleLookup: async function(url, json, signal=null) {
+    fetchSimpleLookup: async function(url, json, signal=null, status=null) {
       url = url || config.profileUrl
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
@@ -343,6 +344,11 @@ const utilsNetwork = {
       let data = null
       try{
         let response = await fetch(url,options);
+        if (status){
+          status.code = response.status
+          status.ok = response.ok
+          status.url = url
+        }
         if (response.status == 404){
           return false
         }
@@ -360,6 +366,12 @@ const utilsNetwork = {
           // console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
         }else{
           console.error(err)
+          if (status && !status.code){
+            // the request itself failed (network error, etc.) rather than the server answering with an error code
+            status.error = err
+            status.ok = false
+            status.url = url
+          }
         }
         return false
         // Handle errors here
@@ -544,7 +556,8 @@ const utilsNetwork = {
     * Looks for instances by LCCN against ID, returns into for them to be displayed and load the resource
     * @param {searchPayload} searchPayload - the {@link searchPayload} to look for
     * @param {allowAbort} --
-    * @return {array} - An array of {@link searchComplexResult} results
+    * @return {array} - An array of {@link searchComplexResult} results. Any backend HTTP errors (4xx/5xx or a failed request) are
+    *  recorded on searchPayload.errors as an array of {url, status, error} so the caller can warn the user.
     */
     searchComplex: async function(searchPayload, blast=true){
       // console.log("searchPayload",searchPayload)
@@ -572,6 +585,7 @@ const utilsNetwork = {
         }
 
         let results = []
+        searchPayload.errors = []
         for (let url of urlTemplate) {
             // kind of hack, change to the public endpoint if we are in dev or public mode
             if (returnUrls.dev || returnUrls.publicEndpoints){
@@ -607,7 +621,14 @@ const utilsNetwork = {
               url = url.replace('searchtype=<TYPE>','searchtype=keyword')
             }
 
-            let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
+            let httpStatus = {}
+            let r = await this.fetchSimpleLookup(url, false, searchPayload.signal, httpStatus)
+
+            // the backend answered with an error (400/500 etc.) or the request failed outright, note it so the UI can warn the user
+            if (httpStatus.ok === false && httpStatus.code != 404){
+              searchPayload.errors.push({url: url, status: httpStatus.code || null, error: httpStatus.error || null})
+            }
+            if (!r){ r = {} }
 
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
