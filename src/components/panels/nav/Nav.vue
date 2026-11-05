@@ -923,7 +923,7 @@ export default {
       menu.push({ is: "spacer" })
 
 
-      if (config.returnUrls.dancerEnabled) {
+      if (config.returnUrls.dancerEnabled && !config.returnUrls.displayAsProduction) {
         let dancerMenuItems = []
         const currentWorkspace = window.localStorage.getItem('marva-dancerWorkspace')
 
@@ -1247,6 +1247,9 @@ export default {
     },
 
     isStaging: function () {
+      if (useConfigStore().returnUrls.displayAsProduction) {
+        return false
+      }
       if (useConfigStore().returnUrls.env == "staging" || useConfigStore().returnUrls.dev == true) {
         return true
       } else {

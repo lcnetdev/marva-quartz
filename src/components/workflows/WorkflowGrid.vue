@@ -83,6 +83,17 @@
             <strong>Add alongside the existing values</strong>
             <span>The pasted value goes in next to what is there</span>
           </button>
+          <!-- the value came from another component (a parallel title copied onto the instance titles): another one of the component on every record -->
+          <button class="wf-button" @click="workflowStore.pasteIntoColumn('new')" :disabled="columnPaste.records == 0">
+            <strong>As a new component</strong>
+            <span>Each of the {{ columnPaste.records }} {{ columnPaste.records == 1 ? 'record' : 'records' }} gets another "{{ columnPaste.group.component.label }}" holding the pasted value, the ones there stay as they are</span>
+          </button>
+          <label v-if="columnPaste.types.length > 1" class="wf-column-paste-type">
+            <span>Type of the new component</span>
+            <select v-model="columnPaste.newType">
+              <option v-for="t in columnPaste.types" :key="t.id" :value="t.id">{{ t.label }}</option>
+            </select>
+          </label>
         </div>
         <div class="wf-dialog-buttons">
           <button @click="workflowStore.columnPaste = null">Cancel</button>

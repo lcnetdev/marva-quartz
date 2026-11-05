@@ -1765,6 +1765,7 @@
       },
 
       isStaging(){
+        if (useConfigStore().returnUrls.displayAsProduction){ return false }
         if (useConfigStore().returnUrls.env == "staging" || useConfigStore().returnUrls.dev == true){
           return true
         }else{

@@ -1951,6 +1951,22 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   font-size: 0.9em;
   color: var(--wf-muted-color);
 }
+/* the Type pick on the "as a new component" choice (a title: Instance title, Parallel title...) */
+.wf-column-paste-type {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.35em;
+  cursor: default;
+}
+.wf-column-paste-type select {
+  font: inherit;
+  padding: 0.15em 0.3em;
+  border: 1px solid var(--wf-field-border-color);
+  border-radius: 4px;
+  background: var(--wf-page-background);
+  color: var(--wf-text-color);
+}
 
 /* a checkbox line in the Options menu */
 .wf-options-check {

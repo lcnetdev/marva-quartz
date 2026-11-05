@@ -26,6 +26,31 @@ import short from 'short-uuid'
 import { readCellValues, findComponentPts, findRtId, ADMIN_METADATA_URI } from './fields'
 
 export const CIP_ENRICHMENT_ID = 'cip-lookup'
+// the plain WorldCat overlay: the same lookup and cell by cell comparison, offered for a click,
+// without the CIP checklist (its rules, protections, required fields) and without anything being
+// taken into the record on its own
+export const WORLDCAT_SUGGEST_ENRICHMENT_ID = 'worldcat-suggest'
+// the enrichments that fetch WorldCat's record for the row
+export const WORLDCAT_LOOKUP_ENRICHMENT_IDS = [CIP_ENRICHMENT_ID, WORLDCAT_SUGGEST_ENRICHMENT_ID]
+
+/**
+* Does the workflow look the record up in WorldCat (either of the WorldCat enrichments is on)
+* @param {array} enrichmentIds - the workflow definition's enrichments
+* @return {boolean}
+*/
+export function worldcatLookupOn(enrichmentIds){
+  return (enrichmentIds || []).some((id) => { return WORLDCAT_LOOKUP_ENRICHMENT_IDS.includes(id) })
+}
+
+/**
+* Does the CIP checklist apply (rules, protections, required fields, auto replacements): only on
+* the CIP verification enrichment, not on the plain WorldCat suggestions
+* @param {array} enrichmentIds
+* @return {boolean}
+*/
+export function cipChecklistOn(enrichmentIds){
+  return (enrichmentIds || []).includes(CIP_ENRICHMENT_ID)
+}
 
 const ONT = 'http://id.loc.gov/ontologies/bibframe/'
 const VOC = 'http://id.loc.gov/vocabulary/'

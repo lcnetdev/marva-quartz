@@ -34,6 +34,10 @@
       </BaklavaEditor>
     </div>
 
+    <!-- the lookup a Set value node's URI can be filled from: the editor's own complex lookup on the target field's
+         authorities (only while a field is being looked up, the modal reads the field's structure) -->
+    <ComplexLookupModal v-if="lookup.field" :structure="lookup.field.structure" :guid="lookup.field.guid" :propertyPath="lookup.field.propertyPath" :searchValue="lookup.search" :authorityLookup="null" v-model="lookup.show" @emitComplexValue="lookupPicked" @hideComplexModal="lookupClosed" />
+
     <div class="wf-graph-foot">
       <span class="wf-graph-foot-hint">Drag from a field of the record to a node. A node runs once per line of the field (each contributor, each subject). Fields the sheet shows are set in the simple builder, this graph runs on each record as it is loaded, before it goes on the sheet.</span>
       <span class="wf-graph-foot-count">{{ summary.nodes }} nodes, {{ summary.wires }} wires</span>
@@ -52,19 +56,27 @@ import '@baklavajs/themes/dist/classic.css'
 
 import SourceNode from './SourceNode.vue'
 import TestNode from './TestNode.vue'
+import ComplexLookupModal from '@/components/panels/edit/modals/ComplexLookupModal.vue'
 import { buildNodeTypes, buildSourceNodeType, buildTestNodeType, prepareEditor, findSourceNode, enrichmentInputKey } from '@/lib/workflows/graph/baklava'
-import { SOURCE_NODE_TYPE, TEST_NODE_TYPE, RECORD_ORIGIN, ENRICHMENT_ORIGINS, listSourcePorts } from '@/lib/workflows/graph/ports'
+import { SOURCE_NODE_TYPE, TEST_NODE_TYPE, RECORD_ORIGIN, ENRICHMENT_ORIGINS, listSourcePorts, parsePortKey } from '@/lib/workflows/graph/ports'
 import { exportDefinition, exportFileName, importDefinition, checkGraphPorts, downloadText, readFileText, GRAPH_VERSION } from '@/lib/workflows/graph/file'
 import { graphSummary } from '@/lib/workflows/graph/run'
 
 export default {
   name: 'GraphBuilder',
-  components: { BaklavaEditor, BaklavaNode: Components.Node, SourceNode, TestNode },
+  components: { BaklavaEditor, BaklavaNode: Components.Node, SourceNode, TestNode, ComplexLookupModal },
   props: {
     // the definition to edit, or a draft from the simple builder (id null for a new one)
     definition: Object,
   },
   emits: ['close', 'saved'],
+  // for the settings on the nodes (GraphText): what linked field a target port is, and the lookup on it
+  provide(){
+    return {
+      wfGraphLinkedField: (portKey) => { return this.linkedField(portKey) },
+      wfGraphLookupLinked: (portKey, search) => { return this.lookupLinked(portKey, search) },
+    }
+  },
   data(){
     return {
       draft: {
@@ -82,6 +94,9 @@ export default {
       enrichmentsOn: [],
       problems: [],
       summary: { nodes: 0, wires: 0, ports: 0 },
+      // the lookup open for a node's URI setting: the field (structure, propertyPath, guid), the search to start
+      // from, and what to call with the pick (lookupLinked)
+      lookup: { show: false, field: null, search: '', resolve: null },
       SOURCE_NODE_TYPE: SOURCE_NODE_TYPE,
       TEST_NODE_TYPE: TEST_NODE_TYPE,
     }
@@ -111,6 +126,64 @@ export default {
     },
   },
   methods: {
+    /**
+    * The linked field a target port of the record stands for, when it is one a lookup can fill:
+    * a complex lookup field (a contributor, a subject, a related work...). A simple vocabulary
+    * field or a text field is not one, its URI is typed.
+    * @param {string} portKey - record|Work|<component id>|<column key>
+    * @return {object|null} - {label, sources, structure, propertyPath, guid}
+    */
+    linkedField(portKey){
+      let parsed = parsePortKey(portKey)
+      if (!parsed || !parsed.columnKey || parsed.origin !== RECORD_ORIGIN || !this.draft.profileId){ return null }
+      let component = this.components.filter((c) => { return c.rt === parsed.rt && c.id === parsed.componentId })[0]
+      if (!component){ return null }
+      let cell = this.workflowStore.returnComponentCells(this.draft.profileId, component)[parsed.columnKey]
+      if (!cell || cell.kind !== 'field' || cell.fieldType !== 'COMPLEX' || !cell.structure || !cell.structure.valueConstraint){ return null }
+      let sources = (cell.structure.valueConstraint.useValuesFrom || []).map((u) => { return String(u).split('/').filter((p) => { return p }).pop() }).join(', ')
+      let column = this.workflowStore.returnComponentColumns(this.draft.profileId, component).filter((c) => { return c.key === parsed.columnKey })[0]
+      return {
+        label: component.label + ' / ' + (column ? column.label : parsed.columnKey),
+        sources: sources,
+        structure: cell.structure,
+        propertyPath: cell.propertyPath,
+        guid: cell.guid,
+      }
+    },
+
+    /**
+    * Open the complex lookup on a target field's authorities for a node's URI setting
+    * @param {string} portKey - the node's target
+    * @param {string} search - what to start the search with (the node's text, the label picked before)
+    * @return {Promise<object|null>} - {uri, label} picked, {uri: null, label} for a literal, null when closed without a pick
+    */
+    lookupLinked(portKey, search){
+      let field = this.linkedField(portKey)
+      if (!field){ return Promise.resolve(null) }
+      if (this.lookup.resolve){ this.lookup.resolve(null) }
+      return new Promise((resolve) => {
+        this.lookup = { show: false, field: field, search: search || '', resolve: resolve }
+        // the modal is created with the field first, then opened
+        this.$nextTick(() => { this.lookup.show = true })
+      })
+    },
+
+    // the modal's pick (its activeContext: uri, title, literal); the modal then closes, lookupClosed lets go of the field
+    lookupPicked(context){
+      let resolve = this.lookup.resolve
+      let label = Array.isArray(context.title) ? context.title[0] : context.title
+      this.lookup.resolve = null
+      this.lookup.show = false
+      if (resolve){ resolve(context.literal ? { uri: null, label: label || '' } : { uri: context.uri || null, label: label || '' }) }
+    },
+
+    // the modal is closing: after a pick, or without one (x, escape, a click outside)
+    lookupClosed(){
+      let resolve = this.lookup.resolve
+      this.lookup = { show: false, field: null, search: '', resolve: null }
+      if (resolve){ resolve(null) }
+    },
+
     /**
     * The record's fields a node can write to, for the Field select of Set value / Copy value
     */

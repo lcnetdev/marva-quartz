@@ -9,10 +9,13 @@
  *
  * `cip-lookup` is different: it does not change the record, it fetches WorldCat's version of
  * it and the sheet offers the differences cell by cell (lib/workflows/cip.js,
- * workflowStore.enrichRow). `available: false` shows an entry disabled in the workflow builder.
+ * workflowStore.enrichRow). `worldcat-suggest` is that same lookup and overlay on its own,
+ * without the CIP checklist's rules and without anything taken into the record automatically.
+ * `excludes` lists the enrichments one makes redundant (the builder unchecks them).
+ * `available: false` shows an entry disabled in the workflow builder.
  */
 
-import { CIP_ENRICHMENT_ID } from './cip'
+import { CIP_ENRICHMENT_ID, WORLDCAT_SUGGEST_ENRICHMENT_ID } from './cip'
 
 const workflowEnrichments = [
   {
@@ -20,7 +23,17 @@ const workflowEnrichments = [
     label: 'CIP verification: suggest from WorldCat',
     description: 'Looks the book up in WorldCat by its barcode or ISBN and marks the fields that match, offering what is missing or different for a click to accept.',
     available: true,
+    excludes: [WORLDCAT_SUGGEST_ENRICHMENT_ID],
     // nothing to run on the record itself, the store fetches the suggestions after the record is loaded
+    run: async function(profile, context){ return false },
+  },
+  {
+    id: WORLDCAT_SUGGEST_ENRICHMENT_ID,
+    label: 'Suggest from WorldCat',
+    description: 'Looks the book up in WorldCat by its barcode or ISBN and shows what it has that is missing or different, for a click to accept. No CIP checklist, nothing is changed without a click.',
+    available: true,
+    excludes: [CIP_ENRICHMENT_ID],
+    // same as above, the lookup is the store's
     run: async function(profile, context){ return false },
   },
   {
