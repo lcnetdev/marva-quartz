@@ -168,10 +168,10 @@ export default {
     methods: {
 
         buildLinkHtml(){
-            let urlClassSearch = `https://${this.classWebURL()}/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan=${this.lccFeatureData.classNumber}&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'`
-            let urlClassBrowse = `https://${this.classWebURL()}/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=${this.lccFeatureData.classNumber}`
-            let urlSubj1 = `https://${this.classWebURL()}/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=${this.lccFeatureData.firstSubject}`
-            let urlSubj2 = `https://${this.classWebURL()}/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=${this.lccFeatureData.secondSubject}`
+            let urlClassSearch = `https://${this.classWebURL()}/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan=${encodeURI(this.lccFeatureData.classNumber)}&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'`
+            let urlClassBrowse = `https://${this.classWebURL()}/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=${encodeURI(this.lccFeatureData.classNumber)}`
+            let urlSubj1 = `https://${this.classWebURL()}/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=${encodeURI(this.lccFeatureData.firstSubject)}`
+            let urlSubj2 = `https://${this.classWebURL()}/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm=${encodeURI(this.lccFeatureData.secondSubject)}`
 
 
             let linkClassSearch = '<span></span>'
@@ -361,9 +361,8 @@ a:hover {
 }
 
 .external-links a,
-.classweb-links a
-.classweb-links-inline a
-{
+.classweb-links a,
+.classweb-links-inline a {
     color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
 }
 
