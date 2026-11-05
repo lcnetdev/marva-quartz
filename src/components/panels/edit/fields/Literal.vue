@@ -1591,6 +1591,10 @@ fieldset{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size-script')");
 }
 
+textarea::placeholder{
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-placeholder-font-color')");
+}
+
 textarea{
   border: none;
   overflow: hidden;

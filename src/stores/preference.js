@@ -662,6 +662,14 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [100, 1000]
       },
+      '--c-edit-main-placeholder-font-color' : {
+        desc: 'The color of the placeholder text',
+        descShort: 'Placeholder Font Color',
+        value: "#00000080",
+        type: 'color',
+        group: 'Edit Panel',
+        range: null
+      },
 
 
 
