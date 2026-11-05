@@ -274,8 +274,6 @@ export default {
                     data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
                 }
 
-                console.info("data: ", data)
-
                 return data
             }
             return false
