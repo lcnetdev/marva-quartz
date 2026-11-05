@@ -56,6 +56,8 @@ function optionInterface(key, option, portItems){
     default:
       intf = new NodeInterface(option.label, option.default === undefined ? '' : option.default)
       intf.placeholder = option.placeholder || ''
+      // a URI setting that a lookup can fill (GraphText shows the search button when the node's target is a linked field)
+      intf.lookup = !!option.lookup
       intf.setComponent(markRaw(GraphText))
   }
   intf.setPort(false)
@@ -123,7 +125,7 @@ export function buildSourceNodeType(components, columnsFor){
   let inputs = {}
   for (let id in ENRICHMENT_ORIGINS){
     let origin = ENRICHMENT_ORIGINS[id]
-    inputs[enrichmentInputKey(id)] = () => { return new CheckboxInterface(origin.label + ' lookup', false).setPort(false) }
+    inputs[enrichmentInputKey(id)] = () => { return new CheckboxInterface(origin.name || (origin.label + ' lookup'), false).setPort(false) }
   }
   let nodeClass = defineDynamicNode({
     type: SOURCE_NODE_TYPE,

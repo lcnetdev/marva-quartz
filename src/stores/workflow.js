@@ -19,7 +19,7 @@ import { inspectRecord, recommendCandidate, formatLabel } from '@/lib/workflows/
 import { listSourcePorts, parsePortKey, RECORD_ORIGIN } from '@/lib/workflows/graph/ports'
 import { readSourceValues, entryText } from '@/lib/workflows/graph/values'
 import { runGraph } from '@/lib/workflows/graph/run'
-import { CIP_ENRICHMENT_ID, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord, impliedColorContent, fillSubjectSources } from '@/lib/workflows/cip'
+import { CIP_ENRICHMENT_ID, worldcatLookupOn, cipChecklistOn, cipQuery, fetchCipLookup, summarizeCip, scrubForeignData, recordUris, copyCellValue, copyComponentValue, componentIsEmpty, suggestedPtsFor, compareComponent, isAutoReplaced, looksLikeIsbn, applyChecklistRules, hasSeriesStatement, checklistGoverns, resolveLabels, linkedToUnlinked, suggestionsHidden, recordSeriesTitles, isSeriesAlreadyInRecord, impliedColorContent, fillSubjectSources } from '@/lib/workflows/cip'
 
 import short from 'short-uuid'
 
@@ -401,6 +401,22 @@ export const useWorkflowStore = defineStore('workflow', {
       let pt = findComponentTemplate(baseProfile, component)
       if (!pt){ return [] }
       return expandComponentColumns(pt, useProfileStore().rtLookup, useConfigStore().lookupConfig)
+    },
+
+    /**
+    * The cells of a component's template in a profile (fields.resolveComponentCells on the empty
+    * template), keyed like its columns: the way to get at a column's structure and propertyPath
+    * without a record, for the graph builder's lookups
+    * @param {string} profileId
+    * @param {object} component - {rt, id}
+    * @return {object} - column key -> cell ({kind, fieldType, structure, propertyPath...}), empty when the profile is not loaded
+    */
+    returnComponentCells(profileId, component){
+      let baseProfile = findBaseProfile(profileId)
+      if (!baseProfile){ return {} }
+      let pt = findComponentTemplate(baseProfile, component)
+      if (!pt){ return {} }
+      return resolveComponentCells(pt, useProfileStore().rtLookup, useConfigStore().lookupConfig)
     },
 
     /**
@@ -1169,7 +1185,7 @@ export const useWorkflowStore = defineStore('workflow', {
     */
     async runGraphAfterLoad(rowId, session){
       try {
-        if ((session.definition.enrichments || []).includes(CIP_ENRICHMENT_ID)){
+        if (worldcatLookupOn(session.definition.enrichments)){
           await this.enrichRow(rowId)
         }
         let row = this.returnRow(rowId)
@@ -1287,7 +1303,7 @@ export const useWorkflowStore = defineStore('workflow', {
     /**
     * Fetch WorldCat's version of a row's record through the cip-lookup service and keep it, parsed,
     * on the row for the sheet to compare against (row.enrichment). Only when the workflow has the
-    * cip-lookup enrichment turned on.
+    * cip-lookup or the worldcat-suggest enrichment turned on.
     * @param {string} rowId
     * @param {boolean} force - look it up again even if it was already done
     * @return {void}
@@ -1296,7 +1312,7 @@ export const useWorkflowStore = defineStore('workflow', {
       let session = this.sessionFor(rowId)
       let row = this.returnRow(rowId)
       if (!row || !row.profile || !session){ return }
-      if (!(session.definition.enrichments || []).includes(CIP_ENRICHMENT_ID)){ return }
+      if (!worldcatLookupOn(session.definition.enrichments)){ return }
       if (row.enrichment && row.enrichment.status === 'loading'){ return }
       if (row.enrichment && !force && row.enrichment.status !== 'error'){ return }
 
@@ -1325,8 +1341,11 @@ export const useWorkflowStore = defineStore('workflow', {
         // along with the converter's relations pointing back at this very record
         scrubForeignData(suggested, recordUris(row.profile))
         row.enrichment = { status: 'ready', query: query, suggested: markRaw(suggested), source: summarizeCip(data), dismissed: [] }
-        // the fields the book settles take WorldCat's value right away
-        await this.autoReplaceFromSuggested(row.id)
+        // on a CIP sheet the fields the book settles take WorldCat's value right away; the plain
+        // WorldCat suggestions only ever offer, nothing goes into the record without a click
+        if (cipChecklistOn(session.definition.enrichments)){
+          await this.autoReplaceFromSuggested(row.id)
+        }
         // and a field off the sheet that WorldCat has something for is put on it
         this.revealComponentsWithSuggestions(row.id)
       } catch (e) {
@@ -1466,6 +1485,7 @@ export const useWorkflowStore = defineStore('workflow', {
       let session = this.sessionFor(rowId)
       let row = this.returnRow(rowId)
       if (!row || !row.profile || !session || !row.enrichment || row.enrichment.status !== 'ready' || !row.enrichment.suggested){ return 0 }
+      if (!cipChecklistOn(session.definition.enrichments)){ return 0 }
       let rtLookup = useProfileStore().rtLookup
       let lookupConfig = useConfigStore().lookupConfig
       let toLines = (pts) => { return pts.map((pt) => { return { pt: pt, cells: resolveComponentCells(pt, rtLookup, lookupConfig) } }) }
@@ -2388,6 +2408,11 @@ export const useWorkflowStore = defineStore('workflow', {
         this.notify(why + ', nothing pasted', 'error')
         return
       }
+      // the component's Types (a title is an Instance title, a Parallel title...), for the "as a new
+      // component" choice: the copied cell's own type is the first pick
+      let typeCell = Object.values(this.returnComponentCells(this.activeSession.definition.profileId, group.component)).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
+      let types = typeCell ? typeCell.options : []
+      let newType = (payload.templateId && types.some((t) => { return t.id === payload.templateId })) ? payload.templateId : (typeCell && typeCell.active ? typeCell.active.id : null)
       this.columnPaste = {
         group: group,
         column: column,
@@ -2395,6 +2420,9 @@ export const useWorkflowStore = defineStore('workflow', {
         populated: compatible.filter((t) => { return t.populated }).length,
         empty: compatible.filter((t) => { return !t.populated }).length,
         skipped: targets.length - compatible.length,
+        records: this.activeSession.rows.filter((r) => { return r.status == 'ready' && r.profile && findComponentPts(r.profile, group.component).length > 0 }).length,
+        types: types,
+        newType: newType,
       }
     },
 
@@ -2420,6 +2448,7 @@ export const useWorkflowStore = defineStore('workflow', {
     /**
     * Paste down the selected column, the way the user chose
     * @param {string} how - 'overwrite' (only where there is a value) | 'fill' (everywhere, over what is there) | 'add' (beside what is there)
+    *   | 'new' (another one of the component on every record, of the Type picked in the dialog, holding the value)
     * @return {void}
     */
     async pasteIntoColumn(how){
@@ -2430,10 +2459,19 @@ export const useWorkflowStore = defineStore('workflow', {
       let previousBusy = this.busy
       this.busy = 'Pasting down the column...'
       let done = 0
+      let skipped = 0
       historyGroup = short.generate()
       try {
         let profileStore = useProfileStore()
-        for (let target of this.columnPasteTargets(ask.group, ask.column)){
+        if (how == 'new'){
+          for (let row of this.activeSession.rows){
+            if (row.status != 'ready' || !row.profile || findComponentPts(row.profile, ask.group.component).length == 0){ continue }
+            if (!(await this.activateRow(row.id))){ continue }
+            let result = await this.pasteAsNewComponent(ask.group, ask.column, ask.payload, ask.newType)
+            if (result.done){ done++ } else { skipped++ }
+          }
+        }
+        for (let target of (how == 'new') ? [] : this.columnPasteTargets(ask.group, ask.column)){
           if (incompatible(ask.payload, target.cell)){ continue }
           if (how == 'overwrite' && !target.populated){ continue }
           if (!(await this.activateRow(target.rowId))){ continue }
@@ -2453,7 +2491,62 @@ export const useWorkflowStore = defineStore('workflow', {
         historyGroup = null
         this.busy = previousBusy
       }
-      this.notify('Pasted "' + ask.payload.text + '" into ' + done + ' ' + (done == 1 ? 'cell' : 'cells'), 'info')
+      if (how == 'new'){
+        let typeLabel = (ask.types.filter((t) => { return t.id === ask.newType })[0] || {}).label
+        let what = (typeLabel ? '"' + typeLabel + '"' : '"' + ask.group.component.label + '"')
+        this.notify('Added a new ' + what + ' with "' + ask.payload.text + '" to ' + done + ' ' + (done == 1 ? 'record' : 'records') + (skipped > 0 ? ', ' + skipped + ' skipped ("' + ask.column.label + '" is not a field of it or takes another kind of value)' : ''), skipped > 0 && done == 0 ? 'error' : 'info')
+      } else {
+        this.notify('Pasted "' + ask.payload.text + '" into ' + done + ' ' + (done == 1 ? 'cell' : 'cells'), 'info')
+      }
+    },
+
+    /**
+    * Another one of a component on the active record, of the Type asked for, with the copied value
+    * in its cell for the column: what "Paste down ... as a new component" does on each record. The
+    * new component is made as a (empty) duplicate of the record's last one, switched to the Type,
+    * and taken away again when the column turns out not to be a field of that Type or can't take
+    * the value, so nothing empty is left behind.
+    * @param {object} group
+    * @param {object} column
+    * @param {object} payload - from pastedPayload
+    * @param {string|null} templateId - the Type for the new component (from rtLookup), null to keep the duplicate's
+    * @return {object} - {done, why}
+    */
+    async pasteAsNewComponent(group, column, payload, templateId){
+      let profileStore = useProfileStore()
+      let rtLookup = profileStore.rtLookup
+      let lookupConfig = useConfigStore().lookupConfig
+      let pts = findComponentPts(profileStore.activeProfile, group.component)
+      if (pts.length == 0){ return { done: false, why: 'the record has no "' + group.component.label + '"' } }
+      let last = pts[pts.length - 1]
+      let newGuid = await profileStore.duplicateComponent(last['@guid'], profileStore.returnStructureByGUID(last['@guid']))
+      if (!newGuid){ return { done: false, why: 'could not add another "' + group.component.label + '"' } }
+      let pt = utilsProfile.returnPt(profileStore.activeProfile, newGuid)
+      if (!pt){ return { done: false, why: 'could not add another "' + group.component.label + '"' } }
+      let cells = resolveComponentCells(pt, rtLookup, lookupConfig)
+      let typeCell = Object.values(cells).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
+      let wanted = templateId ? rtLookup[templateId] : null
+      if (typeCell && wanted && typeCell.active.id !== wanted.id && typeCell.options.some((o) => { return o.id === wanted.id })){
+        profileStore.changeRefTemplate(newGuid, typeCell.propertyPath, JSON.parse(JSON.stringify(wanted)), JSON.parse(JSON.stringify(typeCell.active)))
+        pt = utilsProfile.returnPt(profileStore.activeProfile, newGuid)
+        cells = resolveComponentCells(pt, rtLookup, lookupConfig)
+      }
+      let cell = cells[column.key] || null
+      let why = cell ? incompatible(payload, cell) : ('"' + column.label + '" is not a field of a new "' + group.component.label + '"')
+      if (why){
+        await profileStore.deleteComponent(newGuid)
+        profileStore.dataChanged()
+        return { done: false, why: why }
+      }
+      let ok
+      if (cell.fieldType == 'RDFTYPE'){
+        profileStore.setValueRdfTypePicklist(cell.guid, pastedTypeUris(payload, pt, false))
+        ok = true
+      } else {
+        ok = writeCellNodes(pt, cell, payload, false)
+      }
+      profileStore.dataChanged()
+      return ok ? { done: true, why: null } : { done: false, why: 'could not paste into the new "' + group.component.label + '"' }
     },
 
     isSelected(rowId, line, col){

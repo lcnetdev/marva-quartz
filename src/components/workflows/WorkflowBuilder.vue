@@ -134,6 +134,20 @@ export default {
       return this.draft.name.trim() != '' && this.draft.profileId != '' && this.draft.components.length > 0
     },
   },
+  watch: {
+    // an enrichment that makes another redundant (CIP verification includes the WorldCat suggestions) unchecks it
+    'draft.enrichments'(now, before){
+      let added = (now || []).filter((id) => { return !(before || []).includes(id) })
+      let excluded = []
+      for (let id of added){
+        let e = this.enrichments.filter((x) => { return x.id === id })[0]
+        if (e && e.excludes){ excluded = excluded.concat(e.excludes) }
+      }
+      if (excluded.some((id) => { return now.includes(id) })){
+        this.draft.enrichments = now.filter((id) => { return !excluded.includes(id) })
+      }
+    },
+  },
   methods: {
     isSelected(c){
       return this.draft.components.some((s) => { return s.rt === c.rt && s.id === c.id })

@@ -234,6 +234,25 @@
   outline: 2px solid var(--wf-accent-color);
   outline-offset: -1px;
 }
+/* the search button after a URI setting whose field is a linked one: a lookup fills it */
+.wf-graph-control-lookup {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15em;
+  border: 1px solid var(--wf-field-border-color);
+  border-radius: 4px;
+  background: var(--wf-page-background);
+  color: var(--wf-accent-color);
+  cursor: pointer;
+}
+.wf-graph-control-lookup .material-icons {
+  font-size: 1.1em;
+}
+.wf-graph-control-lookup:hover {
+  border-color: var(--wf-accent-color);
+}
 
 /* ---------------------------------------------------------------- the source node */
 

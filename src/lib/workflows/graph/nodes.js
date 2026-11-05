@@ -146,7 +146,8 @@ export const NODE_TYPES = [
     options: {
       target: { label: 'Into field', control: 'port', default: '' },
       text: { label: 'or this text', control: 'text', default: '' },
-      uri: { label: 'or this URI (linked field)', control: 'text', default: '' },
+      // `lookup`: for a linked field, a search against the field's authorities (the complex lookup modal) fills this and the text (its label)
+      uri: { label: 'or this URI (linked field)', control: 'text', default: '', lookup: true },
       mode: { label: 'Write', control: 'select', items: WRITE_MODES.map((o) => { return { value: o.id, text: o.label } }), default: 'ifEmpty' },
     },
     layout: ['target', 'value', 'text', 'uri', 'mode', 'when'],
@@ -291,7 +292,7 @@ export const NODE_TYPES = [
       // "Then" on the first setting of the action half, so the node reads test, then action
       target: { label: 'Then, into field', control: 'port', default: '' },
       text: { label: 'or write this text', control: 'text', default: '' },
-      uri: { label: 'or write this URI', control: 'text', default: '' },
+      uri: { label: 'or write this URI', control: 'text', default: '', lookup: true },
       mode: { label: 'Write', control: 'select', items: WRITE_MODES.map((o) => { return { value: o.id, text: o.label } }), default: 'ifEmpty' },
     }),
     layout: TEST_LAYOUT.concat(['target', 'value', 'text', 'uri', 'mode', 'when']),

@@ -13,7 +13,7 @@
  * An origin also has a few ports of its own that are not columns (`worldcat|found`).
  */
 
-import { CIP_ENRICHMENT_ID } from '../cip'
+import { CIP_ENRICHMENT_ID, WORLDCAT_SUGGEST_ENRICHMENT_ID } from '../cip'
 import { columnHint } from '../fields'
 
 export const SOURCE_NODE_TYPE = 'wf-source'
@@ -21,18 +21,22 @@ export const SOURCE_NODE_TYPE = 'wf-source'
 export const TEST_NODE_TYPE = 'wf-test'
 export const RECORD_ORIGIN = 'record'
 
-// the enrichments that put fields on the source node, by enrichment id
+// the enrichments that put fields on the source node, by enrichment id. `name` is the check box
+// on the source node; two enrichments can share an origin (both WorldCat ones bring the same
+// record), the origin's ports are listed once
+const WORLDCAT_ORIGIN = {
+  origin: 'worldcat',
+  label: 'WorldCat',
+  description: 'The matching WorldCat record, converted to BIBFRAME',
+  // ports that are not columns of a component
+  facts: [
+    { key: 'found', label: 'WorldCat: record found', kind: 'boolean' },
+    { key: 'format', label: 'WorldCat: format of the record', kind: 'value' },
+  ],
+}
 export const ENRICHMENT_ORIGINS = {
-  [CIP_ENRICHMENT_ID]: {
-    origin: 'worldcat',
-    label: 'WorldCat',
-    description: 'The matching WorldCat record, converted to BIBFRAME',
-    // ports that are not columns of a component
-    facts: [
-      { key: 'found', label: 'WorldCat: record found', kind: 'boolean' },
-      { key: 'format', label: 'WorldCat: format of the record', kind: 'value' },
-    ],
-  },
+  [CIP_ENRICHMENT_ID]: Object.assign({ name: 'CIP verification: WorldCat lookup' }, WORLDCAT_ORIGIN),
+  [WORLDCAT_SUGGEST_ENRICHMENT_ID]: Object.assign({ name: 'Suggest from WorldCat' }, WORLDCAT_ORIGIN),
 }
 
 /**
@@ -76,12 +80,19 @@ export function parsePortKey(key){
 }
 
 /**
-* The origins a workflow's enrichments add to the source node
+* The origins a workflow's enrichments add to the source node, each origin once (the first
+* enrichment that brings it names it)
 * @param {array} enrichmentIds
 * @return {array} - of ENRICHMENT_ORIGINS entries with the enrichment id on each
 */
 export function enrichmentOrigins(enrichmentIds){
-  return (enrichmentIds || []).filter((id) => { return ENRICHMENT_ORIGINS[id] }).map((id) => {
+  let seen = []
+  return (enrichmentIds || []).filter((id) => { return ENRICHMENT_ORIGINS[id] }).filter((id) => {
+    let origin = ENRICHMENT_ORIGINS[id].origin
+    if (seen.includes(origin)){ return false }
+    seen.push(origin)
+    return true
+  }).map((id) => {
     return Object.assign({ enrichment: id }, ENRICHMENT_ORIGINS[id])
   })
 }
