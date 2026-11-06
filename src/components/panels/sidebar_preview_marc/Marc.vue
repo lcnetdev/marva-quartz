@@ -55,13 +55,10 @@ export default {
 
     async refreshMarc() {
       this.previewData = await this.profileStore.marcPreview()
-
-      console.info("refresh: ", this.previewData)
     },
   },
 
   created() {
-    console.info("created")
     // build the XML on first load
     this.$nextTick(() => {
       window.setTimeout(() => {

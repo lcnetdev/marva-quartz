@@ -3610,11 +3610,7 @@ export const useProfileStore = defineStore('profile', {
         * @return {string} - the MARC string of output
         */
         marcPreview: async function(){
-            console.info("marcPreview")
             let xml = await utilsExport.buildXML(this.activeProfile)
-
-            console.info("\txml: ", xml)
-
             let preview = null
             if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
                 if (xml.bf2MarcMulti.length > 1){
@@ -9339,7 +9335,6 @@ export const useProfileStore = defineStore('profile', {
      * @electronic {Bool}: If the new instance should be for an electronic resource.
      */
     deriveNew: async function(instOnly, electronic=false){
-        console.info("deriving")
         let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
         let instanceCount = 0
 
