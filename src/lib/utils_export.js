@@ -2941,7 +2941,6 @@ const utilsExport = {
 		let xml = (new XMLSerializer()).serializeToString(rootEl)
 		console.log(xml)
 
-		console.info("xml: ", xml)
 		return {xml: xml, text: marcTxt}
 
 	},
