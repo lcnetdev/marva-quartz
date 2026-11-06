@@ -9346,6 +9346,7 @@ export const useProfileStore = defineStore('profile', {
      * @electronic {Bool}: If the new instance should be for an electronic resource.
      */
     deriveNew: async function(instOnly, electronic=false){
+        console.info("deriving")
         let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
         let instanceCount = 0
 
