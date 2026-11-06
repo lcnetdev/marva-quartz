@@ -2571,8 +2571,8 @@ const utilsExport = {
 		let field040 =this.buildField('040', ' ', ' ')
 		let field040a = this.buildSubfield(field040, 'a', 'DLC')
 		let field040b = this.buildSubfield(field040, 'b', 'eng')
-		let field040c = this.buildSubfield(field040, 'c', 'DLC')
 		let field040e = this.buildSubfield(field040, 'e', 'rda')
+		let field040c = this.buildSubfield(field040, 'c', 'DLC')
 
 		marcTextArray.push({txt: this.buildMarcTxtLine('040',' ',' ',[`$a DLC`, `$b eng`, `$e rda`, `$c DLC`]), field: '040', fieldInt: 40})
 

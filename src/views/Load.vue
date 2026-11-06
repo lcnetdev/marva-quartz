@@ -1387,7 +1387,6 @@ export default {
           for (let t of Object.keys(pt)){
             let target = pt[t]
             let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
-            console.info("add defaults: ", target, "--", structure)
             this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
           }
         }
