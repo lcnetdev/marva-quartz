@@ -9566,9 +9566,13 @@ export const useProfileStore = defineStore('profile', {
                 let extent = instance.pt[pt]
                 let userValue = extent.userValue["http://id.loc.gov/ontologies/bibframe/extent"][0]
                 userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = '<#####> pages'
+
+                if (electronic){
+                delete userValue["http://id.loc.gov/ontologies/bibframe/note"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+                }
             }
 
-            if (pt == 'id_loc_gov_ontologies_bibframe_dimensions__dimensions' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/dimensions"]){
+            if (!electronic && pt == 'id_loc_gov_ontologies_bibframe_dimensions__dimensions' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/dimensions"]){
                 let dimensions = instance.pt[pt]
                 let userValue = dimensions.userValue["http://id.loc.gov/ontologies/bibframe/dimensions"][0]
                 userValue["http://id.loc.gov/ontologies/bibframe/dimensions"] = '<#####> cm'
@@ -9659,20 +9663,21 @@ export const useProfileStore = defineStore('profile', {
             instance.isNew = true
             this.activeProfile.rt[newRtId] = instance
             this.activeProfile.rtOrder.push(newRtId)
+
+            // derive as electronic record
+            if (electronic){
+                /** What all needs to happen??
+                 *
+                 * [X]Set mediaType = computer
+                 * []carrier??
+                 * []??
+                 *
+                 */
+                let mediaType = instance.pt['id_loc_gov_ontologies_bibframe_media__media_type']
+                this.setValueSimple(mediaType["@guid"], null, [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/media"}], 'http://id.loc.gov/vocabulary/mediaTypes/c', 'computer (c)')
+            }
         }
 
-        // derive as electronic record
-        if (electronic){
-            /** What all needs to happen??
-             *
-             * [X]Set mediaType = computer
-             * []carrier??
-             * []??
-             *
-             */
-            let mediaType = instance.pt['id_loc_gov_ontologies_bibframe_media__media_type']
-            this.setValueSimple(mediaType["@guid"], null, [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/media"}], 'http://id.loc.gov/vocabulary/mediaTypes/c', 'computer (c)')
-        }
 
         this.rtLookup[newRtId] = this.rtLookup[instOnly]
 

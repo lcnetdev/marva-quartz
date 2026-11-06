@@ -339,9 +339,9 @@ import ClassTools  from "@/components/panels/edit/modals/helpers/ClassificationT
 
     methods: {
         deriveInstance: function(instance){
-          // let electronic = confirm("Derive Electronic Instance?")
+          let electronic = confirm("Derive Electronic Instance?")
           try{
-            this.profileStore.deriveNew(instance, false)
+            this.profileStore.deriveNew(instance, electronic)
           } catch(err){
             alert("Unable to derive instance :(")
             console.error(err)
