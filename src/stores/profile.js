@@ -5907,7 +5907,6 @@ export const useProfileStore = defineStore('profile', {
 
 
             let nonLatinNodes = []
-            console.info("active: ", this.activeProfile)
             for (let rt of this.activeProfile.rtOrder) {
 
                 for (let pt of this.activeProfile.rt[rt].ptOrder) {
@@ -5916,10 +5915,6 @@ export const useProfileStore = defineStore('profile', {
                     // we don't care about literals inside specific types of properties
                     // like agent or headings but we also use this function to grab the ones specificly for agents and headings
                     if (onlyAccessPoints) {
-
-                        console.info("\t rt: ", rt)
-                        console.info("\t\t pt: ", pt)
-                        console.info("\t\t ptObj: ", ptObj)
                         if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) == -1) {
                             continue
                         }
