@@ -61,6 +61,7 @@ export default {
   },
 
   created() {
+    console.info("created")
     // build the XML on first load
     this.$nextTick(() => {
       window.setTimeout(() => {
@@ -104,14 +105,15 @@ export default {
 
     <div class="conversion-heading">Conversion {{ activeVersion }}:</div>
 
-    <div class="toggle-btn-grp cssonly" v-if="previewData['versions'][activeVersion].record.length > 1">
+    {{ previewData }}
+    <!-- <div class="toggle-btn-grp cssonly" v-if="previewData['versions'][activeVersion].record.length > 1">
       <div v-for="(r, idx) of previewData['versions'][activeVersion].record">
         <input type="radio" :value="idx" class="record-radio" v-model="selected" name="recordSelect" />
         <label onclick="" class="toggle-btn">Record {{ idx + 1 }}</label>
       </div>
-    </div>
+    </div> -->
 
-    <MarcDisplay :previewData="previewData['versions'][previewData.default].record[selected]" />
+    <!-- <MarcDisplay :previewData="previewData['versions'][previewData.default].record[selected]" /> -->
 
 
   </div>

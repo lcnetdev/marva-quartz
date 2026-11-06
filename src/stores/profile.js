@@ -5907,6 +5907,7 @@ export const useProfileStore = defineStore('profile', {
 
 
             let nonLatinNodes = []
+            console.info("active: ", this.activeProfile)
             for (let rt of this.activeProfile.rtOrder) {
                 for (let pt of this.activeProfile.rt[rt].ptOrder) {
                     let ptObj = this.activeProfile.rt[rt].pt[pt]
