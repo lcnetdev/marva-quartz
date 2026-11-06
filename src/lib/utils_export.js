@@ -429,6 +429,7 @@ const utilsExport = {
   */
   buildXML: async function(profile){
 	console.log("## BUILD XML ##")
+	console.info("buildXml: ", profile)
 	if (!profile || (profile && Object.keys(profile).length==0)){
 		console.warn("Trying to build XML with bad profile:", profile)
 		return false
@@ -524,6 +525,8 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
+
+	console.info("buildXMLProcess")
     // keep track of the proces for later
 	// let debugHistory = []
 	let xmlLog = []
@@ -2078,6 +2081,9 @@ const utilsExport = {
 
 	// done walking the components, clear the warning context
 	this.currentComponentContext = null
+
+	console.info("\treturning")
+	console.info("\t strBf2MarcXmlElBib: ", strBf2MarcXmlElBib)
 
 	return {
 		xmlDom: rdf,
