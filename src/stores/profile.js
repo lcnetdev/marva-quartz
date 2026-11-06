@@ -9491,8 +9491,12 @@ export const useProfileStore = defineStore('profile', {
                 }
             ]
 
-            delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
-            delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
+            try {
+                delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
+                delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
+            } catch(err){
+                console.warn('Failed to delete something: ', err)
+            }
             // remove 9XXs
             for (let subfield in Object.keys(userValue)){
                 if (subfield.includes("http://id.loc.gov/ontologies/lclocal")){
@@ -9567,8 +9571,8 @@ export const useProfileStore = defineStore('profile', {
                 let userValue = extent.userValue["http://id.loc.gov/ontologies/bibframe/extent"][0]
                 userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = '<#####> pages'
 
-                if (electronic){
-                delete userValue["http://id.loc.gov/ontologies/bibframe/note"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+                if (electronic && userValue["http://id.loc.gov/ontologies/bibframe/note"]){
+                    delete userValue["http://id.loc.gov/ontologies/bibframe/note"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
                 }
             }
 
