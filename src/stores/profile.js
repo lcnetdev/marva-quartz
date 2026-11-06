@@ -5909,6 +5909,7 @@ export const useProfileStore = defineStore('profile', {
             let nonLatinNodes = []
             console.info("active: ", this.activeProfile)
             for (let rt of this.activeProfile.rtOrder) {
+
                 for (let pt of this.activeProfile.rt[rt].ptOrder) {
                     let ptObj = this.activeProfile.rt[rt].pt[pt]
 
@@ -5916,6 +5917,9 @@ export const useProfileStore = defineStore('profile', {
                     // like agent or headings but we also use this function to grab the ones specificly for agents and headings
                     if (onlyAccessPoints) {
 
+                        console.info("\t rt: ", rt)
+                        console.info("\t\t pt: ", pt)
+                        console.info("\t\t ptObj: ", ptObj)
                         if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) == -1) {
                             continue
                         }
@@ -9506,10 +9510,10 @@ export const useProfileStore = defineStore('profile', {
                 }
             }
             } else if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
-            delete source.pt[pt] // delete other admin metadata fields
-            // delete from ptOrder
-            let idx = source.ptOrder.indexOf(pt)
-            source.ptOrder.splice(idx, 1)
+                delete source.pt[pt] // delete other admin metadata fields
+                // delete from ptOrder
+                let idx = source.ptOrder.indexOf(pt)
+                source.ptOrder.splice(idx, 1)
             }
 
             // update instance of URI
@@ -9544,66 +9548,71 @@ export const useProfileStore = defineStore('profile', {
         for (let instance of instances){
         for (let pt in instance.pt){
             if (pt == 'id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"]){
-            let provAct = instance.pt[pt]
-            let userValue = provAct.userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]
+                let provAct = instance.pt[pt]
+                let userValue = provAct.userValue["http://id.loc.gov/ontologies/bibframe/provisionActivity"][0]
 
-            userValue["http://id.loc.gov/ontologies/bflc/simpleDate"][0]["http://id.loc.gov/ontologies/bflc/simpleDate"] = '<#####>'
-            userValue["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"] = '<#####>'
+                userValue["http://id.loc.gov/ontologies/bflc/simpleDate"][0]["http://id.loc.gov/ontologies/bflc/simpleDate"] = '<#####>'
+                userValue["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"] = '<#####>'
 
-            if (userValue["http://id.loc.gov/ontologies/bflc/simpleDate"].length > 1){
-                userValue["http://id.loc.gov/ontologies/bflc/simpleDate"] = userValue["http://id.loc.gov/ontologies/bflc/simpleDate"].slice(0,1)
-            }
+                if (userValue["http://id.loc.gov/ontologies/bflc/simpleDate"].length > 1){
+                    userValue["http://id.loc.gov/ontologies/bflc/simpleDate"] = userValue["http://id.loc.gov/ontologies/bflc/simpleDate"].slice(0,1)
+                }
             }
 
             if (pt == 'id_loc_gov_ontologies_bibframe_editionStatement__edition_statement'){
-            let edState = instance.pt[pt]
+                let edState = instance.pt[pt]
 
-            if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"]){
-                let userValue = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"][0]
-                if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].length > 1){ // there's some non-Latin information
-                edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].slice(0, 1)
+                if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"]){
+                    let userValue = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"][0]
+                    if (edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].length > 1){ // there's some non-Latin information
+                    edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = edState.userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"].slice(0, 1)
+                    }
+                    userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = '<#####>'
+                    userValue["@guid"] = short.generate()
                 }
-                userValue["http://id.loc.gov/ontologies/bibframe/editionStatement"] = '<#####>'
-                userValue["@guid"] = short.generate()
-            }
             }
 
             if (pt == 'id_loc_gov_ontologies_bibframe_extent__physical_description' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/extent"]){
-            let extent = instance.pt[pt]
-            let userValue = extent.userValue["http://id.loc.gov/ontologies/bibframe/extent"][0]
-            userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = '<#####> pages'
+                let extent = instance.pt[pt]
+                let userValue = extent.userValue["http://id.loc.gov/ontologies/bibframe/extent"][0]
+                userValue["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = '<#####> pages'
             }
 
             if (pt == 'id_loc_gov_ontologies_bibframe_dimensions__dimensions' && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/dimensions"]){
-            let dimensions = instance.pt[pt]
-            let userValue = dimensions.userValue["http://id.loc.gov/ontologies/bibframe/dimensions"][0]
-            userValue["http://id.loc.gov/ontologies/bibframe/dimensions"] = '<#####> cm'
+                let dimensions = instance.pt[pt]
+                let userValue = dimensions.userValue["http://id.loc.gov/ontologies/bibframe/dimensions"][0]
+                userValue["http://id.loc.gov/ontologies/bibframe/dimensions"] = '<#####> cm'
             }
 
             // identifiers, keep 1 lccn, and 1 isbn, but empty them
             if (pt.includes('id_loc_gov_ontologies_bibframe_identifiedBy__identifiers') && instance.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
-            let ident = instance.pt[pt]
-            let userValue = ident.userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]
-            let idType = userValue["@type"]
+                let ident = instance.pt[pt]
+                let userValue = ident.userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]
+                let idType = userValue["@type"]
 
-            if (foundISBN){ //There's already an ISBN, delete any others
-                delete instance.pt[pt]
-                continue
-            }
+                if (foundISBN){ //There's already an ISBN, delete any others
+                    delete instance.pt[pt]
+                    let idx = instance.ptOrder.indexOf(pt)
+                    instance.ptOrder.splice(idx, 1)
 
-            if (userValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"]){
-                let value = userValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]
-                value["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = "<#####>"
-            }
+                    continue
+                }
 
-            // remove canceled/invalid
-            if (userValue['http://id.loc.gov/ontologies/bibframe/status']){
-                delete userValue['http://id.loc.gov/ontologies/bibframe/status']
-            }
+                //
 
-            if (idType == 'http://id.loc.gov/ontologies/bibframe/Isbn'){
-                foundISBN = true
-            }
+                if (userValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"]){
+                    let value = userValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]
+                    value["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = "<#####>"
+                }
+
+                // remove canceled/invalid
+                if (userValue['http://id.loc.gov/ontologies/bibframe/status']){
+                    delete userValue['http://id.loc.gov/ontologies/bibframe/status']
+                }
+
+                if (idType == 'http://id.loc.gov/ontologies/bibframe/Isbn'){
+                    foundISBN = true
+                }
             }
         }
         }
