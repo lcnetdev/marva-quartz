@@ -128,7 +128,7 @@
 
           </form>
         </div>
-        <span class="lang-display" v-if="lValue['@language'] && lValue['@language'] !== null" @click="this.actionButtonCommand('setLiteralLang')">{{ lValue['@language'] }}</span>
+        <span :class="['lang-display', {'non-latin': !(lValue['@language'].toLocaleLowerCase().includes('la-') || lValue['@language'].toLocaleLowerCase().includes('-latn')) }]" v-if="lValue['@language'] && lValue['@language'] !== null" @click="this.actionButtonCommand('setLiteralLang')">{{ lValue['@language'] }}</span>
         <span v-if="structure.propertyLabel == 'ISBN'" :data-tooltip="isValidIsbn(lValue.value) ? 'VALID ISBN' : 'INVALID ISBN'" :class="['simptip-position-left', 'material-icons', 'isbn-check', {'isbn-valid': isValidIsbn(lValue.value)}, {'isbn-invalid': !isValidIsbn(lValue.value)}]">{{ isValidIsbn(lValue.value) ? 'check_circle' : 'cancel' }}</span>
 
         <Transition name="action">
@@ -1587,7 +1587,7 @@ fieldset{
   padding-left: 4px;
 }
 
-.literal-field:has( + .lang-display) > form > textarea.script-text{
+.literal-field:has( + .lang-display.non-latin) > form > textarea.script-text{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size-script')");
 }
 
