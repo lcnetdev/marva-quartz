@@ -3609,55 +3609,51 @@ export const useProfileStore = defineStore('profile', {
 
         * @return {string} - the MARC string of output
         */
-        marcPreview: async function () {
+        marcPreview: async function(){
+            console.info("Profile -- marcPreview")
             let xml = await utilsExport.buildXML(this.activeProfile)
+            console.info("\tXML: ", xml)
+
             let preview = null
-            if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')) {
+            if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
+                if (xml.bf2MarcMulti.length > 1){
+                preview = await utilsNetwork.marcPreview(xml.bf2MarcMulti, false, true)
+                } else {
                 preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
+                }
             } else {
+                if (xml.bf2MarcMulti && xml.bf2MarcMulti.length > 1){
+                preview = await utilsNetwork.marcPreview(xml.bf2MarcMulti, true, true)
+                } else {
                 preview = await utilsNetwork.marcPreview(xml.bf2Marc, true)
+                }
+            }
+
+            let data = {}
+            for (let p of preview){
+                for (let obj of p){
+                if (!Object.keys(data).includes(obj.version)){
+                    data[obj.version] = {
+                    'record': [obj]
+                    }
+                } else {
+                    data[obj.version].record.push(obj)
+                }
+                }
             }
 
             // clean it up a bit for the component
-            let versions = preview.map((v) => { return v.version }).sort().reverse()
+            let versions = Object.keys(data).map((v)=>{ return v}).sort().reverse()
 
-            let results = []
+            console.info("versions: ", versions)
 
-            let newResults = []
-            let selectedDefault = false
+            let defaultVer = versions[0]
+            console.info("defaultVer: ", defaultVer)
 
-
-            for (let v of versions) {
-                let toAdd = preview.filter((p) => { return (p.version == v) })[0]
-                if (toAdd.results && toAdd.results.stdout && selectedDefault == false) {
-                    toAdd.default = true
-                    selectedDefault = true
-                } else {
-                    toAdd.default = false
-                }
-
-                if (toAdd.results && !toAdd.results.stdout) {
-                    toAdd.error = true
-                } else {
-                    toAdd.error = false
-                }
-                newResults.push(toAdd)
-            }
-
-
-
-            let defaultVer = newResults.filter((p) => { return (p.default == true) })[0]
-            if (defaultVer && defaultVer.default) {
-                defaultVer = defaultVer.version
-            } else {
-                defaultVer = null
-            }
-            return ({
+            return({
                 default: defaultVer,
-                versions: newResults,
+                versions: data, //newResults,
             })
-
-
         },
 
 
