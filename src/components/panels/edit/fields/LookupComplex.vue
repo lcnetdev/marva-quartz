@@ -838,6 +838,10 @@ export default {
   background-color: transparent;
 }
 
+.lookup-fake-input-text input::placeholder{
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-placeholder-font-color')");
+}
+
 
 
 

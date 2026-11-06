@@ -662,6 +662,14 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [100, 1000]
       },
+      '--c-edit-main-placeholder-font-color' : {
+        desc: 'The color of the placeholder text',
+        descShort: 'Placeholder Font Color',
+        value: "#00000080",
+        type: 'color',
+        group: 'Edit Panel',
+        range: null
+      },
 
 
 
@@ -1320,6 +1328,16 @@ export const usePreferenceStore = defineStore('preference', {
       range: [true,false]
     },
 
+    '--b-edit-load-defaults' : {
+      desc: 'Load all default values when a record is loaded.',
+      descShort: 'Load with Default Values',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'General',
+      range: [true,false]
+    },
+
       // diacritics
 
       '--b-diacritics-disable-voyager-mode' : {
@@ -1546,6 +1564,16 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'string',
         group: 'Shelflisting',
         index: 8
+      },
+
+      '--b-edit-load-defaults-classification' : {
+        desc: 'Load classification default values when a record is loaded.',
+        descShort: 'Load with Classification Defaults',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Shelflisting',
+        range: [true,false]
       },
 
 

@@ -848,6 +848,16 @@ export default {
       this.loadUrl(profile)
     },
 
+    loadWithDefaults: function(structure){
+      let loadDefaultsAll = this.preferenceStore.returnValue('--b-edit-load-defaults')
+      let loadDefaultsClass = this.preferenceStore.returnValue('--b-edit-load-defaults-classification')
+
+      if (loadDefaultsAll) { return true}
+      if (loadDefaultsClass && structure.propertyLabel == 'Classification numbers' ){ return true }
+
+      return false
+    },
+
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
       console.log("useInstanceProfile", useInstanceProfile)
       let useLoadUrl = ''
@@ -863,7 +873,7 @@ export default {
       } else if (this.urlToLoad == 'new') {
         // continue on with a empty profile
         try {
-          marva001 = await utilsNetwork.getMarva001() // get the Marva001
+          marva001 = await utilsNetwork.getMarva001()
           this.profileStore.logEvent('001_REQUESTED', { metadata: [marva001] })
           loadEventType = 'CREATED_RECORD'
 
@@ -1025,6 +1035,17 @@ export default {
       if (useLoadUrl.trim() !== '') {
         let profileDataMerge = await utilsParse.transformRts(useProfile)
         this.activeProfile = profileDataMerge
+
+        for (let rt in this.activeProfile.rt) {
+          let pt = this.activeProfile.rt[rt].pt
+          for (let t of Object.keys(pt)){
+            let target = pt[t]
+            let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
+            if (this.loadWithDefaults(structure)){
+              this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
+            }
+          }
+        }
       } else {
         // if there is not url they are making it from scratch, so we need to link the instances and work together
         useProfile = utilsParse.linkInstancesWorks(useProfile)
@@ -1245,52 +1266,6 @@ export default {
               }
             }
 
-            // Add the eNumber to the instance identifier
-            /*
-            if (Object.keys(pt).includes("id_loc_gov_ontologies_bibframe_identifiedBy__identifiers")) {
-              pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers'].userValue = {
-                "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
-                  {
-                    "@guid": short.generate(),
-                    "@type": "http://id.loc.gov/ontologies/bibframe/Local",
-                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
-                      {
-                        "@guid": short.generate(),
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": marva001
-                      }
-                    ],
-                    "http://id.loc.gov/ontologies/bibframe/assigner": [{
-                      "@guid": short.generate(),
-                      "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
-                      "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
-                      "http://www.w3.org/2000/01/rdf-schema#label": [{
-                        "@guid": short.generate(),
-                        "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
-                      }],
-                      "http://id.loc.gov/ontologies/bibframe/code": [
-                        {
-                          "@guid": short.generate(),
-                          "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC",
-                          "@datatype": "http://id.loc.gov/datatypes/orgs/code"
-                        },
-                        {
-                          "@guid": short.generate(),
-                          "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc",
-                          "@datatype": "http://id.loc.gov/datatypes/orgs/normalized"
-                        },
-                        {
-                          "@guid": short.generate(),
-                          "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc",
-                          "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
-                        }
-                      ]
-                    }]
-                  }
-                ]
-              }
-            }
-            */
-
             this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
 
             // IBC and Monograph add additional empty fields for LCCN and ISBN
@@ -1412,6 +1387,7 @@ export default {
           for (let t of Object.keys(pt)){
             let target = pt[t]
             let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
+            console.info("add defaults: ", target, "--", structure)
             this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
           }
         }
