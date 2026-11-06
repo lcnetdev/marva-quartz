@@ -3610,9 +3610,10 @@ export const useProfileStore = defineStore('profile', {
         * @return {string} - the MARC string of output
         */
         marcPreview: async function(){
-            console.info("Profile -- marcPreview")
+            console.info("marcPreview")
             let xml = await utilsExport.buildXML(this.activeProfile)
-            console.info("\tXML: ", xml)
+
+            console.info("\txml: ", xml)
 
             let preview = null
             if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
@@ -3644,11 +3645,7 @@ export const useProfileStore = defineStore('profile', {
 
             // clean it up a bit for the component
             let versions = Object.keys(data).map((v)=>{ return v}).sort().reverse()
-
-            console.info("versions: ", versions)
-
             let defaultVer = versions[0]
-            console.info("defaultVer: ", defaultVer)
 
             return({
                 default: defaultVer,
@@ -9624,9 +9621,7 @@ export const useProfileStore = defineStore('profile', {
 
         return newId
         } else { //insert the updated instance into the record
-        console.info("instanceCount: ", instanceCount)
         newRtId = instOnly +'_'+instanceCount
-        console.info("newRtId: ", newRtId)
 
         // update the new admin metadata to have this ID, is this OK?
 

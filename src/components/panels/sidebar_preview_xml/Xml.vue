@@ -34,18 +34,14 @@ export default {
     watch: {
         // if this flips from false to true it means they are landing on this page so ask for the record from the backend
         dataChangedTimestamp(newDataChangedTimestamp, oldDataChangedTimestamp) {
-            console.info("change")
             this.refreshXml()
         }
     },
     methods: {
 
         async refreshXml() {
-            console.info("refreshXml")
             let exportResult = await this.profileStore.buildExportXML()
             this.xml = exportResult.xlmStringBasic
-
-            console.info("refreshXml: ", this.xml)
 
             let that = this
             if (!this.xml) {

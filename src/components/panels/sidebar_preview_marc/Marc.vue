@@ -55,6 +55,8 @@ export default {
 
     async refreshMarc() {
       this.previewData = await this.profileStore.marcPreview()
+
+      console.info("refresh: ", this.previewData)
     },
   },
 
