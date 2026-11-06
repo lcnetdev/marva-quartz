@@ -19,6 +19,7 @@
           <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
                 <div class="instanceInfoWrapper" :title="instanceOfWork(profileName) ? 'Instance of: ' + instanceOfWork(profileName) : null">
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                    <button class="instanceDeriveButton" @click="deriveInstance(profileName)">Derive Instance</button>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
                 </div>
           </template>
@@ -32,7 +33,7 @@
                 <div class="component-container" v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
                     :key="profileCompoent">
                   <template v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
-                  <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
+                  <template v-if="activeProfile.rt[profileName].pt[profileCompoent] && !activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
                     <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
                       <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
                         <div v-if="checkShowComponentLabel(activeProfile, profileName, profileCompoent)" class="component-label 1" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold'), 'component-label-instance-of': profileCompoent.includes('instanceOf'), 'component-label-has-item': profileCompoent.includes('hasItem')}">
@@ -85,7 +86,7 @@
         </template>
         <template v-if="profileName.includes(':Instance') && !panelDualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName))) && showResourceBanner(profileName)">
             <div class="instanceInfoWrapper" :title="instanceOfWork(profileName) ? 'Instance of: ' + instanceOfWork(profileName) : null">
-                <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <!-- <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span> -->
                 <label v-if="switchInBanner" class="resource-switch" title="Switch Resource">
                     <span class="material-icons">swap_horiz</span>
                     <span class="resource-switch-label">Switch Resource</span>
@@ -95,6 +96,8 @@
                         <option v-for="switchName in activeProfile.rtOrder" :key="switchName" :value="switchName" :disabled="switchName == activeResourceName">{{ resourceTypeLabel(switchName) }}: {{ activeProfile.rt[switchName].URI.split("/").at(-1) }}</option>
                     </select>
                 </label>
+                <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <button class="instanceDeriveButton" @click="deriveInstance(profileName)">Derive Instance</button>
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
             </div>
         </template>
@@ -133,7 +136,7 @@
 
                   <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
-                    <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
+                    <template v-if="activeProfile.rt[profileName].pt[profileCompoent] && !activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
                       <!-- if createLayoutMode is active, and there is an active layout, show everything -->
                       <div class="component-container" v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent]), 'hide-component': ((preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hideSubject) || (preferenceStore.returnValue('--b-edit-main-hide-non-lc-class-numbers') && activeProfile.rt[profileName].pt[profileCompoent].hideClassNum))}">
                         <template v-if="panelDualEdit == false">
@@ -335,6 +338,15 @@ import ClassTools  from "@/components/panels/edit/modals/helpers/ClassificationT
     },
 
     methods: {
+        deriveInstance: function(instance){
+          let electronic = confirm("Derive Electronic Instance?")
+          try{
+            this.profileStore.deriveNew(instance, electronic)
+          } catch(err){
+            alert("Unable to derive instance :(")
+            console.error(err)
+          }
+        },
         checkShowComponentLabel: function(activeProfile, profileName, componentId){
           if (!this.preferenceStore.returnValue('--b-edit-main-compact')) { return true}
 
