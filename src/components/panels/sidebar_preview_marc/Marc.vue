@@ -105,7 +105,6 @@ export default {
 
     <div class="conversion-heading">Conversion {{ activeVersion }}:</div>
 
-    {{ previewData }}
     <div class="toggle-btn-grp cssonly" v-if="previewData['versions'][activeVersion].record.length > 1">
       <div v-for="(r, idx) of previewData['versions'][activeVersion].record">
         <input type="radio" :value="idx" class="record-radio" v-model="selected" name="recordSelect" />

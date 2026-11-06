@@ -2087,7 +2087,8 @@ const utilsExport = {
 		xlmStringBasic: strXmlBasic,
 		voidTitle: xmlVoidDataTitle,
 		voidContributor:xmlVoidDataContributor,
-		componentXmlLookup:componentXmlLookup
+		componentXmlLookup:componentXmlLookup,
+		bf2MarcMulti: multiInstanceRecord,
 	}
   },
 
