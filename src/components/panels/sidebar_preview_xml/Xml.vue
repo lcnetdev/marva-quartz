@@ -1,68 +1,71 @@
 <script>
-  import { useProfileStore } from '@/stores/profile'
-  import { usePreferenceStore } from '@/stores/preference'
-  import XmlViewer from 'vue3-xml-viewer'
+import { useProfileStore } from '@/stores/profile'
+import { usePreferenceStore } from '@/stores/preference'
+import XmlViewer from 'vue3-xml-viewer'
 
-  import { mapStores, mapState, mapWritableState } from 'pinia'
+import { mapStores, mapState, mapWritableState } from 'pinia'
 
-  export default {
+export default {
     components: {
         XmlViewer
     },
 
     data() {
-      return {
-        xml : "",
-        timeout: null,
-        firstLoad: true,
-      }
+        return {
+            xml: "",
+            timeout: null,
+            firstLoad: true,
+        }
     },
     computed: {
-      // other computed properties
-      // ...
-      // gives access to this.counterStore and this.userStore
-      ...mapStores(useProfileStore,usePreferenceStore),
-      // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['activeProfile','dataChangedTimestamp']),
-      ...mapState(usePreferenceStore, ['styleDefault']),
+        // other computed properties
+        // ...
+        // gives access to this.counterStore and this.userStore
+        ...mapStores(useProfileStore, usePreferenceStore),
+        // // gives read access to this.count and this.double
+        ...mapState(useProfileStore, ['activeProfile', 'dataChangedTimestamp']),
+        ...mapState(usePreferenceStore, ['styleDefault']),
 
-      ...mapWritableState(useProfileStore, ['activeComponent']),
+        ...mapWritableState(useProfileStore, ['activeComponent']),
 
 
     },
 
     watch: {
-      // if this flips from false to true it means they are landing on this page so ask for the record from the backend
-      dataChangedTimestamp(newDataChangedTimestamp, oldDataChangedTimestamp) {
-        this.refreshXml()
-      }
+        // if this flips from false to true it means they are landing on this page so ask for the record from the backend
+        dataChangedTimestamp(newDataChangedTimestamp, oldDataChangedTimestamp) {
+            console.info("change")
+            this.refreshXml()
+        }
     },
     methods: {
 
-      async refreshXml() {
+        async refreshXml() {
+            console.info("refreshXml")
+            let exportResult = await this.profileStore.buildExportXML()
+            this.xml = exportResult.xlmStringBasic
 
-        let exportResult = await this.profileStore.buildExportXML()
-        this.xml = exportResult.xlmStringBasic
+            console.info("refreshXml: ", this.xml)
 
-        let that = this
-        if (!this.xml){
-          setTimeout(function(){
-            that.refreshXml()
-          }, 2000);
-        }
-
-        if (this.firstLoad){
-          this.$nextTick(()=>{
-            for (let el of document.querySelectorAll('.element-name')){
-                if (el.innerText == 'bf:Work' || el.innerText == 'bf:Instance' || el.innerText == 'void:DatasetDescription'){
-                  el.click()
-                  this.firstLoad = false
-                }
+            let that = this
+            if (!this.xml) {
+                setTimeout(function () {
+                    that.refreshXml()
+                }, 2000);
             }
-          })
-        }
 
-      }
+            if (this.firstLoad) {
+                this.$nextTick(() => {
+                    for (let el of document.querySelectorAll('.element-name')) {
+                        if (el.innerText == 'bf:Work' || el.innerText == 'bf:Instance' || el.innerText == 'void:DatasetDescription') {
+                            el.click()
+                            this.firstLoad = false
+                        }
+                    }
+                })
+            }
+
+        }
 
 
 
@@ -72,40 +75,40 @@
 
     created() {
 
-      // this.profileStore.$subscribe(async (mutation, state)=>{
+        // this.profileStore.$subscribe(async (mutation, state)=>{
 
-      //   if (mutation && mutation.events && mutation.events.target && mutation.events.target['@guid'] ){
+        //   if (mutation && mutation.events && mutation.events.target && mutation.events.target['@guid'] ){
 
-      //     window.clearTimeout(this.timeout)
-      //     this.timeout = window.setTimeout(()=>{
+        //     window.clearTimeout(this.timeout)
+        //     this.timeout = window.setTimeout(()=>{
 
-      //       this.refreshXml()
+        //       this.refreshXml()
 
-      //     },500)
-
-
-
-      //   }
+        //     },500)
 
 
-      //   // if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){
-      //   //   // the profilesLoaded flipped and there is no active profile, so load the data
-      //   //   this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
-      //   // }else{
-      //   //   //console.error("profilesLoaded is never true, cannot load into data")
-      //   // }
+
+        //   }
 
 
-      // }, { detached: true })
+        //   // if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){
+        //   //   // the profilesLoaded flipped and there is no active profile, so load the data
+        //   //   this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
+        //   // }else{
+        //   //   //console.error("profilesLoaded is never true, cannot load into data")
+        //   // }
 
-      // build the XML on first load
-      this.$nextTick(()=>{
-        window.setTimeout(()=>{
 
-          this.refreshXml()
+        // }, { detached: true })
 
-         },1000)
-      })
+        // build the XML on first load
+        this.$nextTick(() => {
+            window.setTimeout(() => {
+
+                this.refreshXml()
+
+            }, 1000)
+        })
     },
 
     mounted() {
@@ -113,53 +116,44 @@
 
 
     }
-  }
+}
 
 
 
 </script>
 
 <template>
-  <div>
-    <XmlViewer ref="xmlviewer" :xml="xml" />
+    <div>
+        <XmlViewer ref="xmlviewer" :xml="xml" />
 
 
 
-  </div>
+    </div>
 
 
 </template>
 
 <style scoped>
-
-
-
-
-
-.sidebar-header-text{
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size', true) + 0.25  + 'em'");
-  font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
-  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+.sidebar-header-text {
+    font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size', true) + 0.25 + 'em'");
+    font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
+    color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
 
 }
 
 
-.sidebar-spacer{
-  padding-top: 1em;
-  margin-top: 1em;
-  padding-bottom: 1em;
-  border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')");
+.sidebar-spacer {
+    padding-top: 1em;
+    margin-top: 1em;
+    padding-bottom: 1em;
+    border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')");
 
 }
 
 
-.item-icon{
-  fill:v-bind("preferenceStore.returnValue('--c-general-icon-item-color')");
-  stroke-width:0.5;
-  stroke:rgb(0,0,0)
+.item-icon {
+    fill: v-bind("preferenceStore.returnValue('--c-general-icon-item-color')");
+    stroke-width: 0.5;
+    stroke: rgb(0, 0, 0)
 }
-
-
-
-
 </style>
