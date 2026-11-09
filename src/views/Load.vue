@@ -849,11 +849,12 @@ export default {
     },
 
     loadWithDefaults: function(structure){
+      // 2023416867
       let loadDefaultsAll = this.preferenceStore.returnValue('--b-edit-load-defaults')
       let loadDefaultsClass = this.preferenceStore.returnValue('--b-edit-load-defaults-classification')
 
-      if (loadDefaultsAll) { return true}
-      if (loadDefaultsClass && structure.propertyLabel == 'Classification numbers' ){ return true }
+      if (loadDefaultsAll) { return 'all'}
+      if (loadDefaultsClass && structure.propertyLabel == 'Classification numbers' ){ return 'class' }
 
       return false
     },
@@ -1040,9 +1041,29 @@ export default {
           let pt = this.activeProfile.rt[rt].pt
           for (let t of Object.keys(pt)){
             let target = pt[t]
+
             let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
-            if (this.loadWithDefaults(structure)){
-              this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
+            let withDefaults = this.loadWithDefaults(structure)
+            if (withDefaults){ // 2023416867
+              if (withDefaults == 'all') {
+                this.profileStore.addAllDefaults()
+              } else if (withDefaults == 'class'){
+                for (let vRt of structure.valueConstraint.valueTemplateRefs) {
+                  for (let template of this.profileStore.rtLookup[vRt].propertyTemplates) {
+                      if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0) {
+                      // for classifiction, we want to make sure we're only working on the currently selected template
+                      if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification') {
+                        let target = "lc:RT:bf2:LCC"
+                        if (target == vRt) {
+                          this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                          // give type too
+                          structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] = "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
