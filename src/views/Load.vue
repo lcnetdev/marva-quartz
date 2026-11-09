@@ -436,7 +436,6 @@ import CopyCat from './CopyCat.vue'
 
 import { DataTable } from "@jobinsjp/vue3-datatable"
 import "@jobinsjp/vue3-datatable/dist/style.css"
-import GenericSelectionModal from '../components/panels/edit/modals/GenericSelectionModal.vue'
 
 
 
