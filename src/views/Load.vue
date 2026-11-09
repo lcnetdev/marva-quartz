@@ -436,6 +436,7 @@ import CopyCat from './CopyCat.vue'
 
 import { DataTable } from "@jobinsjp/vue3-datatable"
 import "@jobinsjp/vue3-datatable/dist/style.css"
+import GenericSelectionModal from '../components/panels/edit/modals/GenericSelectionModal.vue'
 
 
 
@@ -853,8 +854,8 @@ export default {
       let loadDefaultsAll = this.preferenceStore.returnValue('--b-edit-load-defaults')
       let loadDefaultsClass = this.preferenceStore.returnValue('--b-edit-load-defaults-classification')
 
-      if (loadDefaultsAll) { return true}
-      if (loadDefaultsClass && structure.propertyLabel == 'Classification numbers' ){ return true }
+      if (loadDefaultsAll) { return 'all'}
+      if (loadDefaultsClass && structure.propertyLabel == 'Classification numbers' ){ return 'class' }
 
       return false
     },
@@ -1041,58 +1042,29 @@ export default {
           let pt = this.activeProfile.rt[rt].pt
           for (let t of Object.keys(pt)){
             let target = pt[t]
+
             let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
-            if (this.loadWithDefaults(structure)){
-              // this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
-              let defaults = structure.valueConstraint.defaults
-              if (defaults.length > 0 && !["lc:RT:bf2:SeriesHub", "lc:RT:bf2:SeriesHubInput"].includes(structure.parentId ) ){
-                if ( ['id_loc_gov_ontologies_bibframe_status__status', 'id_loc_gov_ontologies_bibframe_relationship__relationship'].includes(structure.id) &&  ["lc:RT:bf2:SeriesHub", "lc:RT:bf2:SeriesHubInput"].includes(structure.parentId)){
-                  this.profileStore.insertDefaultValuesComponent(target['@guid'],structure, this.propertyPath)
-                } else {
-                  this.profileStore.insertDefaultValuesComponent(target['@guid'],structure)
-                }
-              } else {
-                // 2023416867
-                // // look up one level & use the appropriate structure
-                let parentStructure = structure
-                if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
-                  for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
-                    // if ( (vRt==structure.parentId && this.profileStore.rtLookup[vRt]) || vRt == "lc:RT:bf2:SeriesHub"){
-                    if ( this.profileStore.rtLookup[vRt] || vRt == "lc:RT:bf2:SeriesHub"){
-                      for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
-                        if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
-                          let struct = this.profileStore.returnStructureByComponentGuid(target['@guid'])
-                          if (vRt != "lc:RT:bf2:SeriesHub"){
-                            this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
-                          } else {
-                            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/relationship"){
-                              let propertyPath = [
-                                {'level': 0, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relation'},
-                                {'level': 1, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relationship'},
-                              ]
-                              this.profileStore.insertDefaultValuesComponent(parentStructure['@guid'], pt, propertyPath)
-                            }
-                          }
-                        } else if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/associatedResource"){
-                          for (let vRt of pt.valueConstraint.valueTemplateRefs){
-                            for (let temp of this.profileStore.rtLookup[vRt].propertyTemplates){
-                              if (temp.propertyURI == "http://id.loc.gov/ontologies/bibframe/status"){
-                                let propertyPath = [
-                                  {'level': 0, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relation'},
-                                  {'level': 1, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/associatedResource'},
-                                  {'level': 2, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/status'},
-                                ]
-                                this.profileStore.insertDefaultValuesComponent(parentStructure['@guid'], temp, propertyPath)
-                              }
-                            }
-                          }
+            let withDefaults = this.loadWithDefaults(structure)
+            if (withDefaults){ // 2023416867
+              if (withDefaults == 'all') {
+                this.profileStore.addAllDefaults()
+              } else if (withDefaults == 'class'){
+                for (let vRt of structure.valueConstraint.valueTemplateRefs) {
+                  for (let template of this.profileStore.rtLookup[vRt].propertyTemplates) {
+                      if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0) {
+                      // for classifiction, we want to make sure we're only working on the currently selected template
+                      if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification') {
+                        let target = "lc:RT:bf2:LCC"
+                        if (target == vRt) {
+                          this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                          // give type too
+                          structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] = "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"
                         }
                       }
                     }
                   }
                 }
               }
-
             }
           }
         }
