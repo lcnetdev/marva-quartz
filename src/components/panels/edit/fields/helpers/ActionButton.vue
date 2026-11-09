@@ -833,8 +833,15 @@
         } else {
           // // look up one level & use the appropriate structure
           let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+          console.info("parentStructure: ", parentStructure)
           if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
             for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+
+              console.info("\n\nstructure: ", this.structure)
+              console.info("this.rtLookup: ", this.profileStore.rtLookup)
+              console.info("vRt: ", vRt)
+              console.info("this.rtLookup[vRt]: ", this.profileStore.rtLookup[vRt])
+
               if ( (vRt==this.structure.parentId && this.profileStore.rtLookup[vRt]) || vRt == "lc:RT:bf2:SeriesHub"){
                 for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
                   if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){

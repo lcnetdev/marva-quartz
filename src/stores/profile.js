@@ -5045,6 +5045,7 @@ export const useProfileStore = defineStore('profile', {
             */
 
         insertDefaultValuesComponent: async function (componentGuid, structure, pp = false) {
+            // 2023416867
             // console.log(componentGuid)
             // console.log("structure",structure)
 
