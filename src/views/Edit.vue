@@ -136,6 +136,8 @@
 
         test: 1,
         profileLoadedTimer: null,
+        // window height in data so Vue recalculates the nav pane size on resize (window.innerHeight isn't reactive)
+        windowHeight: window.innerHeight,
 
       }
     },
@@ -168,11 +170,16 @@
     methods: {
 
 
+      // keep windowHeight current so the nav pane stays the same height when the window is resized
+      onWindowResize: function(){
+        this.windowHeight = window.innerHeight
+      },
+      // converts a pixel height to a percent of the window height (splitpanes sizes panes in percents)
       returnPixleAsPercent: function(pixles){
         if (this.preferenceStore.copyMode){
-          return pixles/window.innerHeight*200
+          return pixles/this.windowHeight*200
         }
-        return pixles/window.innerHeight*100
+        return pixles/this.windowHeight*100
       },
       confirmLeaving (event) {
 
@@ -281,10 +288,16 @@
 
 
       window.addEventListener('beforeunload', this.confirmLeaving)
+      window.addEventListener('resize', this.onWindowResize) // resize the nav pane with the window
 
 
 
 
+    },
+
+    // stop listening for window resizes when leaving the editor
+    beforeUnmount () {
+      window.removeEventListener('resize', this.onWindowResize)
     },
 
     beforeRouteLeave (to, from , next) {
