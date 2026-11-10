@@ -481,6 +481,11 @@ export default {
                 text: 'Add All Defaults',
                 click: () => { this.addAllDefaults() },
                 icon: "clear_all"
+              },
+              {
+                text: 'Derive New Record',
+                click: () => { this.deriveRecord() },
+                icon: "file_copy"
               }
             ]
           }
@@ -1174,6 +1179,21 @@ export default {
   // },
 
   methods: {
+
+    deriveRecord: async function(instOnly=false){
+        try {
+          let newRecordEid = await this.profileStore.deriveNew(instOnly, false)
+
+          // load the new record from Eid
+          if (newRecordEid){
+              let url = "/marva/edit/" + newRecordEid
+              window.open(url, '_blank').focus()
+          }
+        } catch(err){
+          alert('Failed to derive a record')
+          console.error(err)
+        }
+    },
 
     // move the right-most items into a "More" menu so the nav stays on one row
     fitNavMenu: function (menu) {
