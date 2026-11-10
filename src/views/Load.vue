@@ -499,7 +499,7 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'panelDisplay']),
     ...mapState(useConfigStore, ['testData']),
     ...mapState(useProfileStore, ['startingPoints', 'profiles', 'copyCatMode']),
-    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showShelfListingModal', 'copyCatSearch']),
+    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showShelfListingModal', 'copyCatSearch', 'showFolioSyncModal']),
 
 
     // // gives read access to this.count and this.double
@@ -1522,6 +1522,11 @@ export default {
     }
     if (this.$route && this.$route.params && this.$route.params.searchId){
       this.searchMarvaLog(this.$route.params.searchId)
+    }
+
+    if (window.location.hash && window.location.hash =='#foliosync'){
+      console.info("show sync: ", window.location)
+      this.showFolioSyncModal = true
     }
   },
 
