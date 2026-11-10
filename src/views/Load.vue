@@ -1157,11 +1157,11 @@ export default {
                       ],
                       "http://id.loc.gov/ontologies/bibframe/status": [
                         {
-                          "@guid": "fbRKPXtZjPU8b8E3dAFDyq",
+                          "@guid": short.generate(),
                           "@id": "http://id.loc.gov/vocabulary/mstatus/n",
                           "http://www.w3.org/2000/01/rdf-schema#label": [
                             {
-                              "@guid": "q5NhmHwzmMpug1UB7wcG8B",
+                              "@guid": short.generate(),
                               "http://www.w3.org/2000/01/rdf-schema#label": "new "
                             }
                           ],
@@ -1220,7 +1220,7 @@ export default {
                     ],
                     "http://id.loc.gov/ontologies/bibframe/descriptionAuthentication": [
                       {
-                        "@guid": "w5ez1o9m9HqWhxGXkfXhvM",
+                        "@guid": short.generate(),
                         "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
                             "@guid": "58UfyEnkTdwpL9tKpubExu",
@@ -1233,23 +1233,34 @@ export default {
                     ],
                     "http://id.loc.gov/ontologies/bibframe/descriptionConventions": [
                       {
-                        "@guid": "9M8P9neG1PB199kiVQmfQU",
+                        "@guid": short.generate(),
                         "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
-                            "@guid": "mSgecYzTBHkGEBBTK3FEDj",
+                            "@guid": short.generate(),
                             "http://www.w3.org/2000/01/rdf-schema#label": "rda"
                           }
                         ],
                         "@id": "http://id.loc.gov/vocabulary/descriptionConventions/rda",
                         "@type": "http://id.loc.gov/ontologies/bibframe/DescriptionConventions"
+                      },
+                      {
+                        "@guid": short.generate(),
+                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                            "@guid": short.generate(),
+                            "http://www.w3.org/2000/01/rdf-schema#label": "pccrda"
+                          }
+                        ],
+                        "@id": "http://id.loc.gov/vocabulary/descriptionConventions/pccrda",
+                        "@type": "http://id.loc.gov/ontologies/bibframe/DescriptionConventions"
                       }
                     ],
                     "http://id.loc.gov/ontologies/bibframe/descriptionLanguage": [
                       {
-                        "@guid": "kDTk5rNZfag58xhq9T767y",
+                        "@guid": short.generate(),
                         "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
-                            "@guid": "8GwwedvM9MLo2xoG4hBhMZ",
+                            "@guid": short.generate(),
                             "http://www.w3.org/2000/01/rdf-schema#label": "English"
                           }
                         ],
@@ -1259,17 +1270,17 @@ export default {
                     ],
                     "http://id.loc.gov/ontologies/bflc/catalogerId": [
                       {
-                        "@guid": "fgHPJYcNZNBkeELEUv1M3E",
+                        "@guid": short.generate(),
                         "http://id.loc.gov/ontologies/bflc/catalogerId": this.preferenceStore.catCode
                       }
                     ],
                     "http://id.loc.gov/ontologies/bflc/encodingLevel": [
                       {
-                        "@guid": "dnad4YqMcoo2ro8FVkCxfB",
+                        "@guid": short.generate(),
                         "@id": "http://id.loc.gov/vocabulary/menclvl/5",
                         "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
-                            "@guid": "ncCaUaqE51cuig7YYnDThG",
+                            "@guid": short.generate(),
                             "http://www.w3.org/2000/01/rdf-schema#label": "preliminary "
                           }
                         ],
