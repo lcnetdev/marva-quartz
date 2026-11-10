@@ -2048,6 +2048,28 @@ const utilsParse = {
                   // delete userValue["http://id.loc.gov/ontologies/bibframe/date"]
                 }
               }
+
+              let descriptConv = userValue["http://id.loc.gov/ontologies/bibframe/descriptionConventions"]
+              // add pccrda if needed
+              if (!descriptConv.some((dc) => dc['@id'] == 'http://id.loc.gov/vocabulary/descriptionConventions/pccrda')){
+                descriptConv.push({
+                    "@guid": short.generate(),
+                    "@id": "http://id.loc.gov/vocabulary/descriptionConventions/pccrda",
+                    "@type": "http://id.loc.gov/ontologies/bibframe/DescriptionConventions",
+                    "http://www.w3.org/2000/01/rdf-schema#label": [
+                      {
+                        "@guid": short.generate(),
+                        "http://www.w3.org/2000/01/rdf-schema#label": "LC-PCC Metadata Guidance Document [pccrda]"
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/code": [
+                      {
+                        "@guid": short.generate(),
+                        "http://id.loc.gov/ontologies/bibframe/code": "pccrda"
+                      }
+                    ],
+                })
+              }
             }
           }
 
