@@ -210,7 +210,7 @@ export default {
         if (this.$route.path.includes('edit')){
           menu.push({
             icon: "home",
-            class: "panel-size-preset-button",
+            class: "panel-size-preset-button nav-home-button",
             click: () => {
               try {
                 this.$nextTick(() => {
@@ -406,7 +406,7 @@ export default {
 
       if (!this.disable.includes('Menu')) {
         menu.push(
-          { text: "Menu", menu: menuButtonSubMenu }
+          { text: "Menu", icon: "apps", menu: menuButtonSubMenu }
         )
       }
 
@@ -417,6 +417,7 @@ export default {
         menu.push(
           {
             text: "Tools",
+            icon: "build",
             menu: [
               {
                 text: "Shelf Listing Browser", click: () => {
@@ -518,6 +519,7 @@ export default {
         menu.push(
           {
             text: "View",
+            icon: "visibility",
             class: "nav-view",
             menu: [
 
@@ -549,13 +551,15 @@ export default {
 
       if (this.panelSizePresets.length > 0 && this.$route.name == 'Edit') {
 
-        menu.push({ is: 'separator' })
+        menu.push({ is: 'separator', class: 'nav-quick-view-divider' })
         for (let aPresetButton of this.panelSizePresets) {
           menu.push(
             {
               // style: `color: ${aPresetButton.color};`, // this doesn't work
               id: "panel-size-preset-button-" + aPresetButton.id,
-              class: "panel-size-preset-button",
+              class: "panel-size-preset-button nav-quick-view",
+              active: aPresetButton.id == this.preferenceStore.activePanelPresetId,
+              title: this.quickViewTitle(aPresetButton),
               click: () => {
                 this.preferenceStore.setPanelData(aPresetButton)
               },
@@ -581,7 +585,7 @@ export default {
       if (!this.disable.includes('Preferences')) {
         menu.push(
           {
-            text: "Preferences", menu: [
+            text: "Preferences", icon: "tune", menu: [
 
               { text: 'Preferences', click: () => this.preferenceStore.togglePrefModal('General'), icon: 'settings' },
               { is: 'separator' },
@@ -738,7 +742,7 @@ export default {
 
         if (!this.createLayoutMode) {
           menu.push(
-            { text: "Layouts", menu: layoutsMenu, menu_width: 250 }
+            { text: "Layouts", icon: "dashboard", menu: layoutsMenu, menu_width: 250 }
           )
           if (this.layoutActive) {
             if (this.layoutActiveFilter) {
@@ -753,13 +757,13 @@ export default {
         } else {
           menu.push(
             {
-              text: "Save Layout", click: (e) => {
+              text: "Save Layout", icon: "save_as", click: (e) => {
                 e.stopPropagation()
                 this.saveLayout()
               }
             },
             {
-              text: "Cancel Layout", click: (e) => {
+              text: "Cancel Layout", icon: "close", click: (e) => {
                 e.stopPropagation()
                 this.cancelLayout()
               }
@@ -776,7 +780,16 @@ export default {
 
 
       if (this.$route.path.startsWith('/edit/')) {
-        menu.push(
+        // Save Options dropdown: groups the save related options (Save, Post)
+        let saveMenu = []
+        let saveOptions = {
+          text: "Save Options",
+          icon: "save",
+          class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
+          menu: saveMenu
+        }
+        menu.push(saveOptions)
+        saveMenu.push(
           {
             text: (this.activeProfileSaved) ? "Saved" : "Save",
             disabled: (this.activeProfileSaved) ? true : false,
@@ -822,7 +835,7 @@ export default {
               }
             }
           )
-          menu.push(
+          saveMenu.push(
             {
               text: "Post",
               id: "post-button",
@@ -884,12 +897,18 @@ export default {
             }
           )
         }
+
+        // if Save is the only option available in this environment show it on the nav instead of a dropdown
+        if (saveMenu.length == 1) {
+          menu[menu.indexOf(saveOptions)] = saveMenu[0]
+        }
       }
 
       if (this.activeProfile.id && this.$route.name == 'Edit') {
         menu.push(
           {
             text: this.profileOrStaging() + this.activeProfile.id,
+            icon: "description",
             class: "current-profile",
 
           }
@@ -910,8 +929,8 @@ export default {
         menu.push(
           { is: "separator" },
           {
-            chevron: true,
             text: "Record Info",
+            icon: "history",
             menu: recordMenu,
             menu_width: 750,
             menu_id: 'record-panel'
@@ -978,6 +997,7 @@ export default {
 
         menu.push({
           text: 'DCTap: ' + currentWorkspaceName,
+          icon: "schema",
           menu: dancerMenuItems
         })
       }
@@ -988,9 +1008,12 @@ export default {
       menu.push({ is: "spacer" })
 
       if (useConfigStore().returnUrls.isBibframeDotOrg && this.$route.path.startsWith('/edit/')) {
+        menu.push({ is: "separator" })
         menu.push(
           {
-            text: 'Download MARC',
+            text: 'MARC',
+            icon: "download",
+            title: 'Download MARC',
             click: () => {
               this.profileStore.downloadBFDotOrg('marc')
 
@@ -999,7 +1022,9 @@ export default {
         )
         menu.push(
           {
-            text: 'Download BF',
+            text: 'BIBFRAME',
+            icon: "download",
+            title: 'Download BIBFRAME',
             click: () => {
               this.profileStore.downloadBFDotOrg('bf')
 
@@ -1080,8 +1105,8 @@ export default {
         )
         menu.push(
           {
-            chevron: true,
             text: "System Info",
+            icon: "monitor_heart",
             menu: statusMenu,
             menu_width: 200,
           },
@@ -1175,8 +1200,61 @@ export default {
 
   methods: {
 
+    // dragging a panel divider changes the view, so no Quick View is applied anymore
+    onPanelResizeStart: function (event) {
+      if (event.target.closest('.splitpanes__splitter')) {
+        this.preferenceStore.activePanelPresetId = null
+      }
+    },
+
+    isQuickView: function (item) {
+      return item.is != 'separator' && /\bnav-quick-view\b/.test(item.class || '')
+    },
+
+    // tooltip for a Quick View listing the panels it shows, e.g. "Quick View: Properties, OPAC, MARC"
+    quickViewTitle: function (preset) {
+      let names = { properties: 'Properties', dualEdit: 'Dual Edit', opac: 'OPAC', xml: 'XML', marc: 'MARC', linkedData: 'Linked Data' }
+      let shown = Object.keys(names).filter((k) => preset.view && preset.view[k]).map((k) => names[k])
+      return 'Quick View: ' + (shown.length ? shown.join(', ') : 'editor only')
+    },
+
+    // dividers on the left side of the nav: the dropdown menus (Menu, Tools, View, Preferences, Layouts)
+    // stay together as one group, every other button gets a divider on each side
+    addNavDividers: function (menu) {
+      let cls = (m) => m.class || ''
+      let hidden = (m) => /layout-not-active|hide-option/.test(cls(m))
+      // labels that stay attached to the button before them
+      let attached = (m) => /active-layout-label|current-profile/.test(cls(m))
+      // the grouped dropdowns (Save Options gets its own dividers)
+      let grouped = (m) => !!m.menu && !/save-saved|save-not-saved/.test(cls(m))
+      let together = (a, b) => attached(b) || (grouped(a) && grouped(b)) || (this.isQuickView(a) && this.isQuickView(b))
+      let result = []
+      let last = null
+      let divider = null
+      let i = 0
+      for (; i < menu.length && menu[i].is != 'spacer'; i++) {
+        let item = menu[i]
+        if (item.is == 'separator') {
+          if (last) divider = item
+          continue
+        }
+        if (hidden(item)) {
+          result.push(item)
+          continue
+        }
+        if (last && !together(last, item)) {
+          result.push(divider || { is: 'separator' })
+        }
+        divider = null
+        result.push(item)
+        last = item
+      }
+      return result.concat(menu.slice(i))
+    },
+
     // move the right-most items into a "More" menu so the nav stays on one row
     fitNavMenu: function (menu) {
+      menu = this.addNavDividers(menu)
       if (!this.navOverflowCount) {
         return menu
       }
@@ -1186,7 +1264,24 @@ export default {
       let moved = 0
       while (moved < this.navOverflowCount && visible.some(isItem)) {
         let item = visible.pop()
-        if (isItem(item)) {
+        if (this.isQuickView(item)) {
+          // View and its Quick Views move together: the Quick Views go at the top of View's sub menu
+          let quickViews = [item]
+          while (visible.length && this.isQuickView(visible.at(-1))) {
+            quickViews.unshift(visible.pop())
+          }
+          while (visible.length && visible.at(-1).is == 'separator') {
+            visible.pop()
+          }
+          let view = (visible.length && /\bnav-view\b/.test(visible.at(-1).class || '')) ? visible.pop() : null
+          let rows = quickViews.map((q) => ({ ...q, text: 'Quick View' }))
+          if (view) {
+            overflow.unshift({ ...view, menu: [...rows, { is: 'separator' }, ...view.menu] })
+          } else {
+            overflow.unshift(...rows)
+          }
+          moved += quickViews.length + (view ? 1 : 0)
+        } else if (isItem(item)) {
           overflow.unshift((!item.text && item.title) ? { ...item, text: item.title } : item)
           moved++
         } else if (item.is == 'separator' && overflow.length && overflow[0].is != 'separator') {
@@ -1607,6 +1702,7 @@ export default {
     this.fetchDancerWorkspaces()
     window.addEventListener('resize', this.onNavResize)
     this.$nextTick(() => this.fitNav(true))
+    document.addEventListener('pointerdown', this.onPanelResizeStart)
   },
 
   updated() {
@@ -1616,6 +1712,7 @@ export default {
 
   beforeUnmount() {
     window.removeEventListener('resize', this.onNavResize)
+    document.removeEventListener('pointerdown', this.onPanelResizeStart)
     window.cancelAnimationFrame(this.navResizeFrame)
   }
 }
@@ -1638,7 +1735,7 @@ export default {
   --bar-font-weight: 500;
   --bar-letter-spacing: 0.2px;
   --bar-padding: 3px;
-  --bar-button-icon-size: 20px;
+  --bar-button-icon-size: 12px;
   --bar-button-padding: 3px 5px;
   --bar-button-radius: 4px;
   --bar-button-hover-bkg: rgb(244, 241, 242);
@@ -1689,6 +1786,43 @@ export default {
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
 }
 
+/* left and right padding of the top level dropdown menus */
+#nav-holder .bar > .bar-button:has(> .menu):not(.nav-overflow-menu) {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* light backdrop around the View dropdown, its divider and the Quick View icons so they read as one section */
+#nav-holder .bar > .nav-view:has(+ .nav-quick-view-divider),
+#nav-holder .bar > .nav-quick-view {
+  align-self: stretch;
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.05);
+}
+#nav-holder .bar > .nav-view:has(+ .nav-quick-view-divider) {
+  border-radius: var(--bar-button-radius) 0 0 var(--bar-button-radius);
+}
+#nav-holder .bar > .nav-quick-view:not(:has(+ .nav-quick-view)) {
+  border-radius: 0 var(--bar-button-radius) var(--bar-button-radius) 0;
+}
+#nav-holder .bar > .nav-view:has(+ .nav-quick-view-divider):hover,
+#nav-holder .bar > .nav-quick-view:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+#nav-holder .bar > .nav-view:has(+ .nav-quick-view-divider).open:hover {
+  background: var(--bar-button-open-bkg);
+}
+#nav-holder .bar > .nav-quick-view.active {
+  background: var(--bar-button-active-bkg);
+}
+/* the divider between View and the Quick Views keeps the backdrop on both sides of its line */
+#nav-holder .bar > .bar-separator.nav-quick-view-divider {
+  align-self: stretch;
+  width: 11px;
+  margin: 0;
+  background: linear-gradient(var(--bar-separator-color), var(--bar-separator-color)) center / 1px calc(100% - 10px) no-repeat, rgba(0, 0, 0, 0.05);
+}
+
 
 .bar-menu-items {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
@@ -1704,7 +1838,12 @@ export default {
 }
 
 .panel-size-preset-button .icon {
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-font-size')") !important;
+  font-size: calc(v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-font-size')") * 1.25) !important;
+}
+
+/* slightly bigger home icon, still scales with the nav font size preference */
+.panel-size-preset-button.nav-home-button .icon {
+  font-size: calc(v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-font-size')") * 1.4) !important;
 }
 
 .bar-menu .current-profile {
@@ -1714,6 +1853,7 @@ export default {
 /* keep the overflow button clear of the browser's scrollbar */
 .bar .nav-overflow-menu {
   margin-right: 16px;
+  --bar-button-icon-size: 20px;
 }
 
 /* the overflow menu sits at the right edge, so open its sub-menus to the left */
@@ -1725,6 +1865,23 @@ export default {
 /* keep the menu's hover zone inside the window so opening it doesn't add scrollbars */
 .bar .nav-overflow-menu > .menu > .extended-hover-zone {
   right: 0;
+}
+
+/* the "More" menu stays open for a second after the mouse leaves it, so it's easy to move into */
+#nav-holder .bar > .nav-overflow-menu > .menu {
+  display: block;
+  visibility: hidden;
+  transition: visibility 0s linear 1s;
+}
+#nav-holder .bar > .nav-overflow-menu.open:hover > .menu {
+  visibility: visible;
+  transition-delay: 0s;
+}
+/* ...but it closes right away when the menus are closed or another top level button is hovered */
+#nav-holder .bar > .nav-overflow-menu:not(.open) > .menu,
+#nav-holder .bar:has(> .bar-button:not(.nav-overflow-menu):hover) > .nav-overflow-menu > .menu {
+  visibility: hidden;
+  transition: none;
 }
 
 .current-profile {
@@ -1748,11 +1905,11 @@ export default {
   color: green !important;
 }
 
-.save-not-saved span {
+.save-not-saved > span {
   color: orangered !important;
 }
 
-.save-saved span {
+.save-saved > span {
   color: mediumblue !important;
 }
 

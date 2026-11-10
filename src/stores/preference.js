@@ -26,6 +26,7 @@ export const usePreferenceStore = defineStore('preference', {
 
     showPanelSizeModal: false,
     panelSizePresets: [],
+    activePanelPresetId: null, // the Quick View currently applied, cleared when the view is changed manually
 
     showScriptshifterConfigModal: false,
     scriptShifterOptions: {},
@@ -2316,6 +2317,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {void}
     */
     togglePanel: function(panel){
+      this.activePanelPresetId = null
       if (this.panelDisplay[panel]){
         this.panelDisplay[panel] = false
       }else{
@@ -2604,6 +2606,7 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
     setPanelData(data){
+      this.activePanelPresetId = data.id || null
       for (let key of Object.keys(data.view)){
         this.panelDisplay[key] = data.view[key]
       }
