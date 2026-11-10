@@ -326,11 +326,6 @@ const utilsNetwork = {
         url = url.replace(/https:\/\/preprod[-0-9]*\.id/i,'https://id')
       }
 
-
-      if (useConfigStore().returnUrls.env == 'production'){
-        url = url.replace("//id.loc", "//preprod-8080.id.loc")
-      }
-
       let options = {signal: signal}
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
