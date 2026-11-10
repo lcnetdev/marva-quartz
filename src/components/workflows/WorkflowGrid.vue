@@ -13,7 +13,6 @@
           <template v-for="group in visibleGroups" :key="group.key">
             <col v-for="column in group.columns" :key="group.key + column.key" :style="{ width: columnWidth(group, column) + 'px' }" />
           </template>
-          <col :style="{ width: widths.actions + 'px' }" />
         </colgroup>
 
         <thead>
@@ -27,7 +26,6 @@
               <span class="wf-head-group-label">{{ group.component.label }}</span>
               <button class="wf-head-hide" title="Hide these fields" @click.stop="workflowStore.toggleComponent(group.key)"><span class="material-icons">visibility_off</span></button>
             </th>
-            <th rowspan="2" class="wf-head wf-head-actions wf-stick-top">Actions</th>
           </tr>
           <tr>
             <template v-for="group in visibleGroups" :key="group.key">
@@ -150,8 +148,6 @@ export default {
         record: 230,
         type: 150,
         field: 240,
-        // room for Post, LCAP, Editor, Validate, Done, MARC and the remove x, see WorkflowRecordActions
-        actions: 450,
       },
     }
   },
@@ -179,7 +175,7 @@ export default {
     },
 
     tableWidth(){
-      let width = this.recordWidth + this.widths.actions
+      let width = this.recordWidth
       for (let group of this.visibleGroups){
         for (let column of group.columns){
           width += this.columnWidth(group, column)
