@@ -1044,7 +1044,6 @@ export default {
 
             // add pccrda to admin metadata for existing records
             if (target.propertyLabel == 'Admin Metadata' && target.adminMetadataType == 'primary'){
-              console.info("target: ", target)
               let descriptionConventions = target.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/descriptionConventions"]
 
               //  2026943007
