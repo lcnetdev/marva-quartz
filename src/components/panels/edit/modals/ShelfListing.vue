@@ -171,7 +171,17 @@
             let date = this.date ? "&sp-date="+this.date : ""
             let countParam = "&count=201"
 
-            let cutter = this.preserveSpace ? this.cutterNumber.trimEnd() : this.cutterNumber.trim()
+            let cutter = ''
+            if (this.preserveSpace){
+              if (this.cutterNumber.startsWith(' ')){
+                cutter = this.cutterNumber.trimEnd()
+              } else {
+                cutter = " " + this.cutterNumber.trimEnd()
+              }
+            } else {
+              cutter = this.cutterNumber.trim()
+            }
+            console.info(`cutter: "${cutter}"`)
 
             let initalResult =  await utilsNetwork.searchShelfList(
               this.classNumber.trim() + '' + cutter,
