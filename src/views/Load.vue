@@ -387,6 +387,9 @@
                       </button>
                     </router-link>
                   </div>
+                  <div style="padding:5px;">
+                    <a href="https://bibframe.org/docs/view/documentation-marva-manual/Marva%20tools/workflows.md" target="_blank" rel="noopener">Workflows manual</a>
+                  </div>
                 </div>
 
                 <div v-if="showTestData" style="margin-top: 1em;">

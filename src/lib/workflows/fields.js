@@ -524,6 +524,38 @@ export function listProfileComponents(profile, lookupConfig, adminTemplateId = n
 }
 
 /**
+* The components put in the order they come in the profile. One the profile does not have goes
+* last, components the same distance in keep the order they had.
+* @param {array} components - of {rt, id}
+* @param {array} available - listProfileComponents of the profile
+* @return {array} - a new array, the components themselves are not copied
+*/
+export function sortByProfileOrder(components, available){
+  let position = profilePositions(components, available)
+  return components.map((c, i) => { return { c: c, p: position[i], i: i } })
+    .sort((a, b) => { return a.p - b.p || a.i - b.i })
+    .map((x) => { return x.c })
+}
+
+/**
+* Are the components already in the order the profile has them
+* @param {array} components - of {rt, id}
+* @param {array} available - listProfileComponents of the profile
+* @return {boolean}
+*/
+export function inProfileOrder(components, available){
+  let position = profilePositions(components, available)
+  return position.every((p, i) => { return i == 0 || position[i - 1] <= p })
+}
+
+function profilePositions(components, available){
+  return components.map((c) => {
+    let idx = available.findIndex((a) => { return a.rt === c.rt && a.id === c.id })
+    return idx < 0 ? available.length : idx
+  })
+}
+
+/**
 * lc:RT:bf2:Monograph:Work -> Work
 */
 export function rtTypeFromId(rtId){

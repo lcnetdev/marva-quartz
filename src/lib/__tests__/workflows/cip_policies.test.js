@@ -300,6 +300,23 @@ describe('the thesaurus of a heading the record already has is not offered', () 
     expect(compared.ghosts.map((g) => { return g.pt['@guid'] })).toEqual(['w1'])
   })
 
+  test('a thesaurus named by its authority file and by its scheme entry is the same thesaurus', () => {
+    // the record's children's heading has the thesaurus the sheet fills in from the URI (subjectSchemes/cyac
+    // with its label), WorldCat's copy names the authority file: nothing to offer, nothing to warn about
+    const CYAC_SCHEME = { uri: 'http://id.loc.gov/vocabulary/subjectSchemes/cyac', label: 'Library of Congress Children\'s and Young Adults\' Subject Headings' }
+    const CYAC_FILE = { uri: 'http://id.loc.gov/authorities/childrensSubjects', label: null }
+    let s = compareComponent('k', columns, [line('r', 'Courage', 'http://id.loc.gov/authorities/childrensSubjects/sj2021051194', CYAC_SCHEME)], [line('w', 'Courage', 'http://id.loc.gov/authorities/childrensSubjects/sj2021051194', CYAC_FILE)]).suggestions[0]
+    expect(s.cells[SOURCE].status).toBe('match')
+    expect(s.open).toBe(0)
+    // the same for LCSH
+    const LCSH_SCHEME = { uri: 'http://id.loc.gov/vocabulary/subjectSchemes/lcsh', label: 'Library of Congress subject headings' }
+    s = compareComponent('k', columns, [line('r', 'Courage', 'http://id.loc.gov/authorities/subjects/sh85033527', LCSH_SCHEME)], [line('w', 'Courage', null, { uri: 'http://id.loc.gov/authorities/subjects', label: null })]).suggestions[0]
+    expect(s.cells[SOURCE].status).toBe('match')
+    // a different thesaurus is still a different thesaurus
+    s = compareComponent('k', columns, [line('r', 'Stories in rhyme', null, LCSH_SCHEME)], [line('w', 'Stories in rhyme', null, CYAC_FILE)]).suggestions[0]
+    expect(s.cells[SOURCE].status).toBe('differs')
+  })
+
   test('the children\'s subject headings are still offered on a heading the record has', () => {
     const CYAC = { uri: 'http://id.loc.gov/authorities/childrensSubjects', label: null }
     expect(sourceStillOffered([CYAC])).toBe(true)
