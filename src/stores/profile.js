@@ -178,6 +178,7 @@ export const useProfileStore = defineStore('profile', {
         emptyComponents: {},
         hiddenSubjects: false,
         hiddenClassNumbers: false,
+        hiddenGenre: false,
 
 
 
@@ -5304,6 +5305,7 @@ export const useProfileStore = defineStore('profile', {
                 delete newPt.deleted
                 delete newPt.hideSubject
                 delete newPt.hideClassNum
+                delete newPt.hideGenre
                 delete newPt.hide
 
                 newPt.id = newPropertyId
@@ -8559,6 +8561,38 @@ export const useProfileStore = defineStore('profile', {
             return true
         },
 
+        displayGenre: function (comp) {
+            let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc-genre")
+            if (!pref) { return true }
+
+            console.info("displayGenre?")
+            try {
+                if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/genreForm") {
+                    let userValue = comp.userValue
+                    console.info("userValue: ", userValue)
+                    let data = userValue["http://id.loc.gov/ontologies/bibframe/genreForm"] ? userValue["http://id.loc.gov/ontologies/bibframe/genreForm"][0] : {}
+                    let type = data['@type']
+
+                    if (data['@id'].includes('authorities/genreForm')) { return true }
+
+                    if (data["http://id.loc.gov/ontologies/bibframe/source"]) {
+                        let source = data["http://id.loc.gov/ontologies/bibframe/source"][0]
+                        console.info("\t source: ", source)
+                        console.info("\t sourceID: ", source['@id'])
+                        if (source['@id'] != 'http://id.loc.gov/authorities/genreForms') { return false}
+                    }
+
+                    if (data['@id'] && !data['@id'].includes('authorities/genreForm')) { return false }
+
+                }
+
+                return true
+            } catch (err) {
+                console.error("Error with displayGenre preference: ", err)
+                return false
+            }
+        },
+
         displayClassNumber: function (comp) {
             let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc-class-numbers")
             if (!pref) { return true }
@@ -8652,6 +8686,7 @@ export const useProfileStore = defineStore('profile', {
 
             let classCount = 0
             let classHidden = 0
+            let genreHidden = 0
             let classLast = null
             let classFirst = false
             let classList = []
@@ -8686,6 +8721,9 @@ export const useProfileStore = defineStore('profile', {
                         }
                         if (comp.hideClassNum) {
                             classHidden++
+                        }
+                        if (comp.hideGenre) {
+                            genreHidden++
                         }
                         classLast = comp
                         classList.push(comp)
@@ -8735,10 +8773,13 @@ export const useProfileStore = defineStore('profile', {
             if (classHidden > 0) {
                 this.hiddenClassNumbers = true
             }
+            if (genreHidden > 0){
+                this.hiddenGenre = true
+            }
 
             let results = {
                 'subjects': subjectCount, 'hiddenSubject': subjectHidden, 'showingSubjects': showingSubjects,
-                'classNumbers': classCount, 'hiddenClassNumbers': classHidden, 'showingClassNumbers': showingClassNumber
+                'classNumbers': classCount, 'hiddenClassNumbers': classHidden, 'hiddenGenreForms': genreHidden, 'showingClassNumbers': showingClassNumber
             }
 
             return results

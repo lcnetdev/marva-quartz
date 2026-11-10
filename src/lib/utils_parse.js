@@ -2163,6 +2163,12 @@ const utilsParse = {
           if (!display && comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
             profile.rt[pkey].pt[key].hideClassNum = true
           }
+
+          // check if genre should display
+          display = useProfileStore().displayGenre(comp)
+          if (!display && comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/genreForm"){
+            profile.rt[pkey].pt[key].hideGenre = true
+          }
         }else{
           profile.rt[pkey].pt[key].dataLoaded=false
           // if there is no data loaded, add it to the list for ad hoc

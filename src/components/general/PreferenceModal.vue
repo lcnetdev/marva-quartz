@@ -46,6 +46,7 @@
 
       // array of the pssobile groups from the stlyes
       possilbleGroups() {
+        console.info(">>>>>>>>>", this.styleDefault["--l-custom-order"])
         // console.log([...new Set(Object.keys(this.styleDefault).map((v)=>{return this.styleDefault[v].group}))])
         return [...new Set(Object.keys(this.styleDefault).filter((v)=>{return this.styleDefault[v].hide !== true}).map((v)=>{return this.styleDefault[v].group}))]
       },
