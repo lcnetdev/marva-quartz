@@ -119,6 +119,10 @@ export default {
 
 
 
+    // hides the nav button icons when "Show Icons" is off in the preferences
+    navIconDisplay() {
+      return this.preferenceStore.returnValue('--b-edit-main-splitpane-nav-show-icons') ? 'inline-block' : 'none'
+    },
     panelTitleProperties() {
       return (this.panelDisplay.properties) ? 'done' : ''
     },
@@ -551,7 +555,7 @@ export default {
 
       if (this.panelSizePresets.length > 0 && this.$route.name == 'Edit') {
 
-        menu.push({ is: 'separator', class: 'nav-quick-view-divider' })
+        menu.push({ is: 'separator' })
         for (let aPresetButton of this.panelSizePresets) {
           menu.push(
             {
@@ -784,6 +788,7 @@ export default {
         let saveMenu = []
         let saveOptions = {
           text: "Save Options",
+          id: "nav-save-options",
           icon: "save",
           class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
           menu: saveMenu
@@ -798,9 +803,13 @@ export default {
             class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
             title: "Save locally",
             hotkey: "ctrl+s",
+            id: "nav-save-button",
 
 
-            click: () => { this.profileStore.saveRecord() }
+            click: () => {
+              this.playSaveAnimation()
+              this.profileStore.saveRecord()
+            }
           }
         )
 
@@ -847,6 +856,7 @@ export default {
                   conf = confirm('This is Marva STAGING. It should not be used for Production work. Do you want to continue?')
                 }
                 if (!conf){ return }
+                this.playSaveAnimation()
                 this.showPostModal = true;
                 this.$nextTick(() => {
 
@@ -998,6 +1008,8 @@ export default {
         menu.push({
           text: 'DCTap: ' + currentWorkspaceName,
           icon: "schema",
+          class: "nav-dctap",
+          title: 'DCTap environment: ' + currentWorkspaceName + ' (click to change)',
           menu: dancerMenuItems
         })
       }
@@ -1014,7 +1026,9 @@ export default {
             text: 'MARC',
             icon: "download",
             title: 'Download MARC',
-            click: () => {
+            class: "nav-download",
+            click: (e) => {
+              this.playDownloadAnimation(e)
               this.profileStore.downloadBFDotOrg('marc')
 
             }
@@ -1025,7 +1039,9 @@ export default {
             text: 'BIBFRAME',
             icon: "download",
             title: 'Download BIBFRAME',
-            click: () => {
+            class: "nav-download",
+            click: (e) => {
+              this.playDownloadAnimation(e)
               this.profileStore.downloadBFDotOrg('bf')
 
             }
@@ -1200,6 +1216,23 @@ export default {
 
   methods: {
 
+    // animates a nav button's icon (element.animate() keeps running even when Vue redraws the button's classes)
+    playClickAnimation: function (button, keyframes) {
+      let icon = button && button.querySelector(':scope > .icon')
+      if (icon) icon.animate(keyframes, { duration: 450, easing: 'ease' })
+    },
+
+    // the download arrow dips down when MARC or BIBFRAME is clicked
+    playDownloadAnimation: function (event) {
+      this.playClickAnimation(event.currentTarget, [{ transform: 'translateY(0)' }, { transform: 'translateY(4px)' }, { transform: 'translateY(-2px)' }, { transform: 'translateY(0)' }])
+    },
+
+    // the Save Options button (or the Save button when it's shown on its own) pops its icon on Save and Post
+    playSaveAnimation: function () {
+      let button = document.getElementById('nav-save-options') || document.getElementById('nav-save-button')
+      this.playClickAnimation(button, [{ transform: 'scale(1)' }, { transform: 'scale(1.45)' }, { transform: 'scale(0.9)' }, { transform: 'scale(1)' }])
+    },
+
     // dragging a panel divider changes the view, so no Quick View is applied anymore
     onPanelResizeStart: function (event) {
       if (event.target.closest('.splitpanes__splitter')) {
@@ -1218,38 +1251,17 @@ export default {
       return 'Quick View: ' + (shown.length ? shown.join(', ') : 'editor only')
     },
 
-    // dividers on the left side of the nav: the dropdown menus (Menu, Tools, View, Preferences, Layouts)
-    // stay together as one group, every other button gets a divider on each side
+    // the left side of the nav has no dividers (each button has its own border),
+    // except one after the Home button and one between the save buttons and the Profile label
     addNavDividers: function (menu) {
-      let cls = (m) => m.class || ''
-      let hidden = (m) => /layout-not-active|hide-option/.test(cls(m))
-      // labels that stay attached to the button before them
-      let attached = (m) => /active-layout-label|current-profile/.test(cls(m))
-      // the grouped dropdowns (Save Options gets its own dividers)
-      let grouped = (m) => !!m.menu && !/save-saved|save-not-saved/.test(cls(m))
-      let together = (a, b) => attached(b) || (grouped(a) && grouped(b)) || (this.isQuickView(a) && this.isQuickView(b))
-      let result = []
-      let last = null
-      let divider = null
-      let i = 0
-      for (; i < menu.length && menu[i].is != 'spacer'; i++) {
-        let item = menu[i]
-        if (item.is == 'separator') {
-          if (last) divider = item
-          continue
-        }
-        if (hidden(item)) {
-          result.push(item)
-          continue
-        }
-        if (last && !together(last, item)) {
-          result.push(divider || { is: 'separator' })
-        }
-        divider = null
-        result.push(item)
-        last = item
-      }
-      return result.concat(menu.slice(i))
+      let end = menu.findIndex((m) => m.is == 'spacer')
+      if (end < 0) end = menu.length
+      let left = menu.slice(0, end).filter((m) => m.is != 'separator')
+      let profile = left.findIndex((m) => /current-profile/.test(m.class || ''))
+      if (profile > 0) left.splice(profile, 0, { is: 'separator' })
+      let home = left.findIndex((m) => /nav-home-button/.test(m.class || ''))
+      if (home > -1 && home < left.length - 1) left.splice(home + 1, 0, { is: 'separator' })
+      return left.concat(menu.slice(end))
     },
 
     // move the right-most items into a "More" menu so the nav stays on one row
@@ -1735,7 +1747,7 @@ export default {
   --bar-font-weight: 500;
   --bar-letter-spacing: 0.2px;
   --bar-padding: 3px;
-  --bar-button-icon-size: 12px;
+  --bar-button-icon-size: 20px;
   --bar-button-padding: 3px 5px;
   --bar-button-radius: 4px;
   --bar-button-hover-bkg: rgb(244, 241, 242);
@@ -1792,35 +1804,84 @@ export default {
   padding-right: 4px;
 }
 
-/* light backdrop around the View dropdown, its divider and the Quick View icons so they read as one section */
-#nav-holder .bar > .nav-view:has(+ .nav-quick-view-divider),
-#nav-holder .bar > .nav-quick-view {
+/* nav button icon size, icon visibility and border color come from Preferences > Nav Bar (Home and Quick Views keep their own icon size) */
+#nav-holder .bar {
+  --bar-button-icon-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-icon-size')");
+  --nav-button-border-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-button-border-color')");
+}
+#nav-holder .bar > .bar-button:not(.panel-size-preset-button):not(.nav-overflow-menu) > .icon {
+  display: v-bind(navIconDisplay);
+}
+
+/* download buttons shrink a little while pressed (the click animations are in playClickAnimation) */
+#nav-holder .bar > .nav-download {
+  transition: transform 0.1s ease;
+}
+#nav-holder .bar > .nav-download:active {
+  transform: scale(0.94);
+}
+
+/* every top level button gets a light backdrop and a border so each section is easy to tell apart */
+#nav-holder .bar > .bar-button:not(.nav-overflow-menu) {
   align-self: stretch;
-  border-radius: 0;
-  background: rgba(0, 0, 0, 0.05);
+  margin: 0 2px;
+  background: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-button-color')");
+  box-shadow: inset 0 0 0 1px var(--nav-button-border-color);
 }
-#nav-holder .bar > .nav-view:has(+ .nav-quick-view-divider) {
-  border-radius: var(--bar-button-radius) 0 0 var(--bar-button-radius);
+/* hover darkens whatever button color is set in the preferences */
+#nav-holder .bar > .bar-button:not(.nav-overflow-menu):hover {
+  background: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-button-color')");
 }
-#nav-holder .bar > .nav-quick-view:not(:has(+ .nav-quick-view)) {
-  border-radius: 0 var(--bar-button-radius) var(--bar-button-radius) 0;
-}
-#nav-holder .bar > .nav-view:has(+ .nav-quick-view-divider):hover,
-#nav-holder .bar > .nav-quick-view:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-#nav-holder .bar > .nav-view:has(+ .nav-quick-view-divider).open:hover {
+#nav-holder .bar > .bar-button.open:hover {
   background: var(--bar-button-open-bkg);
 }
-#nav-holder .bar > .nav-quick-view.active {
+#nav-holder .bar > .bar-button.active {
   background: var(--bar-button-active-bkg);
 }
-/* the divider between View and the Quick Views keeps the backdrop on both sides of its line */
-#nav-holder .bar > .bar-separator.nav-quick-view-divider {
-  align-self: stretch;
-  width: 11px;
-  margin: 0;
-  background: linear-gradient(var(--bar-separator-color), var(--bar-separator-color)) center / 1px calc(100% - 10px) no-repeat, rgba(0, 0, 0, 0.05);
+
+/* DCTap environment picker and the Profile label get their own border and text color (set in Preferences > Nav Bar) so they read as settings
+   (the Profile label keeps its own background color from the theme) */
+#nav-holder .bar > .bar-button.nav-dctap:has(> .menu),
+#nav-holder .bar > .bar-button.current-profile {
+  padding: 2px 10px;
+  box-shadow: inset 0 0 0 1.5px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-setting-border-color')");
+}
+/* keep the Profile label's original space from the save buttons */
+#nav-holder .bar > .bar-button.current-profile {
+  margin-left: 100px;
+}
+#nav-holder .bar > .nav-dctap > span,
+#nav-holder .bar > .current-profile > span {
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-setting-font-color')");
+}
+#nav-holder .bar > .bar-button.nav-dctap:has(> .menu) {
+  background: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-setting-background-color')");
+}
+#nav-holder .bar > .bar-button.nav-dctap:has(> .menu):hover {
+  background: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-setting-background-color')");
+}
+/* !important is needed here to replace the Profile label's own theme background color */
+#nav-holder .bar > .bar-button.current-profile {
+  background: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-setting-background-color')") !important;
+}
+
+/* the View dropdown and its Quick View icons join into one block with one outer border */
+#nav-holder .bar > .bar-button.nav-view:has(+ .nav-quick-view),
+#nav-holder .bar > .bar-button.nav-quick-view {
+  border-radius: 0;
+  margin-left: 0;
+  margin-right: 0;
+  box-shadow: inset 0 1px 0 var(--nav-button-border-color), inset 0 -1px 0 var(--nav-button-border-color);
+}
+#nav-holder .bar > .bar-button.nav-view:has(+ .nav-quick-view) {
+  margin-left: 2px;
+  border-radius: var(--bar-button-radius) 0 0 var(--bar-button-radius);
+  box-shadow: inset 1px 0 0 var(--nav-button-border-color), inset 0 1px 0 var(--nav-button-border-color), inset 0 -1px 0 var(--nav-button-border-color);
+}
+#nav-holder .bar > .bar-button.nav-quick-view:not(:has(+ .nav-quick-view)) {
+  margin-right: 2px;
+  border-radius: 0 var(--bar-button-radius) var(--bar-button-radius) 0;
+  box-shadow: inset -1px 0 0 var(--nav-button-border-color), inset 0 1px 0 var(--nav-button-border-color), inset 0 -1px 0 var(--nav-button-border-color);
 }
 
 
@@ -1867,18 +1928,22 @@ export default {
   right: 0;
 }
 
+/* dropdown menus open on hover (plain buttons don't), so it's easy to tell a menu from a button */
+#nav-holder .bar > .bar-button:hover > .menu {
+  display: block;
+}
+
 /* the "More" menu stays open for a second after the mouse leaves it, so it's easy to move into */
 #nav-holder .bar > .nav-overflow-menu > .menu {
   display: block;
   visibility: hidden;
   transition: visibility 0s linear 1s;
 }
-#nav-holder .bar > .nav-overflow-menu.open:hover > .menu {
+#nav-holder .bar > .nav-overflow-menu:hover > .menu {
   visibility: visible;
   transition-delay: 0s;
 }
-/* ...but it closes right away when the menus are closed or another top level button is hovered */
-#nav-holder .bar > .nav-overflow-menu:not(.open) > .menu,
+/* ...but it closes right away when another top level button is hovered */
 #nav-holder .bar:has(> .bar-button:not(.nav-overflow-menu):hover) > .nav-overflow-menu > .menu {
   visibility: hidden;
   transition: none;

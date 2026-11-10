@@ -697,6 +697,24 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Nav Bar',
           range: [1,2]
       },
+      '--n-edit-main-splitpane-nav-icon-size' : {
+          desc: 'The size of the icons on the nav bar buttons (not the Home or Quick View icons)',
+          descShort: 'Icon Size',
+          value: 12,
+          type: 'number',
+          unit: 'px',
+          group: 'Nav Bar',
+          range: [8,24]
+      },
+      '--b-edit-main-splitpane-nav-show-icons' : {
+          desc: 'Show icons on the nav bar buttons (the Home and Quick View icons always show)',
+          descShort: 'Show Icons',
+          value: true,
+          type: 'boolean',
+          unit: null,
+          group: 'Nav Bar',
+          range: [true,false]
+      },
       '--c-edit-main-splitpane-nav-background-color' : {
           desc: 'The background color of the nav menu',
           descShort: 'Background Color',
@@ -710,6 +728,46 @@ export const usePreferenceStore = defineStore('preference', {
           value:'#202124',
           desc: 'The font color of the text in the nav bar',
           descShort: 'Text Color',
+          type: 'color',
+          group: 'Nav Bar',
+          range: null
+      },
+      '--c-edit-main-splitpane-nav-button-color' : {
+          value:'#0000000d',
+          desc: 'The background color of the buttons in the nav bar',
+          descShort: 'Button Color',
+          type: 'color',
+          group: 'Nav Bar',
+          range: null
+      },
+      '--c-edit-main-splitpane-nav-button-border-color' : {
+          value:'#00000033',
+          desc: 'The border color of the buttons in the nav bar',
+          descShort: 'Button Border Color',
+          type: 'color',
+          group: 'Nav Bar',
+          range: null
+      },
+      '--c-edit-main-splitpane-nav-setting-font-color' : {
+          value:'#2c5f87ff',
+          desc: 'The text color of the Profile and DCTap sections in the nav bar',
+          descShort: 'Profile/DCTap Text Color',
+          type: 'color',
+          group: 'Nav Bar',
+          range: null
+      },
+      '--c-edit-main-splitpane-nav-setting-background-color' : {
+          value:'#0000000d',
+          desc: 'The background color of the Profile and DCTap sections in the nav bar',
+          descShort: 'Profile/DCTap Background Color',
+          type: 'color',
+          group: 'Nav Bar',
+          range: null
+      },
+      '--c-edit-main-splitpane-nav-setting-border-color' : {
+          value:'#7898b2ff',
+          desc: 'The border color of the Profile and DCTap sections in the nav bar',
+          descShort: 'Profile/DCTap Border Color',
           type: 'color',
           group: 'Nav Bar',
           range: null
@@ -2497,8 +2555,8 @@ export const usePreferenceStore = defineStore('preference', {
       // let prefs = xxx_paste_replace_it_herexxx
       // let themeColors = {}; for (let p in prefs.prefs.styleDefault){if (prefs.prefs.styleDefault[p].type == 'color'){themeColors[p] = prefs.prefs.styleDefault[p].value}}; console.log(JSON.stringify(themeColors))
 
-      let darkMode = {"--c-edit-main-splitpane-properties-background-color":"#000000ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#353535ff","--c-edit-main-splitpane-slider-border-color":"#4b4b4bff","--c-edit-main-splitpane-opac-background-color":"#000000ff","--c-edit-main-splitpane-opac-highlight-background-color":"#ffffffff","--c-edit-main-splitpane-opac-font-color":"#ffffffff","--c-edit-main-splitpane-edit-background-color-work":"#202f32ff","--c-edit-main-splitpane-edit-background-color-instance":"#380038ff","--c-edit-main-splitpane-edit-background-color-item":"#5965c0ff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#4654b9ff","--c-edit-main-splitpane-edit-component-label-color":"#dededeff","--c-edit-main-splitpane-edit-focused-field-color":"#353535ff","--c-edit-main-splitpane-edit-field-color":"#000000ff","--c-edit-main-splitpane-edit-field-border-color":"#333333ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#c9c9c9ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#212121ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-background-color":"#000000ff","--c-edit-main-splitpane-nav-font-color":"#ffffffff","--c-edit-main-literal-font-color":"#ffffffff","--c-edit-main-literal-lang-label-background-color":"#4b4b4bff","--c-edit-main-literal-lang-label-font-color":"#ffffffff","--c-edit-main-lookup-background-color":"#353535ff","--c-edit-main-lookup-border-color":"#4b4b4bff","--c-edit-main-lookup-text-color":"#ffffffff","--c-edit-main-lookup-icon-linked-color":"#1c7d76ff","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#000000ff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"#ffffffff","--c-edit-general-action-button-color":"#ffffffff","--c-edit-general-action-button-background-color":"#353535ff","--c-edit-general-action-button-border-color":"#a9a9a9ff","--n-edit-general-action-button-continer-background-color":"#212121ff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#4b4b4bff","--c-edit-general-action-button-menu-button-background-color":"#000000ff","--c-edit-general-action-button-menu-button-border-color":"#a9a9a9ff","--c-edit-general-action-button-menu-button-text-color":"#ffffffff","--c-edit-modals-background-color":"#212121ff","--c-edit-modals-background-color-accent":"#353535ff","--c-edit-modals-text-color":"#ffffffff","--c-general-icon-instance-color":"#8b588b","--c-general-icon-work-color":"#7badad","--c-general-icon-item-color":"#eaeaea"}
-      let grayMode = {"--c-edit-main-splitpane-properties-background-color":"#353535ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#a9a9a9ff","--c-edit-main-splitpane-slider-border-color":"#808080ff","--c-edit-main-splitpane-opac-background-color":"#a9a9a9ff","--c-edit-main-splitpane-opac-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-opac-font-color":"#202124","--c-edit-main-splitpane-edit-background-color-work":"#a1a1a1ff","--c-edit-main-splitpane-edit-background-color-instance":"#b8a9b6ff","--c-edit-main-splitpane-edit-background-color-item":"#bda2baff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#ba95b7ff","--c-edit-main-splitpane-edit-component-label-color":"black","--c-edit-main-splitpane-edit-focused-field-color":"#dededeff","--c-edit-main-splitpane-edit-field-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-field-border-color":"#969696ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#000000ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#c7c7c7","--c-edit-main-splitpane-nav-background-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-font-color":"#202124","--c-edit-main-literal-font-color":"black","--c-edit-main-literal-lang-label-background-color":"#dededeff","--c-edit-main-literal-lang-label-font-color":"#090909","--c-edit-main-lookup-background-color":"#dededeff","--c-edit-main-lookup-border-color":"#353535ff","--c-edit-main-lookup-text-color":"black","--c-edit-main-lookup-icon-linked-color":"green","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#dededeff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"black","--c-edit-general-action-button-color":"#202124","--c-edit-general-action-button-background-color":"#dededeff","--c-edit-general-action-button-border-color":"#202124","--n-edit-general-action-button-continer-background-color":"#dededeff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#dededeff","--c-edit-general-action-button-menu-button-background-color":"rgb(239, 239, 239)","--c-edit-general-action-button-menu-button-border-color":"black","--c-edit-general-action-button-menu-button-text-color":"black","--c-edit-modals-background-color":"#a9a9a9ff","--c-edit-modals-background-color-accent":"#dededeff","--c-edit-modals-text-color":"black","--c-general-icon-instance-color":"#ba95b7ff","--c-general-icon-work-color":"#a9a9a9ff","--c-general-icon-item-color":"#eaeaea"}
+      let darkMode = {"--c-edit-main-splitpane-properties-background-color":"#000000ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#353535ff","--c-edit-main-splitpane-slider-border-color":"#4b4b4bff","--c-edit-main-splitpane-opac-background-color":"#000000ff","--c-edit-main-splitpane-opac-highlight-background-color":"#ffffffff","--c-edit-main-splitpane-opac-font-color":"#ffffffff","--c-edit-main-splitpane-edit-background-color-work":"#202f32ff","--c-edit-main-splitpane-edit-background-color-instance":"#380038ff","--c-edit-main-splitpane-edit-background-color-item":"#5965c0ff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#4654b9ff","--c-edit-main-splitpane-edit-component-label-color":"#dededeff","--c-edit-main-splitpane-edit-focused-field-color":"#353535ff","--c-edit-main-splitpane-edit-field-color":"#000000ff","--c-edit-main-splitpane-edit-field-border-color":"#333333ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#c9c9c9ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#212121ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-background-color":"#000000ff","--c-edit-main-splitpane-nav-font-color":"#ffffffff","--c-edit-main-splitpane-nav-button-color":"#ffffff1a","--c-edit-main-splitpane-nav-button-border-color":"#ffffff33","--c-edit-main-splitpane-nav-setting-font-color":"#9cc3e6ff","--c-edit-main-splitpane-nav-setting-background-color":"#ffffff1a","--c-edit-main-splitpane-nav-setting-border-color":"#5b7f9cff","--c-edit-main-literal-font-color":"#ffffffff","--c-edit-main-literal-lang-label-background-color":"#4b4b4bff","--c-edit-main-literal-lang-label-font-color":"#ffffffff","--c-edit-main-lookup-background-color":"#353535ff","--c-edit-main-lookup-border-color":"#4b4b4bff","--c-edit-main-lookup-text-color":"#ffffffff","--c-edit-main-lookup-icon-linked-color":"#1c7d76ff","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#000000ff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"#ffffffff","--c-edit-general-action-button-color":"#ffffffff","--c-edit-general-action-button-background-color":"#353535ff","--c-edit-general-action-button-border-color":"#a9a9a9ff","--n-edit-general-action-button-continer-background-color":"#212121ff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#4b4b4bff","--c-edit-general-action-button-menu-button-background-color":"#000000ff","--c-edit-general-action-button-menu-button-border-color":"#a9a9a9ff","--c-edit-general-action-button-menu-button-text-color":"#ffffffff","--c-edit-modals-background-color":"#212121ff","--c-edit-modals-background-color-accent":"#353535ff","--c-edit-modals-text-color":"#ffffffff","--c-general-icon-instance-color":"#8b588b","--c-general-icon-work-color":"#7badad","--c-general-icon-item-color":"#eaeaea"}
+      let grayMode = {"--c-edit-main-splitpane-properties-background-color":"#353535ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#a9a9a9ff","--c-edit-main-splitpane-slider-border-color":"#808080ff","--c-edit-main-splitpane-opac-background-color":"#a9a9a9ff","--c-edit-main-splitpane-opac-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-opac-font-color":"#202124","--c-edit-main-splitpane-edit-background-color-work":"#a1a1a1ff","--c-edit-main-splitpane-edit-background-color-instance":"#b8a9b6ff","--c-edit-main-splitpane-edit-background-color-item":"#bda2baff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#ba95b7ff","--c-edit-main-splitpane-edit-component-label-color":"black","--c-edit-main-splitpane-edit-focused-field-color":"#dededeff","--c-edit-main-splitpane-edit-field-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-field-border-color":"#969696ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#000000ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#c7c7c7","--c-edit-main-splitpane-nav-background-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-font-color":"#202124","--c-edit-main-splitpane-nav-button-color":"#0000000d","--c-edit-main-splitpane-nav-button-border-color":"#00000033","--c-edit-main-splitpane-nav-setting-font-color":"#2c5f87ff","--c-edit-main-splitpane-nav-setting-background-color":"#0000000d","--c-edit-main-splitpane-nav-setting-border-color":"#7898b2ff","--c-edit-main-literal-font-color":"black","--c-edit-main-literal-lang-label-background-color":"#dededeff","--c-edit-main-literal-lang-label-font-color":"#090909","--c-edit-main-lookup-background-color":"#dededeff","--c-edit-main-lookup-border-color":"#353535ff","--c-edit-main-lookup-text-color":"black","--c-edit-main-lookup-icon-linked-color":"green","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#dededeff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"black","--c-edit-general-action-button-color":"#202124","--c-edit-general-action-button-background-color":"#dededeff","--c-edit-general-action-button-border-color":"#202124","--n-edit-general-action-button-continer-background-color":"#dededeff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#dededeff","--c-edit-general-action-button-menu-button-background-color":"rgb(239, 239, 239)","--c-edit-general-action-button-menu-button-border-color":"black","--c-edit-general-action-button-menu-button-text-color":"black","--c-edit-modals-background-color":"#a9a9a9ff","--c-edit-modals-background-color-accent":"#dededeff","--c-edit-modals-text-color":"black","--c-general-icon-instance-color":"#ba95b7ff","--c-general-icon-work-color":"#a9a9a9ff","--c-general-icon-item-color":"#eaeaea"}
 
       const ignore = ["--l-custom-layouts", "--c-diacritics-enabled-macros", "--o-diacritics-text-macros"]
 
