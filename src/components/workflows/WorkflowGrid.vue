@@ -145,7 +145,8 @@ export default {
       RECORD_COLUMN: RECORD_COLUMN,
 
       widths: {
-        record: 230,
+        // wide enough for the record's buttons to take two lines under its title
+        record: 250,
         type: 150,
         field: 240,
       },
@@ -306,7 +307,7 @@ export default {
           return true
         case 'End':
           event.preventDefault()
-          // the point of End is to get at the row's action buttons, bring the end of the sheet into view
+          // the last cell of the row, with the end of the sheet brought into view
           this.select(withModifier ? lines[lines.length - 1] : lines[index], lastCol, 'end')
           return true
         // w / s jump a whole record up / down, to its first line, staying in the same column

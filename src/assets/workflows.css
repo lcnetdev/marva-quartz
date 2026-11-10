@@ -544,8 +544,9 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
 /* in the record column: where the comparison stands */
 .wf-cip {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.4em;
+  gap: 0.1em 0.4em;
   margin-top: 0.2em;
   font-size: 0.8em;
   color: var(--wf-muted-color);

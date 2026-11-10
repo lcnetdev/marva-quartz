@@ -48,7 +48,7 @@
                 <dt>Arrows, Tab</dt><dd>move one cell</dd>
                 <dt>A / D</dt><dd>previous / next field group</dd>
                 <dt>W / S</dt><dd>previous / next record</dd>
-                <dt>Home / End</dt><dd>start of the row / the row's actions</dd>
+                <dt>Home / End</dt><dd>start / end of the row</dd>
                 <dt>Page Up / Down</dt><dd>10 lines</dd>
                 <dt>Ctrl + Home / End</dt><dd>first / last cell of the sheet</dd>
                 <dt>Enter, F2, typing</dt><dd>edit the cell</dd>
