@@ -181,7 +181,6 @@
             } else {
               cutter = this.cutterNumber.trim()
             }
-            console.info(`cutter: "${cutter}"`)
 
             let initalResult =  await utilsNetwork.searchShelfList(
               this.classNumber.trim() + '' + cutter,

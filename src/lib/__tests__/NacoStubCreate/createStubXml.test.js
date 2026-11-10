@@ -28,7 +28,7 @@ describe('Build a stub', () => {
 
 
         expect(xml).toContain('<marcxml:datafield tag="010" ind1=" " ind2=" "><marcxml:subfield code="a">n 2025700486</marcxml:subfield></marcxml:datafield>')
-        expect(xml).toContain('<marcxml:datafield tag="040" ind1=" " ind2=" "><marcxml:subfield code="a">DLC</marcxml:subfield><marcxml:subfield code="b">eng</marcxml:subfield><marcxml:subfield code="e">rda</marcxml:subfield><marcxml:subfield code="c">DLC</marcxml:subfield></marcxml:datafield>')
+        expect(xml).toContain('<marcxml:datafield tag="040" ind1=" " ind2=" "><marcxml:subfield code="a">DLC</marcxml:subfield><marcxml:subfield code="b">eng</marcxml:subfield><marcxml:subfield code="e">rda</marcxml:subfield><marcxml:subfield code="e">pccrda</marcxml:subfield><marcxml:subfield code="c">DLC</marcxml:subfield></marcxml:datafield>')
         expect(xml).toContain('<marcxml:datafield tag="046" ind1=" " ind2=" "><marcxml:subfield code="f">1900</marcxml:subfield><marcxml:subfield code="g">2000</marcxml:subfield><marcxml:subfield code="2">edtf</marcxml:subfield></marcxml:datafield>')
 
 
