@@ -1042,6 +1042,31 @@ export default {
           for (let t of Object.keys(pt)){
             let target = pt[t]
 
+            // add pccrda to admin metadata for existing records
+            if (target.propertyLabel == 'Admin Metadata' && target.adminMetadataType == 'primary'){
+              console.info("target: ", target)
+              let descriptionConventions = target.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/descriptionConventions"]
+              descriptionConventions.push(
+                {
+                  "@guid": short.generate(),
+                  "@id": "http://id.loc.gov/vocabulary/descriptionConventions/pccrda",
+                  "@type": "http://id.loc.gov/ontologies/bibframe/DescriptionConventions",
+                  "http://www.w3.org/2000/01/rdf-schema#label": [
+                    {
+                      "@guid": short.generate(),
+                      "http://www.w3.org/2000/01/rdf-schema#label": "LC-PCC Metadata Guidance Document (pccrda)"
+                    }
+                  ],
+                  "http://id.loc.gov/ontologies/bibframe/code": [
+                    {
+                      "@guid": short.generate(),
+                      "http://id.loc.gov/ontologies/bibframe/code": "pccrda"
+                    }
+                  ],
+                }
+              )
+            }
+
             let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
             let withDefaults = this.loadWithDefaults(structure)
             if (withDefaults){ // 2023416867
@@ -1223,7 +1248,7 @@ export default {
                         "@guid": short.generate(),
                         "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
-                            "@guid": "58UfyEnkTdwpL9tKpubExu",
+                            "@guid": short.generate(),
                             "http://www.w3.org/2000/01/rdf-schema#label": "pcc"
                           }
                         ],
@@ -1248,7 +1273,13 @@ export default {
                         "http://www.w3.org/2000/01/rdf-schema#label": [
                           {
                             "@guid": short.generate(),
-                            "http://www.w3.org/2000/01/rdf-schema#label": "pccrda"
+                            "http://www.w3.org/2000/01/rdf-schema#label": "LC-PCC Metadata Guidance Document (pccrda)"
+                          }
+                        ],
+                        "http://id.loc.gov/ontologies/bibframe/code": [
+                          {
+                            "@guid": short.generate(),
+                            "http://id.loc.gov/ontologies/bibframe/code": "pccrda"
                           }
                         ],
                         "@id": "http://id.loc.gov/vocabulary/descriptionConventions/pccrda",
