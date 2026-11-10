@@ -361,8 +361,8 @@ a:hover {
 }
 
 .external-links a,
-.classweb-links a,
-.classweb-links-inline a {
+:deep() .classweb-links a,
+:deep() .classweb-links-inline a {
     color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
 }
 
