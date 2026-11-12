@@ -48,7 +48,7 @@
                 <dt>Arrows, Tab</dt><dd>move one cell</dd>
                 <dt>A / D</dt><dd>previous / next field group</dd>
                 <dt>W / S</dt><dd>previous / next record</dd>
-                <dt>Home / End</dt><dd>start of the row / the row's actions</dd>
+                <dt>Home / End</dt><dd>start / end of the row</dd>
                 <dt>Page Up / Down</dt><dd>10 lines</dd>
                 <dt>Ctrl + Home / End</dt><dd>first / last cell of the sheet</dd>
                 <dt>Enter, F2, typing</dt><dd>edit the cell</dd>
@@ -84,7 +84,13 @@
                   <span class="material-icons">add</span>{{ fieldSets.length == 0 ? 'Save these fields as a set' : 'Save current' }}
                 </button>
               </div>
-              <div class="wf-fields-menu-heading">In this sheet <span class="wf-fields-menu-hint">drag to reorder</span></div>
+              <div class="wf-fields-menu-heading wf-fields-menu-heading-actions">
+                <span>In this sheet <span class="wf-fields-menu-hint">drag to reorder</span></span>
+                <span>
+                  <button class="wf-text-link" :title="(hiddenCount == 0 ? 'Hide' : 'Show') + ' every field in this list'" @click="workflowStore.setAllComponentsShown(hiddenCount > 0)">{{ hiddenCount == 0 ? 'Deselect all' : 'Select all' }}</button>
+                  <button class="wf-text-link" :disabled="inProfileOrder" title="Put the fields in the order they come in the profile" @click="workflowStore.orderComponentsByProfile()">Profile order</button>
+                </span>
+              </div>
               <!-- the order here is the order of the columns in the sheet, drag a row by its handle to move it -->
               <template v-for="group in workflowStore.columnGroups" :key="group.key">
                 <div :class="['wf-fields-menu-group', {'wf-drag-source': dragging === group.key, 'wf-drop-before': dropTarget === group.key && dropAfter === false, 'wf-drop-after': dropTarget === group.key && dropAfter === true}]"
@@ -115,7 +121,10 @@
               <div class="wf-fields-menu-heading wf-fields-menu-add">Add a field</div>
               <input type="search" class="wf-fields-menu-filter" v-model="fieldFilter" placeholder="Filter fields" autocomplete="off" spellcheck="false" @keydown.stop @keydown.enter.prevent="addFirstMatch" />
               <template v-for="rt in addableRts" :key="rt">
-                <div class="wf-fields-menu-rt-heading">{{ rt }}</div>
+                <div class="wf-fields-menu-rt-heading wf-fields-menu-heading-actions">
+                  <span>{{ rt }}</span>
+                  <button class="wf-text-link" :title="'Add ' + (fieldFilter ? 'these ' : 'all the ') + rt + ' fields to the sheet'" @click="workflowStore.addComponents(addableFiltered.filter((a) => a.rt === rt))">Add all</button>
+                </div>
                 <a v-for="c in addableFiltered.filter((a) => a.rt === rt)" :key="c.rt + c.id" class="wf-fields-menu-item" :title="'Add ' + c.label + ' to the sheet'" @click="workflowStore.addComponent(c)">
                   <span class="material-icons">add</span><span>{{ c.label }}</span>
                 </a>
@@ -379,6 +388,11 @@ export default {
 
     hiddenCount(){
       return this.workflowStore.columnGroups.filter((g) => { return g.hidden }).length
+    },
+
+    // are the sheet's fields already in the order the profile has them
+    inProfileOrder(){
+      return this.session ? this.workflowStore.returnInProfileOrder() : true
     },
 
     // the saved field sets for this sheet's profile, and the one the sheet shows now if it is one of them

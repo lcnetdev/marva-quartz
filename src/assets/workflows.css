@@ -347,6 +347,16 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   color: var(--wf-muted-color);
   padding: 0.2em 0;
 }
+/* a heading with its text actions (select all, profile order) at the right */
+.wf-fields-menu-heading-actions {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+}
+.wf-fields-menu-heading-actions .wf-text-link + .wf-text-link {
+  margin-left: 0.8em;
+}
 .wf-fields-menu-add {
   margin-top: 0.6em;
   padding-top: 0.6em;
@@ -534,8 +544,9 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
 /* in the record column: where the comparison stands */
 .wf-cip {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.4em;
+  gap: 0.1em 0.4em;
   margin-top: 0.2em;
   font-size: 0.8em;
   color: var(--wf-muted-color);
@@ -878,9 +889,6 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   vertical-align: middle;
 }
 .wf-table th.wf-head-record,
-.wf-table th.wf-head-actions {
-  font-weight: bold;
-}
 .wf-table th.wf-head-group {
   font-weight: bold;
   border-left: solid 2px var(--wf-field-border-color);
@@ -1132,13 +1140,20 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
 }
 
 /* the buttons at the end of the row */
-.wf-table td.wf-record-actions {
-  vertical-align: middle;
-  white-space: nowrap;
+/* the record's buttons, under its title in the frozen column: they wrap to the width of the column */
+.wf-record-actions {
+  margin-top: 0.35em;
+  font-weight: normal;
   cursor: default;
 }
+.wf-record-actions .wf-record-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 0.25em;
+}
 .wf-record-actions .v-popper {
-  display: inline-block;
+  display: inline-flex;
 }
 .wf-action {
   display: inline-flex;
@@ -1717,11 +1732,40 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   color: var(--wf-modal-color);
 }
 .wf-builder-list-rt {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5em;
   font-size: 0.75em;
   text-transform: uppercase;
   color: var(--wf-muted-color);
   margin: 0.5em 0 0.15em 0;
   font-weight: bold;
+}
+.wf-builder h3.wf-builder-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+/* the small text actions in the builder's lists and the Fields menu: select all, profile order */
+.wf-text-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--wf-accent-color);
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wf-text-link:disabled {
+  color: var(--wf-muted-color);
+  text-decoration: none;
+  cursor: default;
 }
 .wf-builder-list label,
 .wf-builder-selected {

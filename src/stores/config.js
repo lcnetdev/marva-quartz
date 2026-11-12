@@ -174,6 +174,8 @@ export const useConfigStore = defineStore('config', {
         env : 'staging',
         displayLCOnlyFeatures: true,
         enableStateRecorder: true,
+        // on for every user of this region, the backend "workflows" feature flag is not needed
+        enableWorkflows: true,
         simpleLookupLang: 'en',
 
         dancerEnabled: true,
@@ -217,6 +219,8 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         displayLCOnlyFeatures: true,
         enableStateRecorder: false,
+        // on for every user of this region, the backend "workflows" feature flag is not needed
+        enableWorkflows: true,
         simpleLookupLang: 'en',
 
         motd: '',

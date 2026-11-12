@@ -46,6 +46,7 @@
 
       // array of the pssobile groups from the stlyes
       possilbleGroups() {
+        console.info(">>>>>>>>>", this.styleDefault["--l-custom-order"])
         // console.log([...new Set(Object.keys(this.styleDefault).map((v)=>{return this.styleDefault[v].group}))])
         return [...new Set(Object.keys(this.styleDefault).filter((v)=>{return this.styleDefault[v].hide !== true}).map((v)=>{return this.styleDefault[v].group}))]
       },
@@ -83,7 +84,8 @@
         onSelectElement (event) {
           const tagName = event.target.tagName
 
-          if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+          // a press on these is for the control (or the link), not the start of dragging the window
+          if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || (event.target.closest && event.target.closest('a.pref-manual-link'))) {
             event.stopPropagation()
           }
         },
@@ -270,6 +272,7 @@
                 <input type="text" ref="searchInput" class="pref-search-input" v-model="searchTerm" @input="searchChange" placeholder="Search all preferences..." aria-label="Search all preferences" />
                 <button v-if="searchTerm !== ''" class="pref-search-clear" title="Clear search" @click="clearSearch">&times;</button>
               </span>
+              <a class="pref-manual-link" href="https://bibframe.org/docs/view/documentation-marva-manual/Configuration/preferences-reference.md" target="_blank" rel="noopener" title="What each preference does, in the Marva manual">Manual<span class="material-icons">open_in_new</span></a>
             </h3>
             <button class="close-button" @pointerup="preferenceStore.togglePrefModal()">X</button>
 
@@ -372,6 +375,18 @@
   .pref-search-empty{
     color: gray;
     font-style: italic;
+  }
+  .pref-manual-link{
+    margin-left: 0.8em;
+    font-size: 0.7em;
+    font-weight: normal;
+    color: inherit;
+    white-space: nowrap;
+  }
+  .pref-manual-link .material-icons{
+    font-size: 1.1em;
+    vertical-align: -0.15em;
+    margin-left: 0.15em;
   }
   .option-title-group{
     font-weight: normal;

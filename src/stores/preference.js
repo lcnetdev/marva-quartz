@@ -259,7 +259,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: {},
         type: 'object',
         hide: true,
-        group: 'preferenes',
+        group: 'General',
       },
       '--b-edit-main-splitpane-properties-component-library-defaults' : {
         desc: 'Setting defaults to load with the record and moving default components to my components.',
@@ -607,6 +607,15 @@ export const usePreferenceStore = defineStore('preference', {
     '--b-edit-main-hide-non-lc' : {
           desc: 'Do not display non-LC subjects.',
           descShort: 'Hide non-LC Subjects',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+    },
+    '--b-edit-main-hide-non-lc-genre' : {
+          desc: 'Do not display non-LC genre.',
+          descShort: 'Hide non-LC GenreForms',
           value: false,
           type: 'boolean',
           unit: null,
@@ -2186,7 +2195,7 @@ export const usePreferenceStore = defineStore('preference', {
         for (let k of order){
           for (let key of Object.keys(this.styleDefault[k])){
             // Any changes to the config get applied to the loaded preferences
-            if (["desc", "descShort"].includes(key) && this.styleDefault[k][key] != prefs.styleDefault[k][key]){
+            if (["desc", "descShort", "group", "hide"].includes(key) && this.styleDefault[k][key] != prefs.styleDefault[k][key]){ //HERE
                   prefs.styleDefault[k][key] = this.styleDefault[k][key]
             }
           }

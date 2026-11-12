@@ -373,6 +373,23 @@ export function linkedToUnlinked(have, want){
   return have.some((v) => { return v.uri }) && !want.some((v) => { return v.uri })
 }
 
+// One thesaurus, two URIs: the converter names LC's schemes by their authority file
+// (id.loc.gov/authorities/subjects), the editor by the scheme's own entry
+// (id.loc.gov/vocabulary/subjectSchemes/lcsh). They are the same thesaurus when compared.
+const SCHEME_URIS = [
+  [/^https?:\/\/id\.loc\.gov\/(authorities\/subjects|vocabulary\/subjectSchemes\/lcsh)\/?$/i, 'lcsh'],
+  [/^https?:\/\/id\.loc\.gov\/(authorities\/childrensSubjects|vocabulary\/subjectSchemes\/cyac)\/?$/i, 'cyac'],
+  [/^https?:\/\/id\.loc\.gov\/(authorities\/names|vocabulary\/subjectSchemes\/naf)\/?$/i, 'naf'],
+  [/^https?:\/\/id\.loc\.gov\/(authorities\/genreForms|vocabulary\/genreFormSchemes\/lcgft)\/?$/i, 'lcgft'],
+]
+
+function schemeOf(uri){
+  for (let [pattern, scheme] of SCHEME_URIS){
+    if (pattern.test(String(uri || '').trim())){ return scheme }
+  }
+  return null
+}
+
 /**
 * The things a value can be recognized by: its URI and its label (when the label is not just the
 * URI shown for want of a label, then the label the editor looked up for the URI, if it has). The
@@ -381,7 +398,11 @@ export function linkedToUnlinked(have, want){
 */
 function valueKeys(value){
   let keys = []
-  if (value.uri){ keys.push('uri:' + normalizeUri(value.uri)) }
+  if (value.uri){
+    keys.push('uri:' + normalizeUri(value.uri))
+    let scheme = schemeOf(value.uri)
+    if (scheme){ keys.push('scheme:' + scheme) }
+  }
   let label = (value.label && value.label !== value.uri) ? value.label : knownLabel(value.uri)
   if (label){
     let normalized = normalizeLabel(label)

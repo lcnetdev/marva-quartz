@@ -13,7 +13,6 @@
           <template v-for="group in visibleGroups" :key="group.key">
             <col v-for="column in group.columns" :key="group.key + column.key" :style="{ width: columnWidth(group, column) + 'px' }" />
           </template>
-          <col :style="{ width: widths.actions + 'px' }" />
         </colgroup>
 
         <thead>
@@ -27,7 +26,6 @@
               <span class="wf-head-group-label">{{ group.component.label }}</span>
               <button class="wf-head-hide" title="Hide these fields" @click.stop="workflowStore.toggleComponent(group.key)"><span class="material-icons">visibility_off</span></button>
             </th>
-            <th rowspan="2" class="wf-head wf-head-actions wf-stick-top">Actions</th>
           </tr>
           <tr>
             <template v-for="group in visibleGroups" :key="group.key">
@@ -147,11 +145,10 @@ export default {
       RECORD_COLUMN: RECORD_COLUMN,
 
       widths: {
-        record: 230,
+        // wide enough for the record's buttons to take two lines under its title
+        record: 250,
         type: 150,
         field: 240,
-        // room for Post, LCAP, Editor, Validate, Done, MARC and the remove x, see WorkflowRecordActions
-        actions: 450,
       },
     }
   },
@@ -179,7 +176,7 @@ export default {
     },
 
     tableWidth(){
-      let width = this.recordWidth + this.widths.actions
+      let width = this.recordWidth
       for (let group of this.visibleGroups){
         for (let column of group.columns){
           width += this.columnWidth(group, column)
@@ -310,7 +307,7 @@ export default {
           return true
         case 'End':
           event.preventDefault()
-          // the point of End is to get at the row's action buttons, bring the end of the sheet into view
+          // the last cell of the row, with the end of the sheet brought into view
           this.select(withModifier ? lines[lines.length - 1] : lines[index], lastCol, 'end')
           return true
         // w / s jump a whole record up / down, to its first line, staying in the same column

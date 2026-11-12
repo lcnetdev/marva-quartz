@@ -26,7 +26,10 @@
           <h3>Available fields</h3>
           <div class="wf-builder-list">
             <template v-for="rt in availableRts" :key="rt">
-              <div class="wf-builder-list-rt">{{ rt }}</div>
+              <div class="wf-builder-list-rt">
+                <span>{{ rt }}</span>
+                <button class="wf-text-link" @click="toggleAll(rt)" :title="(allSelected(rt) ? 'Remove' : 'Add') + ' all the ' + rt + ' fields'">{{ allSelected(rt) ? 'Deselect all' : 'Select all' }}</button>
+              </div>
               <label v-for="c in available.filter((a) => a.rt === rt)" :key="c.rt + c.id">
                 <input type="checkbox" :checked="isSelected(c)" @change="toggle(c)" />
                 <span>{{ c.label }}</span>
@@ -36,7 +39,10 @@
           </div>
         </div>
         <div>
-          <h3>In this workflow, in this order ({{ draft.components.length }})</h3>
+          <h3 class="wf-builder-heading">
+            <span>In this workflow, in this order ({{ draft.components.length }})</span>
+            <button class="wf-text-link" :disabled="inProfileOrder" @click="orderByProfile()" title="Put the fields in the order they come in the profile">Profile order</button>
+          </h3>
           <div class="wf-builder-list">
             <template v-for="(c, idx) in draft.components" :key="c.rt + c.id">
               <div class="wf-builder-selected">
@@ -66,9 +72,9 @@
 
       <h3 style="margin-top: 1em;">Run on each record when it is loaded</h3>
       <label v-for="e in enrichments" :key="e.id" class="wf-builder-enrichment">
-        <input type="checkbox" :value="e.id" v-model="draft.enrichments" :disabled="!e.available" />
+        <input type="checkbox" :value="e.id" v-model="draft.enrichments" />
         <span>{{ e.label }}</span>
-        <small>{{ e.description }}<template v-if="!e.available"> (not available yet)</template></small>
+        <small>{{ e.description }}</small>
       </label>
 
       <div class="wf-dialog-buttons wf-dialog-buttons-split">
@@ -88,7 +94,7 @@ import { useWorkflowStore } from '@/stores/workflow'
 import { useProfileStore } from '@/stores/profile'
 
 import workflowEnrichments from '@/lib/workflows/enrichments'
-import { columnHint } from '@/lib/workflows/fields'
+import { columnHint, sortByProfileOrder, inProfileOrder } from '@/lib/workflows/fields'
 
 export default {
   name: "WorkflowBuilder",
@@ -130,6 +136,11 @@ export default {
       return [...new Set(this.available.map((a) => { return a.rt }))]
     },
 
+    // are the selected fields already in the order the profile has them
+    inProfileOrder(){
+      return inProfileOrder(this.draft.components, this.available)
+    },
+
     canSave(){
       return this.draft.name.trim() != '' && this.draft.profileId != '' && this.draft.components.length > 0
     },
@@ -159,6 +170,32 @@ export default {
       } else {
         this.draft.components.push(JSON.parse(JSON.stringify(c)))
       }
+    },
+
+    allSelected(rt){
+      return this.available.filter((a) => { return a.rt === rt }).every((a) => { return this.isSelected(a) })
+    },
+
+    /**
+    * Every field of a resource (Work, Instance) in or out at once. The ones added go to the end
+    * in the profile's order, the ones already picked stay where they were put
+    */
+    toggleAll(rt){
+      if (this.allSelected(rt)){
+        this.draft.components = this.draft.components.filter((s) => { return s.rt !== rt })
+        this.expanded = this.expanded.filter((k) => { return !k.startsWith(rt + '|') })
+        return
+      }
+      for (let c of this.available.filter((a) => { return a.rt === rt })){
+        if (!this.isSelected(c)){ this.toggle(c) }
+      }
+    },
+
+    /**
+    * The selected fields put in the order they come in the profile (the available list is in that order)
+    */
+    orderByProfile(){
+      this.draft.components = sortByProfileOrder(this.draft.components, this.available)
     },
 
     move(idx, dir){
