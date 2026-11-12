@@ -8565,11 +8565,9 @@ export const useProfileStore = defineStore('profile', {
             let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc-genre")
             if (!pref) { return true }
 
-            console.info("displayGenre?")
             try {
                 if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/genreForm") {
                     let userValue = comp.userValue
-                    console.info("userValue: ", userValue)
                     let data = userValue["http://id.loc.gov/ontologies/bibframe/genreForm"] ? userValue["http://id.loc.gov/ontologies/bibframe/genreForm"][0] : {}
                     let type = data['@type']
 
@@ -8577,8 +8575,6 @@ export const useProfileStore = defineStore('profile', {
 
                     if (data["http://id.loc.gov/ontologies/bibframe/source"]) {
                         let source = data["http://id.loc.gov/ontologies/bibframe/source"][0]
-                        console.info("\t source: ", source)
-                        console.info("\t sourceID: ", source['@id'])
                         if (source['@id'] != 'http://id.loc.gov/authorities/genreForms') { return false}
                     }
 

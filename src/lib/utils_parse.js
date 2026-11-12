@@ -2051,7 +2051,7 @@ const utilsParse = {
 
               let descriptConv = userValue["http://id.loc.gov/ontologies/bibframe/descriptionConventions"]
               // add pccrda if needed
-              if (!descriptConv.some((dc) => dc['@id'] == 'http://id.loc.gov/vocabulary/descriptionConventions/pccrda')){
+              if (descriptConv && !descriptConv.some((dc) => dc['@id'] == 'http://id.loc.gov/vocabulary/descriptionConventions/pccrda')){
                 descriptConv.push({
                     "@guid": short.generate(),
                     "@id": "http://id.loc.gov/vocabulary/descriptionConventions/pccrda",
