@@ -1,6 +1,6 @@
 <template>
   <span class="wf-record-buttons">
-    <!-- the buttons for one record: at the end of its row in the sheet, along the bottom of its page -->
+    <!-- the buttons for one record: under its title in the sheet's frozen column, along the bottom of its page -->
     <template v-if="row.status == 'ready'">
       <button :class="['wf-action', {'wf-action-on': row.posted}]" :disabled="row.posting" @click="workflowStore.postRow(row.id)" :title="row.posted ? 'Posted, click to post again' : 'Post'">
         <span class="material-icons">{{ row.posted ? 'mark_email_read' : 'sailing' }}</span>Post

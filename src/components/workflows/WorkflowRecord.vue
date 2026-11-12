@@ -2,9 +2,12 @@
   <tbody :class="['wf-record', {'wf-record-done': row.done, 'wf-record-active': workflowStore.activeRowId === row.id, 'wf-record-flash': row.flash}]" :data-row-id="row.id">
     <tr v-for="(line, lineIdx) in lines" :key="lineIdx" :class="{'wf-line-first': lineIdx == 0}">
 
-      <!-- the frozen column that says what record this is -->
+      <!-- the frozen column that says what record this is, with the record's buttons so they stay in view too -->
       <th v-if="lineIdx == 0" :rowspan="lines.length + (hasHiddenNote ? 1 : 0)" class="wf-record-header wf-stick-left" scope="row">
         <WorkflowRecordLabel :row="row" :index="index" :protections="protections" :suggestionCount="suggestionCount" />
+        <div class="wf-record-actions">
+          <WorkflowRecordActions :row="row" marc-placement="right" />
+        </div>
       </th>
 
       <template v-if="row.status == 'ready'">
@@ -29,10 +32,6 @@
       </template>
       <td v-else-if="lineIdx == 0" :colspan="columnCount" :class="['wf-record-status', {'wf-record-status-error': row.status == 'error'}]">
         <WorkflowRecordStatus :row="row" />
-      </td>
-
-      <td v-if="lineIdx == 0" :rowspan="lines.length + (hasHiddenNote ? 1 : 0)" class="wf-record-actions">
-        <WorkflowRecordActions :row="row" />
       </td>
     </tr>
 

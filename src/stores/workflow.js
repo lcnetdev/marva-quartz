@@ -13,7 +13,7 @@ import workflowStorage, { getLastRow, setLastRow } from '@/lib/workflows/storage
 import { FIELD_SETS_PREFERENCE, selectionOf, sameSelection, resolveSelection, readFieldSets, newFieldSet, upsertFieldSet } from '@/lib/workflows/fieldSets'
 import builtinWorkflows from '@/lib/workflows/builtin'
 import { runEnrichments } from '@/lib/workflows/enrichments'
-import { expandComponentColumns, listProfileComponents, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
+import { expandComponentColumns, listProfileComponents, sortByProfileOrder, inProfileOrder, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
 import { copyPayload, rememberCopy, recallCopy, forgetCopies, incompatible, writeCellNodes, pastedTypeUris } from '@/lib/workflows/clipboard'
 import { inspectRecord, recommendCandidate, formatLabel } from '@/lib/workflows/disambiguate'
 import { listSourcePorts, parsePortKey, RECORD_ORIGIN } from '@/lib/workflows/graph/ports'
@@ -716,6 +716,74 @@ export const useWorkflowStore = defineStore('workflow', {
         s.definition.components.push(JSON.parse(JSON.stringify(component)))
       }
       s.hiddenComponents = s.hiddenComponents.filter((k) => { return k !== key })
+      this.persistSession()
+      this.rememberFields()
+    },
+
+    /**
+    * Add several components of the profile to the sheet at once, on the end in the order given
+    * @param {array} components - from addableComponents
+    * @return {void}
+    */
+    addComponents(components){
+      let s = this.activeSession
+      if (!s){ return }
+      for (let component of (components || [])){
+        let key = component.rt + '|' + component.id
+        if (!s.definition.components.some((c) => { return c.rt + '|' + c.id === key })){
+          s.definition.components.push(JSON.parse(JSON.stringify(component)))
+        }
+        s.hiddenComponents = s.hiddenComponents.filter((k) => { return k !== key })
+      }
+      this.persistSession()
+      this.rememberFields()
+    },
+
+    /**
+    * Show or hide every component of the sheet at once (the Fields menu's Select all / Deselect all)
+    * @param {boolean} shown
+    * @return {void}
+    */
+    setAllComponentsShown(shown){
+      let s = this.activeSession
+      if (!s){ return }
+      if (shown){
+        s.hiddenComponents = []
+      } else {
+        s.hiddenComponents = s.definition.components.map((c) => { return c.rt + '|' + c.id })
+      }
+      // the selection is by column position
+      this.selectedCell = null
+      this.editingCell = null
+      this.selectedColumn = null
+      this.persistSession()
+      this.rememberFields()
+    },
+
+    /**
+    * Are the sheet's components in the order the profile has them
+    * @return {boolean}
+    */
+    returnInProfileOrder(){
+      let s = this.activeSession
+      if (!s){ return true }
+      return inProfileOrder(s.definition.components, this.returnProfileComponents(s.definition.profileId))
+    },
+
+    /**
+    * Put the sheet's components (its columns) in the order they come in the profile
+    * @return {void}
+    */
+    orderComponentsByProfile(){
+      let s = this.activeSession
+      if (!s){ return }
+      let available = this.returnProfileComponents(s.definition.profileId)
+      if (available.length == 0){ return }
+      s.definition.components = sortByProfileOrder(s.definition.components, available)
+      // the selection is by column position
+      this.selectedCell = null
+      this.editingCell = null
+      this.selectedColumn = null
       this.persistSession()
       this.rememberFields()
     },
