@@ -19,6 +19,11 @@
                     style="font-weight: 200 !important;">
                     &nbsp;&nbsp;&nbsp;[May Subd Geog]
                 </span>
+                <span
+                    v-else
+                    style="font-weight: 200 !important;">
+                    &nbsp;&nbsp;&nbsp;[Not Subd Geog]
+                </span>
                 <br>
                 <span v-if="!checkIsUsable(contextData)" class="not-usable">{{ getUsabilityNote(contextData) }}</span>
                 <br>
