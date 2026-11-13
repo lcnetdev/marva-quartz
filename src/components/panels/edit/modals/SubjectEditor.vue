@@ -911,12 +911,13 @@ export default {
       return goodGeo
     },
     checkMaySubdGeog: function(idx){
+      console.info("checking subdiv: ", idx)
       let prev = null
       let prevMaySubdGeog = true
       let currentGeo = false
-      let current = this.localContextCache[this.activeComponent.uri]
+      let current = this.localContextCache[this.components[idx].uri]
 
-      if (this.activeComponent.invalidSubDiv && idx == this.activeComponent.id){ return false }
+      if (this.components[idx].invalidSubDiv && idx == this.components[idx].id){ return false }
 
       if (current?.collections){
         currentGeo = current.collections.includes("http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions")
@@ -924,6 +925,10 @@ export default {
       if (idx != 0){
         let prevUri = this.components[idx - 1].uri
         prev = this.localContextCache[prevUri]
+
+        console.info("\t prev: ", prev)
+        console.info("\t current: ", current)
+
         if (prev?.collections){
           prevMaySubdGeog = prev.collections.includes("http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically")
         }
@@ -2666,7 +2671,9 @@ export default {
       let allHaveType = true
       let allSubDivsValid = true
 
-      for (let c of this.components) {
+      for (let idx in this.components) {
+        this.checkValidSubdivision(idx)
+        let c = this.components[idx]
         console.info("c: ", JSON.parse(JSON.stringify(c)), "--", c.invalidSubDiv)
         if (!c.uri && !c.literal) {
           allHaveURI = false
@@ -2676,13 +2683,10 @@ export default {
         }
 
         if (c.invalidSubDiv){
-          console.info("invalid subdiv")
           allSubDivsValid = false
         }
 
       }
-
-      console.info("allSubDivsValid: ", allSubDivsValid)
 
       if (allHaveURI && allHaveType && allSubDivsValid) {
         this.okayToAdd = true
@@ -2780,10 +2784,8 @@ export default {
       if (this.components.length == 1 && this.components[0].complex) {
         this.showTypes = false
       }
-      for (let idx in this.components){
-        this.checkValidSubdivision(idx)
-      }
 
+      console.info("check2")
       this.validateOkayToAdd()
 
     },
@@ -3280,6 +3282,7 @@ export default {
                 }
                 if (!this.fromPaste) {
                   this.selectContext(idx, false)
+                  console.info("check3")
                   this.validateOkayToAdd()
                 }
               } catch (err) {
