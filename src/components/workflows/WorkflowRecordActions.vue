@@ -33,6 +33,9 @@
           </div>
         </template>
       </VMenu>
+      <button class="wf-action" @click="workflowStore.deriveRecord(row.id)">
+        <span class="material-icons">copy_all</span>Derive Record
+      </button>
     </template>
     <button class="wf-action wf-action-remove" @click="remove()" title="Remove from this workflow (the record is not deleted)">
       <span class="material-icons">close</span>

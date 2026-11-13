@@ -534,6 +534,7 @@ const utilsExport = {
     let orginalProfile = profile
 	// cut the ref to the orginal
 	profile = JSON.parse(JSON.stringify(profile))
+	console.info("buildXMLProcess: ", profile)
 
 	let xmlParser = returnDOMParser()
 
@@ -2074,7 +2075,7 @@ const utilsExport = {
 
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-	// console.info("strXmlBasic: ", strXmlBasic)
+	console.info("strXmlBasic: ", strXmlBasic)
 
 	// done walking the components, clear the warning context
 	this.currentComponentContext = null

@@ -2943,6 +2943,18 @@ export const useWorkflowStore = defineStore('workflow', {
       return row.eId
     },
 
+    async deriveRecord(rowId){
+      let profileStore = useProfileStore()
+      let row = this.returnRow(rowId)
+      let targetProfile = row.profile
+
+      let newId = await profileStore.deriveNew(false, targetProfile)
+      console.info("newId: ", newId)
+      // what to do with the new ID?
+
+      return null
+    }
+
   },
 })
 

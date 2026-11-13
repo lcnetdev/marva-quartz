@@ -1183,7 +1183,6 @@ export default {
     deriveRecord: async function(instOnly=false){
         try {
           let newRecordEid = await this.profileStore.deriveNew(instOnly, false)
-
           // load the new record from Eid
           if (newRecordEid){
               let url = "/marva/edit/" + newRecordEid

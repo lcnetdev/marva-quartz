@@ -5906,6 +5906,7 @@ export const useProfileStore = defineStore('profile', {
 
 
             let nonLatinNodes = []
+            if (!this.activeProfile.rtOrder){ return [] }
             for (let rt of this.activeProfile.rtOrder) {
 
                 for (let pt of this.activeProfile.rt[rt].ptOrder) {
@@ -9371,9 +9372,21 @@ export const useProfileStore = defineStore('profile', {
      *
      * @instOnly {String}: whether to create a new instance, or derive a new record. If it's only a new instance, value is for the profile form `lc:RT:bf2:Monograph:Instance`
      * @electronic {Bool}: If the new instance should be for an electronic resource.
+     * @target {String}: if the target is false, use the active profile
      */
-    deriveNew: async function(instOnly, electronic=false){
-        let recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
+    deriveNew: async function(instOnly, target=false, electronic=false){
+        let recordCopy = null
+        if (!target){
+            recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
+        } else {
+            recordCopy = JSON.parse(JSON.stringify(target))
+            console.info("derive from ", recordCopy)
+        }
+
+        if (!recordCopy){
+            alert("Not sure what to use as the base record")
+            return
+        }
         let instanceCount = 0
 
         /**
@@ -9412,167 +9425,166 @@ export const useProfileStore = defineStore('profile', {
         let newIdent = ""
         // clean up adminMetadata
         if (!instOnly){
-        newIdent = await utilsNetwork.getMarva001()
+            newIdent = await utilsNetwork.getMarva001()
 
-        // update the enumber
-        recordCopy.eId = 'e' + Date.now().toString()
+            // update the enumber
+            recordCopy.eId = 'e' + Date.now().toString()
         } else {
-
-        instances = recordCopy.rt[instOnly]
-        let instId = instances.URI.split("/").at(-1)
-        if (/-[0-9]{4}/.test(instId)){
-            let suffix = Number(instId.slice(-4))
-            newIdent = instId + (suffix+1)
-        } else {
-            newIdent = instId + '-' + String(instanceCount+1).padStart(4, '0');
-        }
+            instances = recordCopy.rt[instOnly]
+            let instId = instances.URI.split("/").at(-1)
+            if (/-[0-9]{4}/.test(instId)){
+                let suffix = Number(instId.slice(-4))
+                newIdent = instId + (suffix+1)
+            } else {
+                newIdent = instId + '-' + String(instanceCount+1).padStart(4, '0');
+            }
         }
 
         if (!Array.isArray(instances)){
-        instances = [instances]
+            instances = [instances]
         }
 
         for (let source of [work, ...instances]){
-        // update URI with new 001 id
-        if (instOnly && source.URI.includes("/instances/")){
-            source.URI = source.URI.split("/")
-            source.URI.splice(-1, 1, newIdent)
-            source.URI = source.URI.join("/")
-        } else if (!instOnly){
-            source.URI = source.URI.split("/")
-            source.URI.splice(-1, 1, newIdent)
-            source.URI = source.URI.join("/")
-        }
-
-
-        source.unusedXml = '' // could this be bad?
-        // remove xmlSource
-        source.xmlSource = ''
-
-        if (source.instanceOf){
-            source.instanceOf = source.instanceOf.split("/")
-            source.instanceOf.splice(-1, 1, newIdent)
-            source.instanceOf = source.instanceOf.join("/")
-        }
-
-        for (let pt in source.pt){
-            if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata") && source.pt[pt].adminMetadataType && source.pt[pt].adminMetadataType == 'primary'){
-            let target = source.pt[pt]
-
-            target.xmlSource = ''
-
-            let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]
-            let identifier = userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]
-            // update 001 with internal identifier
-            if (!instOnly){
-                identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = newIdent
-            } else {
-                // is this right, or should it be the same? this sets the 001
-                let tempId = source.URI.split('/').at(-1)
-                identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = tempId
+            // update URI with new 001 id
+            if (instOnly && source.URI.includes("/instances/")){
+                source.URI = source.URI.split("/")
+                source.URI.splice(-1, 1, newIdent)
+                source.URI = source.URI.join("/")
+            } else if (!instOnly){
+                source.URI = source.URI.split("/")
+                source.URI.splice(-1, 1, newIdent)
+                source.URI = source.URI.join("/")
             }
 
-            //status
-            let status = null
-            if (userValue["http://id.loc.gov/ontologies/bibframe/status"]){
-                status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
-            } else {
-                userValue["http://id.loc.gov/ontologies/bibframe/status"] = [{
-                '@guid': short.generate(),
-                "http://www.w3.org/2000/01/rdf-schema#label": [
-                    {
-                    '@guid': short.generate(),
-                    "http://www.w3.org/2000/01/rdf-schema#label": "new"
-                    }
-                ]
-                }]
-                status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
-            }
-            status['@id'] = 'http://id.loc.gov/vocabulary/mstatus/n'
-            status['@type'] = 'http://id.loc.gov/ontologies/bibframe/Status'
-            status['http://www.w3.org/2000/01/rdf-schema#label'][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "new"
 
+            source.unusedXml = '' // could this be bad?
+            // remove xmlSource
+            source.xmlSource = ''
 
-            // encoding level
-            if (userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"]){
-                let encLvl = userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
-                encLvl["@id"] = "http://id.loc.gov/vocabulary/menclvl/5"
-                encLvl["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] = "5"
-                encLvl["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "preliminary"
+            if (source.instanceOf){
+                source.instanceOf = source.instanceOf.split("/")
+                source.instanceOf.splice(-1, 1, newIdent)
+                source.instanceOf = source.instanceOf.join("/")
             }
 
-            // date
-            if (!userValue["http://id.loc.gov/ontologies/bibframe/date"]){
-                userValue["http://id.loc.gov/ontologies/bibframe/date"] = [
-                {
-                    '@guid': short.generate(),
-                    "http://id.loc.gov/ontologies/bibframe/date": new Date().toISOString().split('T')[0]
+            for (let pt in source.pt){
+                if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata") && source.pt[pt].adminMetadataType && source.pt[pt].adminMetadataType == 'primary'){
+                let target = source.pt[pt]
+
+                target.xmlSource = ''
+
+                let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]
+                let identifier = userValue["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]
+                // update 001 with internal identifier
+                if (!instOnly){
+                    identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = newIdent
+                } else {
+                    // is this right, or should it be the same? this sets the 001
+                    let tempId = source.URI.split('/').at(-1)
+                    identifier["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"] = tempId
                 }
-                ]
-            } else {
-                userValue["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]
-            }
 
-            // agent
-            userValue["http://id.loc.gov/ontologies/bibframe/agent"] = [
-                {
-                "@guid": short.generate(),
-                "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
-                "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
-                "http://id.loc.gov/ontologies/bibframe/code": [
+                //status
+                let status = null
+                if (userValue["http://id.loc.gov/ontologies/bibframe/status"]){
+                    status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
+                } else {
+                    userValue["http://id.loc.gov/ontologies/bibframe/status"] = [{
+                    '@guid': short.generate(),
+                    "http://www.w3.org/2000/01/rdf-schema#label": [
+                        {
+                        '@guid': short.generate(),
+                        "http://www.w3.org/2000/01/rdf-schema#label": "new"
+                        }
+                    ]
+                    }]
+                    status = userValue["http://id.loc.gov/ontologies/bibframe/status"][0]
+                }
+                status['@id'] = 'http://id.loc.gov/vocabulary/mstatus/n'
+                status['@type'] = 'http://id.loc.gov/ontologies/bibframe/Status'
+                status['http://www.w3.org/2000/01/rdf-schema#label'][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "new"
+
+
+                // encoding level
+                if (userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"]){
+                    let encLvl = userValue["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]
+                    encLvl["@id"] = "http://id.loc.gov/vocabulary/menclvl/5"
+                    encLvl["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] = "5"
+                    encLvl["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] = "preliminary"
+                }
+
+                // date
+                if (!userValue["http://id.loc.gov/ontologies/bibframe/date"]){
+                    userValue["http://id.loc.gov/ontologies/bibframe/date"] = [
+                    {
+                        '@guid': short.generate(),
+                        "http://id.loc.gov/ontologies/bibframe/date": new Date().toISOString().split('T')[0]
+                    }
+                    ]
+                } else {
+                    userValue["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"] = new Date().toISOString().split('T')[0]
+                }
+
+                // agent
+                userValue["http://id.loc.gov/ontologies/bibframe/agent"] = [
                     {
                     "@guid": short.generate(),
-                    "http://id.loc.gov/ontologies/bibframe/code": "DLC",
-                    "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                    "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+                    "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+                    "http://id.loc.gov/ontologies/bibframe/code": [
+                        {
+                        "@guid": short.generate(),
+                        "http://id.loc.gov/ontologies/bibframe/code": "DLC",
+                        "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                        }
+                    ]
                     }
                 ]
+
+                try {
+                    delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
+                    delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
+                } catch(err){
+                    console.warn('Failed to delete something: ', err)
                 }
-            ]
+                // remove 9XXs
+                for (let subfield in Object.keys(userValue)){
+                    if (subfield.includes("http://id.loc.gov/ontologies/lclocal")){
+                    delete userValue[subfield]
+                    }
+                }
+                } else if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
+                    delete source.pt[pt] // delete other admin metadata fields
+                    // delete from ptOrder
+                    let idx = source.ptOrder.indexOf(pt)
+                    source.ptOrder.splice(idx, 1)
+                }
 
-            try {
-                delete userValue["http://id.loc.gov/ontologies/bflc/marcKey"]  // remove marckeys
-                delete userValue["http://id.loc.gov/ontologies/bibframe/note"] // remove note
-            } catch(err){
-                console.warn('Failed to delete something: ', err)
-            }
-            // remove 9XXs
-            for (let subfield in Object.keys(userValue)){
-                if (subfield.includes("http://id.loc.gov/ontologies/lclocal")){
-                delete userValue[subfield]
+                // update instance of URI
+                if (pt == 'id_loc_gov_ontologies_bibframe_instanceOf__instance_of'){
+                    let target = source.pt[pt]
+                    let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/instanceOf"][0]
+                    userValue["@id"] = userValue["@id"].split("/")
+                    userValue["@id"].splice(-1, 1, newIdent)
+                    userValue["@id"] = userValue["@id"].join("/")
+                    target.xmlSource = ''
+                }
+
+                // update class number
+                if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers") && source.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/classification"]){
+                    let target = source.pt[pt]
+                    let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+                    let classType = userValue["@type"]
+
+                    if (classType == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
+                        let itemPort = userValue["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]
+                        let value = itemPort["http://id.loc.gov/ontologies/bibframe/itemPortion"]
+                        if (/ [0-9]{4}/.test(value)){
+                        itemPort["http://id.loc.gov/ontologies/bibframe/itemPortion"] = value.replace(/ [0-9]{4}/, "<#####>")
+                        }
+                    }
                 }
             }
-            } else if (pt.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
-                delete source.pt[pt] // delete other admin metadata fields
-                // delete from ptOrder
-                let idx = source.ptOrder.indexOf(pt)
-                source.ptOrder.splice(idx, 1)
-            }
-
-            // update instance of URI
-            if (pt == 'id_loc_gov_ontologies_bibframe_instanceOf__instance_of'){
-            let target = source.pt[pt]
-            let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/instanceOf"][0]
-            userValue["@id"] = userValue["@id"].split("/")
-            userValue["@id"].splice(-1, 1, newIdent)
-            userValue["@id"] = userValue["@id"].join("/")
-            target.xmlSource = ''
-            }
-
-            // update class number
-            if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers") && source.pt[pt].userValue["http://id.loc.gov/ontologies/bibframe/classification"]){
-            let target = source.pt[pt]
-            let userValue = target.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
-            let classType = userValue["@type"]
-
-            if (classType == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
-                let itemPort = userValue["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]
-                let value = itemPort["http://id.loc.gov/ontologies/bibframe/itemPortion"]
-                if (/ [0-9]{4}/.test(value)){
-                itemPort["http://id.loc.gov/ontologies/bibframe/itemPortion"] = value.replace(/ [0-9]{4}/, "<#####>")
-                }
-            }
-            }
-        }
         }
 
         // adjust instance
@@ -9657,76 +9669,77 @@ export const useProfileStore = defineStore('profile', {
 
         // return false
         if (!instOnly){
-        // save to backend
-        let xml = await utilsExport.buildXML(recordCopy)
-        let saved = false
-        if (!this.isTestEnv()){  //Don't try to save if in test env
-            saved = await utilsNetwork.saveRecord(xml.xlmStringBasic, recordCopy.eId)
-            newId = recordCopy.eId
-        }
-
-        return newId
+            // save to backend
+            console.info("saving: ", recordCopy)
+            let xml = await utilsExport.buildXML(recordCopy)
+            console.info("xml: ", xml)
+            let saved = false
+            if (!this.isTestEnv()){  //Don't try to save if in test env
+                saved = await utilsNetwork.saveRecord(xml.xlmStringBasic, recordCopy.eId)
+                newId = recordCopy.eId
+            }
+            return newId
         } else { //insert the updated instance into the record
-        newRtId = instOnly +'_'+instanceCount
+            newRtId = instOnly +'_'+instanceCount
 
-        // update the new admin metadata to have this ID, is this OK?
+            // update the new admin metadata to have this ID, is this OK?
 
-        // replace all the guids in the new instance
-        let replaceGuids = (obj) => {
-            return Object.keys(obj).map(
-            function(key){
-                let value = obj[key]
-                if (key == "@guid"){
-                return obj[key] = short.generate()
-                } else if(Array.isArray(value)) {
-                for (let el in value){
-                    return replaceGuids( value[el] )
+            // replace all the guids in the new instance
+            let replaceGuids = (obj) => {
+                return Object.keys(obj).map(
+                function(key){
+                    let value = obj[key]
+                    if (key == "@guid"){
+                    return obj[key] = short.generate()
+                    } else if(Array.isArray(value)) {
+                    for (let el in value){
+                        return replaceGuids( value[el] )
+                    }
+                    }else if (typeof value === "object"){
+                    return  replaceGuids( value )
+                    }
                 }
-                }else if (typeof value === "object"){
-                return  replaceGuids( value )
+                )
+            }
+
+            for (let instance of instances){
+                replaceGuids(instance)
+
+
+                for (let pt in instance.pt){
+
+                instance.pt[pt]['@guid'] = short.generate()
+                // update the parentId
+                instance.pt[pt].parentId = instance.pt[pt].parentId.replace(instOnly, newRtId)
+                instance.pt[pt].parent = instance.pt[pt].parent.replace(instOnly, newRtId)
+                }
+                instance.instanceOf = work.URI
+
+                instance.isNew = true
+                this.activeProfile.rt[newRtId] = instance
+                this.activeProfile.rtOrder.push(newRtId)
+
+                // derive as electronic record
+                if (electronic){
+                    /** What all needs to happen??
+                     *
+                     * [X]Set mediaType = computer
+                     * []carrier??
+                     * []??
+                     *
+                     */
+                    let mediaType = instance.pt['id_loc_gov_ontologies_bibframe_media__media_type']
+                    this.setValueSimple(mediaType["@guid"], null, [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/media"}], 'http://id.loc.gov/vocabulary/mediaTypes/c', 'computer (c)')
                 }
             }
-            )
-        }
-
-        for (let instance of instances){
-            replaceGuids(instance)
 
 
-            for (let pt in instance.pt){
+            this.rtLookup[newRtId] = this.rtLookup[instOnly]
 
-            instance.pt[pt]['@guid'] = short.generate()
-            // update the parentId
-            instance.pt[pt].parentId = instance.pt[pt].parentId.replace(instOnly, newRtId)
-            instance.pt[pt].parent = instance.pt[pt].parent.replace(instOnly, newRtId)
-            }
-            instance.instanceOf = work.URI
+            // rebuild for the updates
+            utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
 
-            instance.isNew = true
-            this.activeProfile.rt[newRtId] = instance
-            this.activeProfile.rtOrder.push(newRtId)
-
-            // derive as electronic record
-            if (electronic){
-                /** What all needs to happen??
-                 *
-                 * [X]Set mediaType = computer
-                 * []carrier??
-                 * []??
-                 *
-                 */
-                let mediaType = instance.pt['id_loc_gov_ontologies_bibframe_media__media_type']
-                this.setValueSimple(mediaType["@guid"], null, [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/media"}], 'http://id.loc.gov/vocabulary/mediaTypes/c', 'computer (c)')
-            }
-        }
-
-
-        this.rtLookup[newRtId] = this.rtLookup[instOnly]
-
-        // rebuild for the updates
-        utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
-
-        this.dataChanged()
+            this.dataChanged()
         }
 
         return false
