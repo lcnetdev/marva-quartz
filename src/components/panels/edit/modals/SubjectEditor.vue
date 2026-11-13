@@ -135,7 +135,7 @@
                         class="input-single-subject subject-input" id="subject-input">
                     </form>
                     <div v-for="(c, idx) in components" :ref="'cBackground' + idx"
-                      :class="['color-holder', { 'color-holder-okay': (c.uri !== null) }, {'color-holder-literal': c.literal}, { 'color-holder-type-okay': (c.type !== null) }]"
+                      :class="['color-holder', { 'color-holder-okay': (c.uri !== null) }, {'color-holder-literal': c.literal}, { 'color-holder-type-okay': (c.type !== null), 'invalid-subdivision':  !checkValidSubdivision(idx)}]"
                       v-bind:key="idx">
                       {{ c.label }}
                     </div>
@@ -403,6 +403,11 @@ body #app {
 
 
 
+}
+
+.invalid-subdivision {
+  border-color: rgb(255 132 132 / 52%) !important;
+  background-color: rgb(255 132 132 / 25%) !important;
 }
 
 .subject-input {
@@ -898,6 +903,39 @@ export default {
     ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral', 'activeNARStubComponent', 'lastComplexLookupString', 'searchValueLocal', 'showNacoStubCreateModal', 'returnStructureByComponentGuid']),
   },
   methods: {
+
+    checkValidSubdivision: function(idx){
+      let goodGeo = this.checkMaySubdGeog(idx)
+      console.info("goodGeo: ", goodGeo)
+
+      return goodGeo
+    },
+    checkMaySubdGeog: function(idx){
+      let prev = null
+      let prevMaySubdGeog = true
+      let currentGeo = false
+      let current = this.localContextCache[this.activeComponent.uri]
+
+      if (this.activeComponent.invalidSubDiv && idx == this.activeComponent.id){ return false }
+
+      if (current?.collections){
+        currentGeo = current.collections.includes("http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions")
+      }
+      if (idx != 0){
+        let prevUri = this.components[idx - 1].uri
+        prev = this.localContextCache[prevUri]
+        if (prev?.collections){
+          prevMaySubdGeog = prev.collections.includes("http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically")
+        }
+      }
+
+      if (!prevMaySubdGeog && currentGeo){
+        this.components[idx].invalidSubDiv = true
+        return false
+      }
+
+      return true
+    },
 
     // Emitted from DetailsPanel
     // Conduct a new search on "related" term
@@ -2626,8 +2664,10 @@ export default {
       this.okayToAdd = false
       let allHaveURI = true
       let allHaveType = true
+      let allSubDivsValid = true
 
       for (let c of this.components) {
+        console.info("c: ", JSON.parse(JSON.stringify(c)), "--", c.invalidSubDiv)
         if (!c.uri && !c.literal) {
           allHaveURI = false
         }
@@ -2635,11 +2675,21 @@ export default {
           allHaveType = false
         }
 
+        if (c.invalidSubDiv){
+          console.info("invalid subdiv")
+          allSubDivsValid = false
+        }
+
       }
 
-      if (allHaveURI && allHaveType) {
+      console.info("allSubDivsValid: ", allSubDivsValid)
+
+      if (allHaveURI && allHaveType && allSubDivsValid) {
         this.okayToAdd = true
       }
+
+      // check all components are valid subdivisions
+
       // if (allHaveURI && !allHaveType && this.components.length > 1) { // why was this here?
       //   this.okayToAdd = true
       // }
@@ -2729,7 +2779,9 @@ export default {
 
       if (this.components.length == 1 && this.components[0].complex) {
         this.showTypes = false
-
+      }
+      for (let idx in this.components){
+        this.checkValidSubdivision(idx)
       }
 
       this.validateOkayToAdd()
