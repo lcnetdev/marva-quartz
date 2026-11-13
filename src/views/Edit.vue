@@ -116,6 +116,7 @@
   import Properties from "@/components/panels/sidebar_property/Properties.vue";
   import EditPanel from "@/components/panels/edit/EditPanel.vue";
   import Nav from "@/components/panels/nav/Nav.vue";
+  import navPaneHeightMixin from '@/lib/navPaneHeightMixin'
   import Opac from "@/components/panels/sidebar_preview_opac/Opac.vue";
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
   import Xml from "@/components/panels/sidebar_preview_xml/Xml.vue";
@@ -129,6 +130,7 @@
 
   export default {
     components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang, LinkedData, StateReplayControls },
+    mixins: [navPaneHeightMixin], // keeps the nav pane height right when the window is resized
 
 
     data() {
@@ -168,11 +170,13 @@
     methods: {
 
 
+      // converts a pixel height to a percent of the window height (splitpanes sizes panes in percents)
+      // overrides the navPaneHeightMixin version to handle copy mode
       returnPixleAsPercent: function(pixles){
         if (this.preferenceStore.copyMode){
-          return pixles/window.innerHeight*200
+          return pixles/this.windowHeight*200
         }
-        return pixles/window.innerHeight*100
+        return pixles/this.windowHeight*100
       },
       confirmLeaving (event) {
 

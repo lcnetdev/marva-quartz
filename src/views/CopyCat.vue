@@ -196,6 +196,7 @@ import { useProfileStore } from '@/stores/profile'
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
 import Nav from "@/components/panels/nav/Nav.vue";
+import navPaneHeightMixin from '@/lib/navPaneHeightMixin'
 
 import utilsProfile from '@/lib/utils_profile';
 import utilsNetwork from '@/lib/utils_network';
@@ -219,6 +220,7 @@ const decimalTranslator = short("0123456789");
 
 export default {
   components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge, RecordComparison },
+  mixins: [navPaneHeightMixin], // keeps the nav pane height right when the window is resized
   data() {
     return {
 
@@ -862,9 +864,6 @@ export default {
       }
     },
 
-    returnPixleAsPercent: function (pixles) {
-      return pixles / window.innerHeight * 100
-    },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
       if (this.lccnLoadSelected) {
