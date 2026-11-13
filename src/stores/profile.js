@@ -4131,6 +4131,8 @@ export const useProfileStore = defineStore('profile', {
             this.activeProfilePosted = false
             this.activeProfilePostedTimestamp = false
             this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
+
+            this.useCustomComponentOrder()
         },
 
         /**
