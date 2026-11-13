@@ -116,6 +116,7 @@
   import Properties from "@/components/panels/sidebar_property/Properties.vue";
   import EditPanel from "@/components/panels/edit/EditPanel.vue";
   import Nav from "@/components/panels/nav/Nav.vue";
+  import navPaneHeightMixin from '@/lib/navPaneHeightMixin'
   import Opac from "@/components/panels/sidebar_preview_opac/Opac.vue";
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
   import Xml from "@/components/panels/sidebar_preview_xml/Xml.vue";
@@ -129,6 +130,7 @@
 
   export default {
     components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang, LinkedData, StateReplayControls },
+    mixins: [navPaneHeightMixin], // keeps the nav pane height right when the window is resized
 
 
     data() {
@@ -136,8 +138,6 @@
 
         test: 1,
         profileLoadedTimer: null,
-        // window height in data so Vue recalculates the nav pane size on resize (window.innerHeight isn't reactive)
-        windowHeight: window.innerHeight,
 
       }
     },
@@ -170,11 +170,8 @@
     methods: {
 
 
-      // keep windowHeight current so the nav pane stays the same height when the window is resized
-      onWindowResize: function(){
-        this.windowHeight = window.innerHeight
-      },
       // converts a pixel height to a percent of the window height (splitpanes sizes panes in percents)
+      // overrides the navPaneHeightMixin version to handle copy mode
       returnPixleAsPercent: function(pixles){
         if (this.preferenceStore.copyMode){
           return pixles/this.windowHeight*200
@@ -288,16 +285,10 @@
 
 
       window.addEventListener('beforeunload', this.confirmLeaving)
-      window.addEventListener('resize', this.onWindowResize) // resize the nav pane with the window
 
 
 
 
-    },
-
-    // stop listening for window resizes when leaving the editor
-    beforeUnmount () {
-      window.removeEventListener('resize', this.onWindowResize)
     },
 
     beforeRouteLeave (to, from , next) {

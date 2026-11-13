@@ -425,6 +425,7 @@ import { useWorkflowStore } from '@/stores/workflow'
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
 import Nav from "@/components/panels/nav/Nav.vue";
+import navPaneHeightMixin from '@/lib/navPaneHeightMixin'
 
 import utilsProfile from '@/lib/utils_profile';
 import utilsNetwork from '@/lib/utils_network';
@@ -448,6 +449,7 @@ const decimalTranslator = short("0123456789");
 
 export default {
   components: { Splitpanes, Pane, Nav, DataTable, CopyCat },
+  mixins: [navPaneHeightMixin], // keeps the nav pane height right when the window is resized
   data() {
     return {
 
@@ -734,9 +736,6 @@ export default {
     },
 
 
-    returnPixleAsPercent: function (pixles) {
-      return pixles / window.innerHeight * 100
-    },
 
     loadTestData: function (meta) {
       let href = window.location.href.split("/")

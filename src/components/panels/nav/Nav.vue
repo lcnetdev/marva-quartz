@@ -119,6 +119,20 @@ export default {
 
 
 
+    // color of the "Saved" button text: the original dark blue on light nav backgrounds,
+    // a light blue on dark ones (like dark mode) so it stays readable
+    savedTextColor() {
+      let background = this.preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')
+      let ctx = document.createElement('canvas').getContext('2d')
+      ctx.fillStyle = background // the canvas turns any CSS color (names, #rgb, #rrggbbaa, rgb()) into #rrggbb or rgba()
+      let rgb = ctx.fillStyle.startsWith('#')
+        ? [1, 3, 5].map((i) => parseInt(ctx.fillStyle.slice(i, i + 2), 16))
+        : ctx.fillStyle.match(/\d+/g).slice(0, 3).map(Number)
+      // relative luminance (WCAG)
+      let [r, g, b] = rgb.map((c) => { c = c / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4) })
+      let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+      return (luminance < 0.18) ? '#8ab4f8' : 'mediumblue'
+    },
     // hides the nav button icons when "Show Icons" is off in the preferences
     navIconDisplay() {
       return this.preferenceStore.returnValue('--b-edit-main-splitpane-nav-show-icons') ? 'inline-block' : 'none'
@@ -784,17 +798,7 @@ export default {
 
 
       if (this.$route.path.startsWith('/edit/')) {
-        // Save Options dropdown: groups the save related options (Save, Post)
-        let saveMenu = []
-        let saveOptions = {
-          text: "Save Options",
-          id: "nav-save-options",
-          icon: "save",
-          class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
-          menu: saveMenu
-        }
-        menu.push(saveOptions)
-        saveMenu.push(
+        menu.push(
           {
             text: (this.activeProfileSaved) ? "Saved" : "Save",
             disabled: (this.activeProfileSaved) ? true : false,
@@ -807,7 +811,7 @@ export default {
 
 
             click: () => {
-              this.playSaveAnimation()
+              this.playSaveAnimation('nav-save-button')
               this.profileStore.saveRecord()
             }
           }
@@ -844,7 +848,7 @@ export default {
               }
             }
           )
-          saveMenu.push(
+          menu.push(
             {
               text: "Post",
               id: "post-button",
@@ -856,7 +860,7 @@ export default {
                   conf = confirm('This is Marva STAGING. It should not be used for Production work. Do you want to continue?')
                 }
                 if (!conf){ return }
-                this.playSaveAnimation()
+                this.playSaveAnimation('post-button')
                 this.showPostModal = true;
                 this.$nextTick(() => {
 
@@ -906,11 +910,6 @@ export default {
               class: (this.activeProfilePosted || this.isStaging() || (this.activeProfile && this.activeProfile.status && this.activeProfile.status == 'published')) ? "record-posted-folio-ok" : "record-unposted-folio-no",
             }
           )
-        }
-
-        // if Save is the only option available in this environment show it on the nav instead of a dropdown
-        if (saveMenu.length == 1) {
-          menu[menu.indexOf(saveOptions)] = saveMenu[0]
         }
       }
 
@@ -1227,9 +1226,9 @@ export default {
       this.playClickAnimation(event.currentTarget, [{ transform: 'translateY(0)' }, { transform: 'translateY(4px)' }, { transform: 'translateY(-2px)' }, { transform: 'translateY(0)' }])
     },
 
-    // the Save Options button (or the Save button when it's shown on its own) pops its icon on Save and Post
-    playSaveAnimation: function () {
-      let button = document.getElementById('nav-save-options') || document.getElementById('nav-save-button')
+    // the Save or Post button pops its icon when clicked (or on Ctrl+S)
+    playSaveAnimation: function (buttonId) {
+      let button = document.getElementById(buttonId)
       this.playClickAnimation(button, [{ transform: 'scale(1)' }, { transform: 'scale(1.45)' }, { transform: 'scale(0.9)' }, { transform: 'scale(1)' }])
     },
 
@@ -1750,15 +1749,14 @@ export default {
   --bar-button-icon-size: 20px;
   --bar-button-padding: 3px 5px;
   --bar-button-radius: 4px;
-  --bar-button-hover-bkg: rgb(244, 241, 242);
-
-
-
-  --bar-button-hover-bkg: rgb(244, 241, 242);
+  /* hover, open and active backgrounds are see-through tints so they work on any nav background color
+     (solid light colors here made the white text unreadable in dark mode) */
+  --bar-button-hover-bkg: rgba(128, 128, 128, 0.1);
   --bar-button-active-color: rgb(26, 115, 232);
-  --bar-button-active-bkg: rgb(232, 240, 254);
+  --bar-button-active-bkg: rgba(26, 115, 232, 0.15);
   --bar-button-open-color: rgb(32, 33, 36);
-  --bar-button-open-bkg: rgb(232, 240, 254);
+  --bar-button-open-bkg: rgba(26, 115, 232, 0.15);
+  --bar-menu-item-active-bkg: rgba(26, 115, 232, 0.25);
   --bar-menu-bkg: white;
   --bar-menu-border-radius: 0 0 3px 3px;
   --bar-menu-item-chevron-margin: 0;
@@ -1813,13 +1811,6 @@ export default {
   display: v-bind(navIconDisplay);
 }
 
-/* download buttons shrink a little while pressed (the click animations are in playClickAnimation) */
-#nav-holder .bar > .nav-download {
-  transition: transform 0.1s ease;
-}
-#nav-holder .bar > .nav-download:active {
-  transform: scale(0.94);
-}
 
 /* every top level button gets a light backdrop and a border so each section is easy to tell apart */
 #nav-holder .bar > .bar-button:not(.nav-overflow-menu) {
@@ -1828,11 +1819,29 @@ export default {
   background: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-button-color')");
   box-shadow: inset 0 0 0 1px var(--nav-button-border-color);
 }
-/* hover darkens whatever button color is set in the preferences */
-#nav-holder .bar > .bar-button:not(.nav-overflow-menu):hover {
-  background: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-button-color')");
+/* buttons get the same highlight on hover as the dropdown menus
+   (not the Profile label, which isn't a button, disabled buttons like "Saved", the DCTap picker, which keeps its own colors,
+   or an active Quick View, which keeps its stronger highlight) */
+#nav-holder .bar > .bar-button:not(.nav-overflow-menu, .disabled, .current-profile, .nav-dctap, .active):hover {
+  background: var(--bar-button-open-bkg);
+}
+/* buttons press in while clicked: a stronger highlight and a slight shrink
+   (Save, Post and the downloads also animate their icon, see playClickAnimation;
+   dropdowns don't shrink since their open menu is inside the button and would shrink with it) */
+#nav-holder .bar > .bar-button {
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+#nav-holder .bar > .bar-button:not(.disabled, .current-profile, :has(> .menu)):active {
+  transform: scale(0.94);
+}
+#nav-holder .bar > .bar-button:not(.nav-overflow-menu, .disabled, .current-profile, .nav-dctap):active {
+  background: rgba(26, 115, 232, 0.3);
 }
 #nav-holder .bar > .bar-button.open:hover {
+  background: var(--bar-button-open-bkg);
+}
+/* dropdown menus open on hover, so they get the same highlight on hover as when they're clicked open */
+#nav-holder .bar > .bar-button:has(> .menu):hover {
   background: var(--bar-button-open-bkg);
 }
 #nav-holder .bar > .bar-button.active {
@@ -1882,6 +1891,21 @@ export default {
   margin-right: 2px;
   border-radius: 0 var(--bar-button-radius) var(--bar-button-radius) 0;
   box-shadow: inset -1px 0 0 var(--nav-button-border-color), inset 0 1px 0 var(--nav-button-border-color), inset 0 -1px 0 var(--nav-button-border-color);
+}
+/* the active Quick View gets a stronger background and a blue underline so it stands out from the others
+   (its icon keeps the color set for that Quick View) */
+#nav-holder .bar > .bar-button.nav-quick-view.active {
+  background: rgba(26, 115, 232, 0.3);
+}
+#nav-holder .bar > .bar-button.nav-quick-view.active::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 1px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgb(26, 115, 232);
 }
 
 
@@ -1970,12 +1994,12 @@ export default {
   color: green !important;
 }
 
-.save-not-saved > span {
+.save-not-saved span {
   color: orangered !important;
 }
 
-.save-saved > span {
-  color: mediumblue !important;
+.save-saved span {
+  color: v-bind(savedTextColor) !important;
 }
 
 .layout-active {
