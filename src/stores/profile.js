@@ -8720,18 +8720,21 @@ export const useProfileStore = defineStore('profile', {
                         if (comp.hideClassNum) {
                             classHidden++
                         }
-                        if (comp.hideGenre) {
-                            genreHidden++
-                        }
                         classLast = comp
                         classList.push(comp)
                         classProfile = rt
                     }
+
+                    // hidden genre/forms are only counted, no empty component is added for them
+                    if (profile.rt[rt].pt[pt].hideGenre) {
+                        genreHidden++
+                    }
                 }
             }
 
+            // a profile without subject components (e.g. Sound Recording) has nothing to duplicate
             let showingSubjects = subjectCount - subjectHidden
-            if (showingSubjects == 0) {
+            if (showingSubjects == 0 && subjectLast) {
                 // add an empty subject component
                 // componentGuid, structure
                 this.duplicateComponent(subjectLast["@guid"], this.returnStructureByGUID(subjectLast["@guid"]))
@@ -8747,8 +8750,9 @@ export const useProfileStore = defineStore('profile', {
 
             }
 
+            // same for a profile without classification components
             let showingClassNumber = classCount - classHidden
-            if (showingClassNumber == 0) {
+            if (showingClassNumber == 0 && classLast) {
                 // add an empty classNum component
                 // componentGuid, structure
                 this.duplicateComponent(classLast["@guid"], this.returnStructureByGUID(classLast["@guid"]))
