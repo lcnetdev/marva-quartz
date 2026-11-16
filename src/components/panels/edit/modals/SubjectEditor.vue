@@ -906,12 +906,10 @@ export default {
 
     checkValidSubdivision: function(idx){
       let goodGeo = this.checkMaySubdGeog(idx)
-      console.info("goodGeo: ", goodGeo)
 
       return goodGeo
     },
     checkMaySubdGeog: function(idx){
-      console.info("checking subdiv: ", idx)
       let prev = null
       let prevNoMaySubdGeog = true
       let currentGeo = false
@@ -925,10 +923,6 @@ export default {
       if (idx != 0){
         let prevUri = this.components[idx - 1].uri
         prev = this.localContextCache[prevUri]
-
-        console.info("\t prev: ", prev)
-        console.info("\t current: ", current)
-
         if (prev?.collections){
           prevNoMaySubdGeog = prev.collections.includes("http://id.loc.gov/authorities/subjects/collection_NoGeographicSubdivisions")
         }
@@ -2381,6 +2375,11 @@ export default {
         }
       }
 
+      let validSubDiv = this.checkValidSubdivision(this.activeComponent.id)
+      if (!validSubDiv){
+        this.contextData.invalidGeoSub = true
+      }
+
       this.$refs.subjectInput.focus()
 
     },
@@ -2674,7 +2673,6 @@ export default {
       for (let idx in this.components) {
         this.checkValidSubdivision(idx)
         let c = this.components[idx]
-        console.info("c: ", JSON.parse(JSON.stringify(c)), "--", c.invalidSubDiv)
         if (!c.uri && !c.literal) {
           allHaveURI = false
         }
@@ -2785,7 +2783,6 @@ export default {
         this.showTypes = false
       }
 
-      console.info("check2")
       this.validateOkayToAdd()
 
     },
@@ -3282,7 +3279,6 @@ export default {
                 }
                 if (!this.fromPaste) {
                   this.selectContext(idx, false)
-                  console.info("check3")
                   this.validateOkayToAdd()
                 }
               } catch (err) {
