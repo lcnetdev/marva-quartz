@@ -64,6 +64,7 @@
   import Properties from "@/components/panels/sidebar_property/Properties.vue";
   import EditPanel from "@/components/panels/edit/EditPanel.vue";
   import Nav from "@/components/panels/nav/Nav.vue";
+  import navPaneHeightMixin from '@/lib/navPaneHeightMixin'
   import Opac from "@/components/panels/sidebar_preview_opac/Opac.vue";
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
 
@@ -71,6 +72,7 @@
 
   export default {
     components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug },
+    mixins: [navPaneHeightMixin], // keeps the nav pane height right when the window is resized
     data() {
       return {
         color: 'blue',
@@ -93,9 +95,6 @@
     methods: {
 
 
-      returnPixleAsPercent: function(pixles){
-        return pixles/window.innerHeight*100
-      }
 
 
 
