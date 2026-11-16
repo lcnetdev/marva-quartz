@@ -20,7 +20,7 @@
                     &nbsp;&nbsp;&nbsp;[May Subd Geog]
                 </span>
                 <span
-                    v-else
+                    v-else-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_NoGeographicSubdivisions')"
                     style="font-weight: 200 !important;">
                     &nbsp;&nbsp;&nbsp;[Not Subd Geog]
                 </span>
