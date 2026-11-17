@@ -19,6 +19,11 @@
                     style="font-weight: 200 !important;">
                     &nbsp;&nbsp;&nbsp;[May Subd Geog]
                 </span>
+                <span
+                    v-else-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_NoGeographicSubdivisions')"
+                    style="font-weight: 200 !important;">
+                    &nbsp;&nbsp;&nbsp;[Not Subd Geog]
+                </span>
                 <br>
                 <span v-if="!checkIsUsable(contextData)" class="not-usable">{{ getUsabilityNote(contextData) }}</span>
                 <br>
@@ -363,6 +368,10 @@ export default {
             if (needsNote.length < 1){
                 needsNote = notes.filter((i) => i.includes("not valid for use as a subject") ? true : false)
             }
+            let invalidSubdivision = data.invalidGeoSub
+            if (invalidSubdivision){
+                needsNote = ['The previous element in the heading is "Not Subd Geog," you cannot continue with this heading.']
+            }
             return needsNote[0]
         },
         checkIsUsable: function(data){
@@ -371,6 +380,11 @@ export default {
             if (!needsUpdate){
                 needsUpdate = notes.filter((i) => i.includes("not valid for use as a subject") ? true : false).length > 0
             }
+            let invalidSubdivision = data.invalidGeoSub
+            if (invalidSubdivision){
+                needsUpdate = true
+            }
+
             return !needsUpdate
         },
         newSearch: function (term) {

@@ -26,10 +26,12 @@
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
   import Nav from "@/components/panels/nav/Nav.vue";
+  import navPaneHeightMixin from '@/lib/navPaneHeightMixin'
 
 
   export default {
     components: { Splitpanes, Pane, Nav },
+    mixins: [navPaneHeightMixin], // keeps the nav pane height right when the window is resized
     data() {
       return {
 
@@ -45,10 +47,6 @@
 
     },
     methods: {
-
-      returnPixleAsPercent: function(pixles){
-        return pixles/window.innerHeight*100
-      },
 
     },
     props: {
