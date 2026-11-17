@@ -1030,6 +1030,9 @@ export const useWorkflowStore = defineStore('workflow', {
             }
           }
         }
+
+        console.info("pick: ", pick)
+
         sourceUrl = pick.bfdbPackageURL
         label = pick.label
         // the record was already fetched to look at it, no need to fetch it again
@@ -2951,6 +2954,7 @@ export const useWorkflowStore = defineStore('workflow', {
       let newId = await profileStore.deriveNew(false, targetProfile)
       console.info("newId: ", newId)
       // what to do with the new ID?
+      // workflows can only pull from BFDB?
 
       return null
     }

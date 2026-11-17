@@ -9385,6 +9385,7 @@ export const useProfileStore = defineStore('profile', {
         if (!target){
             recordCopy = JSON.parse(JSON.stringify(this.activeProfile))
         } else {
+            // in workflows
             recordCopy = JSON.parse(JSON.stringify(target))
             console.info("derive from ", recordCopy)
         }
@@ -9413,12 +9414,12 @@ export const useProfileStore = defineStore('profile', {
         let instances = []
         // get work and instance
         for (let rt in recordCopy.rt){
-        if (rt.includes(":Work")){
-            work = recordCopy.rt[rt]
-        } else if (rt.includes(":Instance")){
-            instanceCount++
-            instances.push(recordCopy.rt[rt])
-        }
+            if (rt.includes(":Work")){
+                work = recordCopy.rt[rt]
+            } else if (rt.includes(":Instance")){
+                instanceCount++
+                instances.push(recordCopy.rt[rt])
+            }
         }
 
         let newRtId
@@ -9684,7 +9685,8 @@ export const useProfileStore = defineStore('profile', {
                 saved = await utilsNetwork.saveRecord(xml.xlmStringBasic, recordCopy.eId)
                 newId = recordCopy.eId
             }
-            return newId
+            if (!target){ return newId }
+            else { return newIdent }
         } else { //insert the updated instance into the record
             newRtId = instOnly +'_'+instanceCount
 
