@@ -830,3 +830,27 @@ test('Subject Usage note appears highlighted', async ({ page }) => {
     await page.getByText('Mebane (Family : Mebane, N.C.)').nth(1).click();
     await expect(page.getByRole('heading')).toContainText('[SUBJECT USAGE: This heading is not valid for use as a subject; use a family name heading from LCSH.]');
 });
+
+test('Test "Not Subd Geog"', async ({ page }) => {
+    await page.goto('http://localhost:5555/marva/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs in literature');
+    await page.getByText('Dogs in literature', { exact: true }).first().click();
+    await expect(page.getByRole('heading')).toContainText('sh85038823');
+    await expect(page.getByRole('heading')).toContainText('[Not Subd Geog]');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs in literature--spain');
+    await page.getByText('Spain', { exact: true }).first().click();
+    await expect(page.getByRole('heading')).toContainText('mapSpainThe previous element in the heading is "Not Subd Geog," you cannot continue with this heading.n79006971-781');
+    await expect(page.getByText('Can\'t AddRemove selected')).toBeVisible();
+});
