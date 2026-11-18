@@ -93,7 +93,10 @@ export default {
 
     remove(){
       if (this.row.dirty && !confirm('This record has changes that are not saved yet. Remove it from the workflow?')){ return }
-      this.workflowStore.removeRow(this.row.id)
+      let name = this.row.label || this.row.scanned
+      // the X can be undone (ctrl+z), say so: the record is gone from under the mouse
+      this.workflowStore.removeRow(this.row.id, true)
+      this.workflowStore.notify('Took "' + name + '" off the sheet. ' + (/Mac|iPhone|iPad/.test(navigator.platform) ? '\u2318' : 'Ctrl') + ' + Z puts it back.', 'info')
     },
   },
 }

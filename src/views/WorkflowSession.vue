@@ -43,7 +43,7 @@
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
                 <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
                 <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a gray line below a component as a new one</dd>
-                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
+                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record, or a record taken off the sheet (Shift to redo)</dd>
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
               <dl v-else>
@@ -58,7 +58,7 @@
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
                 <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
                 <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a gray line below a component as a new one</dd>
-                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
+                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record, or a record taken off the sheet (Shift to redo)</dd>
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
               <div class="wf-fields-menu-heading">Scanning</div>

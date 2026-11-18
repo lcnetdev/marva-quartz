@@ -2171,22 +2171,77 @@ export const useWorkflowStore = defineStore('workflow', {
       return result
     },
 
-    removeRow(rowId){
+    /**
+    * Take a record off its sheet. The record itself is not deleted.
+    * @param {string} rowId
+    * @param {boolean} undoable - the user took it off (the X on the record): it goes on the undo stack
+    *   and ctrl+z puts it back where it was, as it was. Otherwise (a scan that found nothing, a record
+    *   the graph dropped) it is gone, and its history with it.
+    * @return {void}
+    */
+    removeRow(rowId, undoable = false){
       let s = this.sessionFor(rowId)
       if (!s){ return }
+      let index = s.rows.findIndex((r) => { return r.id === rowId })
+      if (index < 0){ return }
+      if (undoable && s === this.activeSession){
+        // the record's own changes stay on the stack under this, they can be undone again once it is back
+        undoStack.push({ kind: 'remove', rowId: rowId, row: s.rows[index], index: index, editKey: null, group: null })
+        if (undoStack.length > HISTORY_LIMIT){ undoStack.shift() }
+        redoStack = []
+      } else {
+        undoStack = undoStack.filter((e) => { return e.rowId !== rowId })
+        redoStack = redoStack.filter((e) => { return e.rowId !== rowId })
+        baseline.delete(rowId)
+      }
+      this.historySize = { undo: undoStack.length, redo: redoStack.length }
+      this.detachRow(s, rowId)
+    },
+
+    /**
+    * The part of removing a record that is the same whether it can be undone or not: let go of
+    * whatever was pointing at it and take it out of the session's rows
+    * @param {object} s - the session
+    * @param {string} rowId
+    * @return {void}
+    */
+    detachRow(s, rowId){
       if (this.editingCell && this.editingCell.rowId === rowId){ this.editingCell = null }
       if (this.selectedCell && this.selectedCell.rowId === rowId){ this.selectedCell = null }
       if (this.copying && this.copying.rowId === rowId){ this.copying = null }
-      undoStack = undoStack.filter((e) => { return e.rowId !== rowId })
-      redoStack = redoStack.filter((e) => { return e.rowId !== rowId })
-      baseline.delete(rowId)
-      this.historySize = { undo: undoStack.length, redo: redoStack.length }
       if (this.activeRowId === rowId){
         this.activeRowId = null
         useProfileStore().prepareForNewRecord()
       }
       s.rows = s.rows.filter((r) => { return r.id !== rowId })
       if (s === this.activeSession){ this.persistSession() }
+    },
+
+    /**
+    * Undo / redo of a record taken off the sheet with its X (the 'remove' entries of the stacks):
+    * undoing puts the record back where it was, with its edits, redoing takes it off again
+    * @param {object} entry - { kind: 'remove', rowId, row, index }
+    * @param {boolean} redo
+    * @return {boolean} - was it done
+    */
+    undoRemove(entry, redo){
+      let s = this.activeSession
+      if (!s){ return false }
+      let index = s.rows.findIndex((r) => { return r.id === entry.rowId })
+      if (redo){
+        if (index < 0){ return false }
+        entry.row = s.rows[index]
+        entry.index = index
+        this.detachRow(s, entry.rowId)
+        return true
+      }
+      if (index > -1){ return false }
+      s.rows.splice(Math.min(entry.index, s.rows.length), 0, entry.row)
+      let row = this.returnRow(entry.rowId)
+      // it was taken off while it was still coming in (or had failed to): start over
+      if (row && row.status !== 'ready'){ this.loadRow(row.id) }
+      this.persistSession()
+      return true
     },
 
     toggleDone(rowId){
@@ -2269,7 +2324,8 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     /**
-    * Take back the last change (ctrl+z), or put it back again (shift+ctrl+z)
+    * Take back the last change (ctrl+z), or put it back again (shift+ctrl+z). A change is an edit
+    * to a record, or a record taken off the sheet with its X (removeRow).
     * @param {boolean} redo
     * @return {void}
     */
@@ -2292,9 +2348,18 @@ export const useWorkflowStore = defineStore('workflow', {
       let group = entries.length > 1 ? short.generate() : null
       let restored = 0
       let lastRow = null
+      // a record put back on the sheet, or taken off it again
+      let moved = null
       restoring = true
       try {
         for (let e of entries){
+          if (e.kind === 'remove'){
+            if (this.undoRemove(e, redo)){
+              to.push(e)
+              moved = e.row
+            }
+            continue
+          }
           let row = this.returnRow(e.rowId)
           if (!row || row.status != 'ready'){ continue }
           if (!(await this.activateRow(e.rowId))){ continue }
@@ -2310,6 +2375,16 @@ export const useWorkflowStore = defineStore('workflow', {
         restoring = false
       }
       this.historySize = { undo: undoStack.length, redo: redoStack.length }
+      if (moved){
+        let name = '"' + (moved.label || moved.scanned) + '"'
+        if (redo){
+          this.notify('Took ' + name + ' off the sheet again', 'info')
+        } else {
+          if (moved.status === 'ready'){ this.selectCell(moved.id, 0, 0) }
+          this.notify('Put ' + name + ' back on the sheet', 'info')
+        }
+        return
+      }
       if (restored == 0){ return }
       // show where it happened
       if (lastRow && (!this.selectedCell || this.selectedCell.rowId !== lastRow.id)){ this.selectCell(lastRow.id, 0, 0) }
