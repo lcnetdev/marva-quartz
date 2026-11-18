@@ -10,7 +10,7 @@
 
         <form class="wf-scan" @submit.prevent="scan">
           <span class="material-icons">qr_code_scanner</span>
-          <input type="text" ref="scanInput" v-model="scanValue" @keydown.enter.prevent="scan" @paste="scanPaste" placeholder="Scan, type or paste a list of LCCNs, ISBNs or barcodes" autocomplete="off" spellcheck="false" />
+          <input type="text" ref="scanInput" v-model="scanValue" @keydown.enter.prevent="scan" @paste="scanPaste" placeholder="Scan, type or paste a list of LCCNs, ISBNs, barcodes or FOLIO UUIDs" autocomplete="off" spellcheck="false" />
         </form>
 
         <span class="wf-bar-spacer"></span>
@@ -60,7 +60,7 @@
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
               <div class="wf-fields-menu-heading">Scanning</div>
-              <p>Scan a barcode at any time, wherever the cursor is, or type a LCCN, ISBN or barcode in the box and press Enter.</p>
+              <p>Scan a barcode at any time, wherever the cursor is, or type a LCCN, ISBN, barcode or FOLIO UUID in the box and press Enter.</p>
             </div>
           </template>
         </VDropdown>

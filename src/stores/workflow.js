@@ -957,7 +957,7 @@ export const useWorkflowStore = defineStore('workflow', {
 
     /**
     * Something was scanned (or typed), find the record and add it to the session
-    * @param {string} value - a LCCN, ISBN, barcode or the URL to a record
+    * @param {string} value - a LCCN, ISBN, barcode, FOLIO UUID or the URL to a record
     * @param {boolean} quiet - part of a pasted list: don't move the keyboard to the record when it arrives
     * @param {object} session - the session to add it to, the open sheet unless the builder is testing (testGraph)
     * @return {Promise<boolean>} - did a record get added
@@ -2093,13 +2093,13 @@ export const useWorkflowStore = defineStore('workflow', {
     * CIP steps) into a throwaway session, run the graph on it, and report what it did. The record is let
     * go afterwards, nothing is stored and the open sheet is not touched.
     * @param {object} definition - the builder's draft (profileId, components, enrichments, graph)
-    * @param {string} identifier - a LCCN, ISBN, barcode or record URL
+    * @param {string} identifier - a LCCN, ISBN, barcode, FOLIO UUID or record URL
     * @return {object} - { identifier, error, label, lccn, pickReason, dropped, reason, log, changes }
     */
     async testGraph(definition, identifier){
       identifier = (identifier || '').trim()
       let result = { identifier: identifier, error: null, label: null, lccn: null, pickReason: null, dropped: false, reason: null, log: [], changes: 0 }
-      if (identifier == ''){ result.error = 'Type a LCCN, ISBN or barcode first'; return result }
+      if (identifier == ''){ result.error = 'Type a LCCN, ISBN, barcode or FOLIO UUID first'; return result }
       if (this.testSession){ result.error = 'A test is already running'; return result }
       let resolved = this.resolveDefinition(definition)
       if (!resolved){ result.error = 'The profile ' + definition.profileId + ' is not loaded'; return result }

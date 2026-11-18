@@ -8,7 +8,7 @@
     <div class="__content wf-graph-test-content">
       <div class="wf-graph-source-hint">Loads the record as a sheet would, runs the graph on it and shows what changed. Nothing is saved.</div>
       <form class="wf-graph-test-form" @submit.prevent="run()" @pointerdown.stop @keydown.stop>
-        <input type="text" class="wf-graph-control-text" v-model="identifier" placeholder="LCCN, ISBN or barcode" :disabled="running" />
+        <input type="text" class="wf-graph-control-text" v-model="identifier" placeholder="LCCN, ISBN, barcode or FOLIO UUID" :disabled="running" />
         <button type="submit" class="wf-button wf-button-primary" :disabled="running || !identifier.trim()">
           <span v-if="running" class="material-icons wf-graph-test-spin">autorenew</span>
           <span v-else class="material-icons">play_arrow</span>

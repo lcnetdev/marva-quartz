@@ -23,6 +23,7 @@
  */
 
 import short from 'short-uuid'
+import utilsMisc from '@/lib/utils_misc'
 import { readCellValues, findComponentPts, findRtId, ADMIN_METADATA_URI } from './fields'
 
 export const CIP_ENRICHMENT_ID = 'cip-lookup'
@@ -104,7 +105,9 @@ export function cipQuery(row){
   let scanned = (row.scanned || '').trim()
   let isUrl = /^(https?:)?\//.test(scanned)
   let isLccn = row.lccn && digits(scanned).toLowerCase() === digits(row.lccn).toLowerCase()
-  if (!isUrl && !isLccn && scanned){
+  // a FOLIO UUID finds the record but is nothing WorldCat can be asked with, go by the record's ISBN
+  let isFolioUuid = !!utilsMisc.returnFolioUuid(scanned)
+  if (!isUrl && !isLccn && !isFolioUuid && scanned){
     if (looksLikeIsbn(scanned)){
       return { isbn: digits(scanned), lccn: row.lccn || null }
     }
