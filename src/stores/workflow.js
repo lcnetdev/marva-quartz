@@ -188,7 +188,9 @@ export const useWorkflowStore = defineStore('workflow', {
     // the cell that was copied (ctrl+c) and is shown with the moving outline {rowId, guid, key, text}, see lib/workflows/clipboard.js
     copying: null,
 
-    // a paste onto a selected column waits here for the user to say how {group, column, payload, populated, empty}
+    // a paste onto a selected column waits here for the user to say how {group, column, payload, all, notDone,
+    // doneRecords, skipDone, types, newType}: `all` and `notDone` are what it would touch ({populated, empty,
+    // skipped, records}) with every record or without the ones marked done, skipDone is the dialog's checkbox
     columnPaste: null,
 
     // the profile store's dataChanged is not about the record for the moment (the Field Colors modal is open)
@@ -2501,40 +2503,71 @@ export const useWorkflowStore = defineStore('workflow', {
       let typeCell = Object.values(this.returnComponentCells(this.activeSession.definition.profileId, group.component)).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
       let types = typeCell ? typeCell.options : []
       let newType = (payload.templateId && types.some((t) => { return t.id === payload.templateId })) ? payload.templateId : (typeCell && typeCell.active ? typeCell.active.id : null)
+      // what the paste would touch, with every record and with the ones marked done left out
+      let countsFor = (skipDone) => {
+        let mine = targets.filter((t) => { return !skipDone || !t.done })
+        let fits = mine.filter((t) => { return !incompatible(payload, t.cell) })
+        return {
+          populated: fits.filter((t) => { return t.populated }).length,
+          empty: fits.filter((t) => { return !t.populated }).length,
+          skipped: mine.length - fits.length,
+          records: this.activeSession.rows.filter((r) => { return r.status == 'ready' && r.profile && (!skipDone || !r.done) && findComponentPts(r.profile, group.component).length > 0 }).length,
+        }
+      }
+      let all = countsFor(false)
+      let notDone = countsFor(true)
+      let pref = this.preferences[this.activeSession.workflowId]
       this.columnPaste = {
         group: group,
         column: column,
         payload: payload,
-        populated: compatible.filter((t) => { return t.populated }).length,
-        empty: compatible.filter((t) => { return !t.populated }).length,
-        skipped: targets.length - compatible.length,
-        records: this.activeSession.rows.filter((r) => { return r.status == 'ready' && r.profile && findComponentPts(r.profile, group.component).length > 0 }).length,
+        all: all,
+        notDone: notDone,
+        doneRecords: all.records - notDone.records,
+        // the choice made the last time is the one the dialog comes up with
+        skipDone: !!(pref && pref.pasteSkipDone) && all.records > notDone.records,
         types: types,
         newType: newType,
       }
     },
 
     /**
-    * Every cell down a column that could take a value: one per component line of each loaded record
-    * @return {array} - of {rowId, pt, cell, populated}
+    * The "skip the records marked done" box of the paste down a column dialog, remembered for the workflow
+    * @param {boolean} on
+    * @return {void}
     */
-    columnPasteTargets(group, column){
+    setColumnPasteSkipDone(on){
+      if (!this.columnPaste || !this.activeSession){ return }
+      this.columnPaste.skipDone = !!on
+      this.setWorkflowPreference(this.activeSession.workflowId, 'pasteSkipDone', on ? true : null)
+    },
+
+    /**
+    * Every cell down a column that could take a value: one per component line of each loaded record
+    * @param {object} group
+    * @param {object} column
+    * @param {boolean} skipDone - leave out the records marked done
+    * @return {array} - of {rowId, done, pt, cell, populated}, done is the record's
+    */
+    columnPasteTargets(group, column, skipDone = false){
       let rtLookup = useProfileStore().rtLookup
       let lookupConfig = useConfigStore().lookupConfig
       let targets = []
       for (let row of this.activeSession.rows){
         if (row.status != 'ready' || !row.profile){ continue }
+        if (skipDone && row.done){ continue }
         for (let pt of findComponentPts(row.profile, group.component)){
           let cell = resolveComponentCells(pt, rtLookup, lookupConfig)[column.key]
           if (!cell || cell.kind != 'field'){ continue }
-          targets.push({ rowId: row.id, pt: pt, cell: cell, populated: readCellValues(pt, cell).length > 0 })
+          targets.push({ rowId: row.id, done: !!row.done, pt: pt, cell: cell, populated: readCellValues(pt, cell).length > 0 })
         }
       }
       return targets
     },
 
     /**
-    * Paste down the selected column, the way the user chose
+    * Paste down the selected column, the way the user chose. With the dialog's "skip the records
+    * marked done" box checked (columnPaste.skipDone) those records are left as they are.
     * @param {string} how - 'overwrite' (only where there is a value) | 'fill' (everywhere, over what is there) | 'add' (beside what is there)
     *   | 'new' (another one of the component on every record, of the Type picked in the dialog, holding the value)
     * @return {void}
@@ -2554,12 +2587,13 @@ export const useWorkflowStore = defineStore('workflow', {
         if (how == 'new'){
           for (let row of this.activeSession.rows){
             if (row.status != 'ready' || !row.profile || findComponentPts(row.profile, ask.group.component).length == 0){ continue }
+            if (ask.skipDone && row.done){ continue }
             if (!(await this.activateRow(row.id))){ continue }
             let result = await this.pasteAsNewComponent(ask.group, ask.column, ask.payload, ask.newType)
             if (result.done){ done++ } else { skipped++ }
           }
         }
-        for (let target of (how == 'new') ? [] : this.columnPasteTargets(ask.group, ask.column)){
+        for (let target of (how == 'new') ? [] : this.columnPasteTargets(ask.group, ask.column, ask.skipDone)){
           if (incompatible(ask.payload, target.cell)){ continue }
           if (how == 'overwrite' && !target.populated){ continue }
           if (!(await this.activateRow(target.rowId))){ continue }
@@ -2579,12 +2613,13 @@ export const useWorkflowStore = defineStore('workflow', {
         historyGroup = null
         this.busy = previousBusy
       }
+      let leftAlone = (ask.skipDone && ask.doneRecords > 0) ? ', the ' + ask.doneRecords + ' ' + (ask.doneRecords == 1 ? 'record' : 'records') + ' marked done left as ' + (ask.doneRecords == 1 ? 'it was' : 'they were') : ''
       if (how == 'new'){
         let typeLabel = (ask.types.filter((t) => { return t.id === ask.newType })[0] || {}).label
         let what = (typeLabel ? '"' + typeLabel + '"' : '"' + ask.group.component.label + '"')
-        this.notify('Added a new ' + what + ' with "' + ask.payload.text + '" to ' + done + ' ' + (done == 1 ? 'record' : 'records') + (skipped > 0 ? ', ' + skipped + ' skipped ("' + ask.column.label + '" is not a field of it or takes another kind of value)' : ''), skipped > 0 && done == 0 ? 'error' : 'info')
+        this.notify('Added a new ' + what + ' with "' + ask.payload.text + '" to ' + done + ' ' + (done == 1 ? 'record' : 'records') + (skipped > 0 ? ', ' + skipped + ' skipped ("' + ask.column.label + '" is not a field of it or takes another kind of value)' : '') + leftAlone, skipped > 0 && done == 0 ? 'error' : 'info')
       } else {
-        this.notify('Pasted "' + ask.payload.text + '" into ' + done + ' ' + (done == 1 ? 'cell' : 'cells'), 'info')
+        this.notify('Pasted "' + ask.payload.text + '" into ' + done + ' ' + (done == 1 ? 'cell' : 'cells') + leftAlone, 'info')
       }
     },
 

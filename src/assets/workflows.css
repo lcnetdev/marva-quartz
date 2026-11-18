@@ -2000,6 +2000,15 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   font-size: 0.9em;
   color: var(--wf-muted-color);
 }
+/* the box that keeps the paste off the records marked done */
+.wf-column-paste-skip {
+  margin: 0 0 0.75em 0;
+  font-weight: normal;
+}
+.wf-column-paste-skip-count {
+  color: var(--wf-muted-color);
+  font-size: 0.9em;
+}
 /* the Type pick on the "as a new component" choice (a title: Instance title, Parallel title...) */
 .wf-column-paste-type {
   display: flex;

@@ -63,28 +63,33 @@
         <h2>Paste down "{{ columnPaste.column.label }}"</h2>
         <p>
           Pasting <strong class="wf-column-paste-value">{{ columnPaste.payload.text }}</strong> into the
-          {{ columnPaste.group.component.label }} &rsaquo; {{ columnPaste.column.label }} of every record:
-          {{ columnPaste.populated }} {{ columnPaste.populated == 1 ? 'cell has' : 'cells have' }} a value,
-          {{ columnPaste.empty }} {{ columnPaste.empty == 1 ? 'is' : 'are' }} empty<template v-if="columnPaste.skipped > 0">,
-          {{ columnPaste.skipped }} {{ columnPaste.skipped == 1 ? 'takes' : 'take' }} another kind of value and will be skipped</template>.
+          {{ columnPaste.group.component.label }} &rsaquo; {{ columnPaste.column.label }} of every record{{ columnPaste.skipDone ? ' that is not marked done' : '' }}:
+          {{ pasteCounts.populated }} {{ pasteCounts.populated == 1 ? 'cell has' : 'cells have' }} a value,
+          {{ pasteCounts.empty }} {{ pasteCounts.empty == 1 ? 'is' : 'are' }} empty<template v-if="pasteCounts.skipped > 0">,
+          {{ pasteCounts.skipped }} {{ pasteCounts.skipped == 1 ? 'takes' : 'take' }} another kind of value and will be skipped</template>.
         </p>
+        <!-- applies to whichever way of pasting is picked below -->
+        <label class="wf-options-check wf-column-paste-skip" :title="columnPaste.doneRecords == 0 ? 'No record with this field is marked done' : 'The records marked done keep what they have, whichever way of pasting is picked. Remembered for this workflow.'">
+          <input type="checkbox" :checked="columnPaste.skipDone" :disabled="columnPaste.doneRecords == 0" @change="workflowStore.setColumnPasteSkipDone($event.target.checked)" />
+          Skip the records marked done <span class="wf-column-paste-skip-count">({{ columnPaste.doneRecords }} of {{ columnPaste.all.records }})</span>
+        </label>
         <div class="wf-column-paste-choices">
-          <button class="wf-button" @click="workflowStore.pasteIntoColumn('overwrite')" :disabled="columnPaste.populated == 0">
+          <button class="wf-button" @click="workflowStore.pasteIntoColumn('overwrite')" :disabled="pasteCounts.populated == 0">
             <strong>Overwrite the values</strong>
-            <span>Replace what the {{ columnPaste.populated }} populated {{ columnPaste.populated == 1 ? 'cell has' : 'cells have' }}, leave the empty ones empty</span>
+            <span>Replace what the {{ pasteCounts.populated }} populated {{ pasteCounts.populated == 1 ? 'cell has' : 'cells have' }}, leave the empty ones empty</span>
           </button>
-          <button class="wf-button" @click="workflowStore.pasteIntoColumn('fill')">
+          <button class="wf-button" @click="workflowStore.pasteIntoColumn('fill')" :disabled="pasteCounts.populated + pasteCounts.empty == 0">
             <strong>Overwrite if present, otherwise add</strong>
-            <span>Every record ends up with the pasted value</span>
+            <span>Every record{{ columnPaste.skipDone ? ' that is not done' : '' }} ends up with the pasted value</span>
           </button>
-          <button class="wf-button" @click="workflowStore.pasteIntoColumn('add')">
+          <button class="wf-button" @click="workflowStore.pasteIntoColumn('add')" :disabled="pasteCounts.populated + pasteCounts.empty == 0">
             <strong>Add alongside the existing values</strong>
             <span>The pasted value goes in next to what is there</span>
           </button>
           <!-- the value came from another component (a parallel title copied onto the instance titles): another one of the component on every record -->
-          <button class="wf-button" @click="workflowStore.pasteIntoColumn('new')" :disabled="columnPaste.records == 0">
+          <button class="wf-button" @click="workflowStore.pasteIntoColumn('new')" :disabled="pasteCounts.records == 0">
             <strong>As a new component</strong>
-            <span>Each of the {{ columnPaste.records }} {{ columnPaste.records == 1 ? 'record' : 'records' }} gets another "{{ columnPaste.group.component.label }}" holding the pasted value, the ones there stay as they are</span>
+            <span>Each of the {{ pasteCounts.records }} {{ pasteCounts.records == 1 ? 'record' : 'records' }} gets another "{{ columnPaste.group.component.label }}" holding the pasted value, the ones there stay as they are</span>
           </button>
           <label v-if="columnPaste.types.length > 1" class="wf-column-paste-type">
             <span>Type of the new component</span>
@@ -169,6 +174,11 @@ export default {
 
     columnPaste(){
       return this.workflowStore.columnPaste
+    },
+
+    // what the paste would touch: every record, or without the ones marked done when that box is checked
+    pasteCounts(){
+      return this.columnPaste.skipDone ? this.columnPaste.notDone : this.columnPaste.all
     },
 
     recordWidth(){
