@@ -420,6 +420,26 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     /**
+    * Every component of the open sheet's profile with its subfields, for the CSV export: the ones
+    * on the sheet first, in the sheet's order, then the rest of the profile
+    * @return {array} - of {key, component, allColumns, inSheet, shownColumns}, shownColumns is the
+    *   keys of the subfields the sheet shows now (none for a component that is hidden or not on it)
+    */
+    returnExportGroups(){
+      let session = this.activeSession
+      if (!session){ return [] }
+      let groups = this.columnGroups.map((g) => {
+        return { key: g.key, component: g.component, allColumns: g.allColumns, inSheet: true, shownColumns: g.hidden ? [] : g.columns.map((c) => { return c.key }) }
+      })
+      for (let component of this.addableComponents){
+        let allColumns = this.returnComponentColumns(session.definition.profileId, component)
+        if (allColumns.length == 0){ continue }
+        groups.push({ key: component.rt + '|' + component.id, component: component, allColumns: allColumns, inSheet: false, shownColumns: [] })
+      }
+      return groups
+    },
+
+    /**
     * Match the components of a definition up to the profile, drops the ones the profile doesn't have
     * @param {object} definition
     * @return {object|null} - a copy of the definition ready to use, null if the profile is not loaded

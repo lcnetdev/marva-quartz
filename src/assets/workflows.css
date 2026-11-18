@@ -241,6 +241,9 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   padding: 0 0.4em;
   color: var(--wf-button-color);
   border: solid 2px var(--wf-field-border-color);
+  /* when the bar runs out of room the scan box is what gives way, before the sheet's name does */
+  flex: 0 100 auto;
+  min-width: 10em;
 }
 .wf-scan:focus-within {
   border-color: var(--wf-accent-color);
@@ -251,6 +254,8 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   font-size: 1.05em;
   padding: 0.35em 0.4em;
   width: 19em;
+  min-width: 0;
+  flex: 1 1 auto;
   background: transparent;
   color: inherit;
 }
@@ -2037,4 +2042,171 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   color: var(--wf-accent-color);
   text-decoration: underline;
   cursor: pointer;
+}
+
+/* ------------------------------------------------------------ export to CSV (WorkflowExportDialog) */
+
+.wf-dialog.wf-export {
+  display: flex;
+  flex-direction: column;
+  width: min(44em, 94vw);
+  max-height: 88vh;
+  overflow: hidden;
+  outline: none;
+}
+.wf-export label {
+  font-weight: normal;
+  cursor: pointer;
+}
+.wf-export-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em 1.5em;
+  margin-bottom: 0.6em;
+}
+.wf-export-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.wf-export-muted {
+  color: var(--wf-muted-color);
+  font-size: 0.9em;
+}
+.wf-export-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+/* where the repeats go: on a line of its own, with what the choice does spelled out under it */
+.wf-export-repeats {
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+}
+.wf-export-repeats-hint {
+  flex: 1 1 100%;
+}
+/* Label / URI: a pair (or three) of buttons joined into one, the ones that are on are filled in */
+.wf-export-chips {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.wf-export-chips button {
+  border: 1px solid var(--wf-field-border-color);
+  background: var(--wf-button-background);
+  color: var(--wf-muted-color);
+  font-size: 0.8em;
+  line-height: 1.4;
+  padding: 0.1em 0.65em;
+  cursor: pointer;
+}
+.wf-export-chips button + button {
+  margin-left: -1px;
+}
+.wf-export-chips button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+.wf-export-chips button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+.wf-export-chips button.wf-export-chip-on {
+  position: relative;
+  background: var(--wf-accent-color);
+  border-color: var(--wf-accent-color);
+  color: var(--wf-on-accent-color);
+}
+.wf-export-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 0.4em;
+}
+.wf-export-toolbar .wf-fields-menu-filter {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+}
+/* the list of everything that can be exported is what scrolls, the choices above and the buttons below stay put.
+   It keeps its height while the filter narrows it down, so the dialog does not jump around */
+.wf-export-list {
+  flex: 0 1 52vh;
+  min-height: 6em;
+  overflow-y: auto;
+  border: 1px solid var(--wf-line-color);
+  border-radius: 4px;
+  padding: 0 0.75em 0.6em 0.75em;
+}
+.wf-export-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--wf-modal-background);
+  margin: 0 0 0.3em 0;
+  padding: 0.7em 0 0.25em 0;
+  border-bottom: 1px solid var(--wf-line-color);
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--wf-muted-color);
+}
+.wf-export-record {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11em, 1fr));
+  gap: 0.15em 1em;
+}
+.wf-export-record label,
+.wf-export-group > label,
+.wf-export-column > label {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  min-width: 0;
+}
+.wf-export-group,
+.wf-export-column {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.12em 0;
+}
+.wf-export-group > label,
+.wf-export-column > label {
+  flex: 1 1 auto;
+}
+.wf-export-group .wf-icon-button .material-icons {
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+.wf-export-columns {
+  margin: 0 0 0.3em 1.6em;
+  padding-left: 0.6em;
+  border-left: 2px solid var(--wf-line-color);
+  font-size: 0.92em;
+}
+.wf-dialog p.wf-export-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4em;
+  margin: 0.75em 0 0 0;
+  padding: 0.4em 0.6em;
+  border: 1px solid var(--wf-warn-border);
+  border-radius: 4px;
+  background: var(--wf-warn-tint);
+  color: var(--wf-warn-text);
+  font-size: 0.9em;
+}
+.wf-export-warning .material-icons {
+  font-size: 1.2em;
+}
+.wf-export-buttons {
+  display: inline-flex;
+  gap: 0.5em;
 }
