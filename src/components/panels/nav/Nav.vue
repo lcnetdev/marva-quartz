@@ -500,6 +500,11 @@ export default {
                 text: 'Add All Defaults',
                 click: () => { this.addAllDefaults() },
                 icon: "clear_all"
+              },
+              {
+                text: 'Derive New Record',
+                click: () => { this.deriveRecord() },
+                icon: "file_copy"
               }
             ]
           }
@@ -1215,6 +1220,19 @@ export default {
 
   methods: {
 
+    deriveRecord: async function(instOnly=false){
+      try {
+        let newRecordEid = await this.profileStore.deriveNew(instOnly, false)
+        // load the new record from Eid
+        if (newRecordEid){
+            let url = "/marva/edit/" + newRecordEid
+            window.open(url, '_blank').focus()
+        }
+      } catch(err){
+        alert('Failed to derive a record')
+        console.error(err)
+      }
+    },
     // animates a nav button's icon (element.animate() keeps running even when Vue redraws the button's classes)
     playClickAnimation: function (button, keyframes) {
       let icon = button && button.querySelector(':scope > .icon')

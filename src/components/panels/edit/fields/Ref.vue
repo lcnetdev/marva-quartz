@@ -212,14 +212,22 @@ export default {
           let elementId = this.structure['@guid'] + "-select"
           this.$nextTick(() => {
             window.setTimeout(()=> {
-              let target = document.getElementById(elementId.trim())
-              target.className += " validation-error no-type"
+              // let target = document.getElementById(elementId.trim())
+              // target.className += " validation-error no-type"
 
-              for (let child of target.childNodes){
-                if (child.value && child.value == 'empty'){
-                  child.selected = true
-                } else {
-                  child.selected = false
+              // for (let child of target.childNodes){
+              //   if (child.value && child.value == 'empty'){
+              //     child.selected = true
+              //   } else {
+              //     child.selected = false
+              //   }
+              // }
+
+              let targets = document.getElementsByClassName("validation-error no-type")
+              for (let target of targets){
+                if (target.id.includes(this.structure['@guid'])){
+                  target.classList.remove("validation-error")
+                  target.classList.remove("no-type")
                 }
               }
 

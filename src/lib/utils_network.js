@@ -3431,9 +3431,10 @@ const utilsNetwork = {
   * @async
   * @param {string} xml - The xml string
   * @param {boolean} html - return the response as HTML
+  * @param {boolean} multi - if there are multiple instances
   * @return {string} - the MARC in XML response
   */
-  marcPreview: async function(xml, html=false){
+  marcPreview: async function(xml, html=false, multi=false){
     if (!xml){
       return ""
     }
@@ -3444,19 +3445,36 @@ const utilsNetwork = {
     } else {
       url = url + '/text'
     }
-    const rawResponse = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        ...getAuthHeaders()
-      },
-      body: JSON.stringify({rdfxml:xml})
-    });
-    const content = await rawResponse.json();
+    let content = []
+
+    if (!multi){
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({rdfxml:xml})
+      });
+      content.push(await rawResponse.json())
+      // content = await rawResponse.json()
+    } else {
+      for (let record of xml){
+        const rawResponse = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({rdfxml:record})
+        });
+        let resp = await rawResponse.json()
+        content.push(resp)
+
+      }
+    }
 
     return content
-
   },
 
 
