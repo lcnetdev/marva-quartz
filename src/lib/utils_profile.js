@@ -223,8 +223,9 @@ const utilsProfile = {
         // we don't care about the level number so just overwrite it
         p = p.propertyURI
 
-        // if the property doesn't exist then create it
-        if (!pointer[p]){
+        // if the property doesn't exist (or is empty) then create it. setValueComplex can leave it empty,
+        // e.g. bf:source after picking a NAF term for a genre/form, and the next value would overwrite the term
+        if (!pointer[p] || pointer[p].length === 0){
           pointer[p] = [{
             // always create a guid for it
             '@guid' : short.generate()

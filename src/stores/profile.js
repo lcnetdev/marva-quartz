@@ -1919,6 +1919,19 @@ export const useProfileStore = defineStore('profile', {
 
             if (pt !== false) {
 
+                // removing a typed term (no @id) keeps the thesaurus the cataloger chose
+                let node = utilsProfile.returnGuidLocation(pt.userValue, fieldGuid)
+                let source = node && node['http://id.loc.gov/ontologies/bibframe/source']
+                if (pt.propertyURI === 'http://id.loc.gov/ontologies/bibframe/genreForm' && node && !node['@id'] && source && source.length > 0) {
+                    for (let key of Object.keys(node).filter((k) => !k.startsWith("@"))) {
+                        if (key !== 'http://id.loc.gov/ontologies/bibframe/source') {
+                            delete node[key]
+                        }
+                    }
+                    this.dataChanged()
+                    return
+                }
+
                 // find the correct blank node to edit if possible,
 
                 let parent = utilsProfile.returnGuidParent(pt.userValue, fieldGuid)
@@ -2884,7 +2897,11 @@ export const useProfileStore = defineStore('profile', {
                     blankNode = utilsProfile.returnGuidLocation(pt.userValue, buildBlankNodeResult[1])
 
                     //empty out the blankNode's existing data so it only has the new data
+                    // a literal (no URI) keeps the source the cataloger already chose, e.g. a non-LCGFT thesaurus
                     for (let key of Object.keys(blankNode).filter((k) => !k.startsWith("@"))) {
+                        if (URI === null && key === 'http://id.loc.gov/ontologies/bibframe/source') {
+                            continue
+                        }
                         blankNode[key] = []
                     }
 
