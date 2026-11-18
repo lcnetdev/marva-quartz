@@ -1,5 +1,6 @@
 import {useConfigStore} from "../stores/config";
 import {usePreferenceStore} from "../stores/preference";
+import utilsMisc from "./utils_misc";
 
 import short from 'short-uuid'
 const translator = short();
@@ -3472,17 +3473,24 @@ const utilsNetwork = {
 
     /**
     * Looks for instances by LCCN against ID, returns into for them to be displayed and load the resource
+    * Also takes the other identifiers the ID keyword search knows (ISBN, barcode) and a FOLIO UUID
     * @param {string} lccn - the lccn to search for
     * @return {array} - An array of {@link lccnSearchResult} results
     */
     searchInstanceByLCCN: async function(lccn){
       lccn = lccn.replaceAll(' ','')
 
+      // a FOLIO UUID is only found when it is asked for with the "folio:" prefix
+      const folioUuid = utilsMisc.returnFolioUuid(lccn)
+      if (folioUuid){
+        lccn = 'folio:' + folioUuid
+      }
+
       // ID needs the lccn to have a space between letters and the numbers
       // If there isn't one, make the adjustment
       const re = /^[a-z]{2}/g          // not sure if it's only every 2 characters
       const found = lccn.match(re)
-      if (found != null && !lccn.startsWith('in')){ // records originating FOLIO and Marva have IDs starting `in`, allow searching on those IDs
+      if (!folioUuid && found != null && !lccn.startsWith('in')){ // records originating FOLIO and Marva have IDs starting `in`, allow searching on those IDs
         lccn = lccn.slice(0,2) + " " + lccn.slice(2)
       }
 

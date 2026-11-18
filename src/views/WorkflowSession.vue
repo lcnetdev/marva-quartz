@@ -10,10 +10,12 @@
 
         <form class="wf-scan" @submit.prevent="scan">
           <span class="material-icons">qr_code_scanner</span>
-          <input type="text" ref="scanInput" v-model="scanValue" @keydown.enter.prevent="scan" @paste="scanPaste" placeholder="Scan, type or paste a list of LCCNs, ISBNs or barcodes" autocomplete="off" spellcheck="false" />
+          <input type="text" ref="scanInput" v-model="scanValue" @keydown.enter.prevent="scan" @paste="scanPaste" placeholder="Scan, type or paste a list of LCCNs, ISBNs, barcodes or FOLIO UUIDs" autocomplete="off" spellcheck="false" />
         </form>
 
         <span class="wf-bar-spacer"></span>
+
+        <button class="wf-bar-button wf-bar-help" title="Export the records to a CSV file" @click="openExport()"><span class="material-icons">download</span></button>
 
         <VDropdown>
           <button class="wf-bar-button wf-bar-help" title="How to use the sheet"><span class="material-icons">help_outline</span></button>
@@ -41,7 +43,7 @@
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
                 <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
                 <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a gray line below a component as a new one</dd>
-                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
+                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record, or a record taken off the sheet (Shift to redo)</dd>
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
               <dl v-else>
@@ -56,11 +58,11 @@
                 <dt>Delete, Backspace</dt><dd>clear the cell</dd>
                 <dt>Ctrl / &#8984; + C</dt><dd>copy the cell (its text, and the value for pasting into a cell of the same kind)</dd>
                 <dt>Ctrl / &#8984; + V</dt><dd>paste the copied cell here, or on a gray line below a component as a new one</dd>
-                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record (Shift to redo)</dd>
+                <dt>Ctrl / &#8984; + Z</dt><dd>undo the last change to a record, or a record taken off the sheet (Shift to redo)</dd>
                 <dt>Esc</dt><dd>stop copying, deselect</dd>
               </dl>
               <div class="wf-fields-menu-heading">Scanning</div>
-              <p>Scan a barcode at any time, wherever the cursor is, or type a LCCN, ISBN or barcode in the box and press Enter.</p>
+              <p>Scan a barcode at any time, wherever the cursor is, or type a LCCN, ISBN, barcode or FOLIO UUID in the box and press Enter.</p>
             </div>
           </template>
         </VDropdown>
@@ -257,6 +259,9 @@
     <!-- saving the fields shown as a field set -->
     <WorkflowNameDialog v-if="savingFieldSet && session" title="Save field set" message="The fields shown now, in this order, with the subfields each one shows. A set of this name is replaced." placeholder="Name of the field set" ok-label="Save" @ok="saveFieldSet" @cancel="savingFieldSet = false" />
 
+    <!-- picking what goes into a CSV file of the records -->
+    <WorkflowExportDialog v-if="exporting && session" @close="closeExport()" />
+
     <!-- a post failed -->
     <div v-if="workflowStore.postError" class="wf-dialog-overlay">
       <div class="wf-dialog">
@@ -304,6 +309,7 @@ import { columnHint } from '@/lib/workflows/fields'
 import WorkflowGrid from "@/components/workflows/WorkflowGrid.vue";
 import WorkflowPages from "@/components/workflows/WorkflowPages.vue";
 import WorkflowNameDialog from "@/components/workflows/WorkflowNameDialog.vue";
+import WorkflowExportDialog from "@/components/workflows/WorkflowExportDialog.vue";
 import Debug from "@/components/panels/edit/modals/DebugModal.vue";
 import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
@@ -314,7 +320,7 @@ import '@/assets/workflows-graph.css'
 
 export default {
   name: "WorkflowSession",
-  components: { WorkflowGrid, WorkflowPages, WorkflowNameDialog, Debug, LiteralLang },
+  components: { WorkflowGrid, WorkflowPages, WorkflowNameDialog, WorkflowExportDialog, Debug, LiteralLang },
   data(){
     return {
       // the list of records the workflow dropped is open
@@ -324,6 +330,8 @@ export default {
       renaming: false,
       // the name-a-field-set dialog is up
       savingFieldSet: false,
+      // the export to CSV dialog is up
+      exporting: false,
       notFound: false,
       opened: false,
       // the error messages that have already had their moment in the middle of the page
@@ -488,6 +496,20 @@ export default {
       let set = this.workflowStore.saveFieldSet(name)
       if (set){ this.workflowStore.notify('Field set "' + set.name + '" saved', 'info') }
       this.focusScan()
+    },
+
+    /**
+    * The export to CSV dialog. A cell that is open is closed first, so what is typed in it is in the record.
+    */
+    openExport(){
+      if (!this.session){ return }
+      this.workflowStore.stopEditing()
+      this.exporting = true
+    },
+
+    closeExport(){
+      this.exporting = false
+      if (!this.workflowStore.selectedCell){ this.focusScan() }
     },
 
     deleteFieldSet(set){
@@ -692,7 +714,7 @@ export default {
     * scan box when nothing else has the focus so the user doesn't have to click into it first
     */
     globalKeydown(event){
-      if (!this.session || this.prompt){ return }
+      if (!this.session || this.prompt || this.exporting){ return }
       if (event.ctrlKey || event.metaKey || event.altKey || event.key.length !== 1){ return }
       let el = document.activeElement
       if (el && el !== document.body && el.closest && el.closest('input, textarea, select, [contenteditable], .vfm, .v-popper__popper')){ return }

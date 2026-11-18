@@ -188,7 +188,9 @@ export const useWorkflowStore = defineStore('workflow', {
     // the cell that was copied (ctrl+c) and is shown with the moving outline {rowId, guid, key, text}, see lib/workflows/clipboard.js
     copying: null,
 
-    // a paste onto a selected column waits here for the user to say how {group, column, payload, populated, empty}
+    // a paste onto a selected column waits here for the user to say how {group, column, payload, all, notDone,
+    // doneRecords, skipDone, types, newType}: `all` and `notDone` are what it would touch ({populated, empty,
+    // skipped, records}) with every record or without the ones marked done, skipDone is the dialog's checkbox
     columnPaste: null,
 
     // the profile store's dataChanged is not about the record for the moment (the Field Colors modal is open)
@@ -417,6 +419,26 @@ export const useWorkflowStore = defineStore('workflow', {
       let pt = findComponentTemplate(baseProfile, component)
       if (!pt){ return {} }
       return resolveComponentCells(pt, useProfileStore().rtLookup, useConfigStore().lookupConfig)
+    },
+
+    /**
+    * Every component of the open sheet's profile with its subfields, for the CSV export: the ones
+    * on the sheet first, in the sheet's order, then the rest of the profile
+    * @return {array} - of {key, component, allColumns, inSheet, shownColumns}, shownColumns is the
+    *   keys of the subfields the sheet shows now (none for a component that is hidden or not on it)
+    */
+    returnExportGroups(){
+      let session = this.activeSession
+      if (!session){ return [] }
+      let groups = this.columnGroups.map((g) => {
+        return { key: g.key, component: g.component, allColumns: g.allColumns, inSheet: true, shownColumns: g.hidden ? [] : g.columns.map((c) => { return c.key }) }
+      })
+      for (let component of this.addableComponents){
+        let allColumns = this.returnComponentColumns(session.definition.profileId, component)
+        if (allColumns.length == 0){ continue }
+        groups.push({ key: component.rt + '|' + component.id, component: component, allColumns: allColumns, inSheet: false, shownColumns: [] })
+      }
+      return groups
     },
 
     /**
@@ -957,7 +979,7 @@ export const useWorkflowStore = defineStore('workflow', {
 
     /**
     * Something was scanned (or typed), find the record and add it to the session
-    * @param {string} value - a LCCN, ISBN, barcode or the URL to a record
+    * @param {string} value - a LCCN, ISBN, barcode, FOLIO UUID or the URL to a record
     * @param {boolean} quiet - part of a pasted list: don't move the keyboard to the record when it arrives
     * @param {object} session - the session to add it to, the open sheet unless the builder is testing (testGraph)
     * @return {Promise<boolean>} - did a record get added
@@ -2093,13 +2115,13 @@ export const useWorkflowStore = defineStore('workflow', {
     * CIP steps) into a throwaway session, run the graph on it, and report what it did. The record is let
     * go afterwards, nothing is stored and the open sheet is not touched.
     * @param {object} definition - the builder's draft (profileId, components, enrichments, graph)
-    * @param {string} identifier - a LCCN, ISBN, barcode or record URL
+    * @param {string} identifier - a LCCN, ISBN, barcode, FOLIO UUID or record URL
     * @return {object} - { identifier, error, label, lccn, pickReason, dropped, reason, log, changes }
     */
     async testGraph(definition, identifier){
       identifier = (identifier || '').trim()
       let result = { identifier: identifier, error: null, label: null, lccn: null, pickReason: null, dropped: false, reason: null, log: [], changes: 0 }
-      if (identifier == ''){ result.error = 'Type a LCCN, ISBN or barcode first'; return result }
+      if (identifier == ''){ result.error = 'Type a LCCN, ISBN, barcode or FOLIO UUID first'; return result }
       if (this.testSession){ result.error = 'A test is already running'; return result }
       let resolved = this.resolveDefinition(definition)
       if (!resolved){ result.error = 'The profile ' + definition.profileId + ' is not loaded'; return result }
@@ -2149,22 +2171,77 @@ export const useWorkflowStore = defineStore('workflow', {
       return result
     },
 
-    removeRow(rowId){
+    /**
+    * Take a record off its sheet. The record itself is not deleted.
+    * @param {string} rowId
+    * @param {boolean} undoable - the user took it off (the X on the record): it goes on the undo stack
+    *   and ctrl+z puts it back where it was, as it was. Otherwise (a scan that found nothing, a record
+    *   the graph dropped) it is gone, and its history with it.
+    * @return {void}
+    */
+    removeRow(rowId, undoable = false){
       let s = this.sessionFor(rowId)
       if (!s){ return }
+      let index = s.rows.findIndex((r) => { return r.id === rowId })
+      if (index < 0){ return }
+      if (undoable && s === this.activeSession){
+        // the record's own changes stay on the stack under this, they can be undone again once it is back
+        undoStack.push({ kind: 'remove', rowId: rowId, row: s.rows[index], index: index, editKey: null, group: null })
+        if (undoStack.length > HISTORY_LIMIT){ undoStack.shift() }
+        redoStack = []
+      } else {
+        undoStack = undoStack.filter((e) => { return e.rowId !== rowId })
+        redoStack = redoStack.filter((e) => { return e.rowId !== rowId })
+        baseline.delete(rowId)
+      }
+      this.historySize = { undo: undoStack.length, redo: redoStack.length }
+      this.detachRow(s, rowId)
+    },
+
+    /**
+    * The part of removing a record that is the same whether it can be undone or not: let go of
+    * whatever was pointing at it and take it out of the session's rows
+    * @param {object} s - the session
+    * @param {string} rowId
+    * @return {void}
+    */
+    detachRow(s, rowId){
       if (this.editingCell && this.editingCell.rowId === rowId){ this.editingCell = null }
       if (this.selectedCell && this.selectedCell.rowId === rowId){ this.selectedCell = null }
       if (this.copying && this.copying.rowId === rowId){ this.copying = null }
-      undoStack = undoStack.filter((e) => { return e.rowId !== rowId })
-      redoStack = redoStack.filter((e) => { return e.rowId !== rowId })
-      baseline.delete(rowId)
-      this.historySize = { undo: undoStack.length, redo: redoStack.length }
       if (this.activeRowId === rowId){
         this.activeRowId = null
         useProfileStore().prepareForNewRecord()
       }
       s.rows = s.rows.filter((r) => { return r.id !== rowId })
       if (s === this.activeSession){ this.persistSession() }
+    },
+
+    /**
+    * Undo / redo of a record taken off the sheet with its X (the 'remove' entries of the stacks):
+    * undoing puts the record back where it was, with its edits, redoing takes it off again
+    * @param {object} entry - { kind: 'remove', rowId, row, index }
+    * @param {boolean} redo
+    * @return {boolean} - was it done
+    */
+    undoRemove(entry, redo){
+      let s = this.activeSession
+      if (!s){ return false }
+      let index = s.rows.findIndex((r) => { return r.id === entry.rowId })
+      if (redo){
+        if (index < 0){ return false }
+        entry.row = s.rows[index]
+        entry.index = index
+        this.detachRow(s, entry.rowId)
+        return true
+      }
+      if (index > -1){ return false }
+      s.rows.splice(Math.min(entry.index, s.rows.length), 0, entry.row)
+      let row = this.returnRow(entry.rowId)
+      // it was taken off while it was still coming in (or had failed to): start over
+      if (row && row.status !== 'ready'){ this.loadRow(row.id) }
+      this.persistSession()
+      return true
     },
 
     toggleDone(rowId){
@@ -2247,7 +2324,8 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     /**
-    * Take back the last change (ctrl+z), or put it back again (shift+ctrl+z)
+    * Take back the last change (ctrl+z), or put it back again (shift+ctrl+z). A change is an edit
+    * to a record, or a record taken off the sheet with its X (removeRow).
     * @param {boolean} redo
     * @return {void}
     */
@@ -2270,9 +2348,18 @@ export const useWorkflowStore = defineStore('workflow', {
       let group = entries.length > 1 ? short.generate() : null
       let restored = 0
       let lastRow = null
+      // a record put back on the sheet, or taken off it again
+      let moved = null
       restoring = true
       try {
         for (let e of entries){
+          if (e.kind === 'remove'){
+            if (this.undoRemove(e, redo)){
+              to.push(e)
+              moved = e.row
+            }
+            continue
+          }
           let row = this.returnRow(e.rowId)
           if (!row || row.status != 'ready'){ continue }
           if (!(await this.activateRow(e.rowId))){ continue }
@@ -2288,6 +2375,16 @@ export const useWorkflowStore = defineStore('workflow', {
         restoring = false
       }
       this.historySize = { undo: undoStack.length, redo: redoStack.length }
+      if (moved){
+        let name = '"' + (moved.label || moved.scanned) + '"'
+        if (redo){
+          this.notify('Took ' + name + ' off the sheet again', 'info')
+        } else {
+          if (moved.status === 'ready'){ this.selectCell(moved.id, 0, 0) }
+          this.notify('Put ' + name + ' back on the sheet', 'info')
+        }
+        return
+      }
       if (restored == 0){ return }
       // show where it happened
       if (lastRow && (!this.selectedCell || this.selectedCell.rowId !== lastRow.id)){ this.selectCell(lastRow.id, 0, 0) }
@@ -2481,40 +2578,71 @@ export const useWorkflowStore = defineStore('workflow', {
       let typeCell = Object.values(this.returnComponentCells(this.activeSession.definition.profileId, group.component)).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
       let types = typeCell ? typeCell.options : []
       let newType = (payload.templateId && types.some((t) => { return t.id === payload.templateId })) ? payload.templateId : (typeCell && typeCell.active ? typeCell.active.id : null)
+      // what the paste would touch, with every record and with the ones marked done left out
+      let countsFor = (skipDone) => {
+        let mine = targets.filter((t) => { return !skipDone || !t.done })
+        let fits = mine.filter((t) => { return !incompatible(payload, t.cell) })
+        return {
+          populated: fits.filter((t) => { return t.populated }).length,
+          empty: fits.filter((t) => { return !t.populated }).length,
+          skipped: mine.length - fits.length,
+          records: this.activeSession.rows.filter((r) => { return r.status == 'ready' && r.profile && (!skipDone || !r.done) && findComponentPts(r.profile, group.component).length > 0 }).length,
+        }
+      }
+      let all = countsFor(false)
+      let notDone = countsFor(true)
+      let pref = this.preferences[this.activeSession.workflowId]
       this.columnPaste = {
         group: group,
         column: column,
         payload: payload,
-        populated: compatible.filter((t) => { return t.populated }).length,
-        empty: compatible.filter((t) => { return !t.populated }).length,
-        skipped: targets.length - compatible.length,
-        records: this.activeSession.rows.filter((r) => { return r.status == 'ready' && r.profile && findComponentPts(r.profile, group.component).length > 0 }).length,
+        all: all,
+        notDone: notDone,
+        doneRecords: all.records - notDone.records,
+        // the choice made the last time is the one the dialog comes up with
+        skipDone: !!(pref && pref.pasteSkipDone) && all.records > notDone.records,
         types: types,
         newType: newType,
       }
     },
 
     /**
-    * Every cell down a column that could take a value: one per component line of each loaded record
-    * @return {array} - of {rowId, pt, cell, populated}
+    * The "skip the records marked done" box of the paste down a column dialog, remembered for the workflow
+    * @param {boolean} on
+    * @return {void}
     */
-    columnPasteTargets(group, column){
+    setColumnPasteSkipDone(on){
+      if (!this.columnPaste || !this.activeSession){ return }
+      this.columnPaste.skipDone = !!on
+      this.setWorkflowPreference(this.activeSession.workflowId, 'pasteSkipDone', on ? true : null)
+    },
+
+    /**
+    * Every cell down a column that could take a value: one per component line of each loaded record
+    * @param {object} group
+    * @param {object} column
+    * @param {boolean} skipDone - leave out the records marked done
+    * @return {array} - of {rowId, done, pt, cell, populated}, done is the record's
+    */
+    columnPasteTargets(group, column, skipDone = false){
       let rtLookup = useProfileStore().rtLookup
       let lookupConfig = useConfigStore().lookupConfig
       let targets = []
       for (let row of this.activeSession.rows){
         if (row.status != 'ready' || !row.profile){ continue }
+        if (skipDone && row.done){ continue }
         for (let pt of findComponentPts(row.profile, group.component)){
           let cell = resolveComponentCells(pt, rtLookup, lookupConfig)[column.key]
           if (!cell || cell.kind != 'field'){ continue }
-          targets.push({ rowId: row.id, pt: pt, cell: cell, populated: readCellValues(pt, cell).length > 0 })
+          targets.push({ rowId: row.id, done: !!row.done, pt: pt, cell: cell, populated: readCellValues(pt, cell).length > 0 })
         }
       }
       return targets
     },
 
     /**
-    * Paste down the selected column, the way the user chose
+    * Paste down the selected column, the way the user chose. With the dialog's "skip the records
+    * marked done" box checked (columnPaste.skipDone) those records are left as they are.
     * @param {string} how - 'overwrite' (only where there is a value) | 'fill' (everywhere, over what is there) | 'add' (beside what is there)
     *   | 'new' (another one of the component on every record, of the Type picked in the dialog, holding the value)
     * @return {void}
@@ -2534,12 +2662,13 @@ export const useWorkflowStore = defineStore('workflow', {
         if (how == 'new'){
           for (let row of this.activeSession.rows){
             if (row.status != 'ready' || !row.profile || findComponentPts(row.profile, ask.group.component).length == 0){ continue }
+            if (ask.skipDone && row.done){ continue }
             if (!(await this.activateRow(row.id))){ continue }
             let result = await this.pasteAsNewComponent(ask.group, ask.column, ask.payload, ask.newType)
             if (result.done){ done++ } else { skipped++ }
           }
         }
-        for (let target of (how == 'new') ? [] : this.columnPasteTargets(ask.group, ask.column)){
+        for (let target of (how == 'new') ? [] : this.columnPasteTargets(ask.group, ask.column, ask.skipDone)){
           if (incompatible(ask.payload, target.cell)){ continue }
           if (how == 'overwrite' && !target.populated){ continue }
           if (!(await this.activateRow(target.rowId))){ continue }
@@ -2559,12 +2688,13 @@ export const useWorkflowStore = defineStore('workflow', {
         historyGroup = null
         this.busy = previousBusy
       }
+      let leftAlone = (ask.skipDone && ask.doneRecords > 0) ? ', the ' + ask.doneRecords + ' ' + (ask.doneRecords == 1 ? 'record' : 'records') + ' marked done left as ' + (ask.doneRecords == 1 ? 'it was' : 'they were') : ''
       if (how == 'new'){
         let typeLabel = (ask.types.filter((t) => { return t.id === ask.newType })[0] || {}).label
         let what = (typeLabel ? '"' + typeLabel + '"' : '"' + ask.group.component.label + '"')
-        this.notify('Added a new ' + what + ' with "' + ask.payload.text + '" to ' + done + ' ' + (done == 1 ? 'record' : 'records') + (skipped > 0 ? ', ' + skipped + ' skipped ("' + ask.column.label + '" is not a field of it or takes another kind of value)' : ''), skipped > 0 && done == 0 ? 'error' : 'info')
+        this.notify('Added a new ' + what + ' with "' + ask.payload.text + '" to ' + done + ' ' + (done == 1 ? 'record' : 'records') + (skipped > 0 ? ', ' + skipped + ' skipped ("' + ask.column.label + '" is not a field of it or takes another kind of value)' : '') + leftAlone, skipped > 0 && done == 0 ? 'error' : 'info')
       } else {
-        this.notify('Pasted "' + ask.payload.text + '" into ' + done + ' ' + (done == 1 ? 'cell' : 'cells'), 'info')
+        this.notify('Pasted "' + ask.payload.text + '" into ' + done + ' ' + (done == 1 ? 'cell' : 'cells') + leftAlone, 'info')
       }
     },
 

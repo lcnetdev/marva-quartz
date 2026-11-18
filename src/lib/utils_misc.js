@@ -190,6 +190,17 @@ const utilsMisc = {
       return str.substring(0, index) + chr + str.substring(index + 1);
   },
 
+  /**
+  * Is the value a FOLIO UUID (e4b0b11a-538d-5f80-a65d-e95f684c773f), with or without the
+  * "folio:" prefix the ID search wants in front of it
+  * @param {string} value - what was typed or scanned
+  * @return {string|null} - the bare UUID in lowercase, null when it is not one
+  */
+  returnFolioUuid: function (value) {
+    let match = String(value || '').trim().match(/^(?:folio:)?\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i)
+    return match ? match[1].toLowerCase() : null
+  },
+
 }
 
 
