@@ -96,6 +96,24 @@
 
         },
 
+        /**
+         * Split a preference description into plain text and web addresses,
+         * so the addresses can be shown as links
+         * @param {string} desc - the preference's description
+         * @return {array} - [{text, url}], url is null for plain text
+         */
+        descParts: function(desc){
+          let parts = []
+          let last = 0
+          for (let m of String(desc || '').matchAll(/https?:\/\/[^\s)]+/g)){
+            if (m.index > last){ parts.push({text: desc.slice(last, m.index), url: null}) }
+            parts.push({text: m[0], url: m[0]})
+            last = m.index + m[0].length
+          }
+          if (last < String(desc || '').length){ parts.push({text: desc.slice(last), url: null}) }
+          return parts
+        },
+
         manuallyChangeColor: function(id){
           let color = prompt('Please enter a color in hex6 or hex8 format (e.g. #ff0000)', this.styleDefault[id].value)
 
@@ -282,7 +300,7 @@
               <div class="option">
                 <div class="option-title">
                   <div class="option-title-header">{{option.descShort}} <span v-if="searchTerm.trim() !== ''" class="option-title-group">({{option.group}})</span></div>
-                    <div class="option-title-desc">{{option.desc}} <a href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor(option.id)" v-if="option.type==='color'" class="material-icons manual-input">input</a></div>
+                    <div class="option-title-desc"><template v-for="part in descParts(option.desc)"><a v-if="part.url" :href="part.url" target="_blank" rel="noopener">{{part.text}}</a><template v-else>{{part.text}}</template></template> <a href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor(option.id)" v-if="option.type==='color'" class="material-icons manual-input">input</a></div>
 
                   <!-- <div style="font-style: italic; color:orange" v-if="option.id == '--b-edit-main-splitpane-edit-inline-mode'">This mode is disabled right now, we need to fix/improve it.</div> -->
 

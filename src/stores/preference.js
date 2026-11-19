@@ -976,7 +976,7 @@ export const usePreferenceStore = defineStore('preference', {
 
       // General Edit things
       '--s-edit-general-action-button-icon' : {
-          desc: 'What icon to use on the field action button, such as "bolt" look up the Material Icon name (https://marella.me/material-icons/demo/)',
+          desc: 'What icon to use on the field action button, such as "bolt" look up the Material Icon name (https://marella.github.io/material-icons/demo/)',
           descShort: 'Action button icon',
           value: 'bolt',
           type: 'string',
