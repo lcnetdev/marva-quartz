@@ -370,7 +370,7 @@ export default {
             }
             let invalidSubdivision = data.invalidGeoSub
             if (invalidSubdivision){
-                needsNote = ['The previous element in the heading is "Not Subd Geog," you cannot continue with this heading.']
+                needsNote = ['The previous element in the heading is NOT "May Subd Geog," you cannot continue with this heading.']
             }
             return needsNote[0]
         },

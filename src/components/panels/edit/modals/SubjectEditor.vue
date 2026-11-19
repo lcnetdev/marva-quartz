@@ -911,7 +911,7 @@ export default {
     },
     checkMaySubdGeog: function(idx){
       let prev = null
-      let prevNoMaySubdGeog = true
+      let prevMaySubdGeog = true
       let currentGeo = false
       let current = this.localContextCache[this.components[idx].uri]
 
@@ -924,11 +924,11 @@ export default {
         let prevUri = this.components[idx - 1].uri
         prev = this.localContextCache[prevUri]
         if (prev?.collections){
-          prevNoMaySubdGeog = prev.collections.includes("http://id.loc.gov/authorities/subjects/collection_NoGeographicSubdivisions")
+          prevMaySubdGeog = prev.collections.includes("http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically")
         }
       }
 
-      if (prevNoMaySubdGeog && currentGeo){
+      if (!prevMaySubdGeog && currentGeo){
         this.components[idx].invalidSubDiv = true
         return false
       }
