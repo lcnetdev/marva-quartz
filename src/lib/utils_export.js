@@ -1804,8 +1804,8 @@ const utilsExport = {
 			rdf = theHub
 		}
 
-		if (rdfBasic.querySelectorAll("*|mainTitle:not(*|expressionOf *|mainTitle)").length>0){
-			xmlVoidDataTitle = rdfBasic.querySelectorAll("*|mainTitle:not(*|expressionOf *|mainTitle)")[0].innerHTML
+		if (rdfBasic.querySelectorAll("*mainTitle:not(*expressionOf *mainTitle)").length>0){
+			xmlVoidDataTitle = rdfBasic.querySelectorAll("*|mainTitle:not(*expressionOf *mainTitle)")[0].innerHTML
 
 		} else if (rdfBasic.getElementsByTagName("bf:mainTitle").length>0){
 			xmlVoidDataTitle = rdfBasic.getElementsByTagName("bf:mainTitle")[0].innerHTML
@@ -1821,9 +1821,9 @@ const utilsExport = {
 			if (rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label").length>0){
 				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
 			}
-		} else if (rdfBasic.querySelectorAll("*|Contribution:not(*|expressionOf *|Contribution)").length>0){
-			if (rdfBasic.querySelectorAll("*|Contribution:not(*|expressionOf *|Contribution)")[0].getElementsByTagName("rdfs:label").length>0){
-				xmlVoidDataContributor = rdfBasic.querySelectorAll("*|Contribution:not(*|expressionOf *|Contribution)")[0].getElementsByTagName("rdfs:label")[0].innerHTML
+		} else if (rdfBasic.querySelectorAll("*Contribution:not(*expressionOf *Contribution)").length>0){
+			if (rdfBasic.querySelectorAll("*Contribution:not(*expressionOf *Contribution)")[0].getElementsByTagName("rdfs:label").length>0){
+				xmlVoidDataContributor = rdfBasic.querySelectorAll("*Contribution:not(*expressionOf *Contribution)")[0].getElementsByTagName("rdfs:label")[0].innerHTML
 			}
 		}else{
 			if (rdfBasic.getElementsByTagName("bf:Contribution").length>0){
