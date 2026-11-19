@@ -1458,7 +1458,6 @@ export default {
 
 
       let records = await utilsNetwork.searchSavedRecords()
-
       // filter records to only show those matching the current cataloger ID
       let currentCatCode = this.preferenceStore.catCode
       if (currentCatCode){
