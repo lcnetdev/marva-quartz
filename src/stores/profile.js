@@ -2158,6 +2158,12 @@ export const useProfileStore = defineStore('profile', {
         * @return {void}
         */
         setValueLiteral: function (componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral) {
+            console.info("setValueLiteral")
+            console.info("\t componentGuid:", componentGuid)
+            console.info("\t fieldGuid:", fieldGuid)
+            console.info("\t propertyPath:", propertyPath)
+            console.info("\t value:", value)
+            console.info("\t lang:", lang)
             // from NAR, fieldGuid is null
             // remove returns from value
             value = value.replace(/[\n\r]+/g, '');
@@ -3205,8 +3211,14 @@ export const useProfileStore = defineStore('profile', {
         * @return {void} -
         */
         setValueSubject: async function (componentGuid, subjectComponents, propertyPath) {
+            console.info("setValueSubject")
+            console.info("\t componentGuid: ", componentGuid)
+            console.info("\t subjectComponents: ", subjectComponents)
+            console.info("\t propertyPath: ", propertyPath)
             // we're just going to overwrite the whole userValue with the constructed headings
             let pt = utilsProfile.returnPt(this.activeProfile, componentGuid)
+
+            console.info("\t pt: ", JSON.parse(JSON.stringify(pt)))
 
             // console.log('-----')
             // console.log(pt)
@@ -3501,6 +3513,25 @@ export const useProfileStore = defineStore('profile', {
                                             "@guid": short.generate(),
                                             // "http://www.w3.org/2000/01/rdf-schema#label": "NACO authority file"
                                             "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress subject headings"
+
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                        break
+                    } else if (h['uri'] && h['uri'].indexOf('authorities/childrensSubjects') > -1){
+                        if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']) {
+
+                            currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] = [
+                                {
+                                    "@guid": short.generate(),
+                                    "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                                    "@id": "http://id.loc.gov/vocabulary/subjectSchemes/cyac",
+                                    "http://www.w3.org/2000/01/rdf-schema#label": [
+                                        {
+                                            "@guid": short.generate(),
+                                            "http://www.w3.org/2000/01/rdf-schema#label": "Children's and Young Adults' Cataloging subject headings"
 
                                         }
                                     ]
@@ -9487,7 +9518,120 @@ export const useProfileStore = defineStore('profile', {
                     }
                 }
             }
-        }
+        },
+
+        /**
+       * Add class number to the work
+       *
+       * @param classNum - number to add
+       */
+        addClassNumber: async function(classNum){ // add defaults, populate empty
+            console.info("addClassNumber")
+            console.info("\t classNum: ", classNum)
+            // remove any paranthetical
+            if (classNum.match(/\(.*\)/)){
+                classNum = classNum.replace(/\(.*\)/, "")
+            }
+            // 2025454279
+            let profile = this.activeProfile
+
+            let label = "Classification numbers"
+            let targetComponent = null //this.returnComponentByPropertyLabel('Classification numbers')
+            let lastClassifiction
+
+            for (let rt in profile.rt){
+                for (let pt in profile.rt[rt].pt){
+                    if (profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() == label.toLowerCase()){
+                        if (rt.includes("lc:RT:bf2:Monograph:Work")){
+                            let temp = profile.rt[rt].pt[pt]
+                            let userValue = temp.userValue
+                            let type = false
+                            try {
+                                type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
+                            } catch{
+                                // empty component
+                            }
+                            lastClassifiction = pt
+                            if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !temp.deleted){
+                                targetComponent = temp
+                                break
+                            } else if (!type){
+                                targetComponent = temp
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+
+            let newClass
+            // If no match, need to add component
+            // if (!targetComponent || !this.isEmptyComponent(targetComponent)){
+            let hasClassNumber = false
+            if (targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"]){
+                hasClassNumber = Object.keys(targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")
+            }
+
+            if ( !targetComponent || hasClassNumber){
+                let structure = this.returnComponentByPropertyLabel('Classification numbers')
+                newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+                targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]
+            }
+
+            let propertyPath = [
+                { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
+                { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
+            ]
+
+            let fieldGuid = null
+            try {
+                if ( targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"]){
+                    // if there's no value in the classification portion this won't work
+                    fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]
+                } else {
+                    let id = short.generate()
+                    fieldGuid = id
+                    targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [
+                        {
+                            '@guid': id
+                        }
+                    ]
+                }
+
+
+            } catch(err){
+                fieldGuid = short.generate()
+            }
+
+            try {
+                console.info("targetComponent2: ", JSON.parse(JSON.stringify(targetComponent)))
+                // fieldGuid
+                this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
+
+                // add defaults for LCC
+                let parentStructure = this.returnStructureByComponentGuid(targetComponent['@guid'])
+                if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
+                    for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+                        if ( vRt=='lc:RT:bf2:LCC') {
+                            for (let pt of this.rtLookup[vRt].propertyTemplates){
+                                if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
+                                    let struct = this.returnStructureByComponentGuid(targetComponent['@guid'])
+                                    if (vRt != "lc:RT:bf2:SeriesHub"){
+                                        this.insertDefaultValuesComponent(struct['@guid'], pt)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return true
+            } catch(err) {
+                console.error("Couldn't add the class number: ", err)
+            }
+
+            return false
+        },
 
     }, // end of methods
 })

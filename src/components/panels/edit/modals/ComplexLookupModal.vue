@@ -163,7 +163,7 @@
 
       ...mapState(useConfigStore, ['lookupConfig']),
 
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'returnStructureByComponentGuid', 'isLatin', 'postNacoStub']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'returnLccInfo', 'returnStructureByComponentGuid', 'isLatin', 'postNacoStub', 'addClassNumber']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -1074,72 +1074,14 @@
        *
        * @param classNum - number to add
        */
-      addClassNumber: async function(classNum, idx){
-        // remove any paranthetical
-        if (classNum.match(/\(.*\)/)){
-          classNum = classNum.replace(/\(.*\)/, "")
-        }
-        // 2025454279
-        let profile = this.activeProfile
-
-        let label = "Classification numbers"
-        let targetComponent = null //this.returnComponentByPropertyLabel('Classification numbers')
-        let lastClassifiction
-
-        for (let rt in profile.rt){
-          for (let pt in profile.rt[rt].pt){
-            if (profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() == label.toLowerCase()){
-              if (rt.includes("lc:RT:bf2:Monograph:Work")){
-                let temp = profile.rt[rt].pt[pt]
-                let userValue = temp.userValue
-                let type = false
-                try {
-                  type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
-                } catch{
-                  // empty component
-                }
-                lastClassifiction = pt
-                if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !temp.deleted){
-                  targetComponent = temp
-                  break
-                } else if (!type){
-                  targetComponent = temp
-                  break
-                }
-              }
-            }
-          }
-        }
-
-        let newClass
-        // If no match, need to add component
-        if (!targetComponent || !this.isEmptyComponent(targetComponent)){
-          let structure = this.returnComponentByPropertyLabel('Classification numbers')
-          newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
-          targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]
-        }
-
-        let propertyPath = [
-          { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
-          { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
-        ]
-
-        let fieldGuid = null
-        try {
-          fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]
-        } catch(err){
-          fieldGuid = short.generate()
-        }
-
-        try {
-          this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
-          // Give user some feedback
+      addClassNumb: async function(classNum, idx){ // add defaults, populate empty
+        let success = await this.addClassNumber(classNum)
+        if (success){
           let button = this.$refs.addClass[idx]
           button.innerText = "check"
-        } catch(err) {
+        } else {
           console.error("Couldn't add the class number: ", err)
         }
-
       },
       checkUsable: function(data){
         let notes = data.extra.notes || []
@@ -2441,7 +2383,7 @@
                               <li class="" v-if="key=='lcclasses'" v-for="(v, idx) in activeContext.extra['lcclasses']">
                                   <template v-if="v.assigner">({{ v.assigner }}) </template>
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
-                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code, idx)" ref="addClass">add</button>
+                                <button class="material-icons see-search add-class" @click="addClassNumb(v.code, idx)" ref="addClass">add</button>
                                 <template v-if="v.label">
                                   <span v-if="v.label.split('--').length == 1">
                                     --{{ v.label.split("--").at(-1) }}
@@ -3234,3 +3176,4 @@ input.prefCheck[type=checkbox]:checked+label {
 }
 
 </style>
+

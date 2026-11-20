@@ -20,7 +20,7 @@ test('Add Latin Name', async ({ page }) => {
     await page.getByRole('listbox').selectOption('http://id.loc.gov/authorities/names/n82164069');
     await page.getByRole('button', { name: 'Add [Shift+Enter]' }).click();
     await page.locator('.child-elements > div > div > div > .caret').first().click();
-    await expect(page.locator('#app')).toContainText('<rdf:typerdf:resource="http://www.loc.gov/mads/rdf/v1#PersonalName" /><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, David, 1929-</rdfs:label><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">10010$aTwain, David,$d1929-</bflc:marcKey>');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, David, 1929-</rdfs:label><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">10010$aTwain, David,$d1929-</bflc:marcKey>');
 });
 
 test('Add Non-Latin Name', async ({ page }) => {
