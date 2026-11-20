@@ -114,7 +114,7 @@
 
               <!-- Results Panel -->
               <DetailsPanel :contextData="contextData" :contextRequestInProgress="contextRequestInProgress"
-                @addClassNumber="addClassNumber" @newSearch="newSearch" />
+                @addClassNumber="addClassNumb" @newSearch="newSearch" />
 
 
 
@@ -946,63 +946,10 @@ export default {
 
     // Emitted from DetailsPanel
     // Add class number from details to Marva
-    addClassNumber: async function (classNum) {
-      // 2025454279
-      let profile = this.activeProfile
+    addClassNumb: async function (classNum) {
+      let success = await this.profileStore.addClassNumber(classNum)
 
-      let label = "Classification numbers"
-      let targetComponent = null //this.returnComponentByPropertyLabel('Classification numbers')
-      let lastClassifiction
-
-      for (let rt in profile.rt){
-        for (let pt in profile.rt[rt].pt){
-          if (profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() == label.toLowerCase()){
-            if (rt.includes("lc:RT:bf2:Monograph:Work")){
-              let temp = profile.rt[rt].pt[pt]
-              let userValue = temp.userValue
-              let type = false
-                try {
-                  type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
-                } catch{
-                  // empty component
-                }
-                lastClassifiction = pt
-                if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !temp.deleted){
-                  targetComponent = temp
-                  break
-                } else if (!type){
-                  targetComponent = temp
-                  break
-                }
-            }
-          }
-        }
-      }
-
-      let newClass
-      // If no match, need to add component
-      if (!targetComponent || !this.isEmptyComponent(targetComponent)){
-        let structure = this.returnComponentByPropertyLabel('Classification numbers')
-        newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
-        targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]
-      }
-
-      let propertyPath = [
-        { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
-        { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
-      ]
-
-      let fieldGuid = null
-      try {
-        fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]
-      } catch (err) {
-        fieldGuid = short.generate()
-      }
-
-      this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
-
-
-
+      return success
     },
 
     //parse complex headings so we can have complete and broken up headings

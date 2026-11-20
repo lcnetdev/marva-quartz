@@ -9542,7 +9542,10 @@ export const useProfileStore = defineStore('profile', {
             let newClass
             // If no match, need to add component
             // if (!targetComponent || !this.isEmptyComponent(targetComponent)){
-            let hasClassNumber = Object.keys(targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")
+            let hasClassNumber = false
+            if (targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"]){
+                hasClassNumber = Object.keys(targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")
+            }
 
             if ( !targetComponent || hasClassNumber){
                 let structure = this.returnComponentByPropertyLabel('Classification numbers')

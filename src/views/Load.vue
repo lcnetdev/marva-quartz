@@ -1045,6 +1045,7 @@ export default {
             let target = pt[t]
             let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
             let withDefaults = this.loadWithDefaults(structure)
+
             if (withDefaults){ // 2023416867
               if (withDefaults == 'all') {
                 this.profileStore.addAllDefaults()
@@ -1323,13 +1324,13 @@ export default {
                 "lc:RT:bf2:Identifiers:Nbn",
                 "lc:RT:bf2:Identifiers:LCOverseas"
               ].map((id) => this.profileStore.resolveTemplateId(id))
-               .filter((id) => {
+              .filter((id) => {
                   if (!this.profileStore.rtLookup[id]){
                     console.warn(`Skipping the identifier template "${id}", it is not defined in the loaded profiles`)
                     return false
                   }
                   return true
-               })
+              })
               let lccnRef = this.profileStore.resolveTemplateId("lc:RT:bf2:Identifiers:LCCN")
 
               pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1'] = {
@@ -1421,13 +1422,7 @@ export default {
           }
 
           // add the defaults
-          //this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
-          let pt = this.activeProfile.rt[rt].pt
-          for (let t of Object.keys(pt)){
-            let target = pt[t]
-            let structure = this.profileStore.returnStructureByComponentGuid(target['@guid'])
-            this.profileStore.insertDefaultValuesComponent(target['@guid'], structure)
-          }
+          this.profileStore.addAllDefaults()
         }
       }
 
