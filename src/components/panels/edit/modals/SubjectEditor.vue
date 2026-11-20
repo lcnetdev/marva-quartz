@@ -898,7 +898,7 @@ export default {
     ...mapStores(usePreferenceStore),
     ...mapStores(useConfigStore),
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks']),
-    ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent']),
+    ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent', 'addClassNumber']),
 
     ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral', 'activeNARStubComponent', 'lastComplexLookupString', 'searchValueLocal', 'showNacoStubCreateModal', 'returnStructureByComponentGuid']),
   },
@@ -947,7 +947,7 @@ export default {
     // Emitted from DetailsPanel
     // Add class number from details to Marva
     addClassNumb: async function (classNum) {
-      let success = await this.profileStore.addClassNumber(classNum)
+      let success = await this.addClassNumber(classNum)
 
       return success
     },
