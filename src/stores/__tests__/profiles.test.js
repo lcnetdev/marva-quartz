@@ -275,3 +275,86 @@ describe('duplicateComponent', () => {
     expect(newPt.activeType).toBeUndefined()
   })
 })
+
+describe('genre/form term and thesaurus (non-LCGFT)', () => {
+  const GENRE_FORM = 'http://id.loc.gov/ontologies/bibframe/genreForm'
+  const SOURCE = 'http://id.loc.gov/ontologies/bibframe/source'
+  const LABEL = 'http://www.w3.org/2000/01/rdf-schema#label'
+  const OLAC = 'http://id.loc.gov/vocabulary/genreFormSchemes/olacvggt'
+  const componentGuid = 'bPpzvHM1sE9FpA52bQQfiK'
+  const sourcePath = [{ level: 0, propertyURI: GENRE_FORM }, { level: 1, propertyURI: SOURCE }]
+  const termPath = [{ level: 0, propertyURI: GENRE_FORM }, { level: 1, propertyURI: 'http://www.w3.org/2002/07/owl#sameAs' }]
+
+  function genreFormPt() {
+    const profile = JSON.parse(JSON.stringify(mockMonographProfile))
+    useProfileStore().activeProfile = profile
+    return profile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_genreForm__genreform']
+  }
+
+  it('keeps the thesaurus when a literal term is added after it', async () => {
+    const pt = genreFormPt()
+    await useProfileStore().setValueSimple(componentGuid, null, sourcePath, OLAC, 'OLAC video game genre terms')
+    await useProfileStore().setValueComplex(componentGuid, null, termPath, null, 'Video games', null, {}, null)
+
+    const genreForm = pt.userValue[GENRE_FORM][0]
+    expect(genreForm[LABEL].map((l) => l[LABEL])).toEqual(['Video games'])
+    expect(genreForm[SOURCE].map((s) => s['@id'])).toEqual([OLAC])
+  })
+
+  it('adds the thesaurus to the source, not the term, when the source is empty', async () => {
+    const pt = genreFormPt()
+    await useProfileStore().setValueComplex(componentGuid, null, termPath, null, 'Video games', null, {}, null)
+    pt.userValue[GENRE_FORM][0][SOURCE] = []
+
+    await useProfileStore().setValueSimple(componentGuid, null, sourcePath, OLAC, 'OLAC video game genre terms')
+
+    const genreForm = pt.userValue[GENRE_FORM][0]
+    expect(genreForm['@id']).toBeUndefined()
+    expect(genreForm[LABEL].map((l) => l[LABEL])).toEqual(['Video games'])
+    expect(genreForm[SOURCE].map((s) => s['@id'])).toEqual([OLAC])
+  })
+
+  it('keeps a non-LCGFT thesaurus when the term is removed', async () => {
+    const pt = genreFormPt()
+    await useProfileStore().setValueSimple(componentGuid, null, sourcePath, OLAC, 'OLAC video game genre terms')
+    await useProfileStore().setValueComplex(componentGuid, null, termPath, null, 'Video games', null, {}, null)
+
+    const termGuid = useProfileStore().returnComplexLookupValueFromProfile(componentGuid, termPath)[0]['@guid']
+    await useProfileStore().removeValueComplex(componentGuid, termGuid)
+
+    const genreForm = pt.userValue[GENRE_FORM][0]
+    expect(genreForm[LABEL]).toBeUndefined()
+    expect(genreForm[SOURCE].map((s) => s['@id'])).toEqual([OLAC])
+  })
+
+  it('removes an LCGFT term together with its source', async () => {
+    const pt = genreFormPt()
+    await useProfileStore().setValueComplex(componentGuid, null, termPath, 'http://id.loc.gov/authorities/genreForms/gf2014026111', 'Video games', 'GenreForm',
+      { collections: ['http://id.loc.gov/authorities/genreForms/collection_LCGFT_General'] }, null)
+
+    const termGuid = useProfileStore().returnComplexLookupValueFromProfile(componentGuid, termPath)[0]['@guid']
+    await useProfileStore().removeValueComplex(componentGuid, termGuid)
+
+    expect(pt.userValue[GENRE_FORM]).toBeUndefined()
+  })
+
+  it('keeps an LCGFT line and an OLAC line separate in one record', async () => {
+    const pt = genreFormPt()
+    const LCGFT_TERM = 'http://id.loc.gov/authorities/genreForms/gf2014026111'
+    await useProfileStore().setValueComplex(componentGuid, null, termPath, LCGFT_TERM, 'Video games', 'GenreForm',
+      { collections: ['http://id.loc.gov/authorities/genreForms/collection_LCGFT_General'] }, null)
+
+    const secondGuid = await useProfileStore().duplicateComponent(componentGuid, pt)
+    await useProfileStore().setValueSimple(secondGuid, null, sourcePath, OLAC, 'OLAC video game genre terms')
+    await useProfileStore().setValueComplex(secondGuid, null, termPath, null, 'Fantasy games', null, {}, null)
+
+    const first = pt.userValue[GENRE_FORM][0]
+    expect(first['@id']).toBe(LCGFT_TERM)
+    expect(first[SOURCE].map((s) => s['@id'])).toEqual(['http://id.loc.gov/authorities/genreForms/collection_LCGFT_General'])
+
+    const secondPt = Object.values(useProfileStore().activeProfile.rt['lc:RT:bf2:Monograph:Work'].pt).find((p) => p['@guid'] === secondGuid)
+    const second = secondPt.userValue[GENRE_FORM][0]
+    expect(second[LABEL].map((l) => l[LABEL])).toEqual(['Fantasy games'])
+    expect(second[SOURCE].map((s) => s['@id'])).toEqual([OLAC])
+  })
+})
