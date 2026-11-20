@@ -3211,8 +3211,14 @@ export const useProfileStore = defineStore('profile', {
         * @return {void} -
         */
         setValueSubject: async function (componentGuid, subjectComponents, propertyPath) {
+            console.info("setValueSubject")
+            console.info("\t componentGuid: ", componentGuid)
+            console.info("\t subjectComponents: ", subjectComponents)
+            console.info("\t propertyPath: ", propertyPath)
             // we're just going to overwrite the whole userValue with the constructed headings
             let pt = utilsProfile.returnPt(this.activeProfile, componentGuid)
+
+            console.info("\t pt: ", JSON.parse(JSON.stringify(pt)))
 
             // console.log('-----')
             // console.log(pt)
@@ -3507,6 +3513,25 @@ export const useProfileStore = defineStore('profile', {
                                             "@guid": short.generate(),
                                             // "http://www.w3.org/2000/01/rdf-schema#label": "NACO authority file"
                                             "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress subject headings"
+
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                        break
+                    } else if (h['uri'] && h['uri'].indexOf('authorities/childrensSubjects') > -1){
+                        if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']) {
+
+                            currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] = [
+                                {
+                                    "@guid": short.generate(),
+                                    "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                                    "@id": "http://id.loc.gov/vocabulary/subjectSchemes/cyac",
+                                    "http://www.w3.org/2000/01/rdf-schema#label": [
+                                        {
+                                            "@guid": short.generate(),
+                                            "http://www.w3.org/2000/01/rdf-schema#label": "Children's and Young Adults' Cataloging subject headings"
 
                                         }
                                     ]

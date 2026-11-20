@@ -3049,6 +3049,7 @@ export default {
         }
       }
 
+      console.info("add: ", this.components)
       this.$emit('subjectAdded', this.components)
     },
 
