@@ -14,6 +14,9 @@
  *                                             workflow's own list, once there are any
  *   sets:    [{ id, name, profileId, components, hidden, created, updated }]
  *                                             the named sets, buttons at the top of the Fields menu
+ *   standard: { "<workflow id>": version }    which version of a built-in workflow's standard
+ *                                             placements (builtin.STANDARD_PLACEMENTS) the current
+ *                                             selection of that workflow has had applied
  */
 
 import short from 'short-uuid'
@@ -82,15 +85,56 @@ export function resolveSelection(selection, available){
 }
 
 /**
+* Give components their set place in a list of a sheet's components (builtin.STANDARD_PLACEMENTS)
+* @param {array} components - the sheet's components, in order
+* @param {array} placements - [{ rt, id, after: {rt, id} }]
+* @param {array} available - the profile's components, one not in the list is taken from here
+* @param {boolean} move - true: one that is in the list but not right after its `after` is moved
+*   there. false: only the ones missing from the list are put in
+* @return {array|null} - the new list, null when nothing had to change
+*/
+export function placeComponents(components, placements, available, move = false){
+  let list = (components || []).slice()
+  let changed = false
+  for (let p of (placements || [])){
+    let key = componentKey(p)
+    let afterKey = componentKey(p.after)
+    let at = list.findIndex((c) => { return componentKey(c) === key })
+    let item
+    if (at > -1){
+      if (!move){ continue }
+      let anchor = list.findIndex((c) => { return componentKey(c) === afterKey })
+      // already there, or the field it follows is not on the sheet: it stays where it is
+      if (anchor < 0 || at === anchor + 1){ continue }
+      item = list.splice(at, 1)[0]
+    } else {
+      let match = (available || []).filter((a) => { return a.rt === p.rt && a.id === p.id })[0]
+      // the profile does not have it
+      if (!match){ continue }
+      item = Object.assign({}, match, { hiddenColumns: [] })
+    }
+    let anchor = list.findIndex((c) => { return componentKey(c) === afterKey })
+    if (anchor < 0){
+      list.push(item)
+    } else {
+      list.splice(anchor + 1, 0, item)
+    }
+    changed = true
+  }
+  return changed ? list : null
+}
+
+/**
 * What the preference holds, with the shape filled in
 * @param {*} value - the preference's value
-* @return {object} - {sets: [], current: {}}
+* @return {object} - {sets: [], current: {}, standard: {}}
 */
 export function readFieldSets(value){
   let data = (value && typeof value === 'object' && !Array.isArray(value)) ? value : {}
   return {
     sets: Array.isArray(data.sets) ? data.sets.filter((s) => { return s && s.id && s.name }) : [],
     current: (data.current && typeof data.current === 'object') ? data.current : {},
+    standard: (data.standard && typeof data.standard === 'object' && !Array.isArray(data.standard)) ? data.standard : {},
   }
 }
 

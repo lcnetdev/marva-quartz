@@ -10,8 +10,8 @@ import utilsExport from '@/lib/utils_export'
 import utilsProfile from '@/lib/utils_profile'
 
 import workflowStorage, { getLastRow, setLastRow } from '@/lib/workflows/storage'
-import { FIELD_SETS_PREFERENCE, selectionOf, sameSelection, resolveSelection, readFieldSets, newFieldSet, upsertFieldSet } from '@/lib/workflows/fieldSets'
-import builtinWorkflows from '@/lib/workflows/builtin'
+import { FIELD_SETS_PREFERENCE, selectionOf, sameSelection, resolveSelection, readFieldSets, newFieldSet, upsertFieldSet, placeComponents } from '@/lib/workflows/fieldSets'
+import builtinWorkflows, { STANDARD_PLACEMENTS } from '@/lib/workflows/builtin'
 import { runEnrichments } from '@/lib/workflows/enrichments'
 import { expandComponentColumns, listProfileComponents, sortByProfileOrder, inProfileOrder, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
 import { copyPayload, rememberCopy, recallCopy, forgetCopies, incompatible, writeCellNodes, pastedTypeUris } from '@/lib/workflows/clipboard'
@@ -510,6 +510,8 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       // the fields the person last had on a sheet of this workflow, once they have changed them
       this.applyRememberedFields(session)
+      // with the fields a built-in workflow has gained since in their place
+      this.placeStandardFields(session)
       await workflowStorage.saveSession(session)
       this.sessions = await workflowStorage.listSessions()
       return session.id
@@ -539,6 +541,8 @@ export const useWorkflowStore = defineStore('workflow', {
       }
       // every sheet of a workflow shows the fields the person last had on one of them
       this.applyRememberedFields(this.activeSession)
+      // with the fields a built-in workflow has gained since in their place
+      this.placeStandardFields(this.activeSession)
       // pick up where this sheet was left off in this browser: the keyboard goes to that record once
       // it is in (markReady), until then the first record to come in does not take it
       let lastRow = getLastRow(stored.id)
@@ -868,7 +872,46 @@ export const useWorkflowStore = defineStore('workflow', {
       let selection = selectionOf(s)
       if (sameSelection(data.current[s.workflowId], selection)){ return }
       data.current = Object.assign({}, data.current, { [s.workflowId]: selection })
+      // the sheet these come from has the workflow's standard fields in place already (placeStandardFields
+      // ran when it was opened), where they are from here on is the person's doing
+      if (STANDARD_PLACEMENTS[s.workflowId]){
+        data.standard = Object.assign({}, data.standard, { [s.workflowId]: STANDARD_PLACEMENTS[s.workflowId].version })
+      }
       this.writeFieldSetData(data)
+    },
+
+    /**
+    * A built-in workflow can give fields a set place (builtin.STANDARD_PLACEMENTS: color content
+    * after illustrative content on a CIP sheet). The workflow's own list has them there, but a
+    * sheet opens with the fields the person last had, and an older sheet has the list as it was.
+    *  - remembered fields that have not had this version of the placements: the fields are put in,
+    *    or moved to their place (color content was put on the end of the sheet before), and that
+    *    is remembered. This happens once, after it where the field is stays the person's choice
+    *  - no remembered fields (the person never changed them): the sheet has the workflow's list,
+    *    only what is missing from an older sheet's copy of it is put in
+    * @param {object} session
+    * @return {boolean} - did the session's fields change
+    */
+    placeStandardFields(session){
+      if (!session || session.test || !session.workflowId || !session.definition){ return false }
+      let standard = STANDARD_PLACEMENTS[session.workflowId]
+      if (!standard){ return false }
+      let data = this.returnFieldSetData()
+      let remembered = data.current[session.workflowId]
+      let behind = !!remembered && (data.standard[session.workflowId] || 0) < standard.version
+      // remembered and up to date: nothing to do, the fields are as the person has them
+      if (remembered && !behind){ return false }
+      let available = this.returnProfileComponents(session.definition.profileId)
+      // the profile is not there to take a missing field from, leave it for the next time the sheet is opened
+      if (available.length == 0){ return false }
+      let placed = placeComponents(session.definition.components, standard.place, available, behind)
+      if (placed){ session.definition.components = placed }
+      if (behind){
+        data.current = Object.assign({}, data.current, { [session.workflowId]: selectionOf(session) })
+        data.standard = Object.assign({}, data.standard, { [session.workflowId]: standard.version })
+        this.writeFieldSetData(data)
+      }
+      return !!placed
     },
 
     /**
@@ -1727,6 +1770,15 @@ export const useWorkflowStore = defineStore('workflow', {
       if (session === this.activeSession){
         let shown = session.definition.components.some((c) => { return c.rt + '|' + c.id === key }) && !(session.hiddenComponents || []).includes(key)
         if (!shown){
+          // not among the sheet's fields at all (a field set without it was applied): in at its standard
+          // place, after illustrative content, rather than on the end. addComponent then shows and remembers it
+          let standard = STANDARD_PLACEMENTS[session.workflowId]
+          let placed = standard ? placeComponents(session.definition.components, standard.place.filter((p) => { return p.rt + '|' + p.id === key }), [component], false) : null
+          if (placed){
+            session.definition.components = placed
+            // the selection is by column position, it would land on a different column now
+            this.selectedCell = null
+          }
           this.addComponent(component)
           this.notify('Put on the sheet: ' + component.label + ', set to color from the physical description', 'info')
         }
