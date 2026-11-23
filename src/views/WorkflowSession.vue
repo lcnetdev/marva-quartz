@@ -152,6 +152,9 @@
                   <span class="material-icons">article</span>One record per page
                 </button>
               </div>
+              <label v-if="layout == 'sheet'" class="wf-options-check wf-options-scrollbar" title="Saved with your preferences, for every workflow. Its colors, size and shape are in the Workflows section of the preferences.">
+                <input type="checkbox" :checked="showScrollbar" @change="setWorkflowsPreference('--b-workflows-scrollbar', $event.target.checked)" /> Show a scroll bar at the bottom of the sheet
+              </label>
 
               <div class="wf-fields-menu-heading wf-options-heading">When a scan matches several records</div>
               <template v-if="autoFormat">
@@ -162,12 +165,12 @@
               <div class="wf-fields-menu-heading wf-options-heading">Colors</div>
               <p>The colors given to fields in the editor's Field Colors apply to the cells here too.</p>
               <label class="wf-options-check" title="Saved with your preferences, for every workflow">
-                <input type="checkbox" :checked="noFieldColors" @change="setNoFieldColors($event.target.checked)" /> Don't use my default field colors in Workflows
+                <input type="checkbox" :checked="noFieldColors" @change="setWorkflowsPreference('--b-workflows-no-field-colors', $event.target.checked)" /> Don't use my default field colors in Workflows
               </label>
               <button class="wf-button" @click="openFieldColors()" title="The editor's Field Colors, the same preference"><span class="material-icons">palette</span> Field colors...</button>
               <div class="wf-fields-menu-heading wf-options-heading">Preferences</div>
-              <p>Every Marva preference, the same ones the editor uses. The hide non-LC subjects and class numbers preferences apply here too.</p>
-              <button class="wf-button" @click="preferenceStore.togglePrefModal('General')" title="The full preference browser"><span class="material-icons">tune</span> All preferences...</button>
+              <p>Every Marva preference, the same ones the editor uses. The ones for Workflows, like how the sheet's scroll bar looks, are in the Workflows section. The hide non-LC subjects and class numbers preferences apply here too.</p>
+              <button class="wf-button" @click="preferenceStore.togglePrefModal('Workflows')" title="The full preference browser, opened at the Workflows section"><span class="material-icons">tune</span> All preferences...</button>
             </div>
           </template>
         </VDropdown>
@@ -386,6 +389,11 @@ export default {
       return !!this.preferenceStore.returnValue('--b-workflows-no-field-colors')
     },
 
+    // the preference to show a scroll bar at the bottom of the sheet
+    showScrollbar(){
+      return !!this.preferenceStore.returnValue('--b-workflows-scrollbar')
+    },
+
     layout(){
       return this.session ? this.workflowStore.returnLayout(this.session.workflowId) : 'sheet'
     },
@@ -557,14 +565,16 @@ export default {
     },
 
     /**
-    * Keep the field colors off the sheet, or not: a preference like any other (so it is saved with
+    * Turn one of the Workflows preferences this menu has a checkbox for on or off (keep the field colors
+    * off the sheet, show the sheet's scroll bar): a preference like any other (so it is saved with
     * them), set with the sheet told not to take the preference store's dataChanged for an edit
+    * @param {string} name - the preference
     * @param {boolean} on
     */
-    setNoFieldColors(on){
+    setWorkflowsPreference(name, on){
       this.workflowStore.ignoreChanges = true
       try {
-        this.preferenceStore.setValue('--b-workflows-no-field-colors', !!on)
+        this.preferenceStore.setValue(name, !!on)
       } finally {
         this.workflowStore.ignoreChanges = this.preferenceStore.showFieldColorsModal || this.preferenceStore.showPrefModal
       }

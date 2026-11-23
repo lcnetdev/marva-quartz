@@ -48,6 +48,9 @@
       </table>
     </div>
 
+    <!-- a preference, the sheet can also be moved left and right with a scroll bar -->
+    <WorkflowScrollbar v-if="showScrollbar" :offset="-x" :max="scrollMax" :view="viewWidth" @scroll="scrollTo" />
+
     <div v-if="rows.length == 0" class="wf-empty">
       <span class="material-icons">qr_code_scanner</span>
       <div>Scan a LCCN, ISBN or item barcode to add a record.</div>
@@ -109,9 +112,11 @@
 <script>
 import { mapStores } from 'pinia'
 import { useWorkflowStore } from '@/stores/workflow'
+import { usePreferenceStore } from '@/stores/preference'
 
 import sheetKeyboard from "@/components/workflows/sheetKeyboard";
 import WorkflowRecord from "@/components/workflows/WorkflowRecord.vue";
+import WorkflowScrollbar from "@/components/workflows/WorkflowScrollbar.vue";
 import { countRecordLines, columnHint } from '@/lib/workflows/fields'
 
 const MIN_SCALE = 0.3
@@ -121,12 +126,14 @@ const MIN_COLUMN_WIDTH = 50
 const PAGE_LINES = 10
 // the key the width of the frozen record column is remembered under
 const RECORD_COLUMN = '@record'
+// how much empty space can be dragged into view past the end of the sheet
+const PAN_MARGIN = 120
 
 export default {
   name: "WorkflowGrid",
   // enter / typing / delete / escape on the selected cell, the moving around is navigationKey below
   mixins: [sheetKeyboard],
-  components: { WorkflowRecord },
+  components: { WorkflowRecord, WorkflowScrollbar },
   emits: ['scale'],
   provide(){
     return {
@@ -149,6 +156,10 @@ export default {
       resizing: null,
       RECORD_COLUMN: RECORD_COLUMN,
 
+      // the view and the table as last measured (see measure), for the scroll bar
+      viewWidth: 0,
+      drawnTableWidth: 0,
+
       widths: {
         // wide enough for the record's buttons to take two lines under its title
         record: 250,
@@ -158,7 +169,22 @@ export default {
     }
   },
   computed: {
-    ...mapStores(useWorkflowStore),
+    ...mapStores(useWorkflowStore, usePreferenceStore),
+
+    showScrollbar(){
+      return !!this.preferenceStore.returnValue('--b-workflows-scrollbar')
+    },
+
+    // what the scroll bar covers at the bottom of the view: its size and the line above it
+    scrollbarHeight(){
+      if (!this.showScrollbar){ return 0 }
+      return (parseFloat(this.preferenceStore.returnValue('--n-workflows-scrollbar-size', true)) || 0) + 1
+    },
+
+    // how far the sheet can be moved to the left, the same limit moveTo keeps it to
+    scrollMax(){
+      return Math.max(0, this.drawnTableWidth * this.scale + PAN_MARGIN - this.viewWidth)
+    },
 
     rows(){
       return (this.workflowStore.activeSession) ? this.workflowStore.activeSession.rows : []
@@ -425,8 +451,10 @@ export default {
         x += view.right - table.right
       } else if (cell.left < left){ x += left - cell.left }
       else if (cell.right > view.right){ x -= Math.min(cell.right - view.right, cell.left - left) }
+      // the scroll bar lies over the bottom of the view, a cell behind it is not in view
+      let bottom = view.bottom - this.scrollbarHeight
       if (cell.top < top){ y += top - cell.top }
-      else if (cell.bottom > view.bottom){ y -= Math.min(cell.bottom - view.bottom, cell.top - top) }
+      else if (cell.bottom > bottom){ y -= Math.min(cell.bottom - bottom, cell.top - top) }
       if (x !== this.x || y !== this.y){
         this.moveTo(x, y)
       }
@@ -466,7 +494,7 @@ export default {
     */
     isInteractive(target){
       if (!target || !target.closest){ return false }
-      return !!target.closest('input, textarea, select, button, a, label, [contenteditable], .wf-cell-editing, .wf-col-resize')
+      return !!target.closest('input, textarea, select, button, a, label, [contenteditable], .wf-cell-editing, .wf-col-resize, .wf-scrollbar')
     },
 
     /**
@@ -540,10 +568,8 @@ export default {
     moveTo(x, y){
       let viewport = this.$refs.viewport
       let canvas = viewport.querySelector('.wf-table')
-      // how much empty space can be dragged into view past the end of the sheet
-      let margin = 120
-      let minX = Math.min(0, viewport.clientWidth - canvas.offsetWidth * this.scale - margin)
-      let minY = Math.min(0, viewport.clientHeight - canvas.offsetHeight * this.scale - margin)
+      let minX = Math.min(0, viewport.clientWidth - canvas.offsetWidth * this.scale - PAN_MARGIN)
+      let minY = Math.min(0, viewport.clientHeight - canvas.offsetHeight * this.scale - PAN_MARGIN)
       // the top left corner stays put, the frozen header and record column sit there
       this.x = Math.min(0, Math.max(minX, x))
       this.y = Math.min(0, Math.max(minY, y))
@@ -566,6 +592,26 @@ export default {
       this.moveTo(x, y)
     },
 
+    /**
+    * The scroll bar was used
+    * @param {number} offset - how far to the left the sheet should be, in screen pixels
+    */
+    scrollTo(offset){
+      this.moveTo(-offset, this.y)
+    },
+
+    /**
+    * How wide the view and the table are, the scroll bar is drawn from these. Kept up to date by a
+    * ResizeObserver: the window changes size, columns are shown, hidden and resized.
+    */
+    measure(){
+      let viewport = this.$refs.viewport
+      if (!viewport){ return }
+      let table = viewport.querySelector('.wf-table')
+      this.viewWidth = viewport.clientWidth
+      this.drawnTableWidth = table ? table.offsetWidth : 0
+    },
+
     zoomIn(){ this.zoomTo(this.scale * 1.2) },
     zoomOut(){ this.zoomTo(this.scale / 1.2) },
     resetView(){
@@ -578,8 +624,16 @@ export default {
   mounted(){
     // not reactive, bookkeeping for select()
     this.selectingHere = false
+
+    this.measure()
+    if (typeof ResizeObserver !== 'undefined'){
+      this.sizeObserver = new ResizeObserver(() => { this.measure() })
+      this.sizeObserver.observe(this.$refs.viewport)
+      this.sizeObserver.observe(this.$refs.viewport.querySelector('.wf-table'))
+    }
   },
   beforeUnmount(){
+    if (this.sizeObserver){ this.sizeObserver.disconnect() }
     window.removeEventListener('mousemove', this.resizeMove)
     window.removeEventListener('mouseup', this.resizeEnd)
     window.removeEventListener('mousemove', this.mouseMove)

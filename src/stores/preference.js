@@ -1368,7 +1368,109 @@ export const usePreferenceStore = defineStore('preference', {
       value: false,
       type: 'boolean',
       unit: null,
-      group: 'General',
+      group: 'Workflows',
+      range: [true,false]
+    },
+    // workflows: the scroll bar along the bottom of the spreadsheet layout (components/workflows/WorkflowScrollbar.vue).
+    // The sheet is dragged around like a map and has no scroll bar of its own, this one is drawn by Marva,
+    // which is why all of how it looks can be set here
+    '--b-workflows-scrollbar' : {
+      desc: 'Show a scroll bar along the bottom of a workflow in the Spreadsheet layout, for moving left and right through the columns.',
+      descShort: 'Scroll bar on the sheet',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'Workflows',
+      range: [true,false]
+    },
+    '--n-workflows-scrollbar-size' : {
+      desc: 'How thick the scroll bar is, in pixels.',
+      descShort: 'Scroll bar size',
+      value: 14,
+      step: 1,
+      type: 'number',
+      unit: 'px',
+      group: 'Workflows',
+      range: [6,40]
+    },
+    '--c-workflows-scrollbar-thumb-color' : {
+      value: '#7d848eff',
+      desc: 'The color of the part of the scroll bar that is dragged (the thumb).',
+      descShort: 'Scroll bar thumb color',
+      type: 'color',
+      group: 'Workflows',
+      range: null
+    },
+    '--c-workflows-scrollbar-thumb-hover-color' : {
+      value: '#565c66ff',
+      desc: 'The color of the thumb while the mouse is on it or it is being dragged.',
+      descShort: 'Scroll bar thumb color, in use',
+      type: 'color',
+      group: 'Workflows',
+      range: null
+    },
+    '--c-workflows-scrollbar-track-color' : {
+      value: '#80808026',
+      desc: 'The color of the strip the thumb moves along (the track). A see-through color lets the color of the page behind the sheet show.',
+      descShort: 'Scroll bar track color',
+      type: 'color',
+      group: 'Workflows',
+      range: null
+    },
+    '--c-workflows-scrollbar-border-color' : {
+      value: '#80808066',
+      desc: 'The color of the line between the sheet and the scroll bar. Make it fully see-through for no line.',
+      descShort: 'Scroll bar border color',
+      type: 'color',
+      group: 'Workflows',
+      range: null
+    },
+    '--n-workflows-scrollbar-radius' : {
+      desc: 'How round the ends of the thumb are, in pixels. 0 is square.',
+      descShort: 'Scroll bar roundness',
+      value: 6,
+      step: 1,
+      type: 'number',
+      unit: 'px',
+      group: 'Workflows',
+      range: [0,20]
+    },
+    '--n-workflows-scrollbar-thumb-inset' : {
+      desc: 'The space between the thumb and the edges of the track, in pixels. 0 fills the track.',
+      descShort: 'Scroll bar thumb margin',
+      value: 2,
+      step: 1,
+      type: 'number',
+      unit: 'px',
+      group: 'Workflows',
+      range: [0,10]
+    },
+    '--n-workflows-scrollbar-thumb-min' : {
+      desc: 'The shortest the thumb gets on a very wide sheet, in pixels.',
+      descShort: 'Scroll bar minimum thumb length',
+      value: 40,
+      step: 5,
+      type: 'number',
+      unit: 'px',
+      group: 'Workflows',
+      range: [20,200]
+    },
+    '--b-workflows-scrollbar-arrows' : {
+      desc: 'Show an arrow button at each end of the scroll bar. Hold one down to keep moving.',
+      descShort: 'Scroll bar arrow buttons',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'Workflows',
+      range: [true,false]
+    },
+    '--b-workflows-scrollbar-auto-hide' : {
+      desc: 'Fade the scroll bar out when it is not in use. It comes back while the sheet moves and when the mouse is at the bottom of the sheet.',
+      descShort: 'Hide the scroll bar when not in use',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'Workflows',
       range: [true,false]
     },
     // workflows: the fields a sheet shows (see lib/workflows/fieldSets.js): the person's current
@@ -2564,8 +2666,8 @@ export const usePreferenceStore = defineStore('preference', {
       // let prefs = xxx_paste_replace_it_herexxx
       // let themeColors = {}; for (let p in prefs.prefs.styleDefault){if (prefs.prefs.styleDefault[p].type == 'color'){themeColors[p] = prefs.prefs.styleDefault[p].value}}; console.log(JSON.stringify(themeColors))
 
-      let darkMode = {"--c-edit-main-splitpane-properties-background-color":"#000000ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#353535ff","--c-edit-main-splitpane-slider-border-color":"#4b4b4bff","--c-edit-main-splitpane-opac-background-color":"#000000ff","--c-edit-main-splitpane-opac-highlight-background-color":"#ffffffff","--c-edit-main-splitpane-opac-font-color":"#ffffffff","--c-edit-main-splitpane-edit-background-color-work":"#202f32ff","--c-edit-main-splitpane-edit-background-color-instance":"#380038ff","--c-edit-main-splitpane-edit-background-color-item":"#5965c0ff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#4654b9ff","--c-edit-main-splitpane-edit-component-label-color":"#dededeff","--c-edit-main-splitpane-edit-focused-field-color":"#353535ff","--c-edit-main-splitpane-edit-field-color":"#000000ff","--c-edit-main-splitpane-edit-field-border-color":"#333333ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#c9c9c9ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#212121ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-background-color":"#000000ff","--c-edit-main-splitpane-nav-font-color":"#ffffffff","--c-edit-main-splitpane-nav-button-color":"#ffffff1a","--c-edit-main-splitpane-nav-button-border-color":"#ffffff33","--c-edit-main-splitpane-nav-setting-font-color":"#9cc3e6ff","--c-edit-main-splitpane-nav-setting-background-color":"#ffffff1a","--c-edit-main-splitpane-nav-setting-border-color":"#5b7f9cff","--c-edit-main-literal-font-color":"#ffffffff","--c-edit-main-literal-lang-label-background-color":"#4b4b4bff","--c-edit-main-literal-lang-label-font-color":"#ffffffff","--c-edit-main-lookup-background-color":"#353535ff","--c-edit-main-lookup-border-color":"#4b4b4bff","--c-edit-main-lookup-text-color":"#ffffffff","--c-edit-main-lookup-icon-linked-color":"#1c7d76ff","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#000000ff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"#ffffffff","--c-edit-general-action-button-color":"#ffffffff","--c-edit-general-action-button-background-color":"#353535ff","--c-edit-general-action-button-border-color":"#a9a9a9ff","--n-edit-general-action-button-continer-background-color":"#212121ff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#4b4b4bff","--c-edit-general-action-button-menu-button-background-color":"#000000ff","--c-edit-general-action-button-menu-button-border-color":"#a9a9a9ff","--c-edit-general-action-button-menu-button-text-color":"#ffffffff","--c-edit-modals-background-color":"#212121ff","--c-edit-modals-background-color-accent":"#353535ff","--c-edit-modals-text-color":"#ffffffff","--c-general-icon-instance-color":"#8b588b","--c-general-icon-work-color":"#7badad","--c-general-icon-item-color":"#eaeaea"}
-      let grayMode = {"--c-edit-main-splitpane-properties-background-color":"#353535ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#a9a9a9ff","--c-edit-main-splitpane-slider-border-color":"#808080ff","--c-edit-main-splitpane-opac-background-color":"#a9a9a9ff","--c-edit-main-splitpane-opac-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-opac-font-color":"#202124","--c-edit-main-splitpane-edit-background-color-work":"#a1a1a1ff","--c-edit-main-splitpane-edit-background-color-instance":"#b8a9b6ff","--c-edit-main-splitpane-edit-background-color-item":"#bda2baff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#ba95b7ff","--c-edit-main-splitpane-edit-component-label-color":"black","--c-edit-main-splitpane-edit-focused-field-color":"#dededeff","--c-edit-main-splitpane-edit-field-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-field-border-color":"#969696ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#000000ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#c7c7c7","--c-edit-main-splitpane-nav-background-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-font-color":"#202124","--c-edit-main-splitpane-nav-button-color":"#0000000d","--c-edit-main-splitpane-nav-button-border-color":"#00000033","--c-edit-main-splitpane-nav-setting-font-color":"#2c5f87ff","--c-edit-main-splitpane-nav-setting-background-color":"#0000000d","--c-edit-main-splitpane-nav-setting-border-color":"#7898b2ff","--c-edit-main-literal-font-color":"black","--c-edit-main-literal-lang-label-background-color":"#dededeff","--c-edit-main-literal-lang-label-font-color":"#090909","--c-edit-main-lookup-background-color":"#dededeff","--c-edit-main-lookup-border-color":"#353535ff","--c-edit-main-lookup-text-color":"black","--c-edit-main-lookup-icon-linked-color":"green","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#dededeff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"black","--c-edit-general-action-button-color":"#202124","--c-edit-general-action-button-background-color":"#dededeff","--c-edit-general-action-button-border-color":"#202124","--n-edit-general-action-button-continer-background-color":"#dededeff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#dededeff","--c-edit-general-action-button-menu-button-background-color":"rgb(239, 239, 239)","--c-edit-general-action-button-menu-button-border-color":"black","--c-edit-general-action-button-menu-button-text-color":"black","--c-edit-modals-background-color":"#a9a9a9ff","--c-edit-modals-background-color-accent":"#dededeff","--c-edit-modals-text-color":"black","--c-general-icon-instance-color":"#ba95b7ff","--c-general-icon-work-color":"#a9a9a9ff","--c-general-icon-item-color":"#eaeaea"}
+      let darkMode = {"--c-edit-main-splitpane-properties-background-color":"#000000ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#353535ff","--c-edit-main-splitpane-slider-border-color":"#4b4b4bff","--c-edit-main-splitpane-opac-background-color":"#000000ff","--c-edit-main-splitpane-opac-highlight-background-color":"#ffffffff","--c-edit-main-splitpane-opac-font-color":"#ffffffff","--c-edit-main-splitpane-edit-background-color-work":"#202f32ff","--c-edit-main-splitpane-edit-background-color-instance":"#380038ff","--c-edit-main-splitpane-edit-background-color-item":"#5965c0ff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#4654b9ff","--c-edit-main-splitpane-edit-component-label-color":"#dededeff","--c-edit-main-splitpane-edit-focused-field-color":"#353535ff","--c-edit-main-splitpane-edit-field-color":"#000000ff","--c-edit-main-splitpane-edit-field-border-color":"#333333ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#c9c9c9ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#212121ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-background-color":"#000000ff","--c-edit-main-splitpane-nav-font-color":"#ffffffff","--c-edit-main-splitpane-nav-button-color":"#ffffff1a","--c-edit-main-splitpane-nav-button-border-color":"#ffffff33","--c-edit-main-splitpane-nav-setting-font-color":"#9cc3e6ff","--c-edit-main-splitpane-nav-setting-background-color":"#ffffff1a","--c-edit-main-splitpane-nav-setting-border-color":"#5b7f9cff","--c-edit-main-literal-font-color":"#ffffffff","--c-edit-main-literal-lang-label-background-color":"#4b4b4bff","--c-edit-main-literal-lang-label-font-color":"#ffffffff","--c-edit-main-lookup-background-color":"#353535ff","--c-edit-main-lookup-border-color":"#4b4b4bff","--c-edit-main-lookup-text-color":"#ffffffff","--c-edit-main-lookup-icon-linked-color":"#1c7d76ff","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#000000ff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"#ffffffff","--c-edit-general-action-button-color":"#ffffffff","--c-edit-general-action-button-background-color":"#353535ff","--c-edit-general-action-button-border-color":"#a9a9a9ff","--n-edit-general-action-button-continer-background-color":"#212121ff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#4b4b4bff","--c-edit-general-action-button-menu-button-background-color":"#000000ff","--c-edit-general-action-button-menu-button-border-color":"#a9a9a9ff","--c-edit-general-action-button-menu-button-text-color":"#ffffffff","--c-edit-modals-background-color":"#212121ff","--c-edit-modals-background-color-accent":"#353535ff","--c-edit-modals-text-color":"#ffffffff","--c-general-icon-instance-color":"#8b588b","--c-general-icon-work-color":"#7badad","--c-general-icon-item-color":"#eaeaea","--c-workflows-scrollbar-thumb-color":"#8a9099ff","--c-workflows-scrollbar-thumb-hover-color":"#c4c8ceff","--c-workflows-scrollbar-track-color":"#ffffff14","--c-workflows-scrollbar-border-color":"#ffffff33"}
+      let grayMode = {"--c-edit-main-splitpane-properties-background-color":"#353535ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#a9a9a9ff","--c-edit-main-splitpane-slider-border-color":"#808080ff","--c-edit-main-splitpane-opac-background-color":"#a9a9a9ff","--c-edit-main-splitpane-opac-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-opac-font-color":"#202124","--c-edit-main-splitpane-edit-background-color-work":"#a1a1a1ff","--c-edit-main-splitpane-edit-background-color-instance":"#b8a9b6ff","--c-edit-main-splitpane-edit-background-color-item":"#bda2baff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#ba95b7ff","--c-edit-main-splitpane-edit-component-label-color":"black","--c-edit-main-splitpane-edit-focused-field-color":"#dededeff","--c-edit-main-splitpane-edit-field-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-field-border-color":"#969696ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#000000ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#c7c7c7","--c-edit-main-splitpane-nav-background-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-font-color":"#202124","--c-edit-main-splitpane-nav-button-color":"#0000000d","--c-edit-main-splitpane-nav-button-border-color":"#00000033","--c-edit-main-splitpane-nav-setting-font-color":"#2c5f87ff","--c-edit-main-splitpane-nav-setting-background-color":"#0000000d","--c-edit-main-splitpane-nav-setting-border-color":"#7898b2ff","--c-edit-main-literal-font-color":"black","--c-edit-main-literal-lang-label-background-color":"#dededeff","--c-edit-main-literal-lang-label-font-color":"#090909","--c-edit-main-lookup-background-color":"#dededeff","--c-edit-main-lookup-border-color":"#353535ff","--c-edit-main-lookup-text-color":"black","--c-edit-main-lookup-icon-linked-color":"green","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#dededeff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"black","--c-edit-general-action-button-color":"#202124","--c-edit-general-action-button-background-color":"#dededeff","--c-edit-general-action-button-border-color":"#202124","--n-edit-general-action-button-continer-background-color":"#dededeff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#dededeff","--c-edit-general-action-button-menu-button-background-color":"rgb(239, 239, 239)","--c-edit-general-action-button-menu-button-border-color":"black","--c-edit-general-action-button-menu-button-text-color":"black","--c-edit-modals-background-color":"#a9a9a9ff","--c-edit-modals-background-color-accent":"#dededeff","--c-edit-modals-text-color":"black","--c-general-icon-instance-color":"#ba95b7ff","--c-general-icon-work-color":"#a9a9a9ff","--c-general-icon-item-color":"#eaeaea","--c-workflows-scrollbar-thumb-color":"#6b6f76ff","--c-workflows-scrollbar-thumb-hover-color":"#45484dff","--c-workflows-scrollbar-track-color":"#00000014","--c-workflows-scrollbar-border-color":"#00000040"}
 
       const ignore = ["--l-custom-layouts", "--c-diacritics-enabled-macros", "--o-diacritics-text-macros"]
 

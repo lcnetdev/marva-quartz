@@ -1211,6 +1211,98 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   opacity: 0.5;
 }
 
+/*
+  the scroll bar along the bottom of the sheet (WorkflowScrollbar.vue), shown with a preference. The sheet is
+  moved with a transform, not scrolled, so this is drawn by us and not the browser's. The --wf-sb-* variables
+  are set on it from the preferences in the Workflows group. It lies over the bottom edge of the sheet, under the
+  busy overlay and the dialogs.
+*/
+.wf-scrollbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: stretch;
+  /* the line above it is on top of the size */
+  box-sizing: content-box;
+  height: var(--wf-sb-size);
+  border-top: solid 1px var(--wf-sb-border);
+  /* the page color is under the track color, so a see-through track shows the page and not the cells behind the bar */
+  background: linear-gradient(var(--wf-sb-track), var(--wf-sb-track)), var(--wf-canvas-background);
+  cursor: default;
+  transition: opacity 0.25s;
+}
+.wf-scrollbar-track {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 var(--wf-sb-inset);
+}
+/* as tall as the bar so it is easy to get hold of, what is seen of it is the fill inside */
+.wf-scrollbar-thumb {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  padding: var(--wf-sb-inset) 0;
+}
+.wf-scrollbar-thumb-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--wf-sb-radius);
+  background: var(--wf-sb-thumb);
+  transition: background-color 0.1s;
+}
+.wf-scrollbar-thumb:hover .wf-scrollbar-thumb-fill,
+.wf-scrollbar-dragging .wf-scrollbar-thumb-fill {
+  background: var(--wf-sb-thumb-hover);
+}
+/* the whole sheet is in view, there is nowhere to go */
+.wf-scrollbar-nothing .wf-scrollbar-thumb-fill,
+.wf-scrollbar-nothing .wf-scrollbar-arrow {
+  opacity: 0.35;
+}
+.wf-scrollbar-arrow {
+  flex: 0 0 auto;
+  width: max(var(--wf-sb-size), 14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wf-sb-thumb);
+  cursor: pointer;
+}
+.wf-scrollbar-arrow:hover {
+  color: var(--wf-sb-thumb-hover);
+}
+.wf-scrollbar-nothing .wf-scrollbar-arrow {
+  cursor: default;
+}
+/* the arrows are triangles made of borders, they keep their shape at any size of bar */
+.wf-scrollbar-arrow::before {
+  content: '';
+  border-style: solid;
+  border-color: transparent;
+  border-width: calc(var(--wf-sb-size) * 0.3);
+}
+.wf-scrollbar-arrow-left::before {
+  border-left-width: 0;
+  border-right-color: currentColor;
+}
+.wf-scrollbar-arrow-right::before {
+  border-right-width: 0;
+  border-left-color: currentColor;
+}
+/* hide when not in use: it is still there to be pointed at, and comes back while the sheet moves */
+.wf-scrollbar-auto-hide {
+  opacity: 0;
+}
+.wf-scrollbar-auto-hide:hover,
+.wf-scrollbar-auto-hide.wf-scrollbar-active {
+  opacity: 1;
+}
+
 .wf-busy {
   position: absolute;
   inset: 0;
