@@ -2188,6 +2188,10 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
 .wf-shelflist ul {
   margin: 0;
 }
+/* the button keeps to one line where the editor's layout gives it a narrow share of the width */
+.wf-shelflist .shelflist-search button {
+  white-space: nowrap;
+}
 /* the "Use" links, the browser's link blue can't be read on a dark page */
 .wf-shelflist .cutter-calc a {
   color: var(--wf-accent-color);
