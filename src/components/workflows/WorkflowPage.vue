@@ -19,7 +19,7 @@
           <tbody>
             <tr>
               <!-- the component, down the left, as narrow as it can be -->
-              <th :rowspan="groupLines(group).length + 1 + (hiddenNotes[group.key] ? 1 : 0)" :class="['wf-head', 'wf-page-component', 'wf-head-' + group.component.rt.toLowerCase()]" :title="group.component.rt + ': ' + group.component.label">
+              <th :rowspan="groupLines(group).length + 1 + (hiddenNotes[group.key] ? 1 : 0) + shelflistLines(group).length" :class="['wf-head', 'wf-page-component', 'wf-head-' + group.component.rt.toLowerCase()]" :title="group.component.rt + ': ' + group.component.label">
                 <!-- [W] / [I] / [H] for the resource, the color says it too -->
                 <span class="wf-page-component-rt">[{{ group.component.rt.charAt(0).toUpperCase() }}]</span>
                 <span class="wf-page-component-label">{{ group.component.label }}</span>
@@ -28,7 +28,8 @@
                 {{ column.label }}<span v-if="columnHint(group.allColumns, column)" class="wf-head-hint">{{ columnHint(group.allColumns, column) }}</span>
               </th>
             </tr>
-            <tr v-for="lineIdx in groupLines(group)" :key="lineIdx">
+            <template v-for="lineIdx in groupLines(group)" :key="lineIdx">
+            <tr>
               <WorkflowCell
                 v-for="(column, colIdx) in group.columns"
                 :key="group.key + column.key"
@@ -46,6 +47,13 @@
                 :missing="!!(lines[lineIdx][group.key] && lines[lineIdx][group.key].missing)"
               />
             </tr>
+            <!-- the editor's shelflisting tools, under the LC class number they are for -->
+            <tr v-if="shelflistLines(group).includes(lineIdx)" class="wf-shelflist-line">
+              <td :colspan="group.columns.length" class="wf-shelflist-cell">
+                <WorkflowShelflisting :row="row" :pt="lines[lineIdx][group.key].pt" />
+              </td>
+            </tr>
+            </template>
             <!-- a note when the editor's preference hides non-LC subjects / class numbers of this record -->
             <tr v-if="hiddenNotes[group.key]" class="wf-note-line">
               <td :colspan="group.columns.length" class="wf-hidden-note">
@@ -75,12 +83,13 @@ import WorkflowCell from "@/components/workflows/WorkflowCell.vue";
 import WorkflowRecordLabel from "@/components/workflows/WorkflowRecordLabel.vue";
 import WorkflowRecordActions from "@/components/workflows/WorkflowRecordActions.vue";
 import WorkflowRecordStatus from "@/components/workflows/WorkflowRecordStatus.vue";
+import WorkflowShelflisting from "@/components/workflows/WorkflowShelflisting.vue";
 
 export default {
   name: "WorkflowPage",
   // row and visibleGroups, and the lines the record spreads out into
   mixins: [recordLines],
-  components: { WorkflowCell, WorkflowRecordLabel, WorkflowRecordActions, WorkflowRecordStatus },
+  components: { WorkflowCell, WorkflowRecordLabel, WorkflowRecordActions, WorkflowRecordStatus, WorkflowShelflisting },
   props: {
     index: Number,
     // the zoom, 1 is normal size
@@ -100,6 +109,14 @@ export default {
         if (line[group.key]){ indexes.push(idx) }
       })
       return (indexes.length > 0) ? indexes : [0]
+    },
+
+    /**
+    * The lines of this component that have the shelflisting tools under them (its LC class numbers)
+    * @return {array} - of line indexes into this.lines
+    */
+    shelflistLines(group){
+      return this.groupLines(group).filter((idx) => { return this.shelflistApplies(group, this.lines[idx][group.key]) })
     },
   },
 }

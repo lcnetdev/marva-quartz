@@ -1,6 +1,9 @@
 <template>
   <td :class="cellClass" :style="cellStyle" :data-line="line" :data-col="colIndex" :title="cellTitle" @click="click" @contextmenu.prevent="contextMenu" @wf-clear="clearValue" @wf-copy="copy" @wf-paste="paste($event.detail)" ref="cell">
 
+    <!-- the sheet: opens the shelflisting tools of this LC class number in a row under the line -->
+    <button v-if="shelflist && !isEditing" :class="['wf-shelflist-toggle', {'wf-shelflist-toggle-open': shelflist == 'open'}]" :title="shelflist == 'open' ? 'Close the shelflisting tools' : 'Shelflisting tools: Cutter Calculator, ClassWeb links, Shelf List Search'" @click.stop="toggleShelflist()"><span class="material-icons">calculate</span></button>
+
     <!-- a line WorldCat has and the record doesn't: shown faintly, the first cell offers to add the whole component -->
     <template v-if="ghost">
       <div v-if="firstInGroup" class="wf-ghost-actions">
@@ -124,7 +127,10 @@ export default {
     ghost: Object,
     // the record has nothing in this line of a field the CIP checklist requires
     missing: Boolean,
+    // the sheet: this cell has the icon for the line's shelflisting tools, 'open' | 'closed'
+    shelflist: { type: String, default: null },
   },
+  emits: ['shelflist'],
   computed: {
     ...mapStores(useWorkflowStore, useProfileStore, usePreferenceStore),
     ...mapState(useProfileStore, ['rtLookup']),
@@ -397,6 +403,11 @@ export default {
     dismiss(key){
       this.workflowStore.dismissSuggestion(this.row.id, key)
       this.keyboardHere()
+    },
+
+    toggleShelflist(){
+      this.keyboardHere()
+      this.$emit('shelflist')
     },
 
     async acceptSuggestion(){

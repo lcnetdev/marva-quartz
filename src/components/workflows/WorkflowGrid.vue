@@ -48,6 +48,9 @@
       </table>
     </div>
 
+    <!-- a preference, the sheet can also be moved left and right with a scroll bar -->
+    <WorkflowScrollbar v-if="showScrollbar" :offset="-x" :max="scrollMax" :view="viewWidth" @scroll="scrollTo" />
+
     <div v-if="rows.length == 0" class="wf-empty">
       <span class="material-icons">qr_code_scanner</span>
       <div>Scan a LCCN, ISBN or item barcode to add a record.</div>
@@ -109,9 +112,11 @@
 <script>
 import { mapStores } from 'pinia'
 import { useWorkflowStore } from '@/stores/workflow'
+import { usePreferenceStore } from '@/stores/preference'
 
 import sheetKeyboard from "@/components/workflows/sheetKeyboard";
 import WorkflowRecord from "@/components/workflows/WorkflowRecord.vue";
+import WorkflowScrollbar from "@/components/workflows/WorkflowScrollbar.vue";
 import { countRecordLines, columnHint } from '@/lib/workflows/fields'
 
 const MIN_SCALE = 0.3
@@ -121,12 +126,22 @@ const MIN_COLUMN_WIDTH = 50
 const PAGE_LINES = 10
 // the key the width of the frozen record column is remembered under
 const RECORD_COLUMN = '@record'
+// how much empty space can be dragged into view past the end of the sheet
+const PAN_MARGIN = 120
+// how long after the sheet's contents change the columns are fitted to them (fitColumnsToText)
+const FIT_DELAY = 150
+// a fitted column is never narrower than this
+const MIN_FIT_WIDTH = 60
+// a column is not made narrower for a difference this small, see fitColumnsToText
+const FIT_SLACK = 3
+// room in a header beside its text, for the handle its edge is dragged by
+const HEAD_SPARE = 8
 
 export default {
   name: "WorkflowGrid",
   // enter / typing / delete / escape on the selected cell, the moving around is navigationKey below
   mixins: [sheetKeyboard],
-  components: { WorkflowRecord },
+  components: { WorkflowRecord, WorkflowScrollbar },
   emits: ['scale'],
   provide(){
     return {
@@ -149,6 +164,14 @@ export default {
       resizing: null,
       RECORD_COLUMN: RECORD_COLUMN,
 
+      // the view and the table as last measured (see measure), for the scroll bar
+      viewWidth: 0,
+      drawnTableWidth: 0,
+
+      // the width each column needs to show its values in full (fitColumnsToText), by group key | column key.
+      // Worked out from what is on the sheet, not saved. A width the person set (workflowStore.columnWidths) comes first
+      fittedWidths: {},
+
       widths: {
         // wide enough for the record's buttons to take two lines under its title
         record: 250,
@@ -158,7 +181,33 @@ export default {
     }
   },
   computed: {
-    ...mapStores(useWorkflowStore),
+    ...mapStores(useWorkflowStore, usePreferenceStore),
+
+    showScrollbar(){
+      return !!this.preferenceStore.returnValue('--b-workflows-scrollbar')
+    },
+
+    // what the scroll bar covers at the bottom of the view: its size and the line above it
+    scrollbarHeight(){
+      if (!this.showScrollbar){ return 0 }
+      return (parseFloat(this.preferenceStore.returnValue('--n-workflows-scrollbar-size', true)) || 0) + 1
+    },
+
+    // the preference: columns are made as wide as their values
+    fitColumns(){
+      return !!this.preferenceStore.returnValue('--b-workflows-fit-columns')
+    },
+
+    // text wider than this is very long (a summary), a column is not widened for it
+    fitMax(){
+      let max = parseFloat(this.preferenceStore.returnValue('--n-workflows-fit-columns-max', true))
+      return isNaN(max) ? 800 : max
+    },
+
+    // how far the sheet can be moved to the left, the same limit moveTo keeps it to
+    scrollMax(){
+      return Math.max(0, this.drawnTableWidth * this.scale + PAN_MARGIN - this.viewWidth)
+    },
 
     rows(){
       return (this.workflowStore.activeSession) ? this.workflowStore.activeSession.rows : []
@@ -211,9 +260,21 @@ export default {
     // the store selects a cell when a record comes in, bring it into view like a keyboard move would.
     // Not when the grid's own select() made the change, that one pans itself (with an alignment)
     'workflowStore.selectedCell'(newVal){
+      // the cell that was selected showed its text wrapped, it can be measured now
+      this.scheduleFit()
       if (this.selectingHere){ this.selectingHere = false; return }
       if (newVal){ this.$nextTick(() => { this.scrollSelectedIntoView() }) }
     },
+    // a cell was closed: what was typed into it may need more room
+    'workflowStore.editingCell'(newVal){
+      if (!newVal){ this.scheduleFit() }
+    },
+    // another sheet, the widths were for the last one's records
+    'workflowStore.activeSession.id'(){ this.refitColumns() },
+    fitColumns(){ this.refitColumns() },
+    fitMax(){ this.refitColumns() },
+    // a column the person had resized was reset (double click on its edge): it is fitted like the others again
+    'workflowStore.columnWidths': { deep: true, handler(){ this.scheduleFit() } },
   },
   methods: {
     columnHint: columnHint,
@@ -240,8 +301,9 @@ export default {
         // the lines as drawn: the record's own, plus any WorldCat ghost lines under them
         let count = countRecordLines(row.profile, components)
         let tbody = this.$refs.viewport ? this.$refs.viewport.querySelector('tbody[data-row-id="' + row.id + '"]') : null
-        // (a preference can hide lines, so what is drawn is the count when the row is drawn; the note row is not a line)
-        if (tbody){ count = tbody.querySelectorAll('tr:not(.wf-note-line)').length }
+        // (a preference can hide lines, so what is drawn is the count when the row is drawn; the note row and
+        // the rows the shelflisting tools open in are not lines)
+        if (tbody){ count = tbody.querySelectorAll('tr:not(.wf-note-line):not(.wf-shelflist-line)').length }
         for (let line = 0; line < count; line++){
           lines.push({ rowId: row.id, line: line })
         }
@@ -425,17 +487,246 @@ export default {
         x += view.right - table.right
       } else if (cell.left < left){ x += left - cell.left }
       else if (cell.right > view.right){ x -= Math.min(cell.right - view.right, cell.left - left) }
+      // the scroll bar lies over the bottom of the view, a cell behind it is not in view
+      let bottom = view.bottom - this.scrollbarHeight
       if (cell.top < top){ y += top - cell.top }
-      else if (cell.bottom > view.bottom){ y -= Math.min(cell.bottom - view.bottom, cell.top - top) }
+      else if (cell.bottom > bottom){ y -= Math.min(cell.bottom - bottom, cell.top - top) }
       if (x !== this.x || y !== this.y){
         this.moveTo(x, y)
       }
     },
 
     columnWidth(group, column){
-      let remembered = this.workflowStore.columnWidths[this.widthKey(group, column)]
-      if (remembered){ return remembered }
-      return (column.kind == 'type') ? this.widths.type : this.widths.field
+      let key = this.widthKey(group, column)
+      let remembered = this.workflowStore.columnWidths[key]
+      let usual = (column.kind == 'type') ? this.widths.type : this.widths.field
+      if (!this.fitColumns){ return remembered || usual }
+      // a width the person set by hand is theirs, wider or narrower than the text
+      if (remembered && this.workflowStore.isOwnColumnWidth(key)){ return remembered }
+      // otherwise the column is as wide as its values and its header need (fitColumnsToText), the usual width until
+      // that is known. A width remembered from before columns were fitted (set to get at a value, or just left as
+      // it was) says nothing about what is in the column now and is not used
+      return this.fittedWidths[group.key + '|' + column.key] || usual
+    },
+
+    /**
+    * Does the column keep the width it has whatever is in it: one the person resized
+    */
+    hasOwnWidth(group, column){
+      let key = this.widthKey(group, column)
+      return !!this.workflowStore.columnWidths[key] && this.workflowStore.isOwnColumnWidth(key)
+    },
+
+    // ------------------------------------------------------------ columns as wide as their values
+
+    /**
+    * Fit the columns a moment from now, once whatever is changing the sheet has settled
+    */
+    scheduleFit(){
+      if (!this.fitColumns){ return }
+      window.clearTimeout(this.fitTimer)
+      this.fitTimer = window.setTimeout(() => { this.fitColumnsToText() }, FIT_DELAY)
+    },
+
+    /**
+    * Start over: the columns are fitted to what is on the sheet now
+    */
+    refitColumns(){
+      this.fittedWidths = {}
+      this.$nextTick(() => { this.scheduleFit() })
+    },
+
+    /**
+    * How wide a piece of text is in the font of an element
+    * @param {string} text
+    * @param {Element} el - the element whose font to measure in
+    * @return {number} - pixels
+    */
+    textWidth(text, el){
+      if (!this.fitCanvas){ this.fitCanvas = document.createElement('canvas').getContext('2d') }
+      if (!this.fitCanvas){ return 0 }
+      this.fitCanvas.font = window.getComputedStyle(el).font
+      return Math.ceil(this.fitCanvas.measureText(String(text || '')).width)
+    },
+
+    /**
+    * Make each column as wide as what is in it (the "Fit columns to their text" preference): wide
+    * enough that a value does not have to be found behind "..." by widening its column, and no
+    * wider than its values and its header need.
+    *
+    * The cells are measured as drawn. A column is as wide as the widest of
+    *  - its values: the text, what follows it on the line (language, status icon) and what is around
+    *    the line (the cell's padding, a button at its side)
+    *  - its header
+    *  - the usual width, when it has text that is very long (wider than the "Longest text a column
+    *    is fitted to" preference: a summary, a contents note, left cut short and not counted above)
+    *    or a WorldCat suggestion (those are boxes with buttons, they need room)
+    * A column the person resized keeps their width (workflowStore.isOwnColumnWidth: resized since
+    * columns are fitted, an older remembered width does not count).
+    *
+    * Run (scheduleFit) whenever the contents of the table change: records coming in, edits, undo,
+    * labels that are looked up after the cell is drawn.
+    */
+    fitColumnsToText(){
+      let viewport = this.$refs.viewport
+      if (!viewport || !this.fitColumns){ return }
+      // what is typed changes the open cell only, the columns are fitted when it is closed
+      if (this.workflowStore.editingCell){ return }
+      // the sheet is drawn zoomed, what is measured on screen is that much larger or smaller
+      let scale = this.scale || 1
+
+      // the columns by position, the way the cells are numbered (data-col)
+      let columns = []
+      let groups = []
+      for (let group of this.visibleGroups){
+        let entry = { columns: [] }
+        groups.push(entry)
+        for (let column of group.columns){
+          let col = {
+            key: group.key + '|' + column.key,
+            usual: (column.kind == 'type') ? this.widths.type : this.widths.field,
+            // the person's own width is left alone
+            fixed: this.hasOwnWidth(group, column),
+            own: this.columnWidth(group, column),
+            need: 0,
+            roomy: false,
+          }
+          columns.push(col)
+          entry.columns.push(col)
+        }
+      }
+      let max = this.fitMax
+      // a cell needs this much: width is the whole column, text is the part of it that could be cut short
+      let need = (td, width, text) => {
+        let col = columns[td.dataset.col]
+        if (!col || col.fixed){ return }
+        // very long: left cut short, the column is at least its usual width so a fair part of it shows
+        if (text > max){ col.roomy = true; return }
+        if (width > col.need){ col.need = width }
+      }
+
+      // the values: the text is what is cut short, the language and the status icon after it stay in view
+      for (let el of viewport.querySelectorAll('td.wf-cell .wf-value-text')){
+        let td = el.closest('td')
+        let line = el.parentElement
+        // the selected cell shows its text wrapped over lines, measure it as one line
+        let text = td.classList.contains('wf-cell-selected') ? this.textWidth(el.textContent, el) : el.scrollWidth
+        let last = line.lastElementChild
+        let beside = (last && last !== el) ? Math.max(0, (last.getBoundingClientRect().right - el.getBoundingClientRect().right) / scale) : 0
+        need(td, text + beside + (td.offsetWidth - line.clientWidth), text)
+      }
+
+      // a WorldCat suggestion or offer in a cell is a box with buttons, the column keeps its usual width for it
+      for (let el of viewport.querySelectorAll('td.wf-cell .wf-suggest, td.wf-cell .wf-ghost-actions')){
+        let col = columns[el.closest('td').dataset.col]
+        if (col){ col.roomy = true }
+      }
+
+      // the Type columns: a list (cut short by the browser, without "..."), or plain text when there is no choice
+      let padding = null
+      for (let td of viewport.querySelectorAll('td.wf-cell-type')){
+        let select = td.querySelector('select.wf-type-select')
+        if (select){
+          let option = select.options[select.selectedIndex]
+          if (option){
+            let text = this.textWidth(option.text, select)
+            need(td, text + this.selectChrome(select) + (td.offsetWidth - select.offsetWidth), text)
+          }
+          continue
+        }
+        let span = td.querySelector(':scope > span')
+        if (!span){ continue }
+        if (padding === null){
+          let style = window.getComputedStyle(td)
+          padding = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0)
+        }
+        let text = this.textWidth(span.textContent, span)
+        need(td, text + padding + (td.offsetWidth - td.clientWidth), text)
+      }
+
+      // the headers: a column is not made too narrow to read what it is
+      let heads = viewport.querySelectorAll('thead tr:nth-child(2) th')
+      let headPadding = null
+      let range = document.createRange()
+      heads.forEach((th, position) => {
+        let col = columns[position]
+        if (!col || col.fixed){ return }
+        if (headPadding === null){
+          let style = window.getComputedStyle(th)
+          headPadding = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0)
+        }
+        // the label is the text at the start, a hint (which template the field belongs to) can follow it
+        let label = Array.from(th.childNodes).filter((n) => { return n.nodeType === Node.TEXT_NODE && n.textContent.trim() !== '' })[0]
+        if (!label){ return }
+        range.selectNodeContents(label)
+        let rect = range.getBoundingClientRect()
+        let hint = th.querySelector('.wf-head-hint')
+        let right = hint ? hint.getBoundingClientRect().right : rect.right
+        let width = (right - rect.left) / scale + headPadding + (th.offsetWidth - th.clientWidth) + HEAD_SPARE
+        if (width > col.need){ col.need = width }
+      })
+
+      let fitted = {}
+      for (let col of columns){
+        if (col.fixed){ continue }
+        let width = Math.max(col.need, MIN_FIT_WIDTH)
+        if (col.roomy){ width = Math.max(width, col.usual) }
+        // a couple of pixels to spare, widths are rounded on the way
+        col.fit = Math.ceil(width) + 2
+      }
+
+      // the band over a component names it: its columns together are not narrower than that name
+      let bands = viewport.querySelectorAll('thead tr:first-child th.wf-head-group')
+      bands.forEach((th, index) => {
+        let group = groups[index]
+        if (!group){ return }
+        let rt = th.querySelector('.wf-head-rt')
+        let label = th.querySelector('.wf-head-group-label')
+        let hide = th.querySelector('.wf-head-hide')
+        if (!label){ return }
+        let style = window.getComputedStyle(th)
+        let wanted = (label.getBoundingClientRect().right - (rt || label).getBoundingClientRect().left) / scale
+          + (hide ? hide.offsetWidth : 0) + (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0) + (th.offsetWidth - th.clientWidth) + HEAD_SPARE
+        let have = group.columns.reduce((total, col) => { return total + (col.fixed ? col.own : col.fit) }, 0)
+        // the last column that can be changed takes up the difference
+        let last = group.columns.filter((col) => { return !col.fixed }).pop()
+        if (last && wanted > have){ last.fit += Math.ceil(wanted - have) }
+      })
+
+      let changed = false
+      for (let col of columns){
+        if (col.fixed){ continue }
+        let now = this.fittedWidths[col.key]
+        // measuring is good to a pixel or two (a selected cell is measured another way): a column does not
+        // twitch narrower by that much as the selection moves
+        if (now && col.fit < now && now - col.fit <= FIT_SLACK){ col.fit = now }
+        fitted[col.key] = col.fit
+        if (col.fit !== now){ changed = true }
+      }
+      if (!changed && Object.keys(fitted).length === Object.keys(this.fittedWidths).length){ return }
+      this.fittedWidths = fitted
+      // narrower columns can leave the sheet moved past its end
+      this.$nextTick(() => { this.moveTo(this.x, this.y) })
+    },
+
+    /**
+    * What a drop down list takes up besides its text (the arrow and the space around the text),
+    * which is the browser's and the system's to decide: measured on a copy left to size itself
+    * @param {Element} select - one of the sheet's Type lists
+    * @return {number} - pixels
+    */
+    selectChrome(select){
+      if (typeof this.fitSelectChrome === 'number'){ return this.fitSelectChrome }
+      let copy = document.createElement('select')
+      copy.className = select.className
+      copy.style.cssText = 'position: absolute; visibility: hidden; width: auto;'
+      let option = document.createElement('option')
+      option.textContent = 'Type'
+      copy.appendChild(option)
+      select.parentNode.appendChild(copy)
+      this.fitSelectChrome = Math.max(0, copy.offsetWidth - this.textWidth('Type', copy)) + 1
+      copy.remove()
+      return this.fitSelectChrome
     },
 
     startResize(event, key, width){
@@ -466,7 +757,7 @@ export default {
     */
     isInteractive(target){
       if (!target || !target.closest){ return false }
-      return !!target.closest('input, textarea, select, button, a, label, [contenteditable], .wf-cell-editing, .wf-col-resize')
+      return !!target.closest('input, textarea, select, button, a, label, [contenteditable], .wf-cell-editing, .wf-col-resize, .wf-scrollbar')
     },
 
     /**
@@ -540,10 +831,8 @@ export default {
     moveTo(x, y){
       let viewport = this.$refs.viewport
       let canvas = viewport.querySelector('.wf-table')
-      // how much empty space can be dragged into view past the end of the sheet
-      let margin = 120
-      let minX = Math.min(0, viewport.clientWidth - canvas.offsetWidth * this.scale - margin)
-      let minY = Math.min(0, viewport.clientHeight - canvas.offsetHeight * this.scale - margin)
+      let minX = Math.min(0, viewport.clientWidth - canvas.offsetWidth * this.scale - PAN_MARGIN)
+      let minY = Math.min(0, viewport.clientHeight - canvas.offsetHeight * this.scale - PAN_MARGIN)
       // the top left corner stays put, the frozen header and record column sit there
       this.x = Math.min(0, Math.max(minX, x))
       this.y = Math.min(0, Math.max(minY, y))
@@ -566,6 +855,26 @@ export default {
       this.moveTo(x, y)
     },
 
+    /**
+    * The scroll bar was used
+    * @param {number} offset - how far to the left the sheet should be, in screen pixels
+    */
+    scrollTo(offset){
+      this.moveTo(-offset, this.y)
+    },
+
+    /**
+    * How wide the view and the table are, the scroll bar is drawn from these. Kept up to date by a
+    * ResizeObserver: the window changes size, columns are shown, hidden and resized.
+    */
+    measure(){
+      let viewport = this.$refs.viewport
+      if (!viewport){ return }
+      let table = viewport.querySelector('.wf-table')
+      this.viewWidth = viewport.clientWidth
+      this.drawnTableWidth = table ? table.offsetWidth : 0
+    },
+
     zoomIn(){ this.zoomTo(this.scale * 1.2) },
     zoomOut(){ this.zoomTo(this.scale / 1.2) },
     resetView(){
@@ -578,8 +887,29 @@ export default {
   mounted(){
     // not reactive, bookkeeping for select()
     this.selectingHere = false
+
+    this.fitTimer = null
+    this.fitCanvas = null
+    this.fitSelectChrome = null
+    // the columns are fitted to their values whenever what the table holds changes (not its styles: moving the
+    // sheet, the widths themselves and the selection are attribute changes)
+    if (typeof MutationObserver !== 'undefined'){
+      this.contentObserver = new MutationObserver(() => { this.scheduleFit() })
+      this.contentObserver.observe(this.$refs.viewport.querySelector('.wf-table'), { childList: true, subtree: true, characterData: true })
+    }
+    this.scheduleFit()
+
+    this.measure()
+    if (typeof ResizeObserver !== 'undefined'){
+      this.sizeObserver = new ResizeObserver(() => { this.measure() })
+      this.sizeObserver.observe(this.$refs.viewport)
+      this.sizeObserver.observe(this.$refs.viewport.querySelector('.wf-table'))
+    }
   },
   beforeUnmount(){
+    if (this.sizeObserver){ this.sizeObserver.disconnect() }
+    if (this.contentObserver){ this.contentObserver.disconnect() }
+    window.clearTimeout(this.fitTimer)
     window.removeEventListener('mousemove', this.resizeMove)
     window.removeEventListener('mouseup', this.resizeEnd)
     window.removeEventListener('mousemove', this.mouseMove)

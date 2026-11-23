@@ -162,6 +162,11 @@ export default {
         guid: String,
         propertyPath: Array,
         structure: Object,
+        // Workflows: the record the component is in when that is not (yet) the active profile, the tools are drawn from it
+        profile: { type: Object, default: null },
+        // Workflows: called before the record is changed or the Shelf List Search is opened, to make the
+        // record the active profile. Returns (a promise of) false when that could not be done
+        beforeEdit: { type: Function, default: null },
     },
 
 
@@ -223,6 +228,7 @@ export default {
         },
 
         async setLccInfo(fieldGuid, lccVal) {
+            if (this.beforeEdit && !(await this.beforeEdit())) { return }
 
             this.lccFeatureDataCounter++
             if (fieldGuid == null) {
@@ -232,7 +238,8 @@ export default {
             await this.profileStore.setValueLiteral(this.guid, fieldGuid, this.propertyPath, lccVal, null)
         },
 
-        openShelfListSearch() {
+        async openShelfListSearch() {
+            if (this.beforeEdit && !(await this.beforeEdit())) { return }
             this.activeShelfListData = {
                 class: this.lccFeatureData.classNumber,
                 cutter: this.lccFeatureData.cutterNumber,
@@ -265,7 +272,7 @@ export default {
         lccFeatureData() {
             this.lccFeatureDataCounter
             if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length - 1].propertyURI) > -1) {
-                let data = this.profileStore.returnLccInfo(this.guid, this.structure)
+                let data = this.profileStore.returnLccInfo(this.guid, this.structure, this.profile)
                 // console.log("HERE for LCC data", data,  this.guid, this.structure)
                 // if it is a MLC number we dont need to show the extra interface
                 if (data && data.classNumber && data.classNumber.startsWith("MLC")) { return false }

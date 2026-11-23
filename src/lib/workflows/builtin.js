@@ -116,6 +116,8 @@ const builtinWorkflows = [
       { rt: 'Instance', id: 'id_loc_gov_ontologies_bibframe_dimensions__dimensions' },
       // 008/18-21 + 340 $p illustrative content
       { rt: 'Work', id: 'id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content' },
+      // 340 $g color content, set to color when the physical description says so (workflowStore.autoAddColorContent)
+      { rt: 'Work', id: 'id_loc_gov_ontologies_bibframe_colorContent__color_content' },
       // 336 content type, 337 media type, 338 carrier type
       { rt: 'Work', id: 'id_loc_gov_ontologies_bibframe_content__content_type' },
       { rt: 'Instance', id: 'id_loc_gov_ontologies_bibframe_media__media_type' },
@@ -137,5 +139,28 @@ const builtinWorkflows = [
     enrichments: ['cip-lookup'],
   },
 ]
+
+/**
+ * A sheet opens with the fields the person last had on a sheet of the same workflow, not with the
+ * workflow's list above (fieldSets.js), so a field added to a built-in workflow later would never
+ * reach anyone who has used it. The fields listed here are given their place on those remembered
+ * lists too, once (workflowStore.placeStandardFields): put in after `after`, or moved there
+ * when the list has the field somewhere else. After that the person can move or hide it like any
+ * other field.
+ *
+ * Raise `version` when `place` changes, it is how a remembered list is known to be behind.
+ */
+export const STANDARD_PLACEMENTS = {
+  'builtin-monograph-cip-verification': {
+    version: 1,
+    place: [
+      // color content used to be put on the end of the sheet when it was set from the physical description
+      {
+        rt: 'Work', id: 'id_loc_gov_ontologies_bibframe_colorContent__color_content',
+        after: { rt: 'Work', id: 'id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content' },
+      },
+    ],
+  },
+}
 
 export default builtinWorkflows

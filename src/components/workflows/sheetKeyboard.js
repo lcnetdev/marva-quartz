@@ -10,6 +10,7 @@
  */
 
 import { useWorkflowStore } from '@/stores/workflow'
+import { useProfileStore } from '@/stores/profile'
 import { SCANNER_MAX_KEY_GAP, SCANNER_MIN_LENGTH, isScannerCharacter } from '@/lib/workflows/scanner'
 
 export default {
@@ -21,6 +22,8 @@ export default {
     keyboardIsForSheet(){
       let ws = useWorkflowStore()
       if (!ws.activeSession || ws.editingCell || ws.busy || ws.prompts.length > 0 || ws.postError || ws.columnPaste){ return false }
+      // the Shelf List Search (opened from the shelflisting tools) is a modal over the sheet
+      if (useProfileStore().showShelfListingModal){ return false }
       let el = document.activeElement
       if (el && el !== document.body && el.closest && el.closest('input, textarea, select, button, [contenteditable], .vfm, .v-popper__popper, .wf-dialog')){ return false }
       return true
