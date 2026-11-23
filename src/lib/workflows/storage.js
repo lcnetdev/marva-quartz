@@ -30,7 +30,11 @@
  * 4. Per user preferences                              {util}workflows/preferences
  *      { columnWidths: { "<component id>|<column key>": widthInPixels },   // dragged column widths, by kind of column
  *        workflows: { "<workflow id>": { autoFormat: 'print'|'ebook',      // "always select this version" answers
- *                                        layout: 'pages' } } }              // one record per page instead of the spreadsheet
+ *                                        layout: 'pages' },                 // one record per page instead of the spreadsheet
+ *                     "@column-widths": { keys: ["<component id>|<column key>"] } } }
+ *                                        // not a workflow: which of columnWidths were set by hand since the sheet fits
+ *                                        // its columns to their text, the others do not hold a column to their width
+ *                                        // (workflowStore.isOwnColumnWidth)
  *
  * The fields a sheet shows (the person's current selection per workflow, and the named field
  * sets) are NOT here: they are in the editor's own preferences ('--o-workflows-field-sets', see

@@ -1084,6 +1084,15 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
 .wf-editor {
   min-height: 1.6em;
 }
+/* a column fitted to short values can be narrow (WorkflowGrid.fitColumnsToText), too narrow to type in or to pick
+   from a list: the open cell is given room, laid over the cells beside it, and carries the cell's outline with it */
+.wf-table td.wf-cell-editing .wf-editor {
+  box-sizing: border-box;
+  min-width: 240px;
+  background: var(--wf-field-focus-color);
+  outline: solid 2px var(--wf-accent-color);
+  outline-offset: -1px;
+}
 /* rows are kept as short as possible, a value only shows its first line until the cell is opened */
 .wf-value {
   display: flex;

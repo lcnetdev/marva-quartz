@@ -1382,6 +1382,26 @@ export const usePreferenceStore = defineStore('preference', {
       group: 'Workflows',
       range: [true,false]
     },
+    // workflows: the spreadsheet layout's columns are made as wide as the values in them (WorkflowGrid.fitColumnsToText)
+    '--b-workflows-fit-columns' : {
+      desc: 'In the Spreadsheet layout make each column as wide as its values and its header need: wide enough to show the values whole, and no wider. Very long values (the next option) are still cut short. A column you resize yourself keeps your width, double click its edge to have it fitted again.',
+      descShort: 'Fit columns to their text',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'Workflows',
+      range: [true,false]
+    },
+    '--n-workflows-fit-columns-max' : {
+      desc: 'Text wider than this many pixels counts as very long (a summary, a contents note): a column is not widened for it and it stays cut short, in a column of the usual width. 800 is about 115 characters.',
+      descShort: 'Longest text a column is fitted to',
+      value: 800,
+      step: 20,
+      type: 'number',
+      unit: 'px',
+      group: 'Workflows',
+      range: [240,1600]
+    },
     // workflows: the scroll bar along the bottom of the spreadsheet layout (components/workflows/WorkflowScrollbar.vue).
     // The sheet is dragged around like a map and has no scroll bar of its own, this one is drawn by Marva,
     // which is why all of how it looks can be set here

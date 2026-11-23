@@ -12,6 +12,10 @@ import utilsProfile from '@/lib/utils_profile'
 import workflowStorage, { getLastRow, setLastRow } from '@/lib/workflows/storage'
 import { FIELD_SETS_PREFERENCE, selectionOf, sameSelection, resolveSelection, readFieldSets, newFieldSet, upsertFieldSet, placeComponents } from '@/lib/workflows/fieldSets'
 import builtinWorkflows, { STANDARD_PLACEMENTS } from '@/lib/workflows/builtin'
+
+// in the per workflow preferences (state.preferences, workflow id -> choices) this entry is not a workflow:
+// { keys: [<column width key>] }, the column widths set by hand since columns are fitted to their text
+const OWN_COLUMN_WIDTHS = '@column-widths'
 import { runEnrichments } from '@/lib/workflows/enrichments'
 import { expandComponentColumns, listProfileComponents, sortByProfileOrder, inProfileOrder, findRtId, findComponentPts, recordSummary, typeUriForTemplate, adminMetadataPt, resolveComponentCells, readCellValues, ADMIN_METADATA_COMPONENT_ID, ADMIN_METADATA_TEMPLATE } from '@/lib/workflows/fields'
 import { copyPayload, rememberCopy, recallCopy, forgetCopies, incompatible, writeCellNodes, pastedTypeUris } from '@/lib/workflows/clipboard'
@@ -300,14 +304,38 @@ export const useWorkflowStore = defineStore('workflow', {
     * @return {void}
     */
     setColumnWidth(key, width, save = true){
+      // which widths were set since the sheet fits its columns to their text, see isOwnColumnWidth
+      let entry = this.preferences[OWN_COLUMN_WIDTHS]
+      let own = (entry && Array.isArray(entry.keys)) ? entry.keys.filter((k) => { return k !== key }) : []
       if (width === null){
         delete this.columnWidths[key]
       } else {
         this.columnWidths[key] = Math.round(width)
+        own.push(key)
+      }
+      if (own.length > 0){
+        this.preferences[OWN_COLUMN_WIDTHS] = { keys: own }
+      } else {
+        delete this.preferences[OWN_COLUMN_WIDTHS]
       }
       if (save){
         workflowStorage.saveColumnWidths(JSON.parse(JSON.stringify(this.columnWidths)))
+        workflowStorage.savePreferences(JSON.parse(JSON.stringify(this.preferences)))
       }
+    },
+
+    /**
+    * Was the remembered width of this kind of column set by hand since the sheet started fitting its
+    * columns to their text (WorkflowGrid.fitColumnsToText)? Such a width is the person's choice and
+    * is kept as it is, wider or narrower than the text. A width from before that was set when
+    * widening a column was the only way to read a value (or the column was just left as it was):
+    * it does not keep the column from being fitted, and is only used when fitting is turned off.
+    * @param {string} key - the kind of column, component id + column key
+    * @return {boolean}
+    */
+    isOwnColumnWidth(key){
+      let own = this.preferences[OWN_COLUMN_WIDTHS]
+      return !!(own && Array.isArray(own.keys) && own.keys.includes(key))
     },
 
     /**
