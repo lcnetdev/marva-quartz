@@ -266,8 +266,9 @@ export default {
         // the lines as drawn: the record's own, plus any WorldCat ghost lines under them
         let count = countRecordLines(row.profile, components)
         let tbody = this.$refs.viewport ? this.$refs.viewport.querySelector('tbody[data-row-id="' + row.id + '"]') : null
-        // (a preference can hide lines, so what is drawn is the count when the row is drawn; the note row is not a line)
-        if (tbody){ count = tbody.querySelectorAll('tr:not(.wf-note-line)').length }
+        // (a preference can hide lines, so what is drawn is the count when the row is drawn; the note row and
+        // the rows the shelflisting tools open in are not lines)
+        if (tbody){ count = tbody.querySelectorAll('tr:not(.wf-note-line):not(.wf-shelflist-line)').length }
         for (let line = 0; line < count; line++){
           lines.push({ rowId: row.id, line: line })
         }

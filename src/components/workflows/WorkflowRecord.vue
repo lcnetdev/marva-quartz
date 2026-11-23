@@ -1,9 +1,10 @@
 <template>
   <tbody :class="['wf-record', {'wf-record-done': row.done, 'wf-record-active': workflowStore.activeRowId === row.id, 'wf-record-flash': row.flash}]" :data-row-id="row.id">
-    <tr v-for="(line, lineIdx) in lines" :key="lineIdx" :class="{'wf-line-first': lineIdx == 0}">
+    <template v-for="(line, lineIdx) in lines" :key="lineIdx">
+    <tr :class="{'wf-line-first': lineIdx == 0}">
 
       <!-- the frozen column that says what record this is, with the record's buttons so they stay in view too -->
-      <th v-if="lineIdx == 0" :rowspan="lines.length + (hasHiddenNote ? 1 : 0)" class="wf-record-header wf-stick-left" scope="row">
+      <th v-if="lineIdx == 0" :rowspan="lines.length + (hasHiddenNote ? 1 : 0) + shelflistOpenCount" class="wf-record-header wf-stick-left" scope="row">
         <WorkflowRecordLabel :row="row" :index="index" :protections="protections" :suggestionCount="suggestionCount" />
         <div class="wf-record-actions">
           <WorkflowRecordActions :row="row" marc-placement="right" />
@@ -27,6 +28,8 @@
             :lineSuggestion="(line[group.key] && line[group.key].suggestion) ? line[group.key].suggestion : null"
             :ghost="(line[group.key] && line[group.key].ghost) ? line[group.key] : null"
             :missing="!!(line[group.key] && line[group.key].missing)"
+            :shelflist="shelflistState(group, column, line)"
+            @shelflist="toggleShelflist(line[group.key].pt)"
           />
         </template>
       </template>
@@ -34,6 +37,16 @@
         <WorkflowRecordStatus :row="row" />
       </td>
     </tr>
+
+    <!-- the shelflisting tools of a LC class number on this line, opened with the icon in the component -->
+    <tr v-if="row.status == 'ready' && shelflistOpenGroups(line).length > 0" class="wf-shelflist-line">
+      <template v-for="group in visibleGroups" :key="group.key">
+        <td :colspan="group.columns.length" :class="{'wf-cell-group-start': true, 'wf-shelflist-cell': shelflistOpenGroups(line).includes(group.key)}">
+          <WorkflowShelflisting v-if="shelflistOpenGroups(line).includes(group.key)" :row="row" :pt="line[group.key].pt" closable @close="toggleShelflist(line[group.key].pt)" />
+        </td>
+      </template>
+    </tr>
+    </template>
 
     <!-- under the lines: a note for a component whose non-LC subjects / class numbers the editor's preference hides -->
     <tr v-if="row.status == 'ready' && hasHiddenNote" class="wf-note-line">
@@ -55,12 +68,13 @@ import WorkflowCell from "@/components/workflows/WorkflowCell.vue";
 import WorkflowRecordLabel from "@/components/workflows/WorkflowRecordLabel.vue";
 import WorkflowRecordActions from "@/components/workflows/WorkflowRecordActions.vue";
 import WorkflowRecordStatus from "@/components/workflows/WorkflowRecordStatus.vue";
+import WorkflowShelflisting from "@/components/workflows/WorkflowShelflisting.vue";
 
 export default {
   name: "WorkflowRecord",
   // row and visibleGroups, and the lines the record spreads out into
   mixins: [recordLines],
-  components: { WorkflowCell, WorkflowRecordLabel, WorkflowRecordActions, WorkflowRecordStatus },
+  components: { WorkflowCell, WorkflowRecordLabel, WorkflowRecordActions, WorkflowRecordStatus, WorkflowShelflisting },
   props: {
     index: Number,
     columnCount: Number,

@@ -4367,10 +4367,15 @@ export const useProfileStore = defineStore('profile', {
         /**
         * If it is a LCC component info about the LCC numbers
         * used in the interface rendering
-        * @return {boolean}
+        * @param {string} componentGuid - the guid of the classification component
+        * @param {object} structure - not used
+        * @param {object} profile - the record to look in, the active profile when left out
+        * @return {object|boolean} - the class number, cutter, title, contributors and subjects, false when it is not a LCC component
         */
-        returnLccInfo: function (componentGuid) {
-            let pt = utilsProfile.returnPt(this.activeProfile, componentGuid)
+        returnLccInfo: function (componentGuid, structure = null, profile = null) {
+            // Workflows shows the shelflisting tools for records that are not the one being edited
+            if (!profile) { profile = this.activeProfile }
+            let pt = utilsProfile.returnPt(profile, componentGuid)
 
             // if it is empty and brand new dont do the next check it wont have any data
             if (Object.keys(pt.userValue).length > 1) { // this means it doesn't only have @root in the userValue and has data populated
@@ -4404,13 +4409,13 @@ export const useProfileStore = defineStore('profile', {
             let titleNonLatin = null
 
             // find the work and pull out stuff
-            for (let rtId in this.activeProfile.rt) {
+            for (let rtId in profile.rt) {
                 let target = false
 
                 if (rtId.indexOf(":Work") > -1) {
-                    for (let ptId in this.activeProfile.rt[rtId].pt) {
+                    for (let ptId in profile.rt[rtId].pt) {
                         // if (this.activeProfile.rt[rtId].pt[ptId]['@guid'] == componentGuid) {
-                            work = this.activeProfile.rt[rtId]
+                            work = profile.rt[rtId]
                             break
                         // }
                     }
@@ -4524,9 +4529,9 @@ export const useProfileStore = defineStore('profile', {
             }
 
             // look at the instance to get the subtitle
-            for (let rtId in this.activeProfile.rt) {
+            for (let rtId in profile.rt) {
                 if (rtId.indexOf(":Instance") > -1) {
-                    inst = this.activeProfile.rt[rtId]
+                    inst = profile.rt[rtId]
                     if (inst) { break }
                 }
             }

@@ -8,12 +8,16 @@ import { mapStores, mapState } from 'pinia'
 import { useWorkflowStore } from '@/stores/workflow'
 import { useProfileStore } from '@/stores/profile'
 import { useConfigStore } from '@/stores/config'
+import { usePreferenceStore } from '@/stores/preference'
 
 import { findComponentPts, resolveComponentCells } from '@/lib/workflows/fields'
 import { compareComponent, suggestedPtsFor, checkCallNumberYears, publicationYear, applyChecklistRules, checkIsbns, hasSeriesStatement, recordProtections, applyProtections, recordSeriesTitles, isSeriesAlreadyInRecord, applyReplacements, applyRequired, isAutoReplaced, isRequired, suggestionsHidden, componentIsEmpty, headingSchemeUnknown, CIP_ENRICHMENT_ID } from '@/lib/workflows/cip'
 
 const SUBJECT_URI = 'http://id.loc.gov/ontologies/bibframe/subject'
 const CLASSIFICATION_URI = 'http://id.loc.gov/ontologies/bibframe/classification'
+const CLASSIFICATION_PORTION = 'http://id.loc.gov/ontologies/bibframe/classificationPortion'
+const ITEM_PORTION = 'http://id.loc.gov/ontologies/bibframe/itemPortion'
+const LCC_TYPE = 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'
 
 export default {
   props: {
@@ -50,6 +54,35 @@ export default {
 
     hasHiddenNote(){
       return Object.keys(this.hiddenNotes).length > 0
+    },
+
+    // the preference: the editor's shelflisting tools go with the LC class numbers
+    shelflistOn(){
+      return !!usePreferenceStore().returnValue('--b-workflows-shelflisting')
+    },
+
+    /**
+    * In the sheet the tools are opened with an icon in the component: the column whose cells have it.
+    * The item portion (where the cutter goes) when the sheet has it, otherwise the class number,
+    * otherwise the component's first column
+    * @return {object} - group key -> column key
+    */
+    shelflistColumns(){
+      let columns = {}
+      if (!this.shelflistOn){ return columns }
+      for (let group of this.visibleGroups){
+        if (group.component.propertyURI !== CLASSIFICATION_URI || group.columns.length == 0){ continue }
+        let column = group.columns.filter((c) => { return c.key.endsWith(ITEM_PORTION) })[0]
+          || group.columns.filter((c) => { return c.key.endsWith(CLASSIFICATION_PORTION) })[0]
+          || group.columns[0]
+        columns[group.key] = column.key
+      }
+      return columns
+    },
+
+    // how many lines of this record have their tools open in the sheet, each takes a row of the table
+    shelflistOpenCount(){
+      return this.lines.filter((line) => { return this.shelflistOpenGroups(line).length > 0 }).length
     },
 
     /**
@@ -210,6 +243,68 @@ export default {
     },
   },
   methods: {
+    /**
+    * Does this line of a component get the shelflisting tools: a Library of Congress class number
+    * of the record (not one WorldCat offers), as in the editor not a MLC number
+    * @param {object} group
+    * @param {object|null} entry - the group's entry on a line, from this.lines
+    * @return {boolean}
+    */
+    shelflistApplies(group, entry){
+      if (!this.shelflistOn || !entry || entry.ghost || !entry.pt){ return false }
+      if (group.component.propertyURI !== CLASSIFICATION_URI){ return false }
+      let node = ((entry.pt.userValue || {})[CLASSIFICATION_URI] || [])[0]
+      let type = (node && node['@type']) ? node['@type'] : null
+      if (!type){
+        // nothing typed in yet: what the Type column says the line is
+        let typeCell = Object.values(entry.cells || {}).filter((c) => { return c.kind == 'type' && c.depth == 0 })[0]
+        type = (typeCell && typeCell.active) ? typeCell.active.resourceURI : (entry.pt.activeType || null)
+      }
+      if (type !== LCC_TYPE){ return false }
+      let classNumber = (node && node[CLASSIFICATION_PORTION] && node[CLASSIFICATION_PORTION][0]) ? node[CLASSIFICATION_PORTION][0][CLASSIFICATION_PORTION] : ''
+      return !String(classNumber || '').startsWith('MLC')
+    },
+
+    /**
+    * The sheet: are the tools of this line open. Kept on the row for as long as the sheet is open
+    * @param {object} pt - the classification component
+    * @return {boolean}
+    */
+    shelflistIsOpen(pt){
+      return !!pt && (this.row.shelflistOpen || []).includes(pt['@guid'])
+    },
+
+    toggleShelflist(pt){
+      let list = this.row.shelflistOpen || []
+      let guid = pt['@guid']
+      this.row.shelflistOpen = list.includes(guid) ? list.filter((g) => { return g !== guid }) : list.concat([guid])
+    },
+
+    /**
+    * The sheet: the components of a line whose tools are open
+    * @param {object} line - one of this.lines
+    * @return {array} - of group keys
+    */
+    shelflistOpenGroups(line){
+      let keys = []
+      for (let group of this.visibleGroups){
+        let entry = line[group.key]
+        if (entry && this.shelflistApplies(group, entry) && this.shelflistIsOpen(entry.pt)){ keys.push(group.key) }
+      }
+      return keys
+    },
+
+    /**
+    * The sheet: what the cell of this column shows of the tools, the icon is in one column of the component
+    * @return {string|null} - 'open' | 'closed', null when the cell has no icon
+    */
+    shelflistState(group, column, line){
+      if (this.shelflistColumns[group.key] !== column.key){ return null }
+      let entry = line[group.key]
+      if (!this.shelflistApplies(group, entry)){ return null }
+      return this.shelflistIsOpen(entry.pt) ? 'open' : 'closed'
+    },
+
     /**
     * The editor's "Hide non-LC subjects" and "Hide non-LC class numbers" preferences hold on the
     * sheet too: a subject not from an LC thesaurus, a class number not LC's, is left off the

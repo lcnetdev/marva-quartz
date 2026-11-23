@@ -1371,6 +1371,17 @@ export const usePreferenceStore = defineStore('preference', {
       group: 'Workflows',
       range: [true,false]
     },
+    // workflows: the editor's shelflisting tools (ClassificationTools.vue) with the LC class numbers of a workflow,
+    // see components/workflows/WorkflowShelflisting.vue
+    '--b-workflows-shelflisting' : {
+      desc: 'Show the shelflisting tools (the Cutter Calculator, the ClassWeb links and Shelf List Search) with a Library of Congress class number in Workflows. In the One record per page layout they are under the Classification numbers component. In the Spreadsheet layout an icon in the component opens them. What the tools show is set in the Shelflisting section.',
+      descShort: 'Shelflisting tools in Workflows',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'Workflows',
+      range: [true,false]
+    },
     // workflows: the scroll bar along the bottom of the spreadsheet layout (components/workflows/WorkflowScrollbar.vue).
     // The sheet is dragged around like a map and has no scroll bar of its own, this one is drawn by Marva,
     // which is why all of how it looks can be set here

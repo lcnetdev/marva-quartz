@@ -2145,6 +2145,110 @@ html.wf-theme .v-popper--theme-dropdown .v-popper__arrow-outer {
   cursor: pointer;
 }
 
+/* ------------------------------------------------------------ shelflisting tools (WorkflowShelflisting) */
+
+/*
+  the editor's shelflisting tools (ClassificationTools.vue) for a LC class number, a preference. On a page they
+  are in a row under the class number. In the sheet an icon in the component opens that row.
+*/
+.wf-table tr.wf-shelflist-line td {
+  background: var(--wf-na-color);
+  padding: 0;
+}
+/* in the sheet the tools are one width whatever the width of the component: wide enough to use, and all of it
+   (the links, Shelf List Search, the x) close to the icon that opened it rather than spread over a wide component.
+   A component narrower than that lets them out over the cells beside it */
+.wf-table tr.wf-shelflist-line td.wf-shelflist-cell {
+  background: var(--wf-page-background);
+  overflow: visible;
+  cursor: default;
+}
+.wf-shelflist {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 60em;
+  padding: 0.6em 0.6em 0.2em;
+  background: var(--wf-page-background);
+  color: var(--wf-text-color);
+  font-size: 0.9em;
+  white-space: normal;
+}
+/* on a page it is as wide as the component, never wider than the page */
+.wf-page-table .wf-shelflist {
+  width: auto;
+  max-width: 75em;
+}
+/* the editor gives its tools the field's color (or white) and nudges them up into the component above, neither suits a cell here */
+.wf-shelflist .component-container,
+.wf-shelflist .cutter-container {
+  background-color: transparent !important;
+  top: 0;
+}
+.wf-shelflist ul {
+  margin: 0;
+}
+/* the "Use" links, the browser's link blue can't be read on a dark page */
+.wf-shelflist .cutter-calc a {
+  color: var(--wf-accent-color);
+}
+.wf-shelflist fieldset {
+  margin: 0;
+  border: solid 1px var(--wf-line-color);
+}
+.wf-shelflist input[type="text"],
+.wf-shelflist input:not([type]) {
+  user-select: text;
+}
+.wf-shelflist-close {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  z-index: 2;
+  display: inline-flex;
+  padding: 0.1em;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--wf-muted-color);
+  cursor: pointer;
+}
+.wf-shelflist-close:hover {
+  background: var(--wf-na-color);
+  color: var(--wf-text-color);
+}
+.wf-shelflist-close .material-icons {
+  font-size: 1.2em;
+}
+/* the icon in the component that opens them, at the right of its cell */
+.wf-shelflist-toggle {
+  float: right;
+  display: inline-flex;
+  margin: -0.05em -0.2em 0 0.3em;
+  padding: 0.05em;
+  border: solid 1px transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--wf-muted-color);
+  cursor: pointer;
+}
+.wf-shelflist-toggle .material-icons {
+  font-size: 1.25em;
+}
+.wf-shelflist-toggle:hover {
+  border-color: var(--wf-line-color);
+  color: var(--wf-text-color);
+}
+.wf-shelflist-toggle-open {
+  border-color: var(--wf-accent-color);
+  background: var(--wf-accent-color);
+  color: var(--wf-on-accent-color);
+}
+.wf-shelflist-toggle-open:hover {
+  border-color: var(--wf-accent-color);
+  color: var(--wf-on-accent-color);
+}
+
 /* ------------------------------------------------------------ export to CSV (WorkflowExportDialog) */
 
 .wf-dialog.wf-export {
