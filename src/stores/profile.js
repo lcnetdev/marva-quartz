@@ -1062,13 +1062,9 @@ export const useProfileStore = defineStore('profile', {
                 }
 
                 // loop through each profile and extract the resource template, save them as their own look up for later use
-                console.info("p: ", p)
                 if (p.json && p.json.Profile && p.json.Profile.resourceTemplates) {
                     p.json.Profile.resourceTemplates.forEach((rt) => {
                         this.rtLookup[rt.id] = rt
-                        console.info("\t ", rt.id)
-                        // lc:RT:NotatedMusicNew:Work (looking for)
-                        // lc:RT:NotatedMusic:Work    (expecting)
                     })
                 }
             })
@@ -2175,12 +2171,6 @@ export const useProfileStore = defineStore('profile', {
         * @return {void}
         */
         setValueLiteral: function (componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral) {
-            console.info("setValueLiteral")
-            console.info("\t componentGuid:", componentGuid)
-            console.info("\t fieldGuid:", fieldGuid)
-            console.info("\t propertyPath:", propertyPath)
-            console.info("\t value:", value)
-            console.info("\t lang:", lang)
             // from NAR, fieldGuid is null
             // remove returns from value
             value = value.replace(/[\n\r]+/g, '');
@@ -3232,14 +3222,8 @@ export const useProfileStore = defineStore('profile', {
         * @return {void} -
         */
         setValueSubject: async function (componentGuid, subjectComponents, propertyPath) {
-            console.info("setValueSubject")
-            console.info("\t componentGuid: ", componentGuid)
-            console.info("\t subjectComponents: ", subjectComponents)
-            console.info("\t propertyPath: ", propertyPath)
             // we're just going to overwrite the whole userValue with the constructed headings
             let pt = utilsProfile.returnPt(this.activeProfile, componentGuid)
-
-            console.info("\t pt: ", JSON.parse(JSON.stringify(pt)))
 
             // console.log('-----')
             // console.log(pt)
@@ -9552,8 +9536,6 @@ export const useProfileStore = defineStore('profile', {
        * @param classNum - number to add
        */
         addClassNumber: async function(classNum){ // add defaults, populate empty
-            console.info("addClassNumber")
-            console.info("\t classNum: ", classNum)
             // remove any paranthetical
             if (classNum.match(/\(.*\)/)){
                 classNum = classNum.replace(/\(.*\)/, "")
@@ -9630,7 +9612,6 @@ export const useProfileStore = defineStore('profile', {
             }
 
             try {
-                console.info("targetComponent2: ", JSON.parse(JSON.stringify(targetComponent)))
                 // fieldGuid
                 this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
 
