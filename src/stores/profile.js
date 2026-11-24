@@ -1062,9 +1062,13 @@ export const useProfileStore = defineStore('profile', {
                 }
 
                 // loop through each profile and extract the resource template, save them as their own look up for later use
+                console.info("p: ", p)
                 if (p.json && p.json.Profile && p.json.Profile.resourceTemplates) {
                     p.json.Profile.resourceTemplates.forEach((rt) => {
                         this.rtLookup[rt.id] = rt
+                        console.info("\t ", rt.id)
+                        // lc:RT:NotatedMusicNew:Work (looking for)
+                        // lc:RT:NotatedMusic:Work    (expecting)
                     })
                 }
             })
@@ -9442,84 +9446,84 @@ export const useProfileStore = defineStore('profile', {
                     let structure = this.returnStructureByComponentGuid(component['@guid'])
                     if (structure.propertyLabel != 'Admin Metadata' || structure.adminMetadataType == 'primary') {
                         if (component.valueConstraint.defaults.length > 0) {
-                        // top level component
-                        if (Object.keys(component.userValue).every(k => k.startsWith("@"))) { // it's empty
-                            this.insertDefaultValuesComponent(component['@guid'], structure)
-                            continue
-                        }
+                            // top level component
+                            if (Object.keys(component.userValue).every(k => k.startsWith("@"))) { // it's empty
+                                this.insertDefaultValuesComponent(component['@guid'], structure)
+                                continue
+                            }
                         }
                         //go deeper
                         for (let vRt of component.valueConstraint.valueTemplateRefs) {
                             for (let template of this.rtLookup[vRt].propertyTemplates) {
                                 if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0) {
-                                // for classifiction, we want to make sure we're only working on the currently selected template
-                                if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification') {
-                                    let selection = document.getElementById(structure['@guid'] + '-select')
-                                    let selected
-                                    let target
-                                    if (selection) {
-                                        selected = selection.options[selection.selectedIndex].text
-                                        switch (selected) {
-                                            case 'Dewey Decimal classification':
-                                            target = "lc:RT:bf2:DDC"
-                                            break
-                                            case 'National Library of Medicine classification':
-                                            target = "lc:RT:bf2:NLM"
-                                            break
-                                            case 'Other classification number':
-                                            target = "lc:RT:bf2:OtherClass"
-                                            break
-                                            default:
+                                    // for classifiction, we want to make sure we're only working on the currently selected template
+                                    if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification') {
+                                        let selection = document.getElementById(structure['@guid'] + '-select')
+                                        let selected
+                                        let target
+                                        if (selection) {
+                                            selected = selection.options[selection.selectedIndex].text
+                                            switch (selected) {
+                                                case 'Dewey Decimal classification':
+                                                target = "lc:RT:bf2:DDC"
+                                                break
+                                                case 'National Library of Medicine classification':
+                                                target = "lc:RT:bf2:NLM"
+                                                break
+                                                case 'Other classification number':
+                                                target = "lc:RT:bf2:OtherClass"
+                                                break
+                                                default:
+                                                target = "lc:RT:bf2:LCC"
+                                            }
+                                            if (target == vRt) {
+                                                this.insertDefaultValuesComponent(structure['@guid'], template)
+
+                                            }
+                                        } else if (rt.includes(":Ibc:Work")) { // IBC only has 1 option
+                                            this.insertDefaultValuesComponent(structure['@guid'], template)
+                                        } else { // happening from pref, DOM isn't loaded yet
                                             target = "lc:RT:bf2:LCC"
+                                            if (target == vRt) {
+                                                this.insertDefaultValuesComponent(structure['@guid'], template)
+                                                structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] = "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"
+                                            }
                                         }
-                                        if (target == vRt) {
-                                            this.insertDefaultValuesComponent(structure['@guid'], template)
 
-                                        }
-                                    } else if (rt.includes(":Ibc:Work")) { // IBC only has 1 option
-                                        this.insertDefaultValuesComponent(structure['@guid'], template)
-                                    } else { // happening from pref, DOM isn't loaded yet
-                                        target = "lc:RT:bf2:LCC"
-                                        if (target == vRt) {
-                                            this.insertDefaultValuesComponent(structure['@guid'], template)
-                                            structure.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] = "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"
-                                        }
-                                    }
-
-                                } else if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject') {
-                                    let selection = document.getElementById(structure['@guid'] + '-select')
-                                    let selected
-                                    let target
-                                    if (selection) {
-                                        selected = selection.options[selection.selectedIndex].text
-                                        switch (selected) {
-                                            case 'CYAC subject':
-                                            target = "lc:RT:bf2:Topic:Childrens:Components"
-                                            break
-                                            case 'Geographic subjects':
-                                            target = "lc:RT:bf2:Topic:Place:Components"
-                                            break
-                                            default:
+                                    } else if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject') {
+                                        let selection = document.getElementById(structure['@guid'] + '-select')
+                                        let selected
+                                        let target
+                                        if (selection) {
+                                            selected = selection.options[selection.selectedIndex].text
+                                            switch (selected) {
+                                                case 'CYAC subject':
+                                                target = "lc:RT:bf2:Topic:Childrens:Components"
+                                                break
+                                                case 'Geographic subjects':
+                                                target = "lc:RT:bf2:Topic:Place:Components"
+                                                break
+                                                default:
+                                                target = "lc:RT:bf2:Components"
+                                            }
+                                            if (target == vRt) {
+                                                this.insertDefaultValuesComponent(structure['@guid'], template)
+                                            }
+                                        } else { // loaded from pref, no DOM yet
                                             target = "lc:RT:bf2:Components"
+                                            if (target == vRt) {
+                                                this.insertDefaultValuesComponent(structure['@guid'], template)
+                                            }
                                         }
-                                        if (target == vRt) {
-                                            this.insertDefaultValuesComponent(structure['@guid'], template)
-                                        }
-                                    } else { // loaded from pref, no DOM yet
-                                        target = "lc:RT:bf2:Components"
-                                        if (target == vRt) {
-                                            this.insertDefaultValuesComponent(structure['@guid'], template)
-                                        }
+                                    } else if (vRt != 'lc:RT:bf2:SeriesHub') {
+                                        this.insertDefaultValuesComponent(structure['@guid'], template)
+                                    } else if (template.id == 'id_loc_gov_ontologies_bibframe_relationship__relationship') {
+                                        let propertyPath = [
+                                        {'level': 0, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relation'},
+                                        {'level': 1, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relationship'},
+                                        ]
+                                        this.insertDefaultValuesComponent(structure['@guid'], template, propertyPath)
                                     }
-                                } else if (vRt != 'lc:RT:bf2:SeriesHub') {
-                                    this.insertDefaultValuesComponent(structure['@guid'], template)
-                                } else if (template.id == 'id_loc_gov_ontologies_bibframe_relationship__relationship') {
-                                    let propertyPath = [
-                                    {'level': 0, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relation'},
-                                    {'level': 1, 'propertyURI': 'http://id.loc.gov/ontologies/bibframe/relationship'},
-                                    ]
-                                    this.insertDefaultValuesComponent(structure['@guid'], template, propertyPath)
-                                }
                                 } else if (template.id == 'id_loc_gov_ontologies_bibframe_associatedResource__series_hub'){
                                     // need to go deeper for input transcripbed series status
                                     for (let vRt of template.valueConstraint.valueTemplateRefs) {

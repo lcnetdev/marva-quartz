@@ -1422,7 +1422,11 @@ export default {
           }
 
           // add the defaults
-          this.profileStore.addAllDefaults()
+          try{
+            this.profileStore.addAllDefaults()
+          } catch(err){
+            console.warn("Failed to add defaults: ", err)
+          }
         }
       }
 
