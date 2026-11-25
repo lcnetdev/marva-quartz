@@ -3004,7 +3004,7 @@ const utilsNetwork = {
       }
 
       let combinedEntites = resultsEntities.concat(resultsEntitiesSimpleSupplement).concat(resultsEntitiesComplexSupplement).filter((term) => !term.literal)
-      console.info("combinedEntites: ", combinedEntites.sort((a,b) => a.suggestLabel.localeCompare(b.suggestLabel)) )
+      combinedEntites.sort((a,b) => a.suggestLabel.localeCompare(b.suggestLabel))
 
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
