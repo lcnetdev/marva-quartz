@@ -1421,26 +1421,34 @@ export default {
             }
           }
 		}
-	  } else if (mode == 'ENTITIES'){
-		// change "--" to other "--"	this might be the one -> "‑‑"
-		this.subjectString = this.subjectString.replace("--", "‑‑")
-		//Need to update components too?
-	    this.components[0].label = this.subjectString
-		this.components[0].posEnd = this.subjectString.length
-		this.components[0].literal = null
-		this.components[0].uri = null
-		this.components.splice(1)
-		this.activeComponent = this.components[0]
-		try {
-			this.renderHintBoxes()
-		} catch(err) { }
-      } else {
+    } else if (mode == 'ENTITIES'){
+      // change "--" to other "--"	this might be the one -> "‑‑"
+      this.subjectString = this.subjectString.replace("--", "‑‑")
+      //Need to update components too?
+      this.components[0].label = this.subjectString
+      this.components[0].posEnd = this.subjectString.length
+      this.components[0].literal = null
+      this.components[0].uri = null
+      this.components.splice(1)
+      this.activeComponent = this.components[0]
+      try {
+        this.renderHintBoxes()
+      } catch(err) { }
+    } else {
         // Above we took loose components and combined them,
         // here we undo that incase someone made a mistake and the geo
         // term has a subject in it that needs to be split out.
         let unApproved = []
         let unApprovedIdx = []
         let approved = []
+
+        console.info("components: ", this.components)
+        // if the component is an entity, split it up and try to validate the pieces
+        if (this.components.length == 1 && this.components[0].uri.includes("/entities/")){
+          let labels = this.components[0].label.split("‑‑")
+
+        }
+
         for (let c in this.components) {
           if (this.components[c].uri == null && this.components[c].literal != true) {
             unApproved.push(this.components[c])
@@ -2649,6 +2657,8 @@ export default {
     subjectStringChanged: async function (event) {
       this.subjectString = this.subjectString.replaceAll("—", "--")
       this.validateOkayToAdd()
+
+      console.info("subjectStringChanged: ", this.subjectString)
 
       //fake the "click" so the results panel populates
       if (this.initialLoad == true) {
