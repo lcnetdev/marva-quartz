@@ -1059,16 +1059,12 @@ export default {
      * but there won't be components.
      */
     buildComponents: function (searchString) {
-      console.info("build: ", searchString)
       // searchString = searchString.replace("—", "--") // when copying a heading from class web
 
       let subjectStringSplit = searchString.split('--')
 
       let targetIndex = []
       let componentLookUpCount = Object.keys(this.componetLookup).length
-
-      console.info("componetLookup", JSON.parse(JSON.stringify(this.componetLookup)))
-      console.info("subjectStringSplit: ", subjectStringSplit)
 
       // opening an authority after it was created
       if (componentLookUpCount > 0) { //We might be dealing with something that needs to stitch some terms together
@@ -1085,7 +1081,6 @@ export default {
                 splitTarget = target.split('‑‑')
               }
 
-              console.info("\t target: ", target)
               let matchIndx = []
               if (target) {  // && targetType == 'madsrdf:Geographic'
                 for (let i in subjectStringSplit) {
@@ -1117,7 +1112,6 @@ export default {
       // if the componentlist is as long as the split string, but the indexes aren't continuous, adjust them
       let prev = 0
       if (subjectStringSplit.length == Object.keys(this.componetLookup).length) {
-        console.info("same length")
         for (let idx in this.componetLookup){
           if (idx != prev + 1 && idx != 0){
             this.componetLookup[Number(prev)+1] = this.componetLookup[idx]
@@ -1155,16 +1149,6 @@ export default {
 
         let tempSs = ss.replaceAll("‑", "-")
 
-        console.info("id: ", id)
-        console.info("offset: ", offset)
-        console.info("string: ", ss)
-        try{
-          console.info("\t", this.componetLookup[id + offset])
-          console.info("\t\t", this.componetLookup[id + offset][ss])
-          console.info("\t\t\t", this.componetLookup[id + offset][tempSs])
-        } catch(err){}
-
-
         if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
           literal = this.componetLookup[id + offset][ss].literal
           uri = this.componetLookup[id + offset][ss].uri
@@ -1190,7 +1174,7 @@ export default {
             type = this.componetLookup[id + offset][tempSs].type
           } catch(e) {
             type = null
-            console.info("failed to get type: ", e)
+            console.error("failed to get type: ", e)
           }
         }
         this.components.push({
@@ -1215,8 +1199,6 @@ export default {
 
       //make sure the searchString matches the components
       this.subjectString = this.components.map((component) => component.label).join("--")
-
-      console.info("built: ", this.components)
     },
 
     /**
@@ -1448,11 +1430,9 @@ export default {
       this.subjectString = this.subjectString.replace("--", "‑‑")
       let savedComponents = JSON.parse(JSON.stringify(this.components))
       // do a search for an existing entity?
-      console.info("savedComponents: ", savedComponents)
       let ids = savedComponents.map(comp => {
         if (comp.uri){return comp.uri.split("/").at(-1)}
       })
-      console.info("ids: ", ids)
       let payload = {
         processor: 'lcAuthorities',
         url: ["https://preprod-8080.id.loc.gov/suggest2/?q=" + ids.join("--") + "&memberOf=http://id.loc.gov/entities/subjects/collection_SubjectEntities"],
@@ -1462,7 +1442,6 @@ export default {
       }
       let results = await utilsNetwork.searchComplex(payload)
       results = results.filter(item => !item.literal)
-      console.info("results: ", results)
 
       if (results.length == 1){
         for (var member in this.componetLookup) delete this.componetLookup[member];
@@ -1471,10 +1450,7 @@ export default {
         this.componetLookup[0][this.searchString].type = "madsrdf:" + results[0].extra.rdftypes[0]
         this.componetLookup[0][this.searchString].marcKey = results[0].extra.marcKeys[0]
 
-        console.info("this.componetLookup: ", this.componetLookup)
         this.buildComponents(this.searchString)
-        console.info("components: ", this.components)
-        // this.components[0] = results[0]
       } else {
         //Need to update components too?
         this.components[0].label = this.subjectString
