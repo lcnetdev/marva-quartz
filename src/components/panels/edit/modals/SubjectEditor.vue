@@ -941,6 +941,7 @@ export default {
     newSearch: function (v) {
       this.subjectString = v
       this.subjectStringChanged()
+      console.info("search2?")
       this.searchApis(v, v, this)
     },
 
@@ -1426,6 +1427,7 @@ export default {
           }
 		}
     } else if (mode == 'ENTITIES'){
+      console.info("flip to entities")
       // change "--" to other "--"	this might be the one -> "‑‑"
       this.subjectString = this.subjectString.replace("--", "‑‑")
       let savedComponents = JSON.parse(JSON.stringify(this.components))
@@ -1451,6 +1453,7 @@ export default {
         this.componetLookup[0][this.searchString].marcKey = results[0].extra.marcKeys[0]
 
         this.buildComponents(this.searchString)
+        this.subjectString = this.searchString
       } else {
         //Need to update components too?
         this.components[0].label = this.subjectString
@@ -1462,8 +1465,10 @@ export default {
       }
       try {
         this.renderHintBoxes()
+        this.activeComponent = this.components[0]
       } catch(err) { }
     } else {
+      console.info("flip to ??", mode)
         // Above we took loose components and combined them,
         // here we undo that incase someone made a mistake and the geo
         // term has a subject in it that needs to be split out.
@@ -1566,6 +1571,7 @@ export default {
       }
 
       if (this.activeComponent && this.activeComponent.label) {
+        console.info("search3?")
         this.searchApis(this.activeComponent.label, this.subjectString, this)
       }
 
@@ -1623,6 +1629,7 @@ export default {
 
     // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
     searchApis: debounce(async (searchString, searchStringFull, that) => {
+      console.info("search: ", searchString)
       that.pickCurrent = null //reset the current selection when the search changes
 
       that.searchResults = null
@@ -2688,11 +2695,13 @@ export default {
     },
 
     subjectStringChanged: async function (event) {
+      console.info("stringChanged")
       this.subjectString = this.subjectString.replaceAll("—", "--")
       this.validateOkayToAdd()
 
       //fake the "click" so the results panel populates
       if (this.initialLoad == true) {
+        console.info("initial Load")
         let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
         let lastPiece = pieces.at(-1)
         this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
@@ -3238,6 +3247,7 @@ export default {
         this.linkModeTextChange({ key: 'Enter', shiftKey: false })
 
         //Do the search for build mode
+        console.info("search1?")
         this.searchResults = this.searchApis(this.components[0].label, this.authorityLookupLocal, this)
 
         //Wait for the search results
