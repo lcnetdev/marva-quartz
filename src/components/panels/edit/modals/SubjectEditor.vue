@@ -1468,7 +1468,6 @@ export default {
         this.activeComponent = this.components[0]
       } catch(err) { }
     } else {
-      console.info("flip to ??", mode)
         // Above we took loose components and combined them,
         // here we undo that incase someone made a mistake and the geo
         // term has a subject in it that needs to be split out.
