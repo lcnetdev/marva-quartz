@@ -2565,6 +2565,8 @@ const utilsNetwork = {
       //children's subjects is supported by known-label lookup?
 
       let subjectEntitiesUrl = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['ENTITIES'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=50').replace("<OFFSET>", "1")
+      let subjectEntitiesSimpleSupplementUrl= useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['ENTITIES'].url.replace('<QUERY>', searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1").replace("/entities/", "/authorities/") + '&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
+      let subjectEntitiesComplexSupplementUrl= useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['ENTITIES'].url.replace('<QUERY>', searchVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1").replace("/entities/", "/authorities/") + '&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
 
       if (mode == 'GEO'){
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
@@ -2755,6 +2757,21 @@ const utilsNetwork = {
         signal: this.controllers.controllerEntities.signal,
       }
 
+      let searchPayloadEntitiesSimpleSupplement = {
+        processor: 'lcAuthorities',
+        url: [subjectEntitiesSimpleSupplementUrl],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerHubsKeyword.signal,
+      }
+      let searchPayloadEntitiesComplexSupplement = {
+        processor: 'lcAuthorities',
+        url: [subjectEntitiesComplexSupplementUrl],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsComplex.signal,
+      }
+
 
 
       let resultsNames =[]
@@ -2782,6 +2799,8 @@ const utilsNetwork = {
       let resultsExactSubject = []
 
       let resultsEntities = []
+      let resultsEntitiesSimpleSupplement = []
+      let resultsEntitiesComplexSupplement = []
 
       // this.searchExact(exactPayloadName),
       // this.searchExact(exactPayloadSubject),
@@ -2849,8 +2868,10 @@ const utilsNetwork = {
         ]);
 
       } else if (mode == "ENTITIES"){
-        [resultsEntities] = await Promise.all([
-            this.searchComplex(searchPayloadEntities)
+        [resultsEntities, resultsEntitiesSimpleSupplement, resultsEntitiesComplexSupplement] = await Promise.all([
+            this.searchComplex(searchPayloadEntities),
+            this.searchComplex(searchPayloadEntitiesSimpleSupplement),
+            this.searchComplex(searchPayloadEntitiesComplexSupplement),
         ]);
       }
 
@@ -2889,6 +2910,13 @@ const utilsNetwork = {
       if (resultsEntities.length>0){
         resultsEntities.push(resultsEntities.pop())
       }
+      if (resultsEntitiesSimpleSupplement.length>0){
+        resultsEntitiesSimpleSupplement.push(resultsEntitiesSimpleSupplement.pop())
+      }
+      if (resultsEntitiesComplexSupplement.length>0){
+        resultsEntitiesComplexSupplement.push(resultsEntitiesComplexSupplement.pop())
+      }
+
 
       // resultsSubjectsComplex.reverse()
 
@@ -2975,6 +3003,9 @@ const utilsNetwork = {
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
 
+      let combinedEntites = resultsEntities.concat(resultsEntitiesSimpleSupplement).concat(resultsEntitiesComplexSupplement).filter((term) => !term.literal)
+      combinedEntites.sort((a,b) => a.suggestLabel.localeCompare(b.suggestLabel))
+
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
@@ -2984,7 +3015,7 @@ const utilsNetwork = {
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
         'exact': exact,
-        'entities': resultsEntities,
+        'entities': combinedEntites,
       }
 
       this.subjectSearchActive = false

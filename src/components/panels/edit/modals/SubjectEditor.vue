@@ -941,6 +941,7 @@ export default {
     newSearch: function (v) {
       this.subjectString = v
       this.subjectStringChanged()
+      console.info("search2?")
       this.searchApis(v, v, this)
     },
 
@@ -1147,7 +1148,7 @@ export default {
         let nonLatinLabel = null
         let nonLatinMarcKey = null
 
-        let tempSs = ss.replace("‑", "-")
+        let tempSs = ss.replaceAll("‑", "-")
 
         if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
           literal = this.componetLookup[id + offset][ss].literal
@@ -1170,7 +1171,12 @@ export default {
         try {
           type = this.componetLookup[id + offset][ss].type
         } catch(e){
-          type = null
+          try{
+            type = this.componetLookup[id + offset][tempSs].type
+          } catch(e) {
+            type = null
+            console.error("failed to get type: ", e)
+          }
         }
         this.components.push({
           label: ss,
@@ -1194,7 +1200,6 @@ export default {
 
       //make sure the searchString matches the components
       this.subjectString = this.components.map((component) => component.label).join("--")
-
     },
 
     /**
@@ -1284,7 +1289,7 @@ export default {
       return obj
     },
 
-    searchModeSwitch: function (mode) {
+    searchModeSwitch: async function (mode) {
       this.searchMode = mode
 
       /**
@@ -1421,26 +1426,86 @@ export default {
             }
           }
 		}
-	  } else if (mode == 'ENTITIES'){
-		// change "--" to other "--"	this might be the one -> "‑‑"
-		this.subjectString = this.subjectString.replace("--", "‑‑")
-		//Need to update components too?
-	    this.components[0].label = this.subjectString
-		this.components[0].posEnd = this.subjectString.length
-		this.components[0].literal = null
-		this.components[0].uri = null
-		this.components.splice(1)
-		this.activeComponent = this.components[0]
-		try {
-			this.renderHintBoxes()
-		} catch(err) { }
+    } else if (mode == 'ENTITIES'){
+      console.info("flip to entities")
+      // change "--" to other "--"	this might be the one -> "‑‑"
+      this.subjectString = this.subjectString.replace("--", "‑‑")
+      let savedComponents = JSON.parse(JSON.stringify(this.components))
+      // do a search for an existing entity?
+      let ids = savedComponents.map(comp => {
+        if (comp.uri){return comp.uri.split("/").at(-1)}
+      })
+      let payload = {
+        processor: 'lcAuthorities',
+        url: ["https://preprod-8080.id.loc.gov/suggest2/?q=" + ids.join("--") + "&memberOf=http://id.loc.gov/entities/subjects/collection_SubjectEntities"],
+        searchValue: ids.join("--"),
+        subjectSearch: true,
+        signal: null,
+      }
+      let results = await utilsNetwork.searchComplex(payload)
+      results = results.filter(item => !item.literal)
+
+      if (results.length == 1){
+        for (var member in this.componetLookup) delete this.componetLookup[member];
+        this.componetLookup[0] = {}
+        this.componetLookup[0][this.searchString] = results[0]
+        this.componetLookup[0][this.searchString].type = "madsrdf:" + results[0].extra.rdftypes[0]
+        this.componetLookup[0][this.searchString].marcKey = results[0].extra.marcKeys[0]
+
+        this.buildComponents(this.searchString)
+        this.subjectString = this.searchString
       } else {
+        //Need to update components too?
+        this.components[0].label = this.subjectString
+        this.components[0].posEnd = this.subjectString.length
+        this.components[0].literal = null
+        this.components[0].uri = null
+        this.components.splice(1)
+        this.activeComponent = this.components[0]
+      }
+      try {
+        this.renderHintBoxes()
+        this.activeComponent = this.components[0]
+      } catch(err) { }
+    } else {
         // Above we took loose components and combined them,
         // here we undo that incase someone made a mistake and the geo
         // term has a subject in it that needs to be split out.
         let unApproved = []
         let unApprovedIdx = []
         let approved = []
+
+        // if the component is an entity, split it up and try to validate the pieces
+        if (this.components.length == 1 && this.components[0].uri && this.components[0].uri.includes("/entities/")){
+          this.activeComponent = null
+          let labels = this.components[0].label.split("‑‑")
+          this.searchString = labels.join("--")
+
+          let lccns = this.components[0].uri.split("/").at(-1).split("--")
+
+          for (let idx in labels){
+            let label = labels[idx]
+            this.activeComponentIndex = idx
+
+            let payload = {
+              processor: 'lcAuthorities',
+              url: ["https://preprod-8080.id.loc.gov/suggest2/?q=" + lccns[idx] + "&memberOf=-http://id.loc.gov/entities/subjects/collection_SubjectEntities"],
+              searchValue: lccns[idx],
+              subjectSearch: true,
+              signal: null,
+            }
+            let results = await utilsNetwork.searchComplex(payload)
+            results = results.filter(r => !r.literal)
+
+            this.componetLookup[idx] = {}
+            this.componetLookup[idx][label] = results[0]
+            // set the type at the top for consistency
+            this.componetLookup[idx][label].type = "madsrdf:" + results[0].extra.rdftypes[0]
+
+          }
+          this.buildComponents(this.searchString)
+        }
+
         for (let c in this.components) {
           if (this.components[c].uri == null && this.components[c].literal != true) {
             unApproved.push(this.components[c])
@@ -1505,6 +1570,7 @@ export default {
       }
 
       if (this.activeComponent && this.activeComponent.label) {
+        console.info("search3?")
         this.searchApis(this.activeComponent.label, this.subjectString, this)
       }
 
@@ -1562,6 +1628,7 @@ export default {
 
     // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
     searchApis: debounce(async (searchString, searchStringFull, that) => {
+      console.info("search: ", searchString)
       that.pickCurrent = null //reset the current selection when the search changes
 
       that.searchResults = null
@@ -1616,25 +1683,6 @@ export default {
       } else {
         return
       }
-      // that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, that.searchMode)
-
-      // if they clicked around while it was doing this lookup bail out
-      // if (that.activeSearchInterrupted){
-
-
-
-      //   window.clearInterval(ti)
-      //   window.clearTimeout(tiBackup)
-      //   that.activeSearch = false
-      //   that.activeSearchInterrupted = false
-
-      //   console.log("that.activeSearchInterrupted",that.activeSearchInterrupted)
-
-      //   return false
-
-      // }
-
-
 
       // replace the true keyboard hypen with the werid hypen to prevent spliting on open lifedates
       for (let s of that.searchResults.names) {
@@ -1642,16 +1690,15 @@ export default {
         s.label = s.label.replaceAll('-', '‑')
       }
 
-
       for (let s of that.searchResults.subjectsComplex) {
         s.labelOrginal = s.label
         s.complex = true
         s.label = s.label.replaceAll('-', '‑')
       }
 
-	  for (let s of that.searchResults.entities){
-		s.entity = true
-	  }
+      for (let s of that.searchResults.entities){
+        s.entity = true
+      }
 
       for (let s of that.searchResults.subjectsSimple) {
         if (s.suggestLabel && s.suggestLabel.includes('(DEPRECATED')) {
@@ -2647,11 +2694,13 @@ export default {
     },
 
     subjectStringChanged: async function (event) {
+      console.info("stringChanged")
       this.subjectString = this.subjectString.replaceAll("—", "--")
       this.validateOkayToAdd()
 
       //fake the "click" so the results panel populates
       if (this.initialLoad == true) {
+        console.info("initial Load")
         let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
         let lastPiece = pieces.at(-1)
         this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
@@ -2731,7 +2780,6 @@ export default {
       }
 
       this.validateOkayToAdd()
-
     },
 
     /**
@@ -3049,7 +3097,6 @@ export default {
         }
       }
 
-      console.info("add: ", this.components)
       this.$emit('subjectAdded', this.components)
     },
 
@@ -3199,6 +3246,7 @@ export default {
         this.linkModeTextChange({ key: 'Enter', shiftKey: false })
 
         //Do the search for build mode
+        console.info("search1?")
         this.searchResults = this.searchApis(this.components[0].label, this.authorityLookupLocal, this)
 
         //Wait for the search results

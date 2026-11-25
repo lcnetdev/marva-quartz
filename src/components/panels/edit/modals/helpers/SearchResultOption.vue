@@ -29,6 +29,9 @@
                 <span v-if="value.count && value.count > 0" class="usage-count">
                     {{ buildCount(value) }}
                 </span>
+                <span v-if="value.entity" class="usage-count">
+                    {{ buildCount(value) }}
+                </span>
             </span>
             <div class="may-sub-container" style="display: inline;">
                 <AuthTypeIcon
@@ -155,6 +158,16 @@ export default {
             if (subject.count) {
                 return "[" + subject.count + "]"
             }
+
+            if (subject.entity && subject.extra.sources){
+                let sources = subject.extra.sources
+                for (let source of sources){
+                    if (source.includes('Approximate usage')){
+                        return "[" + source.replace("found : Approximate usage: ", "") + "]"
+                    }
+                }
+            }
+
             return ""
 
         },
